@@ -1,0 +1,332 @@
+{
+ "_aviso": "Ejemplo fijo para maquetar. Todos los números son inventados: no se muestran en el demo ni en el pitch.",
+ "caso": "rotacion",
+ "n_analisis": 1000,
+ "tiempo_ms": 1840,
+ "precalculado": false,
+ "_nota": "El ejemplo trae 40 filas de 1.000 para no pesar; el servicio real devuelve todas.",
+ "filas": [
+  {
+   "cliente": "Empresa 007",
+   "n_unidades": 309,
+   "costo_de_no_saber": 13163,
+   "por_unidad": 42.6,
+   "en_duda": 46,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 036",
+   "n_unidades": 308,
+   "costo_de_no_saber": 12659,
+   "por_unidad": 41.1,
+   "en_duda": 77,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 017",
+   "n_unidades": 322,
+   "costo_de_no_saber": 12011,
+   "por_unidad": 37.3,
+   "en_duda": 21,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 015",
+   "n_unidades": 334,
+   "costo_de_no_saber": 11824,
+   "por_unidad": 35.4,
+   "en_duda": 38,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 037",
+   "n_unidades": 337,
+   "costo_de_no_saber": 11761,
+   "por_unidad": 34.9,
+   "en_duda": 81,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 027",
+   "n_unidades": 330,
+   "costo_de_no_saber": 11319,
+   "por_unidad": 34.3,
+   "en_duda": 63,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 002",
+   "n_unidades": 252,
+   "costo_de_no_saber": 10609,
+   "por_unidad": 42.1,
+   "en_duda": 52,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 025",
+   "n_unidades": 344,
+   "costo_de_no_saber": 10182,
+   "por_unidad": 29.6,
+   "en_duda": 65,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 020",
+   "n_unidades": 233,
+   "costo_de_no_saber": 9436,
+   "por_unidad": 40.5,
+   "en_duda": 42,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 011",
+   "n_unidades": 275,
+   "costo_de_no_saber": 9350,
+   "por_unidad": 34.0,
+   "en_duda": 80,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 031",
+   "n_unidades": 237,
+   "costo_de_no_saber": 9338,
+   "por_unidad": 39.4,
+   "en_duda": 43,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 024",
+   "n_unidades": 365,
+   "costo_de_no_saber": 9198,
+   "por_unidad": 25.2,
+   "en_duda": 73,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 022",
+   "n_unidades": 350,
+   "costo_de_no_saber": 8680,
+   "por_unidad": 24.8,
+   "en_duda": 63,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 008",
+   "n_unidades": 108,
+   "costo_de_no_saber": 8122,
+   "por_unidad": 75.2,
+   "en_duda": 25,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 012",
+   "n_unidades": 278,
+   "costo_de_no_saber": 8090,
+   "por_unidad": 29.1,
+   "en_duda": 72,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 034",
+   "n_unidades": 235,
+   "costo_de_no_saber": 7708,
+   "por_unidad": 32.8,
+   "en_duda": 47,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 033",
+   "n_unidades": 157,
+   "costo_de_no_saber": 7332,
+   "por_unidad": 46.7,
+   "en_duda": 24,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 019",
+   "n_unidades": 256,
+   "costo_de_no_saber": 7245,
+   "por_unidad": 28.3,
+   "en_duda": 57,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 018",
+   "n_unidades": 261,
+   "costo_de_no_saber": 6995,
+   "por_unidad": 26.8,
+   "en_duda": 30,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 032",
+   "n_unidades": 324,
+   "costo_de_no_saber": 6836,
+   "por_unidad": 21.1,
+   "en_duda": 32,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 023",
+   "n_unidades": 266,
+   "costo_de_no_saber": 6730,
+   "por_unidad": 25.3,
+   "en_duda": 34,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 028",
+   "n_unidades": 75,
+   "costo_de_no_saber": 6562,
+   "por_unidad": 87.5,
+   "en_duda": 4,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 026",
+   "n_unidades": 114,
+   "costo_de_no_saber": 6384,
+   "por_unidad": 56.0,
+   "en_duda": 9,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 013",
+   "n_unidades": 75,
+   "costo_de_no_saber": 6255,
+   "por_unidad": 83.4,
+   "en_duda": 21,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 021",
+   "n_unidades": 198,
+   "costo_de_no_saber": 6079,
+   "por_unidad": 30.7,
+   "en_duda": 24,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 004",
+   "n_unidades": 235,
+   "costo_de_no_saber": 5828,
+   "por_unidad": 24.8,
+   "en_duda": 13,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 035",
+   "n_unidades": 165,
+   "costo_de_no_saber": 5692,
+   "por_unidad": 34.5,
+   "en_duda": 10,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 016",
+   "n_unidades": 264,
+   "costo_de_no_saber": 5650,
+   "por_unidad": 21.4,
+   "en_duda": 33,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 029",
+   "n_unidades": 67,
+   "costo_de_no_saber": 5594,
+   "por_unidad": 83.5,
+   "en_duda": 7,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 006",
+   "n_unidades": 163,
+   "costo_de_no_saber": 5558,
+   "por_unidad": 34.1,
+   "en_duda": 48,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 030",
+   "n_unidades": 264,
+   "costo_de_no_saber": 5412,
+   "por_unidad": 20.5,
+   "en_duda": 21,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 014",
+   "n_unidades": 115,
+   "costo_de_no_saber": 4934,
+   "por_unidad": 42.9,
+   "en_duda": 27,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 040",
+   "n_unidades": 65,
+   "costo_de_no_saber": 4797,
+   "por_unidad": 73.8,
+   "en_duda": 3,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 009",
+   "n_unidades": 174,
+   "costo_de_no_saber": 4733,
+   "por_unidad": 27.2,
+   "en_duda": 41,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 005",
+   "n_unidades": 152,
+   "costo_de_no_saber": 4636,
+   "por_unidad": 30.5,
+   "en_duda": 21,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 010",
+   "n_unidades": 164,
+   "costo_de_no_saber": 4444,
+   "por_unidad": 27.1,
+   "en_duda": 36,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 003",
+   "n_unidades": 153,
+   "costo_de_no_saber": 4299,
+   "por_unidad": 28.1,
+   "en_duda": 43,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 001",
+   "n_unidades": 88,
+   "costo_de_no_saber": 2411,
+   "por_unidad": 27.4,
+   "en_duda": 18,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 039",
+   "n_unidades": 83,
+   "costo_de_no_saber": 2133,
+   "por_unidad": 25.7,
+   "en_duda": 10,
+   "estado": "verde"
+  },
+  {
+   "cliente": "Empresa 038",
+   "n_unidades": 35,
+   "costo_de_no_saber": 2072,
+   "por_unidad": 59.2,
+   "en_duda": 7,
+   "estado": "verde"
+  }
+ ],
+ "sintetico": true,
+ "origen_datos": "1.000 empresas simuladas, cada una distinta"
+}
