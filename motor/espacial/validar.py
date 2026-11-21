@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -70,11 +71,17 @@ def sbc(red, n_terrenos: int, muestras: int = 99, semilla: int = 12345) -> dict:
 
     todos = torch.ones(n_terrenos, dtype=torch.bool)
     grupos = {"todos": todos, "n_menor_100": lote["n"] < 100, "n_100_o_mas": lote["n"] >= 100,
-              "con_tendencia": lote["tiene_tendencia"] == 1, "sin_tendencia": lote["tiene_tendencia"] == 0}
+              "con_tendencia": lote["tiene_tendencia"] == 1, "sin_tendencia": lote["tiene_tendencia"] == 0,
+              "muy pocas mediciones (menos de 60)": lote["n"] < 60,
+              "mucho ruido (más que la variación del campo)": verdad[:, 4] > verdad[:, 3],
+              "alcance largo (más de 9 bloques)": verdad[:, 0] > math.log(9.0)}
     mapa = {nombre: resumen_mapa(filas) for nombre, filas in grupos.items() if filas.any()}
+    theta_por_grupo = {nombre: {"terrenos": int(filas.sum()), "cobertura_90": round(float(dentro[filas].mean()), 3)}
+                       for nombre, filas in grupos.items() if filas.sum() >= 20}
     # Referencia sin red: predecir en todas partes la media de lo medido (0) con desviación 1.
     mapa["referencia_recm_sin_red"] = round(float((lote["campo"][sin_medir] ** 2).mean().sqrt()), 3)
     return {"terrenos": n_terrenos, "muestras_por_terreno": muestras, "theta": por_parametro, "mapa": mapa,
+            "theta_por_grupo": theta_por_grupo,
             "cobertura_90_theta_media": round(float(dentro.mean()), 3)}
 
 

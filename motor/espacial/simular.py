@@ -174,7 +174,7 @@ def simular(lote: int, prior: Prior, gen: torch.Generator, dispositivo: torch.de
       canales  (lote, 3, LADO, LADO)  valor estandarizado, marca de medición, √dist
       campo    (lote, LADO, LADO)     y(s) verdadero, estandarizado igual que los datos (blanco de la cabeza de mapa)
       theta    (lote, 7)              θ' en unidades estandarizadas (blanco de la cabeza de flujo)
-      theta_original, media, escala, n, tiene_tendencia: para validar por grupos.
+      theta_original, media, escala, n, tiene_tendencia, cuenta: para validar por grupos y para el MCMC de referencia.
     Con `con_tendencia=False` ningún terreno tiene tendencia (la red de dos canales del salvavidas).
     """
     theta = muestrear_prior(lote, prior, gen)
@@ -207,5 +207,5 @@ def simular(lote: int, prior: Prior, gen: torch.Generator, dispositivo: torch.de
         "campo": (campo - media) / escala,
         "theta": theta_est,
         "theta_original": theta, "media": media[:, 0, 0], "escala": esc,
-        "n": marca.sum((-2, -1)), "tiene_tendencia": tiene,
+        "n": marca.sum((-2, -1)), "tiene_tendencia": tiene, "cuenta": cuenta,
     }

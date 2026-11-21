@@ -134,7 +134,7 @@ def main() -> None:
         from motor.espacial.simular import simular
         lote = simular(a.simulados, Prior(), torch.Generator().manual_seed(2026))
         for i in range(a.simulados):
-            r = correr(lote["canales"][i].numpy(), muestras=a.muestras, cadenas=a.cadenas, semilla=i)
+            r = correr(lote["canales"][i].numpy(), lote["cuenta"][i].numpy(), muestras=a.muestras, cadenas=a.cadenas, semilla=i)
             ruta = guardar(f"simulado_{i:02d}", r, canales=lote["canales"][i].numpy(), theta_verdadero=lote["theta"][i].numpy())
             print(json.dumps({"clave": f"simulado_{i:02d}", "ruta": str(ruta), "segundos": round(r["segundos"], 1),
                               "r_hat_max": round(float(r["r_hat"].max()), 3), "n_eff_min": round(float(r["n_eff"].min()))}))
