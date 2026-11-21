@@ -19,12 +19,14 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 04:45 · **S-N1, inasistencias** (adelantado, D-29): `datos/preparar/inasistencias.py` deja `datos/demo/inasistencias.csv` (1.980 citas, 1.147 pacientes, 30 barrios con 66 citas cada uno, 38% de pacientes con 2 o más citas, 396 por decidir) e `inasistencias_verdad.csv`. Los dos en `.gitignore` (licencia no comercial). Sale idéntico en dos corridas (md5). Columnas verificadas contra `casos/inasistencias.yaml` (parte de S-07; falta ver la tarjeta respondiendo, cuando exista `jerarquico`).
 - sáb 04:45 · **S-08, archivo malo**: `datos/preparar/rotacion_malo.py` deja `datos/demo/rotacion_malo.csv` (1.470 filas, 36 columnas): `fecha_salida` tiene fecha solo para las 237 que renunciaron, incluidas 54 de las 294 por decidir. Comando: `python3 datos/preparar/rotacion_malo.py`.
 - sáb 04:46 · **S-N3**: borradores `pitch/README_borrador.md` (técnico, con los nombres precisos) y `pitch/descripcion_borrador.md`. No tocan el `README.md` de la organización. Los lee una persona en la mañana.
+- sáb 04:49 · **S-N2**: lo que dice hoy cada fuente, en `pitch/CIFRAS.md`, sección «Revisión de fuentes». Sin firmar «Verificó». Para una persona: C-02 (el 96% no está en el INE: es 91,8%), P-01 (hoy solo se verifica «+6.000») y N-01 (fechas solo en la biografía; la Marina no adoptó las tablas entonces). Ninguna de las tres está hoy en el guion.
+- sáb 04:51 · **S-11, textos de pantalla v1** (adelantado): `casos/textos.yaml`, las plantillas del contrato (sección 5) para titulares, `en_palabras`, motivos del semáforo, examen, sello, «¿Dónde mido?», nube, cartera y deslizadores. Falta la parte de S-11 que exige a una persona: el guion v1 en voz alta y cronometrado.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 ## En curso
 
 - sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».
-- sáb 04:47 · S-N2: un agente abre las fuentes de `pitch/CIFRAS.md` y anota lo que dicen hoy. No firma «Verificó».
+- sáb 04:52 · Siguiente: S-N4 (rondas de lectura a las 06:15, 07:15 y 08:15, programadas en esta sesión). Después, S-12 (texto de portada y cierre) si hay tiempo.
 
 ## Entrenamiento en curso
 
@@ -59,6 +61,7 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 - sáb 03:28 · A PC 2: crédito también está en `main` (`datos/demo/credito.csv`). La respuesta `default` es 0 o 1, y vacía en las 400 por decidir.
 - sáb 04:47 · A PC 2: `datos/demo/rotacion_malo.csv` está en `main`. `fecha_salida` es texto (AAAA-MM-DD) o vacío: lo que delata la respuesta es si está o no, así que el eje «mejor factor por sí solo» de la nube tiene que tratar el vacío como un valor.
 - sáb 04:47 · A PC 2: inasistencias no está en el repositorio (licencia no comercial). Si lo necesitas en PC 2 para el predictivo a priori de `jerarquico`, el encabezado de `datos/preparar/inasistencias.py` trae el `curl` y el SHA-256; sale idéntico. En PC 3 ya está, para entrenar y validar `jerarquico` aquí.
+- sáb 04:51 · A PC 2: las plantillas de texto están en `casos/textos.yaml` (contrato, sección 5: las escribe `seguimiento`). `nucleo/api.py` arma hoy el titular con un f-string; que lea la plantilla de ahí. El titular de verde dice lo mismo que el tuyo.
 - sáb 04:36 · A PC 2 (respuesta a tu pedido de las 04:00): `supervivencia` corre en PC 3 desde las 04:05 y termina sola a las 08:30. A las 08:30 PC 3 exporta y sube (paso 7).
 
 ## Rondas

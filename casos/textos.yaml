@@ -1,0 +1,120 @@
+# Textos de pantalla v1 (S-11, adelantado por D-29). Dueño: seguimiento.
+# Son las plantillas de `contratos/CONTRATO.md`, sección 5: `nucleo/` las llena con los números del JSON del motor.
+# Ningún texto de industria va en el código: lo propio de cada caso (unidad, rótulos, costos) sale de casos/<nombre>.yaml.
+# Sin jerga (GLOSARIO.md). Los colores son decisiones, no pronósticos: nunca «se va», siempre «conviene retener».
+#
+# Variables (formato de Python, str.format):
+#   {n_actuar} {n_no_actuar} {n_en_duda} {n_unidades}   conteos por color y total de unidades por decidir
+#   {unidad_singular} {unidad_plural}                    de casos/<nombre>.yaml → unidad
+#   {actuar} {no_actuar} {en_duda}                       de rotulos, tal cual (con mayúscula inicial)
+#   {actuar_min} {en_duda_min}                           los mismos, con minúscula inicial
+#   {costo_de_no_saber}                                  el total, ya escrito con `formato_plata` (abajo)
+#   {factor} {factor_min}                                etiqueta de un factor de `factores`, con y sin mayúscula inicial
+#   {columna}                                            nombre de una columna del archivo, tal cual
+#   {n} {k} {dijimos} {paso} {segundos} {millones}       números del examen, del sello o de «¿Dónde mido?» (porcentajes ya multiplicados por 100)
+# Si una frase necesita un número que no existe en el JSON, la frase no se muestra. Nunca se inventa el número.
+
+formato_plata:
+  # Cómo se escribe la plata en titulares y frases (el número grande usa la cifra completa: «US$ 7.420»).
+  menos_de_mil: "US$ {valor}"                  # US$ 850
+  miles: "cerca de {miles} mil dólares"        # 7.420 → cerca de 7 mil dólares
+  millones: "cerca de {millones} millones de dólares"   # 2.656.390 → cerca de 2,7 millones de dólares (un decimal, coma)
+  cero: "nada"
+
+titular:
+  verde_o_amarillo:
+    con_duda: "{n_en_duda} {unidad_plural} están en duda. No saber te cuesta {costo_de_no_saber}."
+    una_en_duda: "1 {unidad_singular} está en duda. No saber te cuesta {costo_de_no_saber}."
+    sin_duda: "Ninguna duda que valga plata: con estos costos, la decisión está clara en todas las {unidad_plural}."
+  rojo_datos: "No respondo todavía: con estos datos no alcanza."
+  rojo_modelo:
+    columna_delata: "No respondo todavía: una columna delata la respuesta."
+    no_se_parece: "No respondo todavía: este archivo no se parece a nada que haya visto."
+
+en_palabras:
+  # Hasta tres frases, en este orden, solo las que apliquen.
+  hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y saber más no cambiaría la decisión."
+  hay_en_duda: "En {n_en_duda} {unidad_plural} los datos no alcanzan para decidir: {en_duda_min}."
+  factor_seguro: "Lo que más pesa es {factor_min}."
+  factor_no_se_sabe: "{factor}: con estos datos no se puede saber si sube o baja el riesgo."
+  # Terreno (motor espacial): reemplazan a las anteriores.
+  espacial:
+    hay_actuar: "Hay {n_actuar} bloques que hay que limpiar con seguridad."
+    hay_no_actuar: "En {n_no_actuar} bloques no hace falta limpiar."
+    hay_en_duda: "En {n_en_duda} bloques no se sabe: ahí conviene medir antes de gastar."
+    manda: "En este terreno manda {factor_min}."
+
+semaforo:
+  amarillo:
+    pocos_por_grupo: "Respondo, con un aviso: hay grupos con muy pocas {unidad_plural} y ahí el rango es ancho."
+    cerca_del_borde: "Respondo, con un aviso: el archivo se parece a lo que practiqué, pero está cerca del borde."
+  rojo_datos:
+    pocas_filas: "Hay {n} {unidad_plural} con respuesta. Necesito al menos 200 para responder."
+    casi_ningun_si: "Solo {k} de {n} {unidad_plural} tienen un «sí». Con tan pocos casos no se puede separar el riesgo."
+  rojo_modelo:
+    columna_delata: "La columna «{columna}» adivina sola la respuesta: solo tiene dato cuando la respuesta ya se sabe. Con ella cualquier análisis parece perfecto y no sirve para decidir."
+    no_se_parece: "Este archivo no se parece a ninguna de las simulaciones con que practiqué. Prefiero no responder antes que responder mal."
+  propuesta:
+    quitar_columna: "Propongo sacar la columna «{columna}» y responder con las demás."
+    boton: "Sacarla y responder"
+  despues_de_corregir: "Sin esa columna, el archivo cae dentro de lo que practiqué. Ahora sí respondo."
+
+examen:
+  # La frase la arma el servicio con `tramos` (CONTRATO.md 3): nunca a mano.
+  tabla: "De las {unidad_plural} a las que les dimos cerca de {dijimos}% de riesgo, {paso_verbo} el {paso}%."
+  verbo_por_caso: { rotacion: "se fue", inasistencias: "no llegó", credito: "no pagó" }
+  espacial: "Escondimos {n} mediciones reales y las adivinamos: {k} cayeron dentro del rango que dimos."
+  sin_medir: "Exactitud en medición."
+
+sello:
+  practico: "Practicó con {millones} millones de {casos_simulados} simulados."
+  casos_simulados_por_motor: { supervivencia: "empresas", jerarquico: "carteras de pacientes", estados: "carteras de clientes", espacial: "terrenos" }
+  cobertura: "Cuando da un rango de 90%, acierta {cobertura}%."
+  peor_grupo: "En el caso más difícil ({peor_grupo}) acierta {cobertura_peor}%."
+  contra_lento: "Da lo mismo que el método lento de siempre, que tarda {minutos_lento} minutos; Krylov tarda {ms} milisegundos."
+  red: "Respondió la red que practicó con casos simulados."
+  precalculado: "Precalculado con el método lento de siempre: tardó {minutos_lento} minutos."
+
+precalculado:
+  rotulo: "precalculado"
+  explicacion: "Esta respuesta la calculamos antes con el método lento de siempre. Los deslizadores sí funcionan en vivo."
+
+deslizadores:
+  # Pregunta sobre cada deslizador; la etiqueta de cada costo sale del YAML del caso.
+  titulo: "Cambia los costos: la respuesta cambia en vivo."
+  supuesto: "Son supuestos nuestros. Pon los tuyos."
+  punto_de_corte: "Con estos costos, conviene actuar desde {punto_de_corte}% de riesgo."
+
+que_pesa:
+  titulo: "Qué pesa"
+  certeza: { seguro: "Seguro", probable: "Probable", no_se_sabe: "No se puede saber con estos datos" }
+  direccion: { sube: "sube el riesgo", baja: "baja el riesgo" }
+  titulo_espacial: "Qué manda en el terreno"
+  factores_espacial: { rio: "la cercanía al río", vecinos: "los bloques vecinos", medicion: "el error de medición" }
+
+donde_medir:
+  boton: "¿Dónde mido?"
+  calculando: "Imaginando resultados posibles y rehaciendo el análisis…"
+  hecho: "Imaginé {n_resultados} resultados posibles en {n_lugares} lugares y rehíce el análisis {n_analisis} veces, en {segundos} segundos."
+  pin: "Medir aquí vale {valor}."
+  simular: { pregunta: "¿Qué sale si mides aquí?", alto: "Sale alto", bajo: "Sale bajo" }
+  despues: "Con esa medición, lo que te cuesta no saber baja a {costo_de_no_saber}."
+
+nube:
+  titulo: "Las simulaciones con que practicó Krylov"
+  ejes: { x: "Qué tan bien adivina la respuesta el mejor factor, solo", y: "Proporción de «sí»" }
+  leyenda_puntos: "Cada punto es un caso simulado"
+  leyenda_archivo: "Tu archivo"
+  dentro: "Tu archivo cae dentro de lo que Krylov practicó."
+  fuera: "Tu archivo cae fuera de todo lo que Krylov practicó."
+
+cartera:
+  titulo: "Todos a la vez"
+  titular: "{n_empresas} empresas analizadas en {segundos} segundos, ordenadas por lo que les cuesta no saber."
+  precalculadas: "{n_empresas} empresas precalculadas, ordenadas por lo que les cuesta no saber."
+  origen: "Empresas simuladas, cada una distinta."
+
+pie:
+  datos_publicos: "Datos públicos de ejemplo"
+  sponsor: "{empresa_o_industria} · datos públicos de ejemplo"
+  estatico: "Modo estático"
