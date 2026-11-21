@@ -184,13 +184,13 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Simulador: `motor/sismico/simular.py`, por ramificación; la forma cerrada de lo que se decide coincide con 20.000 simulaciones hacia adelante
 - [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/sismico/prueba_sismico.py`)
 - [x] Red: el andamio de series, sin entrenar; exporta y responde `analizar("sismicidad")` con la forma del contrato
-- [ ] Prueba de humo
-- [ ] Entrenamiento
-- [ ] SBC global
-- [ ] SBC por unidad
-- [ ] Cobertura de lo que se decide, por tamaño
-- [ ] Examen con la verdad escondida
-- [ ] Exportación y app
+- [x] Prueba de humo: 104.192 datasets en 3 min (GPU del Mac, lote 64); la pérdida bajó de 4,55 a 2,30; el SBC de 200 corre
+- [x] Entrenamiento: 3.723.712 datasets simulados en 120 min, en PC 3 (GPU del Mac, lote 64)
+- [x] SBC global: pasa; cobertura del 90% de los parámetros, 0,898 (2.000 datasets nuevos)
+- [x] SBC por unidad: pasa (D-39); tamaño de la desviación 0,043 y 0,023, límite 0,1; cobertura del 90%, 0,901
+- [x] Cobertura de lo que se decide, por tamaño: 0,895; peor tramo 0,891 (archivos de 2 a 3 sectores)
+- [x] Examen con la verdad escondida: a los 8 sectores les dio cerca de 6% de riesgo y 2 tuvieron un temblor fuerte (25%). Con 8 sectores no aprueba ni reprueba (D-39); se dice tal cual. Datos simulados
+- [ ] Exportación y app: exportada a `motor/artefactos/sismico/` (un análisis en 48 ms); falta que PC 1 la active con `KRYLOV_MOTOR_SISMICO=red`
 - [ ] Método lento
 
-**Falta ahora:** su prueba de humo de 3 minutos (en PC 3, en la ventana de las 16:10) y lanzarlo ahí en la ronda 2 (A-31).
+**Falta ahora:** que PC 1 active la tarjeta (`KRYLOV_MOTOR_SISMICO=red`) y la exporte; `ventana: 6` en el caso sigue pendiente de PC 2; el método lento, al final (A-36).

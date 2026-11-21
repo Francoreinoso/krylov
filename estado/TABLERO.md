@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 17:40 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 18:18 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
 
@@ -18,7 +18,7 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 | taludes | deformacion | listo | listo | listo | listo | en curso | pendiente | red |
 | flotacion | cinetica | listo | listo | listo | listo | listo | pendiente | red |
 | flota | desgaste | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
-| sismicidad | sismico | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
+| sismicidad | sismico | listo | listo | listo | listo | pendiente | pendiente | red |
 
 Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus pruebas pasan (`pytest motor/cinetica motor/desgaste motor/sismico motor/deformacion`); `leyes` responde verde con la red y ya tiene su examen por color (A-22; M-54: de 147 bloques «conviene apartar», 138 estaban sobre el límite). Las cuatro tarjetas nuevas responden `no_disponible` hasta que su red valide, y la web pinta su ejemplo.
 
@@ -28,7 +28,7 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 |---|---|---|
 | producto (PC 1) | 🟡 al cierre | P-21 a P-26 hechas entre 16:40 y 17:32; `flotacion` responde con su red. Falta activar `taludes` con la red y el despliegue |
 | amortizacion (PC 2) | 🟢 | `cinetica` PASA (43,2 millones de plantas). `desgaste` entrenando. D-39 escrita |
-| seguimiento (PC 3) | 🟢 entrenando | `deformacion` PASA (17:36, red de las 16:10: 1.684.160 muros; el retome se descartó porque quedó peor). `sismico` entrena solo hasta las 18:15 |
+| seguimiento (PC 3) | 🟢 | `sismico` PASA (18:15; 3.723.712 datasets) y `deformacion` PASA (17:36). Nada entrenando. Batería del Mac en 8% |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
