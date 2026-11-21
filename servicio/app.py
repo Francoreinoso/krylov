@@ -135,6 +135,13 @@ async def analizar_archivo(archivo: UploadFile = File(...), motor_id: str = Form
                                         _json_de_formulario(columnas, "columnas") or {}, _json_de_formulario(costos, "costos"))
     if "error" in respuesta:
         return JSONResponse(status_code=400, content=respuesta)
+    try:                  # una columna en otra escala saca a la red de lo que conoce y deja NaN: se avisa, no se cae
+        json.dumps(respuesta, allow_nan=False)
+    except ValueError:
+        return JSONResponse(status_code=400, content={
+            "error": "Los números del archivo no se parecen a nada que el motor conozca. Revisa la escala de cada "
+                     "columna: si el valor viene en otra unidad, conviene transformarlo antes de responder.",
+            "codigo": "rojo_modelo"})
     return respuesta
 
 
