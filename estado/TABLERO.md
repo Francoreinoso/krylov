@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 04:38 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 04:45 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
 
@@ -10,7 +10,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟢 al día | P-01 y P-02 verificados. P-03 en curso, sin commit desde las 03:59 (vence 05:00) |
+| producto (PC 1) | 🟢 adelantado | P-01, P-02 y P-03 verificados en PC 3 (P-03 a las 04:44: lista de más a menos riesgo con el punto de corte, «qué pesa», tarjetas en el orden de `casos/INICIO`) |
 | amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B4 en `main`. `espacial` entrena en PC 2 desde las 03:50 |
 | seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05 hechas. `supervivencia` entrena en PC 3 desde las 04:05: 1,58 millones de datasets y punto de guardado a las 04:35 |
 
@@ -22,7 +22,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 ## Siguiente tarea de cada uno
 
-- **PC 1 · producto:** terminar P-03 y empujar (un commit por hora como mínimo). Antes de dormir, lista nocturna (P-N1, P-N2) en `estado/producto.md`. Ojo: el orden de las tarjetas lo manda `casos/INICIO`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
+- **PC 1 · producto:** P-03 hecho. Antes de dormir, lista nocturna (P-N1, P-N2) en `estado/producto.md`. Ojo: P-03 agregó `@fontsource-variable/archivo`; quien tenga la web abierta hace `npm ci` y reinicia `npm run dev`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
 - **PC 2 · amortizacion:** adelanta en orden (D-29). Sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N1 y A-N3. Sesión B: A-N2. Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
 - **PC 3 · seguimiento:** nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. El agente: solo la lista nocturna (S-N1 a S-N4, en `estado/seguimiento.md`). 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
 
