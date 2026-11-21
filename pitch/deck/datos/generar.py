@@ -240,6 +240,48 @@ def serie(nombre: str) -> dict:
     }
 
 
+def examen_de_puntos(nombre: str) -> dict:
+    """El examen que Krylov se toma con el archivo (nucleo/espacial._examen), guardando lo que dijo de cada muestra
+    escondida: su estimación, el rango de 90% y el valor verdadero. Es lo que dibuja la lámina «¿Cómo sé que acierta?»."""
+    caso = casos.cargar_caso(nombre)
+    T = espacial.leer_terreno(caso, (), False)
+    n = len(T["x"])
+    esc = np.sort(np.random.default_rng(0).choice(n, size=max(1, round(0.2 * n)), replace=False))
+    vis = np.setdiff1d(np.arange(n), esc)
+    valor_t = espacial.transformar_valor(T["valor"], T["transformacion"])
+    suma, cuenta = espacial.acumular_por_bloque(T["fila"][vis], T["columna"][vis], valor_t[vis])
+    canales, media, escala = espacial.canales_de(suma, cuenta, T["raiz_dist"])
+    r = espacial.inferir(canales[None], cuenta[None], "red", espacial._clave(caso, False))
+    theta = r["theta"].reshape(-1, len(espacial.NOMBRES_THETA))
+    f, c = T["fila"][esc], T["columna"][esc]
+    desv = np.sqrt(r["desviacion"][0][f, c] ** 2 + np.exp(2 * theta[:, 4]).mean())
+    m = r["media"][0][f, c]
+    assert T["transformacion"] == "log"
+    a_unidades = lambda z: np.exp(z * float(escala) + float(media))  # noqa: E731
+    est, bajo, alto, verdad = a_unidades(m), a_unidades(m - Z90 * desv), a_unidades(m + Z90 * desv), T["valor"][esc]
+    return {"n": int(len(esc)), "dentro": int(((verdad >= bajo) & (verdad <= alto)).sum()), "limite": float(T["umbral"]),
+            "unidad": T["unidad_valor"], "puntos": [[round(float(e), 1), round(float(b), 1), round(float(h), 1), float(v)]
+                                                    for e, b, h, v in zip(est, bajo, alto, verdad)]}
+
+
+def archivo_de(nombre: str, filas: int = 5) -> dict:
+    """Cómo es el archivo que recibe un caso: sus primeras filas tal cual y qué columna cumple cada papel."""
+    caso = casos.cargar_caso(nombre)
+    with open(RAIZ / caso["dataset"]) as g:
+        lector = csv.reader(g)
+        cabecera = next(lector)
+        todas = list(lector)
+    col = caso["columnas"]
+    papeles = {col[k]: k for k in ("x", "y", "valor", "unidad", "tiempo") if k in col}
+    return {"archivo": caso["dataset"].split("/")[-1], "cabecera": cabecera, "filas": todas[:filas], "n": len(todas), "papeles": papeles}
+
+
+def prueba_llm() -> dict | None:
+    """La prueba de «el mismo archivo, a un LLM con 3 minutos» (pitch/deck/datos/prueba_llm/). Si no está, la lámina no muestra cifras."""
+    ruta = Path(__file__).with_name("prueba_llm") / "resultado.json"
+    return json.loads(ruta.read_text()) if ruta.exists() else None
+
+
 def main() -> None:
     inicio = time.time()
     base = mapa_con_rango(CASO, [])
@@ -281,6 +323,9 @@ def main() -> None:
         "rafaga": rafaga(),
         "series": {nombre: serie(nombre) for nombre in SERIES},
         "sello": sello,
+        "examen_puntos": examen_de_puntos(CASO),
+        "archivos": {"mapa": archivo_de("leyes"), "series": archivo_de("flota")},
+        "prueba_llm": prueba_llm(),
     }
     salida = Path(__file__).with_name("datos.js")
     salida.write_text("// Generado por pitch/deck/datos/generar.py. No editar a mano.\nwindow.KRYLOV_DATOS = "
