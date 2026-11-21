@@ -273,3 +273,30 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(por_decidir)} en el archivo",
                      f"{len(theta)} versiones creíbles"],
     }
+
+
+def cartera(caso: dict) -> dict:
+    """Mil carteras de clientes simuladas con el modelo generativo, analizadas en lote con la red (ver `nucleo/cartera.py`)."""
+    import importlib
+
+    from nucleo import cartera as comun
+    carpeta = _casos.ARTEFACTOS / "estados"
+
+    def analizar_lotes(n_empresas: int, muestras: int):
+        if not (carpeta / "codificador.onnx").exists():
+            raise ErrorKrylov("La red de crédito todavía no está exportada.", "no_disponible")
+        sesion, pesos = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+        simular = importlib.import_module("motor.estados.simular")           # el simulador es NumPy puro
+        rng = np.random.default_rng(2026)                                    # semilla fija: la cartera del demo es siempre la misma
+        ruido = flujo_numpy.ruido(0, muestras, DIM_THETA)
+        for i, b in enumerate(comun.tamanos_de_lote(n_empresas)):
+            lote = simular.simular(rng, b, simular.muestrear_n(rng))
+            resumen = sesion.run(None, {"x": lote["filas"], "mascara": np.ones(lote["filas"].shape[:2], dtype=np.float32)})[0]
+            theta = flujo_numpy.muestrear(pesos, resumen[None], np.broadcast_to(ruido[:, None, :], (muestras, b, DIM_THETA))).astype(np.float64)
+            # El filtro forward solo sobre los clientes por decidir de todo el lote, cada uno con el θ de su empresa.
+            empresa, cliente = np.nonzero(np.isnan(lote["impago"]))
+            p = filtro_forward(theta[:, empresa], {k: lote[k][empresa, cliente][:, None] for k in VARIABLES})[2][..., 0]   # (muestras, m)
+            cortes = np.searchsorted(empresa, np.arange(1, b))
+            yield i, np.split(p.T, cortes)
+
+    return comun.responder(caso, analizar_lotes)

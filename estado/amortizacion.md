@@ -33,6 +33,9 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - sáb 05:26 · Entrenamiento de `espacial` vivo: paso 42100, 2694400 terrenos; pérdida de mapa 0.7362, NPE 1.4452.
 - sáb 05:30 · **A-05 hecha, cambiada:** estado al día y lista de la madrugada repartida. Nadie se durmió a las 05:15 y el equipo no necesariamente duerme antes de las 08:00; el plan de PC 2 se ajustó (`PC2_AMORTIZACION.md` y `WORKPLAN.md` 6.3): tareas nuevas A-M1 a A-M3 entre las 05:35 y las 08:30. El cómputo no cambia: `espacial` sigue hasta las 08:30 y no se corre MCMC encima.
 - sáb 05:35 · **A-08 preparada (D-29): un solo comando valida `espacial` y escribe su sello.** `motor/espacial/sello.py` exporta, corre SBC por grupos, compara con el MCMC (simulados y el real, guarda el plan B), mide el método rápido, el examen en cinco particiones y las latencias, y escribe `sello.json` con «pasa» o «no pasa». Ensayado de punta a punta en chico (`--ensayo`, 76 s). `estados`: codificador mejorado (ver «Números medidos»).
+- sáb 05:50 · **Textos desde las plantillas de PC 3:** `nucleo/textos.py` llena `titular`, `en_palabras`, `examen.frase`, los motivos de `rojo_datos` y las `frases` del sello con `casos/textos.yaml`; las etiquetas de los factores salen del bloque `etiquetas` de cada caso. Ver: `uv run pytest nucleo/prueba_api.py -q`.
+- sáb 05:50 · **A-M2, la mecánica de la cartera:** `nucleo/cartera.py` (común) y `nucleo.estados.cartera` como ejemplo que corre: 1.000 carteras simuladas (189.530 clientes por decidir) analizadas en lote en 7,3 s, con la red de 2 min y `espacial` entrenando al lado (**no sirve para el guion**). Ver: `uv run pytest motor/estados/prueba_cartera.py -q`. Una prueba comprueba que todo el camino del servicio (incluido el simulador) no importa `torch`, `zuko`, `jax` ni `numpyro`. **Falta la cartera de rotación**, que es la del demo: necesita el paso local de `supervivencia` (A-N2).
+- sáb 05:50 · Entrenamiento de `espacial` vivo: paso 51900, 3321600 terrenos; pérdida de mapa 0.8829, NPE 2.147.
 
 ## A las 08:30: validar `espacial` (A-08), con una persona
 
@@ -153,10 +156,14 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Bloqueos
 
-- (ninguno) · sáb 04:07: resuelto lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
+- sáb 05:50 · **A-N2 (paso local y NumPyro de `supervivencia`) no está avanzando:** `nucleo/supervivencia.py` no cambia desde las 04:00 y ninguna otra sesión de este computador figura trabajando. De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15. La sesión A no toca esos archivos sin que la persona lo diga. **Pregunta para Rodrigo: ¿reactivas la sesión B o tomo yo `supervivencia`?**
+- sáb 05:50 · **Pedido de PC 1, `unidad` en `analizar`:** es un campo nuevo en el contrato congelado; lo decide una persona. Mi recomendación: sí, agregar `"unidad": {"singular", "plural"}` copiado del YAML del caso; es una línea en `nucleo/api.py` y no cambia nada de lo que existe. Queda sin hacer hasta que Rodrigo lo diga y PC 3 lo anote en `DECISIONES.md`.
+
+- sáb 04:07 · Resuelto: lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
 
 ## Pedidos a otros
 
+- sáb 05:50 · Sesión A → PC 3, dos plantillas de `casos/textos.yaml` que salen mal con los datos de hoy: (1) `examen.tabla` dice «De **las** clientes…» en crédito (necesita el artículo por caso, como `verbo_por_caso`); (2) `en_palabras.hay_actuar` y `hay_en_duda` dicen «En **1 citas**» cuando hay una sola (falta la variante en singular, como en `titular`). Además, en el terreno hay cuatro frases posibles y caben tres: hoy «En este terreno manda…» nunca alcanza a salir; si la quieres, dime cuál sacar.
 - sáb 05:30 · PC 2 → PC 3: Rodrigo ajustó el plan de PC 2 porque el equipo no necesariamente duerme antes de las 08:00 (A-05 cambiada, A-M1 a A-M3 nuevas en `WORKPLAN.md` 6.3; editó esas filas por esta vez). Falta lo tuyo: la entrada en `DECISIONES.md`, el tablero y, si PC 1 y PC 3 tampoco duermen, sus filas de las 05:15. `jerarquico` y `estados` están listos para lanzar: si `supervivencia` valida antes de las 08:30, `jerarquico` puede partir antes en PC 3.
 - sáb 05:11 · Sesión A → PC 3, para cuando armes los textos: los nombres en pantalla de los factores no están en los casos. Si agregas a `casos/credito.yaml` un bloque `etiquetas: {LIMIT_BAL: "Cupo de la tarjeta", AGE: "Edad", EDUCATION: "Educación"}`, `nucleo/estados.py` ya lo lee; sin eso muestra el nombre de la columna. No cambia la forma del contrato.
 - sáb 05:11 · Sesión A → sesión B: hecho lo de `codificador.onnx.data` (ahora es un solo archivo). Lo de reexportar `preprocesar` en `nucleo/preproceso.py`: no lo hice; cada motor tiene su único preprocesamiento en su módulo de `nucleo/` y `preproceso.py` queda para el terreno.
@@ -208,6 +215,7 @@ Cambios de interfaz se anotan aquí, con hora.
 | `jerarquico`: SBC chico tras 2 min (100 datasets) | Cobertura del 90%: 0,875 de promedio; los 20 parámetros pasan el χ²; contracción media 0,10. Corre y mejora; **no es una validación** | `validar --sbc 100` | sáb 05:21 |
 | `jerarquico`: presupuesto del paso local (1.980 citas, 32 muestras de θ del prior) | 0,54 s con 8 nodos de barrio (adaptativos) y 20 de paciente; error máximo 0,0004 contra 30 × 60 nodos. `analizar` completo: 524 ms. Con `espacial` entrenando al lado: **se repite sin nada entrenando** | `nucleo.jerarquico.paso_local` con el archivo real | sáb 05:26 |
 | `espacial`: cabeza de flujo con atajo sobre el codificador congelado (mecánica, en procesador, lote 16) | Pérdida NPE 3,67 a los 200 pasos (3.200 terrenos); la corrida larga tardó cerca de 3.000 pasos de 64 en llegar ahí. 7 pasos/s en procesador con `espacial` entrenando al lado. Prueba de 0,7 min, **no es una validación** | `entrenar --solo-flujo --dispositivo cpu --minutos 0.7 --lote 16` | sáb 05:41 |
+| Cartera, mecánica (con `estados` y la red de 2 min; **no es la del demo**) | 1.000 análisis completos en 7,3 s: 189.530 clientes por decidir, 8 muestras de θ por cartera. Antes de filtrar solo los por decidir: 20,1 s. Con `espacial` entrenando al lado | `nucleo.estados.cartera` con `KRYLOV_ARTEFACTOS` temporal | sáb 05:50 |
 | Predictivo a priori contra el terreno real | 135 bloques medidos (percentil 57 de lo simulado), correlación con √dist −0,805 (percentil 4,7), semivarianza entre vecinos 0,354 (percentil 63), 117 pares de vecinos (percentil 75) | `uv run python -m motor.espacial.predictivo`, 4.000 terrenos simulados | sáb 03:49 |
 | Sello de `espacial` | sin medir | `validar-motor` | — |
 | «¿Dónde mido?»: análisis rehechos y segundos, con la red | sin medir | A-11 | — |
