@@ -36,7 +36,7 @@ from motor.comun import rapido, validacion
 from motor.supervivencia import exportar, mcmc, nube, simular
 from motor.supervivencia.entrenar import CARPETA
 from motor.supervivencia.red import lote_a_tensores
-from motor.supervivencia.validar import cargar_red, sbc
+from motor.supervivencia.validar import cargar_red, mismo_prior, sbc
 from nucleo import casos, supervivencia as nucleo_sv, tabla
 
 CASO, CASO_MALO = "rotacion", "rotacion_malo"
@@ -200,9 +200,11 @@ def main() -> None:
         a.punto = punto_mas_entrenado()
 
     red, estado = cargar_red(a.punto)
+    if not mismo_prior(estado):
+        raise SystemExit(f"{a.punto} se entrenó con otro prior que {simular.ruta_config()}: el sello se corre con el prior de la red (KRYLOV_SUPERVIVENCIA_CONFIG)")
     a.salida.mkdir(parents=True, exist_ok=True)
-    informe = {"punto": str(a.punto), "exportacion": exportar.exportar(red, a.salida)}
-    for origen, destino in ((a.punto, a.salida / "pesos.pt"), (simular.RUTA_CONFIG, a.salida / "config.json")):
+    informe = {"punto": str(a.punto), "config": str(simular.ruta_config()), "exportacion": exportar.exportar(red, a.salida)}
+    for origen, destino in ((a.punto, a.salida / "pesos.pt"), (simular.ruta_config(), a.salida / "config.json")):
         if origen.resolve() != destino.resolve():
             shutil.copyfile(origen, destino)
     print(f"[1/6] {a.punto} ({estado['datasets_simulados']:,} simulaciones) exportado:".replace(",", "."), informe["exportacion"], flush=True)

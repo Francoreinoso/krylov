@@ -64,3 +64,15 @@ def test_el_evento_sigue_al_modelo():
     eta_c = lote["eta"] - lote["eta"].mean(axis=1, keepdims=True)
     alto, bajo = lote["delta"][eta_c > 0.5].mean(), lote["delta"][eta_c < -0.5].mean()
     assert alto > bajo + 0.05
+
+
+def test_prior_con_nivel_comun_de_las_cargas():
+    """Con `a_log_desv_comun` las cuatro cargas de una empresa comparten nivel; sin esa clave, el sorteo de antes no cambia."""
+    prior = CONFIG["prior"]
+    sin_claves = {k: v for k, v in prior.items() if k not in ("a_log_media", "a_log_desv_comun")}
+    de_antes = simular.muestrear_prior(np.random.default_rng(2), 5, {**sin_claves, "a_log_desv": 0.5})
+    np.testing.assert_array_equal(de_antes["a"], simular.muestrear_prior(np.random.default_rng(2), 5, {**sin_claves, "a_log_desv": 0.5, "a_log_media": 0.0, "a_log_desv_comun": 0.0})["a"])
+    th = simular.muestrear_prior(np.random.default_rng(2), 20_000, {**sin_claves, "a_log_media": -0.7, "a_log_desv": 0.4, "a_log_desv_comun": 0.7})
+    log_a = np.log(th["a"])
+    assert abs(log_a.mean() + 0.7) < 0.02 and abs(log_a.std() - np.hypot(0.4, 0.7)) < 0.02
+    assert abs(np.corrcoef(log_a[:, 0], log_a[:, 1])[0, 1] - 0.49 / 0.65) < 0.02          # comparten el nivel de la empresa

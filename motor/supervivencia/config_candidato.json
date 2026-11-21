@@ -1,0 +1,36 @@
+{
+  "motor_id": "supervivencia",
+  "version_preproceso": "supervivencia-1",
+  "riesgo": "ya_renuncio",
+  "prior": {
+    "k_log_desv": 0.5,
+    "beta0_media": -3.5,
+    "beta0_desv": 1.0,
+    "beta_desv": 0.5,
+    "gamma1_desv": 1.0,
+    "tau_escala": 1.0,
+    "sigma_u_escala": 0.5,
+    "lambda_desv": 0.7,
+    "a_log_media": -0.7,
+    "a_log_desv": 0.4,
+    "a_log_desv_comun": 0.7,
+    "cortes_desv": 1.5,
+    "mu_c_media": 2.0,
+    "mu_c_desv": 0.4,
+    "s_c_escala": 0.7
+  },
+  "rangos": {
+    "n": [
+      200,
+      2000
+    ],
+    "cargos": [
+      3,
+      12
+    ]
+  },
+  "fraccion_por_decidir": 0.2,
+  "fraccion_remuestreo": 0.5,
+  "caso_remuestreo": "rotacion",
+  "nota": "Prior candidato (sáb 21-nov 11:15). Cambia respecto del vigente: tau_escala 0,5 → 1,0 y las cargas de las encuestas, de LogNormal(0; 0,5) independientes a log a_j = nivel de la empresa ~ Normal(−0,7; 0,7) + Normal(0; 0,4) por ítem. Motivo: el predictivo a priori (simular --revisar) dejaba al archivo real bajo las 2.000 empresas simuladas en la correlación entre encuestas. Pasa a ser config.json cuando la red entrenada con él pase su sello."
+}

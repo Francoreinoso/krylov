@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -25,8 +26,18 @@ RUTA_CONFIG = RAIZ / "motor" / "artefactos" / "supervivencia" / "config.json"
 CARGOS_MAX = 12
 
 
+def ruta_config() -> Path:
+    """El `config.json` vigente, o el candidato que nombre `KRYLOV_SUPERVIVENCIA_CONFIG`.
+
+    Un prior candidato se entrena y se valida completo (SBC, MCMC, nube) con esa variable puesta, sin tocar el
+    `config.json` del que lee el servicio; pasa a ser el vigente cuando su sello pasa.
+    """
+    candidato = os.environ.get("KRYLOV_SUPERVIVENCIA_CONFIG")
+    return RAIZ / candidato if candidato else RUTA_CONFIG          # una ruta relativa se lee desde la raíz del repositorio
+
+
 def cargar_config() -> dict:
-    return json.loads(RUTA_CONFIG.read_text(encoding="utf-8"))
+    return json.loads(ruta_config().read_text(encoding="utf-8"))
 
 
 def cargar_filas_reales(config: dict) -> dict | None:
@@ -46,11 +57,23 @@ def cargar_filas_reales(config: dict) -> dict | None:
 # ------------------------------------------------------------------------------------- el prior
 
 def muestrear_prior(rng: np.random.Generator, B: int, prior: dict) -> dict:
-    """B muestras de θ con restricciones, según el prior de `config.json`."""
+    """B muestras de θ con restricciones, según el prior de `config.json`.
+
+    Cargas de las encuestas: log a_j = nivel + ruido del ítem, con nivel ~ Normal(a_log_media, a_log_desv_comun) común a
+    los cuatro ítems de la empresa (cuánto dicen sus encuestas sobre el compromiso) y ruido ~ Normal(0, a_log_desv). El
+    nivel no es parte de θ. Sin esas dos claves (el prior de la primera red) las cargas son LogNormal(0, a_log_desv)
+    independientes.
+    """
     tau = np.abs(rng.normal(size=B)) * prior["tau_escala"]
     pasos = rng.normal(size=(B, nucleo_sv.N_SPLINE))
     pasos[:, 0] *= prior["gamma1_desv"]
     pasos[:, 1:] *= tau[:, None]                               # prior de suavidad: paseo al azar
+    comun = prior.get("a_log_desv_comun", 0.0)
+
+    def cargas():
+        nivel = prior.get("a_log_media", 0.0) + (rng.normal(size=(B, 1)) * comun if comun > 0 else 0.0)
+        return np.exp(nivel + rng.normal(size=(B, nucleo_sv.N_ENCUESTAS)) * prior["a_log_desv"])
+
     return {
         "k": np.exp(rng.normal(size=B) * prior["k_log_desv"]),
         "beta0": prior["beta0_media"] + rng.normal(size=B) * prior["beta0_desv"],
@@ -59,7 +82,7 @@ def muestrear_prior(rng: np.random.Generator, B: int, prior: dict) -> dict:
         "tau": tau,
         "sigma_u": np.abs(rng.normal(size=B)) * prior["sigma_u_escala"],
         "lambda": rng.normal(size=B) * prior["lambda_desv"],
-        "a": np.exp(rng.normal(size=(B, nucleo_sv.N_ENCUESTAS)) * prior["a_log_desv"]),
+        "a": cargas(),
         "cortes": np.sort(
             rng.normal(size=(B, nucleo_sv.N_ENCUESTAS, nucleo_sv.N_CORTES)) * prior["cortes_desv"], axis=-1
         ),
@@ -162,35 +185,68 @@ def muestrear_n(rng: np.random.Generator, config: dict) -> int:
     return int(round(np.exp(rng.uniform(np.log(bajo), np.log(alto)))))
 
 
+def empresas_de_referencia(cuantas: int, n: int = 1470, semilla: int = 2026) -> dict:
+    """El lote de empresas simuladas, siempre las mismas, en que la red se compara con el MCMC (`mcmc.simulados`, `validar.contra_mcmc`)."""
+    config = cargar_config()
+    return simular(np.random.default_rng(semilla), cuantas, n, config, cargar_filas_reales(config))
+
+
 # ------------------------------------------------------- predictivo a priori contra el archivo real
 
+def estadisticos_del_predictivo(encuestas, evento, sueldo, grupo, tiempo) -> dict:
+    """Lo que se compara entre una empresa simulada y el archivo real. Una empresa: encuestas (n, 4), lo demás (n,).
+
+    Los tres primeros son los de la primera revisión del prior. Los otros cuatro miran la estructura que el modelo
+    supone y que esa revisión no miraba: si las encuestas se mueven juntas (las cargas a_j), cuánto cambia la
+    renuncia con el sueldo (el spline y su suavidad τ), cuánto difieren los cargos (σ_u) y con los años (k).
+    """
+    con_respuesta = ~np.isnan(evento)
+    renuncio = evento[con_respuesta]
+
+    def correlacion(a, b):
+        return float(np.corrcoef(a, b)[0, 1]) if a.std() > 0 and b.std() > 0 else np.nan
+
+    entre_encuestas = np.corrcoef(encuestas.T)[np.triu_indices(encuestas.shape[1], 1)] if encuestas.std(axis=0).min() > 0 else np.array([np.nan])
+    tasas = [renuncio[grupo[con_respuesta] == g].mean() for g in np.unique(grupo) if (grupo[con_respuesta] == g).sum() >= 20]
+    return {
+        "tasa de renuncia": float(renuncio.mean()),
+        "mediana de años": float(np.median(tiempo)),
+        "máximo de años": float(tiempo.max()),
+        "correlación media entre encuestas": float(np.mean(entre_encuestas)),
+        "correlación sueldo-renuncia": correlacion(np.log(sueldo[con_respuesta]), renuncio),
+        "dispersión de la renuncia entre cargos": float(np.std(tasas)) if len(tasas) > 1 else np.nan,
+        "correlación años-renuncia": correlacion(np.log1p(tiempo[con_respuesta]), renuncio),
+    }
+
+
 def revisar(ruta_csv: str, datasets: int = 2000, semilla: int = 0) -> dict:
-    """Compara la tasa de renuncia y la mediana de años del archivo real con el predictivo a priori."""
+    """Predictivo a priori contra el archivo real: en qué percentil de las empresas simuladas cae cada estadístico.
+
+    Un percentil pegado a 0 o a 100 dice que las reglas casi nunca inventan una empresa así: la red no practicó
+    con nada parecido y su posterior para ese archivo no es de fiar, aunque el SBC pase.
+    """
     import yaml
 
     config = cargar_config()
     caso = yaml.safe_load((RAIZ / "casos" / f"{config['caso_remuestreo']}.yaml").read_text(encoding="utf-8"))
     real = nucleo_sv.leer_tabla(ruta_csv, caso["columnas"])
+    del_real = estadisticos_del_predictivo(real["encuestas"], real["evento"], real["sueldo"], real["grupo"], real["tiempo"])
     n = len(real["tiempo"])
     rng = np.random.default_rng(semilla)
-    tasas, medianas, maximos = [], [], []
+    reales = cargar_filas_reales(config)
+    simulados = []
     for _ in range(datasets // 50):
-        lote = simular(rng, 50, n, config, cargar_filas_reales(config))
-        tasas.append(lote["delta"].mean(axis=1))
-        medianas.append(np.median(lote["tiempo"], axis=1))
-        maximos.append(lote["tiempo"].max(axis=1))
+        lote = simular(rng, 50, n, config, reales)
+        simulados += [estadisticos_del_predictivo(lote["encuestas"][i], lote["evento"][i], lote["sueldo"][i], lote["grupo"][i], lote["tiempo"][i]) for i in range(50)]
     resumen = {}
-    for nombre, sim, valor in [
-        ("tasa de renuncia", np.concatenate(tasas), float(np.nanmean(real["evento"]))),
-        ("mediana de años", np.concatenate(medianas), float(np.median(real["tiempo"]))),
-        ("máximo de años", np.concatenate(maximos), float(real["tiempo"].max())),
-    ]:
-        cuantiles = np.quantile(sim, [0.05, 0.25, 0.5, 0.75, 0.95])
+    for nombre, valor in del_real.items():
+        sim = np.array([s[nombre] for s in simulados])
+        sim = sim[np.isfinite(sim)]
+        cuantiles = np.quantile(sim, [0.01, 0.05, 0.5, 0.95, 0.99])
         percentil = float((sim < valor).mean())
-        resumen[nombre] = {"real": valor, "simulado_q05_q25_q50_q75_q95": cuantiles.round(3).tolist(),
-                           "percentil_del_real": round(percentil, 3)}
-        print(f"{nombre}: real {valor:.3f} · simulado q05..q95 {cuantiles.round(3).tolist()} "
-              f"· el real cae en el percentil {100 * percentil:.1f}")
+        resumen[nombre] = {"real": valor, "simulado_q01_q05_q50_q95_q99": cuantiles.round(3).tolist(), "percentil_del_real": round(percentil, 4)}
+        print(f"{nombre}: real {valor:.3f} · simulado q01..q99 {cuantiles.round(3).tolist()} "
+              f"· el real cae en el percentil {100 * percentil:.2f}")
     return resumen
 
 

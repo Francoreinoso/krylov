@@ -3,14 +3,19 @@
 No es una corrida de MCMC (eso se hace sin nada entrenando): una evaluación de la densidad y un
 puñado de pasos sobre una empresa chica.
 """
+import json
+
 import jax.numpy as jnp
 import numpy as np
+import pytest
 from numpyro.infer.util import log_density
 
 from motor.supervivencia import mcmc, simular
 from nucleo import supervivencia as sv
 
 PRIOR = simular.cargar_config()["prior"]
+# El prior candidato (cargas con un nivel común por empresa): el modelo de NumPyro tiene que seguirlo igual que el simulador.
+CANDIDATO = json.loads((simular.RAIZ / "motor" / "supervivencia" / "config_candidato.json").read_text(encoding="utf-8"))["prior"]
 LOG_2PI_MEDIO = 0.9189385332046727
 
 
@@ -19,7 +24,8 @@ def _empresa(n=150):
     return {c: v[0] for c, v in sv.variables_del_modelo(lote).items()}, lote["theta"][0].astype(np.float64)
 
 
-def test_densidad_igual_a_la_cuenta_directa():
+@pytest.mark.parametrize("PRIOR", [PRIOR, CANDIDATO], ids=["vigente", "candidato"])
+def test_densidad_igual_a_la_cuenta_directa(PRIOR):
     d, libre = _empresa()
     rng = np.random.default_rng(0)
     n = len(d["tiempo"])
@@ -28,17 +34,21 @@ def test_densidad_igual_a_la_cuenta_directa():
     u_crudo, z = rng.normal(size=sv.CARGOS_MAX), rng.normal(size=n)
     valores = {"k": th["k"], "beta0": th["beta0"], "beta": th["beta"], "tau": th["tau"], "pasos_gamma": pasos, "sigma_u": th["sigma_u"],
                "lambda": th["lambda"], "a": th["a"], "cortes": th["cortes"], "mu_c": th["mu_c"], "s_c": th["s_c"], "u_crudo": u_crudo, "z": z}
+    nivel_a, comun = PRIOR.get("a_log_media", 0.0), PRIOR.get("a_log_desv_comun", 0.0)
+    if comun > 0:                                             # el nivel común de las cargas es un latente más
+        nivel_a = valores["nivel_a"] = nivel_a + 0.3
     log_p, traza = log_density(mcmc.modelo, mcmc.argumentos(d, PRIOR), {}, {c: jnp.asarray(v) for c, v in valores.items()})
     # El θ determinista del modelo es el mismo vector sin restricciones que usa el flujo.
     np.testing.assert_allclose(np.asarray(traza["theta"]["value"]), sv.a_libre({c: np.asarray(v)[None] for c, v in th.items()})[0], rtol=1e-10, atol=1e-10)
 
     normal = lambda v, media, desv: (-0.5 * ((v - media) / desv) ** 2 - np.log(desv) - LOG_2PI_MEDIO).sum()           # noqa: E731
-    log_normal = lambda v, desv: normal(np.log(v), 0.0, desv) - np.log(v).sum()                                        # noqa: E731
+    log_normal = lambda v, desv, media=0.0: normal(np.log(v), media, desv) - np.log(v).sum()                           # noqa: E731
     media_normal = lambda v, escala: normal(v, 0.0, escala) + np.log(2.0)                                              # noqa: E731
     log_prior = (log_normal(th["k"], PRIOR["k_log_desv"]) + normal(th["beta0"], PRIOR["beta0_media"], PRIOR["beta0_desv"])
                  + normal(th["beta"], 0.0, PRIOR["beta_desv"]) + media_normal(th["tau"], PRIOR["tau_escala"]) + normal(pasos, 0.0, 1.0)
                  + media_normal(th["sigma_u"], PRIOR["sigma_u_escala"]) + normal(th["lambda"], 0.0, PRIOR["lambda_desv"])
-                 + log_normal(th["a"], PRIOR["a_log_desv"]) + normal(th["cortes"], 0.0, PRIOR["cortes_desv"]) + 4 * np.log(6.0)
+                 + log_normal(th["a"], PRIOR["a_log_desv"], nivel_a) + (normal(np.array(nivel_a), PRIOR["a_log_media"], comun) if comun > 0 else 0.0)
+                 + normal(th["cortes"], 0.0, PRIOR["cortes_desv"]) + 4 * np.log(6.0)
                  + normal(th["mu_c"], PRIOR["mu_c_media"], PRIOR["mu_c_desv"]) + media_normal(th["s_c"], PRIOR["s_c_escala"])
                  + normal(u_crudo, 0.0, 1.0) + normal(z, 0.0, 1.0))
     # Encuestas: logit ordenado.

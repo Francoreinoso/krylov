@@ -54,7 +54,11 @@ def modelo(x, base_w, encuestas, tiempo, evento, grupo, prior: dict):
     gamma = jnp.cumsum(pasos * jnp.concatenate([jnp.array([prior["gamma1_desv"]]), tau * jnp.ones(N_SPLINE - 1)]))
     sigma_u = numpyro.sample("sigma_u", dist.HalfNormal(prior["sigma_u_escala"]))
     lam = numpyro.sample("lambda", dist.Normal(0.0, prior["lambda_desv"]))
-    a = numpyro.sample("a", dist.LogNormal(0.0, prior["a_log_desv"]).expand([N_ENCUESTAS]).to_event(1))
+    # Cargas: con `a_log_desv_comun`, un nivel común a los cuatro ítems de la empresa (latente; no es parte de θ).
+    nivel_a = prior.get("a_log_media", 0.0)
+    if prior.get("a_log_desv_comun", 0.0) > 0:
+        nivel_a = numpyro.sample("nivel_a", dist.Normal(nivel_a, prior["a_log_desv_comun"]))
+    a = numpyro.sample("a", dist.LogNormal(nivel_a, prior["a_log_desv"]).expand([N_ENCUESTAS]).to_event(1))
     # Cortes: tres normales ordenadas por ítem. Su densidad es 3! por el producto de las normales, sobre los vectores ordenados.
     cortes = numpyro.sample("cortes", dist.ImproperUniform(constraints.ordered_vector, (N_ENCUESTAS,), (N_CORTES,)))
     numpyro.factor("prior_cortes", dist.Normal(0.0, prior["cortes_desv"]).log_prob(cortes).sum() + N_ENCUESTAS * jnp.log(6.0))
@@ -96,8 +100,11 @@ def argumentos(datos: dict, prior: dict | None = None) -> tuple:
 
 def punto_inicial(n: int, prior: dict) -> dict:
     """El centro del prior, con todos los latentes en cero."""
+    nivel_a = prior.get("a_log_media", 0.0)
+    del_nivel = {"nivel_a": jnp.array(nivel_a)} if prior.get("a_log_desv_comun", 0.0) > 0 else {}
     return {"k": jnp.array(1.0), "beta0": jnp.array(prior["beta0_media"]), "beta": jnp.zeros(N_EFECTOS), "tau": jnp.array(0.6 * prior["tau_escala"]),
-            "pasos_gamma": jnp.zeros(N_SPLINE), "sigma_u": jnp.array(0.6 * prior["sigma_u_escala"]), "lambda": jnp.array(0.0), "a": jnp.ones(N_ENCUESTAS),
+            "pasos_gamma": jnp.zeros(N_SPLINE), "sigma_u": jnp.array(0.6 * prior["sigma_u_escala"]), "lambda": jnp.array(0.0),
+            "a": jnp.exp(nivel_a) * jnp.ones(N_ENCUESTAS), **del_nivel,
             "cortes": jnp.tile(prior["cortes_desv"] * jnp.array([-1.0, 0.0, 1.0]), (N_ENCUESTAS, 1)), "mu_c": jnp.array(prior["mu_c_media"]),
             "s_c": jnp.array(0.6 * prior["s_c_escala"]), "u_crudo": jnp.zeros(CARGOS_MAX), "z": jnp.zeros(n)}
 
@@ -128,8 +135,7 @@ def guardar(clave: str, resultado: dict, carpeta: Path = CARPETA, **extra) -> Pa
 
 def simulados(cuantos: int, n: int = 1470, semilla: int = 2026) -> list[tuple[dict, np.ndarray]]:
     """`cuantos` empresas simuladas con semilla fija: (variables del modelo, θ verdadero sin restricciones) de cada una."""
-    config = simular.cargar_config()
-    lote = simular.simular(np.random.default_rng(semilla), cuantos, n, config, simular.cargar_filas_reales(config))
+    lote = simular.empresas_de_referencia(cuantos, n, semilla)
     variables = nucleo_sv.variables_del_modelo(lote)
     return [({c: v[i] for c, v in variables.items()}, lote["theta"][i]) for i in range(cuantos)]
 
@@ -147,6 +153,7 @@ def principal() -> None:
     analizador.add_argument("--simulados", type=int, default=0, help="cuántas empresas simuladas (semilla fija)")
     analizador.add_argument("--muestras", type=int, default=500)
     analizador.add_argument("--cadenas", type=int, default=4)
+    analizador.add_argument("--carpeta", type=Path, default=CARPETA, help="dónde quedan las muestras (otra carpeta para un prior candidato)")
     a = analizador.parse_args()
 
     def informar(clave, r, ruta):
@@ -156,10 +163,10 @@ def principal() -> None:
     if a.caso:
         r = correr(datos_del_caso(a.caso), muestras=a.muestras, cadenas=a.cadenas)
         for clave in [a.caso, *a.tambien]:
-            informar(clave, r, guardar(clave, r))
+            informar(clave, r, guardar(clave, r, a.carpeta))
     for i, (datos, verdadero) in enumerate(simulados(a.simulados) if a.simulados else []):
         r = correr(datos, muestras=a.muestras, cadenas=a.cadenas, semilla=i)
-        informar(f"simulado_{i:02d}", r, guardar(f"simulado_{i:02d}", r, theta_verdadero=verdadero))
+        informar(f"simulado_{i:02d}", r, guardar(f"simulado_{i:02d}", r, a.carpeta, theta_verdadero=verdadero))
 
 
 if __name__ == "__main__":
