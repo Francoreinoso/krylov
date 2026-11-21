@@ -37,6 +37,9 @@ Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos
 - **Semáforo.** Verde: responde. Amarillo: responde con un aviso. Rojo: no responde y dice por qué, porque faltan datos o porque el archivo no se parece a nada que conozca; en ese caso propone una corrección.
 - **Cartera.** La vista donde se analizan cientos o miles de clientes de una plataforma de una sola vez.
 - **Modo estático.** Las respuestas del demo guardadas como archivos junto a la web. Así la URL pública responde aunque no haya servidor.
+- **Chat.** La puerta de entrada de Krylov (D-34). Se elige el modelo, se adjunta un archivo y se asignan las columnas. La respuesta aparece dentro de la conversación.
+- **Papel de una columna.** Lo que una columna significa para el modelo: el tiempo, el evento, el grupo, un factor, una encuesta. Cada modelo pide sus papeles, en una cantidad fija.
+- **Interpretación.** El texto corto que acompaña a una respuesta. Lo escribe un modelo de lenguaje leyendo los números del motor y no agrega números propios. Sin conexión, se usa la plantilla.
 
 ## El negocio
 
@@ -63,6 +66,7 @@ Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos
 | Calibración, cobertura | «Cuando dimos 30% de riesgo, pasó el 28%» |
 | Fuera de distribución, fuera del prior | «No se parece a nada que haya visto» |
 | Inferencia amortizada | «Ya practicó con millones de casos simulados» |
+| Inferencia amortizada sobre un archivo subido | «La red que practicó responde tu archivo al instante» |
 | Modelo bayesiano | «Un modelo que dice cuánto se puede equivocar» |
 | Modelo generativo, prior | «Las reglas con que Krylov inventa empresas» |
 | Latente, efecto aleatorio | «Algo que no se ve en los datos pero deja huella» (el compromiso de una persona, la tendencia de un paciente a faltar) |

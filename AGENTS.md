@@ -19,7 +19,9 @@ Cómo funciona: Krylov es **inferencia basada en simulación amortizada, caso po
 1. **Un modelo generativo** (en pantalla: «las reglas con que Krylov inventa empresas»): un modelo estadístico avanzado, de los que hoy exigen un especialista, escrito con sus ecuaciones en `WORKPLAN.md`, sección 11.
 2. **Un simulador** que inventa millones de casos con esas reglas.
 3. **Una red** que practicó solo con esos casos simulados y aprendió a dar, para un archivo entero, lo que el método lento de siempre daría (eso es **amortizar**: pagar el cálculo una vez, antes).
-4. **Respuestas en milisegundos** para cualquier archivo de la misma familia: el del demo o cada una de las 1.000 empresas de la cartera.
+4. **Respuestas en milisegundos** para cualquier archivo con el mismo esquema: el del demo, uno que suba el usuario o cada una de las 1.000 empresas de la cartera.
+
+En pantalla, Krylov es un **chat** (D-34). El usuario elige el modelo según lo que quiere preguntar, adjunta un archivo (uno de los del demo o uno propio) y asigna cada columna a su papel en el modelo. La red de ese motor responde en milisegundos, y un modelo de lenguaje cuenta el resultado en palabras. Los números salen siempre del motor.
 
 | Motor | Tarjeta | Modelo |
 |---|---|---|
@@ -38,18 +40,19 @@ Todas las palabras del proyecto están definidas en `GLOSARIO.md`. Úsalas tal c
 
 Una sola app web con cuatro vistas chicas:
 
-1. **Inicio · «¿Qué quieres saber?»** Cuatro tarjetas, una por caso de uso.
-2. **Respuesta.** Un titular en una frase; un número grande, **lo que te cuesta no saber**; las **unidades** (personas, citas, clientes, bloques de terreno) en **tres colores que son decisiones** (conviene actuar, no hace falta, no sabemos si conviene), como lista o como mapa; **deslizadores de costos** que cambian la respuesta en vivo; **qué pesa**, con la etiqueta «no se puede saber con estos datos» cuando corresponde; y el **examen**: qué tan bien le fue a Krylov con datos reales que no había visto.
+1. **Inicio · chat «¿Qué quieres saber?»** Se elige uno de los cuatro modelos (con su pregunta en palabras), se adjunta un archivo (los cuatro del demo están precargados; también se puede subir uno propio) y se asigna cada columna a su papel. La app sugiere la asignación según el tipo de columna y el usuario la confirma (D-34).
+2. **Respuesta.** Se pinta dentro del chat. Debajo de los números va **la interpretación**: un texto corto escrito por un modelo de lenguaje a partir del JSON del motor, o la plantilla si no hay conexión. Un titular en una frase; un número grande, **lo que te cuesta no saber**; las **unidades** (personas, citas, clientes, bloques de terreno) en **tres colores que son decisiones** (conviene actuar, no hace falta, no sabemos si conviene), como lista o como mapa; **deslizadores de costos** que cambian la respuesta en vivo; **qué pesa**, con la etiqueta «no se puede saber con estos datos» cuando corresponde; y el **examen**: qué tan bien le fue a Krylov con datos reales que no había visto.
    - En casos con mapa, además: **«¿Dónde mido?»**. Tres pines con plata. Un clic simula la medición y el mapa cambia. Es el momento estrella del show.
 3. **Todos a la vez (Cartera).** Mil empresas analizadas de una vez, ordenadas por lo que les cuesta no saber.
 4. **Sabe cuando no sabe.** Es un estado de la vista 2: una nube con las simulaciones con que Krylov practicó y el archivo del usuario cayendo afuera → rojo con el motivo → propone una corrección → se aplica → verde.
 
 ## Qué NO se construye
 
-- «Sube tus datos», la propuesta de columnas y cualquier llamada a un modelo de lenguaje dentro de la app. Se cortaron (D-26): cada motor responde una familia de archivos.
+- Un modelo de lenguaje que elija el motor, calcule o ponga números. Tampoco pregunta libre que se traduzca sola a un motor: el usuario elige el modelo (D-34).
+- Calce automático de columnas por su nombre: las columnas se asignan a sus papeles con el selector (D-34).
 - Motor de eventos raros, voz, WhatsApp, caja de pregunta libre, tarjetas sintéticas de más sponsors. Se cortaron (ver `DECISIONES.md`, D-17).
 - Una vista, una función o un motor fuera de los cuatro de `WORKPLAN.md`, sección 1.2.
-- Cuentas de usuario, base de datos, panel de administración, un chat, una quinta vista.
+- Cuentas de usuario, base de datos, panel de administración, una quinta vista.
 - Nada nuevo después del sábado a las 18:00.
 - Nada que no aparezca en `WORKPLAN.md`. Si crees que falta algo, anótalo como pedido en tu archivo de estado; no lo construyas.
 
@@ -98,9 +101,10 @@ Como el repositorio es público, **no se sube nada que no pueda leer un juez o u
 
 ## Contratos (detalle en `contratos/CONTRATO.md`)
 
-- **`amortizacion` → `producto`.** Funciones puras en `nucleo/api.py` (`casos`, `analizar`, `cartera`, `donde_medir`, `nube`, `sello`) que devuelven diccionarios con la misma forma que los ejemplos fijos de `contratos/ejemplos/`. `producto` nunca toca un motor ni importa `torch`. Cada motor responde con su red (`red`) o con el posterior del MCMC precalculado (`mcmc`, rotulado «precalculado»); lo elige una variable `KRYLOV_MOTOR_<ID>`.
+- **`amortizacion` → `producto`.** Funciones puras en `nucleo/api.py` (`casos`, `analizar`, `cartera`, `donde_medir`, `nube`, `sello`) que devuelven diccionarios con la misma forma que los ejemplos fijos de `contratos/ejemplos/`. `producto` nunca toca un motor ni importa `torch`. Cada motor responde con su red (`red`) o con el posterior del MCMC precalculado (`mcmc`, rotulado «precalculado»); lo elige una variable `KRYLOV_MOTOR_<ID>`. Desde D-34, además: `papeles(motor_id)` (los papeles de columna que recibe cada red, con cantidad y tipo) y `analizar_archivo(motor_id, tabla, columnas, costos)`, que responde un archivo subido con la misma forma que `analizar`.
 - **Decisión.** La regla de los tres colores y de «lo que cuesta no saber» está escrita en `CONTRATO.md`, sección 3, y existe en Python y en TypeScript con una prueba común.
 - **Backend → frontend.** Rutas HTTP, y además **modo estático**: toda respuesta del demo existe como archivo en `web/public/estatico/`. La web usa la API si responde en 1,5 segundos y, si no, el archivo.
+- **Interpretación (D-34).** `servicio/` llama al modelo de lenguaje con el JSON de la respuesta (`POST /api/interpretar`). La clave va en una variable de entorno de Render. Para los archivos del demo, la interpretación se precalcula en `web/public/estatico/`.
 - **Caso.** `casos/<nombre>.yaml` trae la tarjeta, la pregunta, el motor, las columnas, los costos y el origen de los datos. Ningún texto de industria va escrito en el código.
 
 El contrato está congelado desde H0. Cambiarlo exige una entrada en `DECISIONES.md` y aviso a los otros dos roles.
@@ -113,7 +117,7 @@ Solo se dice que usamos un sponsor si de verdad está integrado y funcionando a 
 |---|---|---|
 | Caso de uso en el demo | Buk (anfitrión), AgendaPro | Una tarjeta cada uno, rotulada «caso tipo … · datos públicos de ejemplo» |
 | Infraestructura que usamos | Vercel, Render | Web y respuestas precalculadas en Vercel. API en Render |
-| Herramienta con que se construyó | Anthropic | Claude Code construyó el producto. No está integrado en la app y no se dice otra cosa |
+| Integrado en la app y herramienta con que se construyó | Anthropic | Un modelo de Claude escribe la interpretación de cada respuesta (D-34). Solo se dice si funciona a las 18:00; si no, vuelve a ser solo la herramienta con que se construyó. Claude Code construyó el producto |
 | No se usan | ElevenLabs, Kapso, Kairos, Lici, Copec, CChC, Cognition | No se mencionan como usados. Cognition no se menciona en absoluto |
 
 La web del evento lista once sponsors (los de la tabla menos Cognition, que no aparece). `seguimiento` lo confirma en el lugar (tarea S-10) antes de que una frase diga «auspiciador».
@@ -126,11 +130,11 @@ La web del evento lista once sponsors (los de la tabla menos Cognition, que no a
 4. **Los colores son decisiones, no pronósticos.** Nunca «se va, seguro»; siempre «conviene retener». *Con un punto de corte de 20%, alguien con 22% de riesgo queda en «actuar»: como pronóstico sería falso, como decisión es correcto.*
 5. **La simulación se ve, y es cierta.** La nube de simulaciones, los pines de «¿Dónde mido?» y el conteo de análisis rehechos no se cortan. Una tarjeta solo dice que respondió la red si su motor pasó `validar-motor`; si no, dice «precalculado». *Es el track, y es lo que nos distingue de un tablero con una regresión.*
 6. **Cero jerga en la interfaz y en el pitch; nombres técnicos precisos en el código.** En pantalla y en el pitch, `GLOSARIO.md`. En `nucleo/`, `motor/`, `STACK.md`, el anexo técnico y el README técnico se escribe modelo generativo, prior, posterior, NPE, flujo normalizador, SBC, MCMC. *Nadie repite una frase que no entendió; y un cuarto de la nota es una revisión del código, que tiene que leerse como inferencia basada en simulación de verdad.*
-7. **Nada en vivo tarda más de 2 segundos.** Lo que tarde más se precalcula y lleva `precalculado: true`. *El aire muerto mata un demo.*
-8. **La URL pública funciona sin servidor.** Toda respuesta del recorrido está precalculada en `web/public/estatico/`. *El QR lo va a escanear toda la sala a la vez, y un servidor gratuito no aguanta.*
+7. **Nada en vivo tarda más de 2 segundos.** Lo que tarde más se precalcula y lleva `precalculado: true`. Los números de una respuesta aparecen en menos de 2 segundos; la interpretación del modelo de lenguaje llega después y no los bloquea. *El aire muerto mata un demo.*
+8. **La URL pública funciona sin servidor.** Toda respuesta del recorrido está precalculada en `web/public/estatico/`, incluida la interpretación de los archivos del demo, rotulada. Subir un archivo propio exige la API; si no responde, el chat lo dice. *El QR lo va a escanear toda la sala a la vez, y un servidor gratuito no aguanta.*
 9. **Todo dato sintético o simulado va rotulado, y todo caso dice de dónde vienen sus datos.** *Que lo descubra el jurado es peor.*
 10. **Un caso con el nombre de un sponsor es una hipótesis de uso con datos públicos.** Nunca afirmes cómo trabaja esa empresa ni que son datos suyos. *Su gente está en la sala.*
-11. **No hay modelo de lenguaje dentro de la app.** Todo número sale de un motor y todo texto, de una plantilla llenada con el JSON del motor. *Es la respuesta a «¿no es un chat con un CSV?».*
+11. **El modelo de lenguaje solo interpreta (D-34).** Todo número sale de un motor. El modelo de lenguaje recibe el JSON del motor y escribe un texto corto: no elige el motor, no calcula y no agrega cifras. El servicio revisa que cada número del texto esté en el JSON; si no está, o si no hay clave o internet, se muestra la plantilla de `casos/textos.yaml`. *Es la respuesta a «¿no es un chat con un CSV?»: el chat es la puerta, y la respuesta la da una red que practicó con millones de casos simulados.*
 12. **No inventes citas, nombres, clientes ni respuestas de personas.** *Una cita falsa descalifica.*
 13. **No envíes mensajes ni publiques nada por tu cuenta.** El único despliegue permitido es el de la app, lo hace `producto` con la skill `desplegar`. *Lo que sale del equipo lo firma una persona.*
 14. **No edites directorios ajenos.** Si necesitas un cambio en una carpeta de otro rol, pídelo en «Pedidos a otros» de tu estado. *Tres personas con sueño sobre una sola rama.*
