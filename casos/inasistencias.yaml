@@ -6,6 +6,9 @@
 # `Neighbourhood` es el barrio del centro de atención (81 distintos): es el grupo del modelo.
 # MUESTRA (D-26): no se muestrean filas sueltas. Se eligen 30 barrios con semilla fija y, dentro de ellos, pacientes completos
 # (todas sus citas) hasta llegar a unas 2.000 citas, cuidando que al menos un tercio de los pacientes tenga 2 o más citas.
+# Hecho en datos/preparar/inasistencias.py (S-N1, sáb 04:45): 30 barrios al azar entre los 74 con al menos 100 citas,
+# 66 citas por barrio (1.980 en total), 1.147 pacientes, 38% con 2 o más citas. Cada paciente va a un solo barrio.
+# Columnas verificadas contra el CSV generado. inasistencias.csv e inasistencias_verdad.csv están en .gitignore.
 # El script calcula `dias_de_espera` (se descartan las 5 filas negativas) y `dia_semana` (0 = lunes; los 39 sábados se descartan).
 # Datos que fijan el modelo: 35% de las citas son del mismo día (4,6% de inasistencia) y ninguna de esas recibe SMS.
 nombre: inasistencias

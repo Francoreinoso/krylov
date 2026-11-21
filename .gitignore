@@ -47,3 +47,4 @@ RESUMEN.md
 
 # Datos crudos bajados de su fuente (se regeneran con los scripts de datos/preparar/)
 datos/crudo/
+datos/demo/inasistencias_verdad.csv
