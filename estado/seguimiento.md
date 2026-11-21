@@ -21,12 +21,14 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 04:46 · **S-N3**: borradores `pitch/README_borrador.md` (técnico, con los nombres precisos) y `pitch/descripcion_borrador.md`. No tocan el `README.md` de la organización. Los lee una persona en la mañana.
 - sáb 04:49 · **S-N2**: lo que dice hoy cada fuente, en `pitch/CIFRAS.md`, sección «Revisión de fuentes». Sin firmar «Verificó». Para una persona: C-02 (el 96% no está en el INE: es 91,8%), P-01 (hoy solo se verifica «+6.000») y N-01 (fechas solo en la biografía; la Marina no adoptó las tablas entonces). Ninguna de las tres está hoy en el guion.
 - sáb 04:51 · **S-11, textos de pantalla v1** (adelantado): `casos/textos.yaml`, las plantillas del contrato (sección 5) para titulares, `en_palabras`, motivos del semáforo, examen, sello, «¿Dónde mido?», nube, cartera y deslizadores. Falta la parte de S-11 que exige a una persona: el guion v1 en voz alta y cronometrado.
+- sáb 05:03 · **S-12, esqueleto de láminas** (adelantado): `pitch/LAMINAS.md` con el texto de portada y cierre para PC 1 (P-13) y las tres de respaldo (técnica, negocio, qué existe y qué es hoja de ruta). Cada número con su id de `CIFRAS.md`; lo no medido, entre corchetes.
+- sáb 05:03 · Ronda: P-N1 de PC 1 verificado (`npm run prueba`: 45 pasan). PC 2: `uv run pytest nucleo/prueba_decision.py nucleo/prueba_api.py nucleo/prueba_nube.py nucleo/prueba_espacial.py -q`: 15 pasan; `api.casos()` sigue el orden de `casos/INICIO`; `api.analizar("terreno")` responde `no_disponible` (esperado hasta la red validada). `supervivencia`: 2,8 millones de datasets, punto de guardado 04:55.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 ## En curso
 
 - sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».
-- sáb 04:52 · Siguiente: S-N4 (rondas de lectura a las 06:15, 07:15 y 08:15, programadas en esta sesión). Después, S-12 (texto de portada y cierre) si hay tiempo.
+- sáb 05:03 · Siguiente: S-N4 (rondas de lectura a las 06:15, 07:15 y 08:15, programadas en esta sesión). Lo que queda de mi lista antes de las 08:15 exige a una persona (S-09, S-10, guion en voz alta) o números de los motores (S-15).
 
 ## Entrenamiento en curso
 
