@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krylov · deck</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<!--
+  Krylov · láminas de venta (Platanus Hack 26, track Simulaciones).
+  Abre con doble clic y corre sin internet. Teclas: flechas o espacio (avanzar), 1 a 9 (ir a una lámina), 0 (respaldo técnico),
+  N (notas), P (pausa), F (pantalla completa). De dónde sale cada dato: README.md de esta carpeta.
+  Reglas: todo número en pantalla tiene su id de pitch/CIFRAS.md o su comando en las notas de la lámina.
+-->
+<div id="escenario">
+  <canvas id="gl"></canvas>
+
+  <!-- ============================== 1 · Apertura ============================== -->
+  <section class="lamina" id="l-apertura" data-id="apertura" data-pasos="3">
+    <div class="plano" id="plano-barco"></div>
+    <div class="rotulos"><span class="rotulo ilustracion">Ilustración</span></div>
+
+    <div class="bloque relato" data-paso="0" data-hasta="1">
+      <div class="ceja">A comienzos del 1900</div>
+      <div class="h3">Alekséi Krylov, ingeniero naval, calculó por adelantado qué hacer si el casco se rompía.</div>
+    </div>
+    <div class="bloque titular" data-paso="2">
+      <div class="ceja">Krylov · un data scientist artificial</div>
+      <h1>Calcular antes.<br><span class="grad">Decidir al instante.</span></h1>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 0:00 a 0:22</h4>
+        <p class="dice">«A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía.» <b>[→]</b> «Casco roto: no hay tiempo para calcular.» <b>[→]</b> «Pero el cálculo ya estaba hecho, en una tabla: mirar y decidir. Calcular antes, decidir al instante. Eso hicimos con el trabajo de un data scientist.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">N-01: «a comienzos del 1900», sin fecha exacta, sin nombre de barco y sin decir que la Marina ya las usaba. El plano y la tabla son una ilustración: los números romanos no son datos históricos.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 2 · El problema ============================== -->
+  <section class="lamina" id="l-problema" data-id="problema" data-pasos="3">
+    <div class="rotulos" data-paso="1"><span class="rotulo medido">Medido · MacBook Air M4</span></div>
+
+    <div class="bloque cabeza" data-paso="0" data-hasta="0">
+      <div class="ceja">El problema</div>
+      <h2>Los modelos que mejor responden son lentos y exigen un especialista.</h2>
+      <div class="texto">Dicen qué conviene hacer <b>y cuánto se pueden equivocar</b>. Hoy cada uno se arma a mano, y cada análisis se espera.</div>
+    </div>
+
+    <div class="bloque carrera" data-paso="1">
+      <div class="que">El mismo trabajo, dos maneras
+        <small>Rehacer <span data-dato="donde.analisis_rehechos">228</span> análisis completos de un terreno, para decidir dónde conviene medir.</small></div>
+
+      <div class="pista lenta">
+        <div class="nombre"><span><b>El método lento de siempre</b><span class="acel" id="acel">▶▶ acelerado</span></span>
+          <span class="reloj"><span id="reloj-lento">0:00:00</span><small>de 7:24:59</small></span></div>
+        <div class="riel"><i id="barra-lenta"></i></div>
+        <div class="bajo"><span>117 s por análisis × 228 análisis</span><span id="falta-lento">en tiempo real</span></div>
+      </div>
+
+      <div class="pista krylov">
+        <div class="nombre"><span><b>Krylov</b></span>
+          <span class="reloj"><span id="reloj-krylov">0,00</span> s</span></div>
+        <div class="riel"><i id="barra-krylov"></i></div>
+        <div class="bajo"><span>La red que practicó: un solo paso por análisis</span><span id="listo-krylov">&nbsp;</span></div>
+      </div>
+    </div>
+
+    <div class="bloque golpe" data-paso="2">
+      <div class="h3"><span class="grad">Más de 7 horas</span> y un especialista.<br>Ahora, menos de un segundo.</div>
+      <div class="chico">Los mismos 228 análisis, en el mismo computador.</div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 0:22 a 0:47</h4>
+        <p class="dice">«Los modelos que mejor responden, los que dicen cuánto se pueden equivocar, hoy exigen un especialista y mucha espera.» <b>[→]</b> «El mismo trabajo: 228 análisis completos. Abajo, Krylov: listo. Arriba, el método lento de siempre: esa barra sí se está moviendo.» <b>[→]</b> «Termina en más de siete horas. Krylov, en menos de un segundo.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">M-08 (228 análisis), M-09 (0,69 s, la red), M-10 (26.699 s = 7 h 24 min 59 s), M-25 (117 s por análisis lento). Todo del sello de <code>espacial</code>, MacBook Air M4.<br><b>Ojo:</b> las 7 horas son 228 × 117,1 s (un análisis lento medido en 6 terrenos); nadie corrió las 7 horas de corrido. Si preguntan, se dice así. La barra de arriba avanza en tiempo real hasta el segundo clic; después dice «acelerado».</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 3 · Millones de mundos simulados ============================== -->
+  <section class="lamina" id="l-mundos" data-id="mundos" data-pasos="2" data-gl="1">
+    <div class="velo"></div><div class="velo2"></div>
+    <div class="rotulos"><span class="rotulo simulado">Terrenos simulados</span></div>
+
+    <div class="bloque centro" data-paso="0" data-hasta="0">
+      <div class="h3">Antes de ver un solo dato real, Krylov practicó con</div>
+      <div class="cifra numero grad" id="contador-mundos">0</div>
+      <div class="que">terrenos simulados</div>
+      <div class="texto">En cada uno, la respuesta correcta se conoce.</div>
+    </div>
+
+    <div class="bloque despues" data-paso="1">
+      <div class="ceja">Se paga una vez</div>
+      <div class="h3"><span data-dato="sello.entrenamiento_min">280</span> minutos de práctica, una noche, en un MacBook Air.</div>
+      <div class="texto">Queda una red que ya sabe responder. Después, <b>cada respuesta sale en un solo paso.</b></div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 0:47 a 1:05</h4>
+        <p class="dice">«¿Cómo? Antes de ver un solo dato real, Krylov practicó con más de siete millones de terrenos simulados, donde la respuesta correcta se conoce.» <b>[→]</b> «Una noche, en un MacBook Air. El cálculo difícil se paga una vez; después, cada respuesta sale al instante.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">M-01 (7.750.592 terrenos simulados) y M-02 (280 minutos), sello de <code>espacial</code>. Los terrenos que pasan son 256 muestras del simulador <code>motor/espacial/simular.py</code> (semilla 2026), repetidas: se ven cientos, no millones. «Al instante» se dice solo del terreno.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 4 · El mapa ============================== -->
+  <section class="lamina sobre-mapa" id="l-mapa" data-id="mapa" data-pasos="3" data-gl="1">
+    <div class="sombra-izq"></div>
+    <div class="rotulos"><span class="rotulo real">Datos públicos reales</span><span class="rotulo hipotesis" data-paso="1">Costos supuestos</span></div>
+    <div class="capa-etq" id="etq-mapa"></div>
+
+    <div class="bloque cabeza" data-paso="0">
+      <div class="ceja">Funciona hoy · un terreno real</div>
+      <h2><span data-dato="terreno.n_puntos">155</span> mediciones de zinc en un suelo junto al río Mosa.</h2>
+    </div>
+
+    <div class="bloque lateral" data-paso="1">
+      <div class="leyenda">
+        <div class="fila"><span class="muestra actuar"></span><span>Hay que limpiar</span><span class="n" data-dato="terreno.colores.actuar">20</span></div>
+        <div class="fila"><span class="muestra en-duda"></span><span>No sabemos: conviene medir</span><span class="n" data-dato="terreno.colores.en_duda">67</span></div>
+        <div class="fila"><span class="muestra no-actuar"></span><span>No hace falta limpiar</span><span class="n" data-dato="terreno.colores.no_actuar">254</span></div>
+      </div>
+      <div class="cuesta">
+        <div class="ceja" style="color:var(--suave)">Lo que te cuesta no saber</div>
+        <div class="cifra grad">US$ <span data-dato="terreno.costo_de_no_saber" data-formato="miles">646.485</span></div>
+      </div>
+    </div>
+
+    <div class="bloque rango" data-paso="2">
+      <span class="vidrio"></span>
+      <div class="texto" style="font-size:34px"><b>Lo translúcido es el rango creíble:</b> hasta dónde podría llegar el zinc en cada bloque.</div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 1:05 a 1:30</h4>
+        <p class="dice">«Esto funciona hoy. Un terreno real: 155 mediciones de zinc junto a un río.» <b>[→]</b> «Krylov responde el terreno entero. Los colores son decisiones: rojo, hay que limpiar; verde, no hace falta; ámbar, no sabemos. Y este es el número que importa: lo que te cuesta no saber.» <b>[→]</b> «Lo translúcido es cuánto se puede equivocar en cada bloque.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">D-04 (155 mediciones; datos <code>meuse</code>, río Mosa). K-11 (720 mg/kg, con fuente). K-12 y K-13 (costos: hipótesis). Bloques por color, lo que cuesta no saber y alturas: <code>api.analizar("terreno")</code> con la red, guardado por <code>pitch/deck/datos/generar.py</code>. Rango creíble de 90% por bloque: mismas funciones de <code>nucleo/espacial.py</code>. Altura = zinc estimado; color = decisión, no pronóstico. Si preguntan por exactitud: M-13, 24 de 31 mediciones escondidas cayeron en el rango (77%). No se dice «qué manda»: M-30 sigue pendiente.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 5 · ¿Dónde mido? ============================== -->
+  <section class="lamina sobre-mapa" id="l-donde" data-id="donde" data-pasos="2" data-gl="1">
+    <div class="sombra-izq"></div>
+    <div class="rotulos"><span class="rotulo real">Datos públicos reales</span><span class="rotulo hipotesis">Costos supuestos</span></div>
+    <div class="capa-etq" id="etq-donde"></div>
+
+    <div class="bloque cabeza" data-paso="0">
+      <div class="ceja">La pregunta que vale plata</div>
+      <h2>Si puedo medir un punto más, <span class="grad">¿dónde?</span></h2>
+    </div>
+
+    <div class="bloque hecho" data-paso="0" data-hasta="0">
+      <div class="cifra"><span data-dato="donde.analisis_rehechos">228</span></div>
+      <div class="texto"><b>análisis completos rehechos</b> para contestar, en <b><span data-dato="sello.amortizacion.red_s" data-formato="coma2">0,69</span> segundos.</b></div>
+      <div class="texto lento" style="font-size:34px">Con el método lento de siempre: más de 7 horas.</div>
+    </div>
+
+    <div class="bloque medicion toca" data-paso="1">
+      <div class="texto" id="texto-medicion"><b>Mido en A.</b> Sale alto.</div>
+      <div class="ceja" style="color:var(--suave); margin-top:28px">Lo que te cuesta no saber</div>
+      <div class="antes">US$ <span data-dato="terreno.costo_de_no_saber" data-formato="miles">646.485</span></div>
+      <div class="cifra grad">US$ <span id="cuesta-despues">625.447</span></div>
+      <div class="opciones" id="opciones-medicion">
+        <button data-nivel="bajo">sale bajo</button><button data-nivel="medio">sale medio</button><button data-nivel="alto" class="sel">sale alto</button>
+      </div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 1:30 a 2:00</h4>
+        <p class="dice">«Y la pregunta que vale plata: si puedo medir un punto más, ¿dónde? Para contestar, Krylov imaginó cientos de resultados posibles y rehízo el análisis completo 228 veces. Menos de un segundo. Medir en A vale más de quince mil dólares.» <b>[→]</b> «Mido, sale alto, y el mapa se rehace.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">M-08, M-09, M-10. Pines y su valor: <code>api.donde_medir("terreno")</code> con la red (M-12 sigue «pendiente» en CIFRAS: pedido en el README). K-17: la medición cuesta US$ 3.000 (hipótesis). El mapa rehecho es la respuesta de la red a <code>api.analizar("terreno", mediciones=[…])</code>, guardada en <code>datos.js</code>: aquí se anima, en la app corre en vivo. Se puede hacer clic en otro pin y en «sale bajo / medio / alto».</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 6 · Sabe cuando no sabe ============================== -->
+  <section class="lamina" id="l-nube" data-id="nube" data-pasos="3">
+    <canvas id="lienzo-nube"></canvas>
+    <div class="rotulos"><span class="rotulo simulado">Empresas simuladas</span></div>
+
+    <div class="bloque cabeza" data-paso="0">
+      <div class="ceja">Sabe cuando no sabe</div>
+      <h2>Antes de responder, compara tu archivo con las empresas que simuló.</h2>
+    </div>
+
+    <div class="bloque veredicto" data-paso="1" data-hasta="1">
+      <div class="semaforo rojo">No responde</div>
+      <div class="texto">Tu archivo cae afuera: <b>la columna «fecha_salida» adivina sola la respuesta.</b></div>
+    </div>
+    <div class="bloque veredicto" data-paso="2">
+      <div class="semaforo verde">Ahora sí responde</div>
+      <div class="texto">Propone quitar esa columna. <b>El archivo cae adentro</b>, y recién ahí contesta.</div>
+    </div>
+
+    <div class="bloque pie chico" data-paso="0">Se dibujan <span data-dato="nube.n_dibujadas" data-formato="miles">3.000</span> de <span data-dato="nube.n_simulaciones" data-formato="miles">5.000</span> empresas simuladas. El archivo: datos públicos de ejemplo (ficticios, creados por IBM), más una columna que agregamos nosotros.</div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 2:00 a 2:20</h4>
+        <p class="dice">«¿Y si le paso un archivo malo? Antes de responder, Krylov lo compara con las empresas que simuló.» <b>[→]</b> «Este cae afuera: una columna delata la respuesta. Krylov no responde.» <b>[→]</b> «Propone sacarla, y recién ahí contesta. Sabe cuando no sabe.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">M-29 (el archivo malo cae fuera y, corregido, dentro), D-05 (el archivo malo), D-01 (archivo ficticio de IBM). Puntos y posiciones: <code>api.nube("rotacion_malo")</code> y la misma con <code>["quitar_factor:fecha_salida"]</code>. <b>No se dice que la tarjeta de rotación responde «al instante»:</b> esa red no pasó su sello; hoy responde con el método lento, precalculado y rotulado.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 7 · Visión ============================== -->
+  <section class="lamina" id="l-vision" data-id="vision" data-pasos="1" data-gl="1">
+    <div class="rotulos"><span class="rotulo ruta">Hoja de ruta</span></div>
+
+    <div class="bloque cabeza" data-paso="0">
+      <div class="ceja" style="color:var(--calido)">Lo que viene</div>
+      <h2>Cada modelo difícil se entrena una vez. Después responde al instante, para cualquiera.</h2>
+    </div>
+
+    <span class="rotulo ilustracion mini ilus" style="left:110px">Ilustración</span>
+    <span class="rotulo ilustracion mini ilus" style="left:697px">Ilustración</span>
+    <span class="rotulo ilustracion mini ilus" style="left:1283px">Ilustración</span>
+    <div class="velo-pie"></div>
+
+    <div class="tres" data-paso="0">
+      <div><div class="ind">Minería</div><div class="preg">¿Dónde perforar?</div>
+        <div class="texto">El mismo tipo de modelo que el del terreno, bajo tierra y en tres dimensiones.</div></div>
+      <div><div class="ind">Clima</div><div class="preg">¿Qué trae El Niño?</div>
+        <div class="texto">Mapas de temperatura y lluvia que dicen cuánto se pueden equivocar.</div></div>
+      <div><div class="ind">Plataformas</div><div class="preg">¿Qué funciona de verdad?</div>
+        <div class="texto">Causa y efecto en miles de empresas a la vez, no solo coincidencias.</div></div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 2:20 a 2:36</h4>
+        <p class="dice">«Hoy lo ven en un terreno. La hoja de ruta: cada modelo difícil se entrena una vez y queda al instante para cualquiera. Dónde perforar, en minería. Qué trae El Niño. Qué acción funciona de verdad, en miles de empresas.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente"><b>Nada de esta lámina existe:</b> es hoja de ruta y las tres figuras son ilustraciones (un campo simulado, no datos de minería ni de clima). No hay cifras. Los modelos candidatos, con horas honestas, están en <code>pitch/MODELOS_CANDIDATOS.md</code>.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 8 · Negocio ============================== -->
+  <section class="lamina" id="l-negocio" data-id="negocio" data-pasos="2">
+    <canvas id="lienzo-negocio"></canvas>
+    <div class="rotulos"><span class="rotulo hipotesis">Hipótesis</span></div>
+
+    <div class="bloque cabeza" data-paso="0">
+      <div class="ceja">El primer cliente</div>
+      <h2>Una integración. Un data scientist para cada empresa.</h2>
+      <div class="texto">Plataformas de software con <b>miles de empresas cliente</b>, tipo Buk o AgendaPro: lo integran una vez y le responde a cada una.</div>
+    </div>
+
+    <div class="bloque unidad" data-paso="1">
+      <div class="cifra grad">US$ 20</div>
+      <div class="texto"><b>al mes por empresa que lo usa.</b><br>Hipótesis de precio, sin validar.</div>
+      <div class="cifra">US$ 240.000</div>
+      <div class="texto"><b>al año por cada 1.000 empresas activas.</b><br>Cálculo sobre esa hipótesis.</div>
+      <div class="chico sincero">Todavía no hablamos con clientes.</div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 2:36 a 2:48</h4>
+        <p class="dice">«¿A quién se lo vendemos primero? A plataformas con miles de empresas cliente: una integración, y cada empresa tiene su data scientist.» <b>[→]</b> «Veinte dólares al mes por empresa. Es una hipótesis, todavía sin validar.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">C-05 (US$ 20 al mes: hipótesis sin validar) y C-06 (US$ 240.000 al año por 1.000 empresas: cálculo sobre C-05). Buk y AgendaPro van solo como «tipo»: no son clientes ni dieron datos. Sin logos. Si preguntan: «todavía no hablamos con clientes».</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 9 · Cierre ============================== -->
+  <section class="lamina" id="l-cierre" data-id="cierre" data-pasos="1" data-gl="1">
+    <div class="velo"></div>
+    <div class="rotulos"><span class="rotulo simulado">Terrenos simulados</span></div>
+
+    <div class="bloque frase" data-paso="0">
+      <h1>Krylov sabe cuánto no sabe, <span class="grad">y te dice cuánto vale averiguarlo.</span></h1>
+      <div class="h3">En un segundo, porque ya practicó con millones de mundos simulados.</div>
+    </div>
+
+    <div class="bloque qr" data-paso="0">
+      <img src="qr.svg" alt="QR a krylov-tan.vercel.app">
+      <div class="h3">Escanea y mueve los costos tú</div>
+      <div class="url">krylov-tan.vercel.app</div>
+    </div>
+
+    <div class="bloque equipo" data-paso="0">
+      <div class="texto"><b id="equipo-nombres">Equipo 5</b> · Platanus Hack 26 · track Simulaciones</div>
+      <div class="texto" style="margin-top:8px">Lo construimos con Claude Code.</div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · 2:48 a 3:00</h4>
+        <p class="dice">«Lo construimos con Claude Code. Está en línea: escaneen y muevan los costos ustedes. Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.»</p></div>
+      <div><h4>Fuentes y cuidado</h4>
+        <p class="fuente">La frase es la de AGENTS.md. «Millones» se sostiene con M-01 (7.750.592 terrenos). El QR va a https://krylov-tan.vercel.app/ y es una imagen local (<code>qr.svg</code>). Los nombres del equipo se escriben en <code>EQUIPO</code>, al final de <code>index.html</code>, cuando cada persona lo confirme. De Anthropic, solo «lo construimos con Claude Code», salvo que la interpretación del chat funcione a las 18:00.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 10 · Respaldo técnico (fuera de los 3 minutos) ============================== -->
+  <section class="lamina" id="l-tecnica" data-id="tecnica" data-pasos="1" data-respaldo="1">
+    <div class="rotulos"><span class="rotulo medido">Respaldo técnico · sello del motor</span></div>
+    <div class="ceja">Solo si preguntan</div>
+    <h2>Inferencia basada en simulación, amortizada (NPE)</h2>
+
+    <div class="cols">
+      <div>
+        <div class="flujo"><span>Modelo generativo</span><i>→</i><span>Simulador</span><i>→</i><span>Codificador + flujo normalizador</span><i>→</i><span>Posterior en un paso</span></div>
+        <div class="sec">
+          <h5>Motor espacial · validado</h5>
+          <table>
+            <tr><td>Modelo</td><td>Proceso gaussiano anisotrópico, tendencia en √dist, 7 parámetros</td></tr>
+            <tr><td>Simulaciones de entrenamiento</td><td><span data-dato="sello.simulaciones_entrenamiento" data-formato="miles"></span> en <span data-dato="sello.entrenamiento_min"></span> min</td></tr>
+            <tr><td>SBC en <span data-dato="sello.casos_validacion" data-formato="miles"></span> simulaciones nuevas</td><td id="tec-sbc"></td></tr>
+            <tr><td>Cobertura del rango de 90%: mapa · parámetros</td><td><span data-dato="sello.cobertura_90" data-formato="coma2"></span> · <span data-dato="sello.cobertura_90_parametros" data-formato="coma3"></span></td></tr>
+            <tr><td>Peor grupo (<span data-dato="sello.peor_grupo"></span>)</td><td data-dato="sello.cobertura_90_peor_grupo" data-formato="coma3"></td></tr>
+            <tr><td>Contra MCMC (NUTS), <span data-dato="sello.mcmc_datasets_comparados"></span> terrenos: diferencia media</td><td><span data-dato="sello.mcmc_diferencia_media" data-formato="coma3"></span> desv. (límite 0,3)</td></tr>
+            <tr><td>Un análisis: MCMC · red</td><td><span data-dato="sello.mcmc_s_por_dataset" data-formato="coma1"></span> s · <span data-dato="sello.latencia_ms"></span> ms</td></tr>
+            <tr><td>Kriging con parámetros fijos: cobertura</td><td data-dato="sello.cobertura_90_metodo_rapido" data-formato="coma2"></td></tr>
+            <tr><td>Examen real: mediciones escondidas dentro del rango</td><td><span data-dato="terreno.examen_dentro"></span> de <span data-dato="terreno.examen.n"></span> · <span data-dato="sello.examen_5_particiones.dentro_del_rango_de_90"></span> de <span data-dato="sello.examen_5_particiones.mediciones_escondidas"></span> en 5 particiones</td></tr>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="sec">
+          <h5>Los otros tres motores · estado al sáb 11:00</h5>
+          <table class="estado">
+            <tr><td>Rotación (<code>supervivencia</code>)</td><td>El sello no pasa: 0,43 contra el MCMC. Responde el MCMC, precalculado</td></tr>
+            <tr><td>Inasistencias (<code>jerarquico</code>)</td><td>[entrenando; sello pendiente]</td></tr>
+            <tr><td>Crédito (<code>estados</code>)</td><td>[entrenando; sello pendiente]</td></tr>
+          </table>
+        </div>
+        <div class="sec">
+          <h5>Qué no hace todavía el motor espacial</h5>
+          <ul id="tec-limites"></ul>
+        </div>
+        <div class="sec">
+          <h5>Las 7 horas</h5>
+          <ul><li>228 análisis × 117,1 s del MCMC por análisis = 26.699 s. El MCMC se midió en 6 terrenos; no se corrieron las 7 horas de corrido.</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas</h4>
+        <p class="dice">Esta lámina sí usa los nombres técnicos. Todo sale de <code>motor/artefactos/espacial/sello.json</code> y de <code>api.analizar("terreno")</code>. La tabla de la derecha se edita a mano en <code>index.html</code> cuando cambie el estado de un motor.</p></div>
+      <div><h4>Fuentes</h4>
+        <p class="fuente">M-01, M-02, M-10, M-11, M-13, M-25, M-28 y el sello de <code>espacial</code> (PC 2, sáb 09:39). Estado de los otros motores: <code>estado/TABLERO.md</code> de las 10:14.</p></div>
+    </div></aside>
+  </section>
+
+  <div id="cromo">
+    <div id="marca">Krylov<i>.</i></div>
+    <div id="cuenta"></div>
+    <div id="avance"></div>
+    <div id="pausa">❚❚ PAUSA</div>
+  </div>
+  <div id="panel-notas"></div>
+</div>
+
+<script>
+  // Nombres del equipo para la lámina de cierre. Se escriben cuando cada persona confirme que se puede mostrar el suyo.
+  window.EQUIPO = [];
+</script>
+<script src="vendor/three.min.js"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="datos/datos.js"></script>
+<script src="js/nucleo.js"></script>
+<script src="js/campo.js"></script>
+<script src="js/apertura.js"></script>
+<script src="js/problema.js"></script>
+<script src="js/mundos.js"></script>
+<script src="js/terreno.js"></script>
+<script src="js/nube.js"></script>
+<script src="js/vision.js"></script>
+<script src="js/negocio.js"></script>
+<script src="js/cierre.js"></script>
+<script>K.enlazarDatos(); K.arrancar();</script>
+</body>
+</html>
