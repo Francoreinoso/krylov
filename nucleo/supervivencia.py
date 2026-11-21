@@ -687,6 +687,22 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
             "registro": registro + [f"{len(theta)} versiones creíbles"]}
 
 
+def empresas_de_la_cartera(n_empresas: int):
+    """Las empresas simuladas de la cartera, lote por lote y siempre las mismas (semilla fija): cada lote es la salida de `simular`.
+
+    Salen del generador paramétrico de covariables (WORKPLAN.md 11.6). Las usan la cartera con la red y la que se
+    precalcula con el MCMC (`motor/supervivencia/cartera_mcmc.py`), así una empresa tiene el mismo nombre en las dos.
+    """
+    import importlib
+
+    from nucleo import cartera as comun
+    simular = importlib.import_module("motor.supervivencia.simular")         # el simulador es NumPy puro
+    config = simular.cargar_config()
+    rng = np.random.default_rng(2026)
+    for b in comun.tamanos_de_lote(n_empresas):
+        yield simular.simular(rng, b, simular.muestrear_n(rng, config), config)
+
+
 def cartera(caso: dict) -> dict:
     """Mil empresas simuladas con el modelo generativo, analizadas en lote con la red (ver `nucleo/cartera.py`).
 
@@ -695,21 +711,17 @@ def cartera(caso: dict) -> dict:
     se devuelven las probabilidades de las personas por decidir. Cada muestra de θ de cada lote es una tarea de un
     grupo de hilos, y el hilo principal sigue simulando y resumiendo los lotes siguientes mientras tanto.
     """
-    import importlib
     from concurrent.futures import ThreadPoolExecutor
 
     from nucleo import cartera as comun
 
     def analizar_lotes(n_empresas: int, muestras: int):
         sesion, pesos, _ = _red_exportada()
-        simular = importlib.import_module("motor.supervivencia.simular")     # el simulador es NumPy puro
-        config = simular.cargar_config()
-        rng = np.random.default_rng(2026)                                    # semilla fija: la cartera del demo es siempre la misma
         ruido = flujo_numpy.ruido(0, muestras, DIM_THETA)
         with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as hilos:
             pendientes = []
-            for b in comun.tamanos_de_lote(n_empresas):
-                lote = simular.simular(rng, b, simular.muestrear_n(rng, config), config)       # covariables del generador paramétrico
+            for lote in empresas_de_la_cartera(n_empresas):
+                b = len(lote["theta"])
                 resumen = sesion.run(None, {"filas": lote["filas"], "grupo": lote["grupo"]})[0]
                 theta = flujo_numpy.muestrear(pesos, resumen[None], np.broadcast_to(ruido[:, None, :], (muestras, b, DIM_THETA))).astype(np.float64)
                 variables = variables_del_modelo(lote)

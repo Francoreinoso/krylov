@@ -135,11 +135,21 @@ def test_cartera_en_lote(con):
     assert sv.cartera(caso)["filas"] == r["filas"]                                            # semilla fija
 
 
-def test_cartera_precalculada_con_mcmc(artefactos, con):
+def test_cartera_precalculada_con_mcmc(artefactos, con, tmp_path, monkeypatch):
+    """Sin `cartera.json` no hay cartera en `mcmc`; con el archivo que deja `cartera_mcmc` (aquí, una empresa y un puñado de pasos), sale rotulada."""
+    from motor.supervivencia import cartera_mcmc
     con("mcmc")
-    caso = {**casos.cargar_caso("rotacion"), "cartera": {"modo": "simulada", "n": 60}}
     with pytest.raises(casos.ErrorKrylov):
-        sv.cartera(caso)
+        sv.cartera(casos.cargar_caso("rotacion"))
+    monkeypatch.setattr(casos, "ARTEFACTOS", tmp_path)
+    escrita = cartera_mcmc.precalcular(1, tmp_path / "supervivencia", calentamiento=20, muestras=20, cadenas=1, profundidad=4)
+    r = api.cartera("rotacion")
+    ejemplo = json.loads((EJEMPLOS / "cartera.json").read_text(encoding="utf-8"))
+    assert set(r) == {k for k in ejemplo if not k.startswith("_")} and set(r["filas"][0]) == set(ejemplo["filas"][0])
+    assert r["precalculado"] is True and r["n_analisis"] == 1 and r["filas"] == escrita["filas"] and r["tiempo_ms"] > 0
+    # Es una de las empresas de la cartera con la red: mismo nombre y mismas personas por decidir.
+    lotes = list(sv.empresas_de_la_cartera(1000))
+    assert r["filas"][0]["cliente"].startswith("Empresa ") and r["filas"][0]["n_unidades"] == round(0.2 * min(l["tiempo"].shape[1] for l in lotes))
 
 
 def test_el_servicio_no_importa_torch():
