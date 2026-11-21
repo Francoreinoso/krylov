@@ -310,7 +310,9 @@ def sbc(esp: ModuleType, red: RedSeries, datasets: int = 2000, muestras: int = 9
         hay = sim["mascara"].sum(-1) > 0                                          # (B, U)
         U = hay.shape[1]
         r_eta.append((eta < sim["eta"][None]).sum(0)); v_eta.append(sim["eta"]); m_eta.append(eta.mean(0)); tam_eta.append(np.full(lote, U))
-        r_lam.append((lam < sim["lam"][None]).sum(0)[hay]); v_lam.append(sim["lam"][hay]); m_lam.append(lam.mean(0)[hay])
+        d_l = len(esp.NOMBRES_LAM)                                                 # sin z_j: su rango no es continuo
+        r_lam.append((lam[..., :d_l] < sim["lam"][None, ..., :d_l]).sum(0)[hay]); v_lam.append(sim["lam"][..., :d_l][hay])
+        m_lam.append(lam[..., :d_l].mean(0)[hay])
         cantidad = esp.cantidad_de(eta, lam, sim["extra"])                        # (L, B, U)
         r_dec.append((cantidad < sim["cantidad"][None]).sum(0)[hay]); tam_dec.append(np.full(int(hay.sum()), U))
         lec_dec.append(sim["mascara"].sum(-1)[hay])

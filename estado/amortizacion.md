@@ -20,10 +20,13 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 13:20 · A-23, ampliación: el andamio acepta un estado discreto por unidad (`CON_CLASE`, para `deformacion`: estable o acelerando), con su cabeza exportada junto al flujo local y muestreada en NumPy. Las mismas pruebas pasan.
 - sáb 13:20 · A-24: `api.analizar("flotacion")` probado de punta a punta con una red de ensayo exportada a una carpeta temporal: la respuesta trae las mismas claves que `contratos/ejemplos/analizar_flotacion.json` (unidades con `curva`, factores, examen, semáforo) y un archivo de 1 línea da `rojo_datos` con su motivo. La red de ensayo se borró: no hay artefactos de `cinetica` en el repositorio.
+- sáb 13:31 · A-24, prueba de humo de `cinetica`: 305.536 datasets en 3 min (CPU, lote 128); la pérdida media bajó de 6,9 a 4,0; `validar --sbc 200` corre (cobertura de lo que se decide 0,91, ensayo: no es resultado). Comando: `uv run python -m motor.cinetica.entrenar --minutos 3 --nuevo --carpeta motor/checkpoints/cinetica_humo`.
+- sáb 13:32 · A-25 terminada: `deformacion` listo para lanzar en PC 3. `nucleo/deformacion.py` (diseño 6 a 80 sectores, 24 a 200 lecturas, hasta 15% faltantes; un solo preprocesamiento: grilla común, resta de la primera lectura y de la mediana entre sectores, escala e; `analizar` con curva y `marca`) y `motor/deformacion/` (simular, entrenar, validar, exportar, pruebas). Estado discreto por sector (`CON_CLASE`); locales (log v, log(u_f − 1), log A). Verificado: `uv run pytest motor/deformacion nucleo -q` pasa (predictivo a priori del demo entre los percentiles 2 y 98, mismo preprocesamiento en simulador y archivo, modo común exacto, `rojo_datos` con 3 sectores o 10 lecturas); exporta con NumPy = torch (diferencia bajo 1e-6) y `analizar("taludes")` da la forma del contrato en 212 ms con la red sin entrenar. Prueba de humo: 129.536 datasets en 3 min (GPU del Mac, lote 128), pérdida de 10,2 a 4,9; `validar --sbc 200` corre (ensayo, no es resultado).
+- sáb 13:32 · A-23, arreglo del andamio: con estado discreto, la cobertura local ya no cuenta la columna z.
 
 ## En curso
 
-- sáb 13:20 · Nada corriendo y ningún entrenamiento lanzado: el repositorio queda preparado para que los tres computadores partan. Sigue, en este orden: prueba de humo de `cinetica` (A-24), `deformacion` (A-25), lanzar la ronda 1 (A-26) cuando el equipo lo diga.
+- sáb 13:32 · A-26: ronda 1 lista para lanzar cuando Rodrigo dé la partida. PC 3: `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 128 --guardar-cada-min 10` (medido aquí: 670 a 770 datasets/s en la GPU del Mac, 3,5 GB; en CPU con lote 64, 130/s). PC 2: `cinetica` con `--dispositivo mps --lote 512`. Sigue A-28 (`sismico`) y A-27 (`desgaste`), sin lanzar.
 
 ## Bloqueos
 
@@ -34,6 +37,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 13:10 · **A PC 3:** por encargo directo de la persona de PC 2 esta sesión editó archivos tuyos: `DECISIONES.md` (D-38), `WORKPLAN.md`, `casos/INICIO` (las cuatro tarjetas descomentadas), las skills y el tablero en vivo (sección nueva que lee `estado/MODELOS.md`). Falta de tu lado: `PC3_SEGUIMIENTO.md` y la columna «Método lento» de `estado/TABLERO.md` todavía suponen el MCMC antes del entrenamiento; con D-38, «Método lento» pendiente no es atraso hasta A-36. Y hay una decisión abierta para las 17:30 al final de `DECISIONES.md` (ronda 2).
 - sáb 13:10 · **A PC 1:** el contrato ganó dos cosas opcionales (D-38). `papeles(motor_id)` trae `rangos` (tamaños con que practicó la red y una `frase` lista); un archivo sobre el máximo responde `amarillo` con aviso (submuestra de semilla fija) y bajo el mínimo `rojo_datos` con su motivo. La forma de `analizar` no cambió.
 - sáb 13:10 · **A PC 3:** registrar cifras solo cuando haya sello; hoy no hay ninguna nueva.
+- sáb 13:32 · **A PC 3 (`WORKPLAN.md` 11.2):** el motor quedó con tres locales continuos (log v_j, log(u_f,j − 1), log A_j) más z_j, no solo (z_j, log(u_f,j − 1)); y el simulador suma un modo común AR(1) que no se infiere (amplitud hasta 0,4 del sector típico): el preprocesamiento lo resta. Agregar esas dos líneas al bloque.
+- sáb 13:32 · **A PC 3 (`casos/taludes.yaml`):** `velocidad_fondo` no tiene sentido sin unidades (el motor divide por la escala del archivo) y no sale en «qué pesa». Propuesta: cambiar esa etiqueta por `falta_para_ceder: "Cuánto les falta, en general, a los sectores que se aceleran"`. `ruido` ahora es el error de lectura comparado con el movimiento de fondo.
 
 ## Entrenamiento en curso
 
