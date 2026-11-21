@@ -7,6 +7,7 @@ sale de estos archivos.
 
 from __future__ import annotations
 
+import csv
 import os
 from functools import cache
 from pathlib import Path
@@ -15,7 +16,8 @@ import yaml
 
 RAIZ = Path(__file__).resolve().parent.parent
 CARPETA_CASOS = RAIZ / "casos"
-ARTEFACTOS = RAIZ / "motor" / "artefactos"
+# Los artefactos de cada motor. La variable sirve para probar con una exportación que no es la versionada.
+ARTEFACTOS = Path(os.environ.get("KRYLOV_ARTEFACTOS", RAIZ / "motor" / "artefactos"))
 MOTORES = ("supervivencia", "jerarquico", "estados", "espacial")
 MONEDAS = {"USD": "dólares", "CLP": "pesos"}
 
@@ -90,3 +92,13 @@ def en_plata(valor: float, moneda: str) -> str:
     if valor >= 1e3:
         return f"{round(valor / 1e3)} mil {nombre}"
     return f"{round(valor)} {nombre}"
+
+
+def leer_columnas(ruta: str | Path) -> dict[str, list[str]]:
+    """Un CSV como columnas de texto, por nombre de encabezado. Las rutas relativas parten de la raíz del repositorio."""
+    ruta = Path(ruta) if Path(ruta).is_absolute() else RAIZ / ruta
+    if not ruta.exists():
+        raise ErrorKrylov(f"No encuentro el archivo de datos «{ruta.name}».", "sin_datos")
+    with open(ruta, encoding="utf-8", newline="") as f:
+        filas = list(csv.DictReader(f))
+    return {nombre: [fila[nombre] for fila in filas] for nombre in (filas[0] if filas else {})}

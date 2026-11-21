@@ -125,4 +125,5 @@ def preparar_terreno(x, y, valor, transformacion: str | None = None, grilla: dic
         "canales": np.stack([v, m, r]).astype(np.float32),
         "media": float(media.reshape(())), "escala": float(escala.reshape(())),
         "geometria": geo, "dentro": dentro, "tiene_tendencia": grilla is not None,
+        "suma": suma, "cuenta": cuenta, "raiz_dist": raiz_dist,
     }
