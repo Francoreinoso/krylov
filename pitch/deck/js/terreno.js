@@ -1,207 +1,260 @@
 /* 4 · El mapa   y   5 · ¿Dónde mido?
-   El terreno real en 3D. Altura = zinc estimado; color = decisión; capa translúcida = rango creíble; puntos = mediciones reales.
-   Todo sale de datos.js (api.analizar, api.donde_medir y los mapas rehechos por la red). Las dos láminas comparten la escena. */
+   El terreno real como una superficie topográfica. Altura = metal estimado; color = decisión; curvas de nivel cada 100 mg/kg;
+   línea blanca = el nivel que obliga a actuar; malla de arriba = tope del rango creíble; puntos blancos = las mediciones reales.
+   Todo sale de datos.js (api.analizar, api.donde_medir y los mapas rehechos por la red). La superficie se dibuja interpolando
+   entre los bloques del motor. Las dos láminas comparten la escena. */
 (function () {
   'use strict';
   const K = window.K;
-  const F = 0.0062;                    // unidades de escena por mg/kg
-  let M = null;
+  const F = 0.0052;                    // unidades de escena por mg/kg
+  const M = 192;                       // lado de la rejilla fina con que se dibuja la superficie
+  let E = null;
+
+  // ---------- de los bloques del motor a una rejilla suave ----------
+  function rejilla(T, capa) {
+    const N = T.nx, lleno = new Uint8Array(N * N);
+    const g = { media: new Float32Array(N * N), alto: new Float32Array(N * N), p: new Float32Array(N * N) }, claves = ['media', 'alto', 'p'];
+    T.dentro.forEach(function (idx, i) { lleno[idx] = 1; claves.forEach(function (k) { g[k][idx] = capa[k][i]; }); });
+    const masc = Float32Array.from(lleno);
+    // Fuera del terreno se repite el valor del bloque más cercano, para que el borde no se caiga.
+    for (let vuelta = 0, falta = true; falta && vuelta < 64; vuelta++) {
+      falta = false;
+      const nuevos = [];
+      for (let f = 0; f < N; f++) for (let c = 0; c < N; c++) {
+        const i = f * N + c;
+        if (lleno[i]) continue;
+        let n = 0; const suma = [0, 0, 0];
+        for (let df = -1; df <= 1; df++) for (let dc = -1; dc <= 1; dc++) {
+          const ff = f + df, cc = c + dc;
+          if (ff < 0 || cc < 0 || ff >= N || cc >= N || !lleno[ff * N + cc]) continue;
+          n++; claves.forEach(function (k, q) { suma[q] += g[k][ff * N + cc]; });
+        }
+        if (n) nuevos.push([i, suma[0] / n, suma[1] / n, suma[2] / n]); else falta = true;
+      }
+      nuevos.forEach(function (v) { lleno[v[0]] = 1; g.media[v[0]] = v[1]; g.alto[v[0]] = v[2]; g.p[v[0]] = v[3]; });
+    }
+    const subir = function (a) {
+      const s = new Float32Array(M * M);
+      for (let y = 0; y < M; y++) {
+        const fy = K.acotar(((y + 0.5) / M) * N - 0.5, 0, N - 1), y0 = Math.floor(fy), y1 = Math.min(N - 1, y0 + 1), ty = fy - y0;
+        for (let x = 0; x < M; x++) {
+          const fx = K.acotar(((x + 0.5) / M) * N - 0.5, 0, N - 1), x0 = Math.floor(fx), x1 = Math.min(N - 1, x0 + 1), tx = fx - x0;
+          s[y * M + x] = (a[y0 * N + x0] * (1 - tx) + a[y0 * N + x1] * tx) * (1 - ty) + (a[y1 * N + x0] * (1 - tx) + a[y1 * N + x1] * tx) * ty;
+        }
+      }
+      return s;
+    };
+    const difuminar = function (a, radio, pasadas) {
+      let o = a, t = new Float32Array(M * M);
+      for (let k = 0; k < pasadas * 2; k++) {
+        const horizontal = k % 2 === 0;
+        for (let y = 0; y < M; y++) for (let x = 0; x < M; x++) {
+          let s = 0;
+          for (let d = -radio; d <= radio; d++) {
+            const xx = horizontal ? K.acotar(x + d, 0, M - 1) : x, yy = horizontal ? y : K.acotar(y + d, 0, M - 1);
+            s += o[yy * M + xx];
+          }
+          t[y * M + x] = s / (2 * radio + 1);
+        }
+        const cambio = o === a ? new Float32Array(M * M) : o; o = t; t = cambio;
+      }
+      return o;
+    };
+    return { media: difuminar(subir(g.media), 3, 2), alto: difuminar(subir(g.alto), 3, 2), p: difuminar(subir(g.p), 2, 1), masc: difuminar(subir(masc), 2, 1) };
+  }
+  K.rejilla = function (capa) { return rejilla(K.datos.terreno, capa || K.datos.terreno); };
+  K.rejillaLado = M;
 
   const VERT = `
-    attribute vec2 aPos;
-    attribute vec2 aAlt;
-    attribute vec2 aTope;
-    attribute vec2 aEst;
-    attribute float aRet;
-    attribute float aOrden;
-    attribute float aCambia;
-    uniform float uCrece;
-    uniform float uMorf;
-    uniform float uEsVidrio;
-    varying vec3 vN;
-    varying vec3 vM;
-    varying vec2 vEst;
+    uniform sampler2D uA;
+    uniform sampler2D uB;
+    uniform float uMorf, uCrece, uAlt, uTecho;
+    uniform vec2 uPin;
+    uniform vec2 uCentro;
+    varying vec2 vUv;
+    varying vec3 vP;
     varying float vK;
-    varying float vY;
     varying float vCrece;
-    varying float vCambia;
-
     void main() {
-      float k = clamp(uMorf * 1.7 - aRet * 0.7, 0.0, 1.0);
+      vUv = uv;
+      float frente = uMorf * 1.9 - distance(position.xz, uPin) / 16.0 * 0.9;
+      float k = clamp(frente, 0.0, 1.0);
       k = k * k * (3.0 - 2.0 * k);
-      float crece = clamp(uCrece * 1.8 - aOrden * 0.8, 0.0, 1.0);
+      vec4 d = mix(texture2D(uA, uv), texture2D(uB, uv), k);
+      float crece = clamp(uCrece * 1.7 - length(position.xz - uCentro) / 20.0 * 0.7, 0.0, 1.0);
       crece = 1.0 - pow(1.0 - crece, 3.0);
-      float h = max(mix(aAlt.x, aAlt.y, k) * crece, 0.07);
-      float y = position.y * h;
-      float ancho = 0.9;
-      if (uEsVidrio > 0.5) {
-        float tope = max(mix(aTope.x, aTope.y, k) * crece, h);
-        y = h + position.y * (tope - h);
-        ancho = 0.82;
-      }
-      vec3 p = vec3(aPos.x + position.x * ancho, y, aPos.y + position.z * ancho);
-      vN = normal; vM = p; vEst = aEst; vK = k; vY = position.y; vCrece = crece;
-      vCambia = aCambia * sin(3.14159 * k);
-      gl_Position = projectionMatrix * viewMatrix * vec4(p, 1.0);
+      float h = mix(d.r, d.g, uTecho) * uAlt * crece;
+      float onda = sin(clamp(frente, 0.0, 1.0) * 3.14159) * 0.45 * step(0.0005, uMorf) * step(uMorf, 0.9995);
+      vec3 p = vec3(position.x, h + onda, position.z);
+      vP = p; vK = k; vCrece = crece;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
     }`;
 
-  const COLOR = `
-    vec3 colorDe(float e, vec3 m) {
-      if (e < 0.5) return vec3(0.122, 0.616, 0.380);                         // no hace falta  (#1f9d61)
-      if (e > 1.5) return vec3(0.851, 0.247, 0.247);                         // hay que limpiar (#d93f3f)
-      float raya = step(0.5, fract((m.x + m.z + m.y) * 1.3));                // no sabemos: ámbar achurado (#e0a100)
-      return mix(vec3(0.878, 0.631, 0.0), vec3(1.0, 0.87, 0.55), raya * 0.8);
+  const ZONAS = `
+    uniform float uDuda;
+    const vec3 C_ACTUAR = vec3(0.90, 0.38, 0.23);     // rojo cobre
+    const vec3 C_BIEN = vec3(0.12, 0.60, 0.55);       // óxido de cobre, turquesa
+    const vec3 C_DUDA = vec3(0.94, 0.76, 0.35);       // oro
+    float zona(float p, float w) {                    // +1 actuar, 0 en duda, −1 no hace falta
+      return smoothstep(1.0 - uDuda - w, 1.0 - uDuda + w, p) - (1.0 - smoothstep(uDuda - w, uDuda + w, p));
     }`;
 
   const FRAG = `
     precision highp float;
-    varying vec3 vN;
-    varying vec3 vM;
-    varying vec2 vEst;
+    uniform sampler2D uA;
+    uniform sampler2D uB;
+    uniform float uMax, uUmbral, uT, uColor;
+    varying vec2 vUv;
+    varying vec3 vP;
     varying float vK;
-    varying float vY;
     varying float vCrece;
-    varying float vCambia;
-    ${COLOR}
+    ${ZONAS}
     void main() {
-      vec3 c = mix(colorDe(vEst.x, vM), colorDe(vEst.y, vM), vK);
-      c = mix(vec3(0.15, 0.16, 0.27), c, smoothstep(0.0, 0.3, vCrece));
-      float d = max(dot(vN, normalize(vec3(0.5, 0.85, 0.3))), 0.0);
-      float luz = 0.40 + 0.62 * d;
-      float grad = vN.y > 0.5 ? 1.0 : mix(0.5, 1.0, vY);
-      c = c * luz * grad + vec3(1.0) * vCambia * 0.7;
+      vec4 a = texture2D(uA, vUv), b = texture2D(uB, vUv), d = mix(a, b, vK);
+      if (d.a < 0.5) discard;
+      float mg = d.r * uMax, w = fwidth(d.b) * 1.2 + 0.004;
+      float z = zona(d.b, w);
+      float raya = smoothstep(0.40, 0.60, abs(fract((vP.x + vP.z) * 1.1 - uT * 0.1) - 0.5) * 2.0);
+      vec3 c = mix(C_DUDA, C_DUDA * 0.46, raya);
+      c = mix(c, C_ACTUAR, max(z, 0.0));
+      c = mix(c, C_BIEN, max(-z, 0.0));
+      vec3 n = normalize(cross(dFdx(vP), dFdy(vP)));
+      if (n.y < 0.0) n = -n;
+      float luz = 0.52 + 0.62 * max(dot(n, normalize(vec3(0.5, 0.75, 0.42))), 0.0);
+      // curvas de nivel cada 100 mg/kg, y más marcada cada 500
+      float f = mg / 100.0, ancho = fwidth(f);
+      float curva = 1.0 - smoothstep(0.0, 1.3, abs(fract(f - 0.5) - 0.5) / ancho);
+      float g = mg / 500.0;
+      float mayor = 1.0 - smoothstep(0.0, 2.0, abs(fract(g - 0.5) - 0.5) / fwidth(g));
+      c = c * luz * (1.0 - 0.42 * curva - 0.25 * mayor);
+      // lo que cambió de decisión al rehacer el mapa, destella
+      float cambio = clamp(abs(zona(a.b, 0.02) - zona(b.b, 0.02)), 0.0, 1.0) * sin(3.14159 * vK);
+      float pinta = uColor * smoothstep(0.0, 0.3, vCrece);
+      c = mix(vec3(0.16, 0.15, 0.14), c, pinta);
+      float corte = (1.0 - smoothstep(0.7, 2.0, abs(mg - uUmbral) / fwidth(mg))) * pinta;
+      c = mix(c, vec3(1.0), corte) + vec3(1.0, 0.95, 0.8) * cambio * 0.8;
+      c *= 0.62 + 0.38 * smoothstep(0.5, 0.64, d.a);
       gl_FragColor = vec4(c, 1.0);
     }`;
 
-  const FRAG_VIDRIO = `
+  const FRAG_TECHO = `
     precision highp float;
-    uniform float uVidrio;
-    varying vec3 vN;
-    varying vec3 vM;
-    varying vec2 vEst;
+    uniform sampler2D uA;
+    uniform sampler2D uB;
+    uniform float uMax, uVidrio;
+    varying vec2 vUv;
+    varying vec3 vP;
     varying float vK;
-    varying float vY;
-    ${COLOR}
+    ${ZONAS}
     void main() {
-      vec3 c = mix(colorDe(vEst.x, vM), colorDe(vEst.y, vM), vK);
-      c = mix(c, vec3(1.0), 0.35);
-      float a = vN.y > 0.5 ? 0.30 : (vN.y < -0.5 ? 0.0 : 0.035 + 0.11 * vY * vY);
-      gl_FragColor = vec4(c * a * uVidrio, 1.0);
+      vec4 d = mix(texture2D(uA, vUv), texture2D(uB, vUv), vK);
+      if (d.a < 0.5) discard;
+      vec2 g = abs(fract(vP.xz) - 0.5) / fwidth(vP.xz);
+      float red = 1.0 - smoothstep(0.0, 1.25, min(g.x, g.y));
+      float sep = (d.g - d.r) * uMax;
+      float al = (red * 0.62 + 0.03) * uVidrio * smoothstep(15.0, 160.0, sep);
+      if (al < 0.006) discard;
+      float z = zona(d.b, 0.02);
+      vec3 c = mix(mix(C_DUDA, C_ACTUAR, max(z, 0.0)), C_BIEN, max(-z, 0.0));
+      gl_FragColor = vec4(mix(c, vec3(1.0), 0.45) * al, 1.0);
     }`;
+
+  const FRAG_BASE = `
+    precision highp float;
+    uniform sampler2D uA;
+    varying vec2 vUv;
+    varying vec3 vP;
+    void main() {
+      float m = texture2D(uA, vUv).a;
+      if (m < 0.5) discard;
+      vec2 g = abs(fract(vP.xz) - 0.5) / fwidth(vP.xz);
+      float red = 1.0 - smoothstep(0.0, 1.2, min(g.x, g.y));
+      gl_FragColor = vec4(vec3(0.085, 0.078, 0.07) + vec3(0.07, 0.06, 0.05) * red, 1.0);
+    }`;
+
+  const VERT_HAZ = `
+    varying float vY;
+    void main() { vY = position.y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+  const FRAG_HAZ = `
+    precision highp float;
+    uniform vec3 uCol;
+    uniform float uA;
+    varying float vY;
+    void main() { gl_FragColor = vec4(uCol * uA * (0.16 + 0.84 * vY * vY), 1.0); }`;
 
   function construir() {
     const D = K.datos, T = D.terreno, n = T.dentro.length, nx = T.nx;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(33, 16 / 9, 1, 400);
-    camera.setViewOffset(1920, 1080, -400, 0, 1920, 1080);          // el terreno, a la derecha del texto
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(33, 16 / 9, 1, 500);
 
-    // ----- geometría de los bloques -----
-    const px = new Float32Array(n), pz = new Float32Array(n), indiceDe = {};
+    // centro del terreno
     let cx = 0, cz = 0;
-    for (let i = 0; i < n; i++) {
-      const idx = T.dentro[i];
-      px[i] = (idx % nx) - nx / 2 + 0.5;
-      pz[i] = -(Math.floor(idx / nx) - nx / 2 + 0.5);
-      cx += px[i] / n; cz += pz[i] / n;
-      indiceDe[idx] = i;
-    }
-    function aEscena(x, y) {
-      return { x: (x - T.x0) / T.lado - nx / 2 - cx, z: -((y - T.y0) / T.lado - nx / 2) - cz };
-    }
-    function bloqueDe(x, y) {
-      const c = Math.floor((x - T.x0) / T.lado), f = Math.floor((y - T.y0) / T.lado);
-      return indiceDe[f * nx + c];
-    }
+    const indiceDe = {};
+    T.dentro.forEach(function (idx, i) { cx += ((idx % nx) - nx / 2 + 0.5) / n; cz += -(Math.floor(idx / nx) - nx / 2 + 0.5) / n; indiceDe[idx] = i; });
+    function aEscena(x, y) { return { x: (x - T.x0) / T.lado - nx / 2 - cx, z: -((y - T.y0) / T.lado - nx / 2) - cz }; }
+    function bloqueDe(x, y) { return indiceDe[Math.floor((y - T.y0) / T.lado) * nx + Math.floor((x - T.x0) / T.lado)]; }
 
-    const aPos = new Float32Array(n * 2), aAlt = new Float32Array(n * 2), aTope = new Float32Array(n * 2),
-      aEst = new Float32Array(n * 2), aRet = new Float32Array(n), aOrden = new Float32Array(n), aCambia = new Float32Array(n);
-    let rMax = 0;
-    for (let i = 0; i < n; i++) {
-      px[i] -= cx; pz[i] -= cz;
-      aPos[i * 2] = px[i]; aPos[i * 2 + 1] = pz[i];
-      rMax = Math.max(rMax, Math.hypot(px[i], pz[i]));
-    }
-    for (let i = 0; i < n; i++) aOrden[i] = Math.hypot(px[i], pz[i]) / rMax;
-
-    const atributos = {
-      aPos: new THREE.InstancedBufferAttribute(aPos, 2), aAlt: new THREE.InstancedBufferAttribute(aAlt, 2),
-      aTope: new THREE.InstancedBufferAttribute(aTope, 2), aEst: new THREE.InstancedBufferAttribute(aEst, 2),
-      aRet: new THREE.InstancedBufferAttribute(aRet, 1), aOrden: new THREE.InstancedBufferAttribute(aOrden, 1),
-      aCambia: new THREE.InstancedBufferAttribute(aCambia, 1),
-    };
-    function geometria() {
-      const caja = new THREE.BoxGeometry(1, 1, 1);
-      caja.translate(0, 0.5, 0);
-      const g = new THREE.InstancedBufferGeometry();
-      g.index = caja.index;
-      g.setAttribute('position', caja.attributes.position);
-      g.setAttribute('normal', caja.attributes.normal);
-      Object.keys(atributos).forEach(function (k) { g.setAttribute(k, atributos[k]); });
-      g.instanceCount = n;
-      return g;
-    }
-    const u = { uCrece: { value: 0 }, uMorf: { value: 0 }, uVidrio: { value: 0 } };
-    const solido = new THREE.Mesh(geometria(), new THREE.ShaderMaterial({
-      uniforms: { uCrece: u.uCrece, uMorf: u.uMorf, uEsVidrio: { value: 0 } }, vertexShader: VERT, fragmentShader: FRAG,
-    }));
-    const vidrio = new THREE.Mesh(geometria(), new THREE.ShaderMaterial({
-      uniforms: { uCrece: u.uCrece, uMorf: u.uMorf, uVidrio: u.uVidrio, uEsVidrio: { value: 1 } }, vertexShader: VERT, fragmentShader: FRAG_VIDRIO,
-      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    }));
-    solido.frustumCulled = vidrio.frustumCulled = false;
-    vidrio.renderOrder = 5;
-    scene.add(solido, vidrio);
-
-    // capa actual (desde) y destino (hacia) de cada bloque
-    let actual = T;
-    function poner(capa, componente) {
-      for (let i = 0; i < n; i++) {
-        aAlt[i * 2 + componente] = capa.media[i] * F;
-        aTope[i * 2 + componente] = capa.alto[i] * F;
-        aEst[i * 2 + componente] = capa.estado[i];
+    // ----- una textura por capa: la base y los nueve mapas rehechos -----
+    let maximo = 0;
+    const capas = [T];
+    Object.keys(D.mediciones).forEach(function (l) { Object.keys(D.mediciones[l]).forEach(function (q) { capas.push(D.mediciones[l][q]); }); });
+    capas.forEach(function (c) { c.alto.forEach(function (v) { maximo = Math.max(maximo, v); }); });
+    function textura(capa) {
+      if (capa._tex) return capa._tex;
+      const r = rejilla(T, capa), bytes = new Uint8Array(M * M * 4);
+      for (let i = 0; i < M * M; i++) {
+        bytes[i * 4] = Math.round(K.acotar(r.media[i] / maximo, 0, 1) * 255);
+        bytes[i * 4 + 1] = Math.round(K.acotar(r.alto[i] / maximo, 0, 1) * 255);
+        bytes[i * 4 + 2] = Math.round(K.acotar(r.p[i], 0, 1) * 255);
+        bytes[i * 4 + 3] = Math.round(K.acotar(r.masc[i], 0, 1) * 255);
       }
+      const t = new THREE.DataTexture(bytes, M, M, THREE.RGBAFormat);
+      t.magFilter = t.minFilter = THREE.LinearFilter;
+      t.needsUpdate = true;
+      capa._tex = t;
+      return t;
     }
-    function subir() { atributos.aAlt.needsUpdate = atributos.aTope.needsUpdate = atributos.aEst.needsUpdate = atributos.aRet.needsUpdate = atributos.aCambia.needsUpdate = true; }
-    poner(T, 0); poner(T, 1);
 
-    // ----- piso, orilla del río y nivel que obliga a limpiar -----
-    const piso = new THREE.GridHelper(40, 40, 0x2b2d4c, 0x181a2d);
-    piso.position.y = -0.02;
+    const u = {
+      uA: { value: textura(T) }, uB: { value: textura(T) }, uMorf: { value: 0 }, uCrece: { value: 0 }, uAlt: { value: maximo * F },
+      uPin: { value: new THREE.Vector2(0, 0) }, uMax: { value: maximo }, uUmbral: { value: T.umbral }, uDuda: { value: T.umbral_de_duda || 0.1 },
+      uT: { value: 0 }, uColor: { value: 1 }, uVidrio: { value: 0 }, uCentro: { value: new THREE.Vector2(cx, cz) },
+    };
+    const plano = new THREE.PlaneGeometry(nx, nx, 220, 220);
+    plano.rotateX(-Math.PI / 2);
+    function malla(frag, techo, opciones) {
+      const m = new THREE.Mesh(plano, new THREE.ShaderMaterial(Object.assign({
+        uniforms: Object.assign({}, u, { uTecho: { value: techo } }), vertexShader: VERT, fragmentShader: frag,
+        side: THREE.DoubleSide, extensions: { derivatives: true },
+      }, opciones || {})));
+      m.position.set(-cx, 0, -cz);
+      m.frustumCulled = false;
+      return m;
+    }
+    const base = malla(FRAG_BASE, 0);
+    base.material.uniforms.uAlt = { value: 0 };
+    base.position.y = -0.03;
+    const superficie = malla(FRAG, 0);
+    const techo = malla(FRAG_TECHO, 1, { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+    techo.renderOrder = 6;
+    scene.add(base, superficie, techo);
+
+    const piso = new THREE.GridHelper(60, 30, 0x2a2622, 0x191715);
+    piso.position.y = -0.06;
     scene.add(piso);
 
-    const orilla = new Float32Array(T.orilla.length * 3);
-    const orillas = [];
-    T.orilla.forEach(function (p, i) {
-      const e = aEscena(p[0], p[1]);
-      orilla[i * 3] = e.x; orilla[i * 3 + 1] = 0.1; orilla[i * 3 + 2] = e.z;
-      orillas.push(e);
-    });
+    // ----- la orilla del río -----
+    const orillas = T.orilla.map(function (p) { return aEscena(p[0], p[1]); });
     const gOrilla = new THREE.BufferGeometry();
-    gOrilla.setAttribute('position', new THREE.BufferAttribute(orilla, 3));
-    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x57b6ff, size: 1.5, transparent: true, opacity: 0.22, depthWrite: false })));
-    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x8fd0ff, size: 0.5, transparent: true, opacity: 1 })));
+    gOrilla.setAttribute('position', new THREE.BufferAttribute(new Float32Array([].concat.apply([], orillas.map(function (e) { return [e.x, 0.12, e.z]; }))), 3));
+    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x57b6ff, size: 1.5, transparent: true, opacity: 0.2, depthWrite: false })));
+    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x8fd0ff, size: 0.46, transparent: true, opacity: 1 })));
 
-    const yUmbral = T.umbral * F;
-    const mPlano = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
-    const plano = new THREE.Mesh(new THREE.PlaneGeometry(36, 36), mPlano);
-    plano.rotation.x = -Math.PI / 2;
-    plano.position.y = yUmbral;
-    plano.renderOrder = 4;
-    const mBorde = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-    const borde = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-18, yUmbral, -18), new THREE.Vector3(18, yUmbral, -18), new THREE.Vector3(18, yUmbral, 18), new THREE.Vector3(-18, yUmbral, 18),
-    ]), mBorde);
-    scene.add(plano, borde);
-
-    // ----- las 155 mediciones reales -----
+    // ----- las mediciones reales -----
     const np = T.puntos.length, azar = K.azar(155);
     const mEsfera = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1 });
-    const esferas = new THREE.InstancedMesh(new THREE.SphereGeometry(0.21, 12, 8), mEsfera, np);
+    const esferas = new THREE.InstancedMesh(new THREE.SphereGeometry(0.17, 12, 8), mEsfera, np);
     esferas.frustumCulled = false;
-    const puntos = T.puntos.map(function (p) {
-      const e = aEscena(p[0], p[1]);
-      return { x: e.x, y: p[2] * F, z: e.z, demora: azar() * 1.5 };
-    });
+    const puntos = T.puntos.map(function (p) { const e = aEscena(p[0], p[1]); return { x: e.x, y: p[2] * F, z: e.z, demora: azar() * 1.5 }; });
     const tallos = new Float32Array(np * 6);
     puntos.forEach(function (p, i) { tallos.set([p.x, 0, p.z, p.x, p.y, p.z], i * 6); });
     const gTallos = new THREE.BufferGeometry();
@@ -210,124 +263,140 @@
     scene.add(esferas, new THREE.LineSegments(gTallos, mTallos));
     const matriz = new THREE.Matrix4();
 
-    // ----- los tres pines de «¿Dónde mido?» -----
-    const pines = D.donde.candidatas.map(function (c, j) {
-      const e = aEscena(c.x, c.y), i = bloqueDe(c.x, c.y);
-      const grupo = new THREE.Group();
-      const cabeza = new THREE.Mesh(new THREE.SphereGeometry(0.62, 24, 16), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-      cabeza.position.y = 2.5;
-      const aguja = new THREE.Mesh(new THREE.ConeGeometry(0.34, 2.3, 18), new THREE.MeshBasicMaterial({ color: 0xdadbff }));
-      aguja.rotation.x = Math.PI;
-      aguja.position.y = 1.15;
-      const mAnillo = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
-      const anillo = new THREE.Mesh(new THREE.RingGeometry(0.8, 1.02, 48), mAnillo);
-      anillo.rotation.x = -Math.PI / 2;
-      grupo.add(cabeza, aguja);
-      grupo.visible = false;
-      scene.add(grupo, anillo);
-      return { c: c, i: i, x: e.x, z: e.z, grupo: grupo, anillo: anillo, mAnillo: mAnillo, cabeza: cabeza, demora: j * 0.32, etq: null };
+    // ----- «¿Dónde mido?»: una columna de luz por cada lugar candidato, tan alta como lo que vale medir ahí -----
+    const cajaHaz = new THREE.BoxGeometry(1, 1, 1);
+    cajaHaz.translate(0, 0.5, 0);
+    const valorMax = D.donde.lugares[0].valor_de_medir;
+    const porX = D.donde.lugares.map(function (l, j) { return j; }).sort(function (a, b) { return D.donde.lugares[a].x - D.donde.lugares[b].x; });
+    const haces = D.donde.lugares.map(function (l, j) {
+      const e = aEscena(l.x, l.y), mejor = j < 3;
+      const mat = new THREE.ShaderMaterial({
+        uniforms: { uCol: { value: new THREE.Color(mejor ? 0xffe2a0 : 0xeec25a) }, uA: { value: 0 } },
+        vertexShader: VERT_HAZ, fragmentShader: FRAG_HAZ, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      });
+      const haz = new THREE.Mesh(cajaHaz, mat);
+      const mCima = new THREE.MeshBasicMaterial({ color: mejor ? 0xffffff : 0xeec25a, transparent: true, opacity: 0 });
+      const cima = new THREE.Mesh(new THREE.SphereGeometry(mejor ? 0.42 : 0.24, 16, 12), mCima);
+      const mAro = new THREE.MeshBasicMaterial({ color: 0xffe2a0, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
+      const aro = new THREE.Mesh(new THREE.RingGeometry(0.7, 0.86, 40), mAro);
+      aro.rotation.x = -Math.PI / 2;
+      haz.renderOrder = cima.renderOrder = aro.renderOrder = 8;
+      scene.add(haz, cima, aro);
+      return {
+        l: l, i: bloqueDe(l.x, l.y), x: e.x, z: e.z, alto: 1.5 + (l.valor_de_medir / valorMax) * 11.5, ancho: mejor ? 0.5 : 0.32,
+        orden: porX.indexOf(j) / D.donde.lugares.length, mejor: mejor, letra: mejor ? 'ABC'[j] : null, haz: haz, mat: mat, cima: cima, mCima: mCima, aro: aro, mAro: mAro, etq: null,
+      };
     });
+    // el taladro que baja a medir, y la medición nueva
+    const taladro = new THREE.Mesh(cajaHaz, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    const nueva = new THREE.Mesh(new THREE.SphereGeometry(0.4, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    const mOnda = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false });
+    const ondaAro = new THREE.Mesh(new THREE.RingGeometry(0.93, 1.0, 80), mOnda);
+    ondaAro.rotation.x = -Math.PI / 2;
+    taladro.visible = nueva.visible = false;
+    taladro.renderOrder = nueva.renderOrder = ondaAro.renderOrder = 9;
+    scene.add(taladro, nueva, ondaAro);
 
     // ----- estado animable -----
     const s = {
-      crece: 0, vidrio: 0, plano: 0, caida: 0, tallos: 0, puntos: 1, pines: 0, morf: 0,
-      az: -0.42, el: 0.5, R: 61, ty: 0.6, giro: 0, fase: 0, arrastre: 0, arrastreEl: 0,
+      crece: 0, color: 1, vidrio: 0, caida: 0, tallos: 0, puntos: 1, morf: 0, escaneo: 0, destaca: 0, haces: 0, taladro: 0, medido: 0,
+      az: -0.42, el: 0.62, R: 52, ty: 0.8, dx: -430, fase: 0, arrastre: 0, arrastreEl: 0,
     };
-    const ojo = new THREE.Vector3();
+    let actual = T, destino = T, pin = null;
 
-    function altura(i) {                       // altura actual de la columna i, para apoyar los pines
-      const k = u.uMorf.value;
-      return K.mezcla(aAlt[i * 2], aAlt[i * 2 + 1], k) * s.crece;
-    }
+    function altura(i) { return i == null ? 0 : actual.media[i] * F * s.crece; }
 
-    M = {
-      tres: { scene: scene, camera: camera }, s: s, pines: pines, T: T, D: D, sel: 'A', nivel: 'alto', orillas: orillas,
-      yUmbral: yUmbral,
-      // Rehace el mapa hacia otra capa (la respuesta de la red con una medición más). `desde`: pin desde donde se propaga.
-      morfar: function (capa, desde, inst) {
-        poner(actual, 0);
-        poner(capa, 1);
-        let dMax = 1e-6;
-        for (let i = 0; i < n; i++) {
-          aRet[i] = desde ? Math.hypot(px[i] - desde.x, pz[i] - desde.z) : aOrden[i];
-          dMax = Math.max(dMax, aRet[i]);
-          aCambia[i] = actual.estado[i] !== capa.estado[i] ? 1 : 0;
-        }
-        for (let i = 0; i < n; i++) aRet[i] = Math.min(1, aRet[i] / Math.min(dMax, 14));
-        subir();
-        actual = capa;
+    E = {
+      tres: { scene: scene, camera: camera }, s: s, T: T, D: D, haces: haces, orillas: orillas, sel: 'A', nivel: 'alto',
+      candidata: function (letra) { return D.donde.candidatas.filter(function (c) { return c.etiqueta === letra; })[0]; },
+      // Rehace el mapa hacia otra capa (la respuesta de la red con una medición más), propagándose desde el pin.
+      morfar: function (capa, desde, inst, demora) {
+        gsap.killTweensOf(s, 'morf');
+        u.uA.value = textura(destino);
+        u.uB.value = textura(capa);
+        actual = destino = capa;
         s.morf = 0;
-        K.anim(s, { morf: 1 }, 2.6, inst, 'power1.inOut');
+        if (desde) u.uPin.value.set(desde.x + cx, desde.z + cz);
+        pin = desde || null;
+        K.anim(s, { morf: 1 }, 2.8, inst, 'power1.inOut', demora || 0);
       },
-      capaActual: function () { return actual; },
+      capaActual: function () { return destino; },
       cuadro: function (t, dt, lamina) {
         s.fase += dt;
-        s.giro = 0.2 * Math.sin(s.fase * 0.21);          // la cámara se mece: el encuadre no se pierde
-        u.uCrece.value = s.crece;
-        u.uMorf.value = s.morf;
-        u.uVidrio.value = s.vidrio;
-        mPlano.opacity = 0.05 * s.plano;
-        mBorde.opacity = 0.42 * s.plano;
-        mTallos.opacity = 0.26 * s.tallos * s.puntos;
+        u.uT.value = t;
+        u.uCrece.value = s.crece; u.uMorf.value = s.morf; u.uColor.value = s.color; u.uVidrio.value = s.vidrio;
+        mTallos.opacity = 0.24 * s.tallos * s.puntos;
         mEsfera.opacity = s.puntos;
 
         const tau = s.caida * 3.0;
         for (let i = 0; i < np; i++) {
           const p = puntos[i], k = K.fuera((tau - p.demora) / 1.3);
-          matriz.makeTranslation(p.x, p.y + (1 - k) * 34, p.z);
-          if (k <= 0) matriz.makeScale(0, 0, 0);
+          if (k <= 0) matriz.makeScale(0, 0, 0); else matriz.makeTranslation(p.x, p.y + (1 - k) * 34, p.z);
           esferas.setMatrixAt(i, matriz);
         }
         esferas.instanceMatrix.needsUpdate = true;
 
-        const tp = s.pines * 2.4;
-        pines.forEach(function (p) {
-          const k = K.fuera((tp - p.demora) / 1.1), y0 = p.i == null ? 0 : altura(p.i);
-          p.grupo.visible = k > 0;
-          p.grupo.position.set(p.x, y0 + 0.1 + (1 - k) * 36, p.z);
-          const pulso = (t * 0.7 + p.demora) % 1;
-          p.anillo.position.set(p.x, y0 + 0.12, p.z);
-          p.anillo.scale.setScalar(1 + pulso * 2.4);
-          p.mAnillo.opacity = k >= 1 ? (1 - pulso) * 0.85 : 0;
-          const es = M.sel === p.c.etiqueta && lamina === 'donde';
-          p.cabeza.scale.setScalar(es ? 1.25 : 1);
+        // columnas de luz: se encienden en un barrido, y al final quedan las tres mejores
+        haces.forEach(function (h) {
+          const k = K.fuera((s.escaneo * 1.25 - h.orden) / 0.22), y0 = altura(h.i);
+          const quedan = h.mejor ? 1 : 1 - 0.55 * s.destaca;
+          const elegido = lamina === 'donde' && h.letra === E.sel ? 1 : 0;
+          const apagado = h.letra && s.medido > 0 ? (elegido ? 1 - s.medido : 1) : 1;
+          h.haz.visible = h.cima.visible = k > 0 && s.haces > 0;
+          h.haz.position.set(h.x, y0, h.z);
+          h.haz.scale.set(h.ancho, Math.max(0.01, h.alto * k * apagado), h.ancho);
+          h.mat.uniforms.uA.value = (h.mejor ? 0.95 : 0.6) * quedan * s.haces;
+          h.cima.position.set(h.x, y0 + h.alto * k * apagado, h.z);
+          h.mCima.opacity = quedan * s.haces * apagado;
+          const pulso = K.acotar((s.escaneo * 1.25 - h.orden) / 0.3, 0, 1);
+          h.aro.position.set(h.x, y0 + 0.08, h.z);
+          h.aro.scale.setScalar(1 + pulso * 3.2);
+          h.mAro.opacity = pulso > 0 && pulso < 1 ? (1 - pulso) * 0.9 * s.haces : 0;
         });
 
-        const az = s.az + s.giro + s.arrastre, el = K.acotar(s.el + s.arrastreEl, 0.18, 1.35);
-        ojo.set(Math.sin(az) * Math.cos(el) * s.R, s.ty + Math.sin(el) * s.R, Math.cos(az) * Math.cos(el) * s.R);
-        camera.position.copy(ojo);
+        // el taladro baja, toca el terreno y deja la medición
+        if (pin && s.taladro > 0) {
+          const tope = 38, suelo = altura(pin.i), abajo = K.mezcla(tope, suelo, K.suave(s.taladro));
+          taladro.visible = s.taladro < 1 || s.medido < 1;
+          taladro.position.set(pin.x, abajo, pin.z);
+          taladro.scale.set(0.09, Math.max(0.01, tope - abajo) * (1 - s.medido), 0.09);
+          nueva.visible = s.medido > 0;
+          nueva.position.set(pin.x, pin.valor * F, pin.z);
+          nueva.scale.setScalar(K.fuera(s.medido * 2));
+          const frente = K.acotar(s.morf * 1.9, 0, 1);
+          ondaAro.position.set(pin.x, suelo + 0.3, pin.z);
+          ondaAro.scale.setScalar(0.5 + frente * 17);
+          mOnda.opacity = s.morf > 0 && s.morf < 1 ? (1 - frente) * 0.75 : 0;
+        } else { taladro.visible = nueva.visible = false; mOnda.opacity = 0; }
+
+        const az = s.az + 0.16 * Math.sin(s.fase * 0.2) + s.arrastre, el = K.acotar(s.el + s.arrastreEl, 0.2, 1.4);
+        camera.setViewOffset(1920, 1080, s.dx, 0, 1920, 1080);
+        camera.position.set(Math.sin(az) * Math.cos(el) * s.R, s.ty + Math.sin(el) * s.R, Math.cos(az) * Math.cos(el) * s.R);
         camera.lookAt(0, s.ty, 0);
         camera.updateMatrixWorld();
       },
+      alturaDe: altura,
+      pinDe: function (letra, valor) {
+        const h = haces.filter(function (q) { return q.letra === letra; })[0];
+        return { x: h.x, z: h.z, i: h.i, valor: valor };
+      },
     };
 
-    // Arrastrar con el mouse gira la cámara (para las preguntas).
+    // Arrastrar con el mouse gira el terreno (para las preguntas).
     const lienzo = K.gl.renderer.domElement;
     let agarre = null;
     lienzo.addEventListener('pointerdown', function (ev) { agarre = { x: ev.clientX, y: ev.clientY, a: s.arrastre, e: s.arrastreEl }; lienzo.setPointerCapture(ev.pointerId); });
     lienzo.addEventListener('pointermove', function (ev) {
       if (!agarre) return;
-      s.arrastre = agarre.a - (ev.clientX - agarre.x) * 0.006 / K.escala;
-      s.arrastreEl = agarre.e + (ev.clientY - agarre.y) * 0.004 / K.escala;
+      s.arrastre = agarre.a - ((ev.clientX - agarre.x) * 0.006) / K.escala;
+      s.arrastreEl = agarre.e + ((ev.clientY - agarre.y) * 0.004) / K.escala;
     });
     lienzo.addEventListener('pointerup', function () { agarre = null; });
     lienzo.addEventListener('pointercancel', function () { agarre = null; });
-    return M;
+    return E;
   }
 
-  function terreno() { return M || (K.gl.ok ? construir() : null); }
-
-  function etiqueta(capa, clase, html) {
-    const el = document.createElement('div');
-    el.className = 'etq ' + clase;
-    el.innerHTML = html;
-    capa.appendChild(el);
-    return el;
-  }
-  function colocar(el, x, y, z, camara, dx, dy) {
-    const p = K.proyectar(x, y, z, camara);
-    el.style.transform = 'translate(' + (p.x + (dx || 0)).toFixed(1) + 'px,' + (p.y + (dy || 0)).toFixed(1) + 'px) translate(-50%, -100%)';
-  }
+  function terreno() { return E || (K.gl.ok ? construir() : null); }
 
   // ============================== 4 · El mapa ==============================
   K.registrar('mapa', {
@@ -336,55 +405,46 @@
       const m = (this.m = terreno());
       if (!m) return;
       this.tres = m.tres;
-      const capa = L.querySelector('#etq-mapa');
-      this.rio = etiqueta(capa, 'linea', 'Río Mosa');
-      this.umbral = etiqueta(capa, 'umbral', K.miles(m.T.umbral) + ' ' + m.T.unidad_valor + ' · nivel que obliga a limpiar');
+      this.rio = document.createElement('div');
+      this.rio.className = 'etq rio';
+      this.rio.textContent = 'Río Mosa';
+      L.querySelector('#etq-mapa').appendChild(this.rio);
     },
     entrar: function () {
       const m = this.m;
       if (!m) return;
       if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
-      Object.assign(m.s, { pines: 0, morf: 1, arrastre: 0, arrastreEl: 0 });
-      K.anim(m.s, { az: -0.42, el: 0.5, R: 61, ty: 0.6 }, 1.8, false);
+      Object.assign(m.s, { haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0, morf: 1, arrastre: 0, arrastreEl: 0, color: 1 });
+      K.anim(m.s, { az: -0.42, el: 0.62, R: 52, ty: 0.8, dx: -430 }, 2.0, false);
     },
     paso: function (p, inst) {
       const m = this.m;
       if (!m) return;
       const s = m.s;
       if (p === 0) {
-        K.anim(s, { crece: 0, vidrio: 0, plano: 0, puntos: 1 }, 0.5, inst);
+        K.anim(s, { crece: 0, vidrio: 0, puntos: 1 }, 0.6, inst);
         s.caida = 0; s.tallos = 0;
         K.anim(s, { caida: 1 }, 3.0, inst, 'none', 0.3);
         K.anim(s, { tallos: 1 }, 1.0, inst, 'power1.out', 2.4);
       } else {
         K.anim(s, { caida: 1, tallos: 1 }, 0.4, inst);
-        K.anim(s, { crece: 1 }, 2.8, inst, 'power1.inOut');
-        K.anim(s, { plano: 1 }, 1.2, inst, 'power1.out', 1.6);
-        K.anim(s, { vidrio: p >= 2 ? 1 : 0 }, 1.4, inst);
+        K.anim(s, { crece: 1 }, 3.2, inst, 'power1.inOut');
+        K.anim(s, { vidrio: p >= 2 ? 1 : 0 }, 1.8, inst);
+        K.anim(s, { puntos: p >= 2 ? 0.45 : 1 }, 1.2, inst);
       }
       this.rio.classList.add('ver');
-      this.umbral.classList.toggle('ver', p >= 1);
     },
     cuadro: function (t, dt) {
       const m = this.m;
       if (!m) return;
       m.cuadro(t, dt, 'mapa');
-      const cam = m.tres.camera;
-      // «Río Mosa»: junto al punto de la orilla que queda más abajo en pantalla (el más cercano a la cámara).
+      // «Río Mosa»: junto al punto de la orilla que queda más abajo en pantalla.
       let mejor = null;
-      for (let i = 0; i < m.orillas.length; i += 6) {
-        const p = K.proyectar(m.orillas[i].x, 0.1, m.orillas[i].z, cam);
-        if (!p.detras && p.x > 760 && p.x < 1800 && p.y < 980 && (!mejor || p.y > mejor.y)) mejor = p;
+      for (let i = 0; i < m.orillas.length; i += 5) {
+        const p = K.proyectar(m.orillas[i].x, 0.1, m.orillas[i].z, m.tres.camera);
+        if (!p.detras && p.x > 820 && p.x < 1800 && p.y < 990 && (!mejor || p.y > mejor.y)) mejor = p;
       }
-      if (mejor) this.rio.style.transform = 'translate(' + (mejor.x - 20).toFixed(1) + 'px,' + (mejor.y + 16).toFixed(1) + 'px) translate(-100%, 0)';
-      // El nivel de 720 mg/kg: en la esquina o el borde del plano que se vea más a la derecha.
-      const y = m.yUmbral, bordes = [[18, -18], [18, 0], [0, -18], [-18, -18], [18, 18], [-18, 18]];
-      let e = null;
-      bordes.forEach(function (q) {
-        const p = K.proyectar(q[0], y, q[1], cam);
-        if (!p.detras && p.x > 900 && p.x < 1880 && p.y > 150 && p.y < 980 && (!e || p.x > e.x)) e = p;
-      });
-      if (e) this.umbral.style.transform = 'translate(' + e.x.toFixed(1) + 'px,' + e.y.toFixed(1) + 'px) translate(-100%, -135%)';
+      if (mejor) this.rio.style.transform = 'translate(' + (mejor.x - 24).toFixed(1) + 'px,' + (mejor.y + 14).toFixed(1) + 'px) translate(-100%, 0)';
     },
   });
 
@@ -395,54 +455,85 @@
       const m = (this.m = terreno()), yo = this;
       if (!m) return;
       this.tres = m.tres;
-      this.L = L;
-      const capa = L.querySelector('#etq-donde');
-      m.pines.forEach(function (p) {
-        p.etq = etiqueta(capa, 'pin', '<b>Medir en ' + p.c.etiqueta + ' vale</b><span>US$ ' + K.miles(p.c.valor_de_medir) + '</span>');
-        p.etq.addEventListener('click', function () {
-          m.sel = p.c.etiqueta;
-          if (K.donde().paso === 0) K.siguiente(); else yo.medir(false);
-        });
+      const capa = L.querySelector('#etq-donde'), D = m.D;
+      m.haces.forEach(function (h) {
+        if (!h.letra) return;
+        h.etq = document.createElement('div');
+        h.etq.className = 'etq letra' + (h.letra === 'A' ? '' : ' menor');
+        h.etq.textContent = h.letra;
+        h.etq.addEventListener('click', function () { m.sel = h.letra; if (K.donde().paso === 0) K.siguiente(); else yo.medir(false); });
+        capa.appendChild(h.etq);
       });
+      // la lista de los tres mejores lugares
+      this.filas = {};
+      const ranking = L.querySelector('#ranking');
+      D.donde.candidatas.forEach(function (c) {
+        const fila = document.createElement('div');
+        fila.className = 'fila ' + c.etiqueta.toLowerCase();
+        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$ ' + K.miles(c.valor_de_medir) + '</span>' +
+          (c.etiqueta === 'A' ? '<span class="p">es lo que vale medir en A. Cinco veces lo que cuesta.</span>' : '');
+        ranking.appendChild(fila);
+        yo.filas[c.etiqueta] = fila;
+      });
+      const veces = D.donde.candidatas[0].valor_de_medir / D.terreno.costos.medicion, frase = this.filas.A.querySelector('.p');
+      frase.textContent = 'es lo que vale medir en A: ' + K.coma(veces, 1) + ' veces lo que cuesta.';
+      this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
       this.texto = L.querySelector('#texto-medicion');
-      this.despues = L.querySelector('#cuesta-despues');
-      this.botones = Array.prototype.slice.call(L.querySelectorAll('#opciones-medicion button'));
-      this.botones.forEach(function (b) {
-        b.addEventListener('click', function () { m.nivel = b.dataset.nivel; yo.medir(false); });
+      this.monto = L.querySelector('#baja-monto');
+      this.regla = L.querySelector('#regla');
+      this.regla.addEventListener('click', function (ev) {
+        const b = ev.target.closest('button');
+        if (b) { m.nivel = b.dataset.nivel; yo.medir(false); }
       });
+    },
+    // La regla: los tres resultados posibles de medir en el lugar elegido, sobre una escala, con el nivel que obliga a actuar.
+    pintarRegla: function () {
+      const m = this.m, c = m.candidata(m.sel), r = c.resultados_posibles, T = m.T;
+      const tope = Math.max(r.alto, T.umbral) * 1.18, pos = function (v) { return (K.acotar(v / tope, 0.04, 0.97) * 100).toFixed(1) + '%'; };
+      const nombres = { bajo: 'Bajo', medio: 'Medio', alto: 'Alto' };
+      let html = '<div class="eje"></div><div class="corte" style="left:' + pos(T.umbral) + '"><span>' + K.miles(T.umbral) + ' ' + T.unidad_valor + '</span></div>';
+      ['bajo', 'medio', 'alto'].forEach(function (q) {
+        html += '<button data-nivel="' + q + '" class="' + (q === m.nivel ? 'sel' : '') + '" style="left:' + pos(r[q]) + '"><span class="q">' + nombres[q] + '</span><span class="n">' + K.miles(r[q]) + '</span></button>';
+      });
+      this.regla.innerHTML = html;
+    },
+    medir: function (inst) {
+      const m = this.m, s = m.s, c = m.candidata(m.sel), valor = c.resultados_posibles[m.nivel];
+      const capa = m.D.mediciones[m.sel][m.nivel], baja = m.T.costo_de_no_saber - capa.costo_de_no_saber;
+      gsap.killTweensOf(s, 'taladro,medido');
+      s.taladro = 0; s.medido = 0;
+      K.anim(s, { taladro: 1 }, 0.8, inst, 'power2.in');
+      K.anim(s, { medido: 1 }, 0.9, inst, 'power2.out', 0.8);
+      m.morfar(capa, m.pinDe(m.sel, valor), inst, 0.9);
+      this.texto.innerHTML = 'Mides en ' + m.sel + ': <span class="oro">' + K.miles(valor) + ' ' + m.T.unidad_valor + '</span>.';
+      if (this.cuenta) this.cuenta.kill();
+      this.cuenta = K.contar(this.monto, 0, Math.abs(baja), 2.4, K.miles, inst, 'power1.inOut');
+      this.pintarRegla();
+      m.haces.forEach(function (h) { if (h.etq) h.etq.classList.toggle('sel', h.letra === m.sel); });
     },
     entrar: function () {
       const m = this.m;
       if (!m) return;
       m.sel = 'A'; m.nivel = 'alto';
-      Object.assign(m.s, { crece: 1, vidrio: 1, plano: 1, caida: 1, tallos: 1, arrastre: 0, arrastreEl: 0 });
-    },
-    medir: function (inst) {
-      const m = this.m, pin = m.pines.filter(function (p) { return p.c.etiqueta === m.sel; })[0];
-      const capa = m.D.mediciones[m.sel][m.nivel], antes = m.capaActual().costo_de_no_saber;
-      m.morfar(capa, pin, inst);
-      const palabra = { bajo: 'bajo', medio: 'medio', alto: 'alto' }[m.nivel];
-      this.texto.innerHTML = '<b>Mido en ' + m.sel + '.</b> Sale ' + palabra + ': ' + K.miles(pin.c.resultados_posibles[m.nivel]) + ' ' + m.T.unidad_valor + '.';
-      if (this.cuenta) this.cuenta.kill();
-      this.cuenta = K.contar(this.despues, antes, capa.costo_de_no_saber, 2.2, K.miles, inst);
-      this.botones.forEach(function (b) { b.classList.toggle('sel', b.dataset.nivel === m.nivel); });
-      m.pines.forEach(function (p) { p.etq.classList.toggle('sel', p.c.etiqueta === m.sel); });
+      Object.assign(m.s, { crece: 1, vidrio: 0, caida: 1, tallos: 1, color: 1, arrastre: 0, arrastreEl: 0 });
     },
     paso: function (p, inst) {
       const m = this.m;
       if (!m) return;
       const s = m.s;
-      K.anim(s, { puntos: 0.35 }, 0.8, inst);
+      K.anim(s, { puntos: 0.3, vidrio: 0, haces: 1 }, 0.8, inst);
       if (p === 0) {
         if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
-        s.morf = 1;
-        K.anim(s, { az: -0.62, el: 0.74, R: 68, ty: -1.2 }, 2.4, inst);
-        if (!inst) s.pines = 0;
-        K.anim(s, { pines: 1 }, 2.4, inst, 'none', 0.5);
-        m.pines.forEach(function (pin) { pin.etq.classList.remove('sel'); });
+        gsap.killTweensOf(s, 'taladro,medido,escaneo,destaca');
+        Object.assign(s, { morf: 1, taladro: 0, medido: 0 });
+        K.anim(s, { az: -0.2, el: 0.9, R: 68, ty: 2.6, dx: -430 }, 2.6, inst);
+        if (!inst) { s.escaneo = 0; s.destaca = 0; }
+        K.anim(s, { escaneo: 1 }, 3.4, inst, 'none', 0.7);
+        K.anim(s, { destaca: 1 }, 1.8, inst, 'power1.inOut', 4.0);
+        m.haces.forEach(function (h) { if (h.etq) h.etq.classList.remove('sel'); });
       } else {
-        K.anim(s, { pines: 1 }, 0.3, inst);
-        K.anim(s, { az: -0.72, el: 0.8, R: 64, ty: -1.2 }, 2.2, inst);
+        K.anim(s, { escaneo: 1, destaca: 1 }, 0.3, inst);
+        K.anim(s, { az: -0.3, el: 0.84, R: 64, ty: 2.6, dx: -430 }, 2.4, inst);
         this.medir(inst);
       }
     },
@@ -450,13 +541,16 @@
       const m = this.m;
       if (!m) return;
       m.cuadro(t, dt, 'donde');
-      const tp = m.s.pines * 2.4;
-      m.pines.forEach(function (p) {
-        const visto = (tp - p.demora) / 1.1 >= 1;
-        p.etq.classList.toggle('ver', visto);
-        const q = K.proyectar(p.grupo.position.x, p.grupo.position.y + 2.5, p.grupo.position.z, m.tres.camera);
-        const lado = { A: [-34, 0, '-100%, -50%'], B: [34, 30, '0, -50%'], C: [0, -40, '-50%, -100%'] }[p.c.etiqueta] || [0, -40, '-50%, -100%'];
-        p.etq.style.transform = 'translate(' + (q.x + lado[0]).toFixed(1) + 'px,' + (q.y + lado[1]).toFixed(1) + 'px) translate(' + lado[2] + ')';
+      const s = m.s, yo = this, n = m.D.donde.analisis_rehechos;
+      this.cuentaAnalisis.textContent = K.miles(Math.min(n, Math.floor(K.acotar(s.escaneo * 1.02, 0, 1) * n)));
+      // la lista se llena de atrás hacia adelante: C, B y al final A
+      ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });
+      m.haces.forEach(function (h) {
+        if (!h.etq) return;
+        const apagado = s.medido > 0.5 && h.letra === m.sel;
+        h.etq.classList.toggle('ver', s.destaca > 0.5 && !apagado);
+        const q = K.proyectar(h.cima.position.x, h.cima.position.y + 1.3, h.cima.position.z, m.tres.camera);
+        h.etq.style.transform = 'translate(' + q.x.toFixed(1) + 'px,' + q.y.toFixed(1) + 'px) translate(-50%, -100%)';
       });
     },
   });

@@ -1,11 +1,12 @@
-/* Krylov · deck. Motor de navegación: escenario escalado, láminas con pasos, notas, pausa y un solo lienzo WebGL compartido.
-   Sin módulos ni fetch: tiene que abrir con doble clic (file://) y sin internet. */
+/* Krylov · deck. Motor de navegación: escenario escalado, láminas con pasos, notas, pausa, demo en vivo
+   y un solo lienzo WebGL compartido. Sin módulos ni fetch: tiene que abrir con doble clic (file://) y sin internet. */
 (function () {
   'use strict';
 
   const params = new URLSearchParams(location.search);
   const K = (window.K = {
     datos: window.KRYLOV_DATOS,
+    config: window.KRYLOV_CONFIG || { demo: { url: '', texto: '' }, equipo: [], tiempos: {} },
     escenas: {},
     estatico: params.has('estatico'),   // para el respaldo en PNG: todo en su estado final, sin movimiento
     quieto: false,                      // sin movimiento (estático o prefers-reduced-motion)
@@ -13,6 +14,7 @@
     t: 0,
     escala: 1,
     fps: 0,
+    vista: null,                        // la escena 3D que se está dibujando
   });
   K.quieto = K.estatico || params.has('quieto') ||
     (!params.has('animado') && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -49,11 +51,20 @@
     if (inst || K.quieto) { Object.assign(obj, props); return null; }
     return gsap.to(obj, Object.assign({ duration: dur, ease: ease || 'power2.inOut', delay: demora || 0 }, props));
   };
-  K.contar = function (el, desde, hasta, dur, formato, inst) {
+  // Escribe una cifra con cada carácter en su caja, para que no tiemble al contar.
+  K.cifra = function (el, texto) {
+    let html = '';
+    for (let i = 0; i < texto.length; i++) {
+      const c = texto[i];
+      html += /[0-9]/.test(c) ? '<span class="d">' + c + '</span>' : (/[.,:]/.test(c) ? '<span class="s">' + c + '</span>' : c);
+    }
+    el.innerHTML = html;
+  };
+  K.contar = function (el, desde, hasta, dur, formato, inst, ease) {
     const o = { v: desde };
     formato = formato || K.miles;
-    if (inst || K.quieto) { el.textContent = formato(hasta); return null; }
-    return gsap.to(o, { v: hasta, duration: dur, ease: 'power2.out', onUpdate: function () { el.textContent = formato(o.v); } });
+    if (inst || K.quieto) { K.cifra(el, formato(hasta)); return null; }
+    return gsap.to(o, { v: hasta, duration: dur, ease: ease || 'power2.out', onUpdate: function () { K.cifra(el, formato(o.v)); } });
   };
   K.proyectar = (function () {
     let v = null;
@@ -76,7 +87,7 @@
   const panelNotas = document.getElementById('panel-notas');
   const cuenta = document.getElementById('cuenta');
   const avance = document.getElementById('avance');
-  let actual = -1, paso = 0;
+  let actual = -1, paso = 0, cambio = null;
   K.laminas = laminas;
 
   K.gl = { renderer: null, ok: false };
@@ -106,6 +117,36 @@
   }
   window.addEventListener('resize', ajustar);
 
+  // El fondo: curvas de nivel muy tenues, como una carta topográfica. Se dibuja una vez.
+  function curvasDeNivel() {
+    const cv = document.getElementById('curvas');
+    if (!cv) return;
+    const W = 960, H = 540, ctx = cv.getContext('2d');
+    cv.width = W; cv.height = H;
+    const img = ctx.createImageData(W, H), azar = K.azar(720), cerros = [];
+    for (let i = 0; i < 9; i++) cerros.push([azar() * W, azar() * H, 90 + azar() * 240, (azar() - 0.3) * 1.6]);
+    const campo = function (x, y) {
+      let v = 0.35 * Math.sin(x * 0.006 + 1.2) * Math.cos(y * 0.008 - 0.4);
+      for (let i = 0; i < cerros.length; i++) {
+        const c = cerros[i], dx = x - c[0], dy = y - c[1];
+        v += c[3] * Math.exp(-(dx * dx + dy * dy) / (2 * c[2] * c[2]));
+      }
+      return v * 7;
+    };
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const v = campo(x, y), gx = campo(x + 1, y) - v, gy = campo(x, y + 1) - v;
+        const pend = Math.hypot(gx, gy) + 1e-5, f = v - Math.floor(v);
+        const dist = Math.min(f, 1 - f) / pend;                    // distancia a la curva, en píxeles
+        const mayor = Math.abs(v - Math.round(v / 5) * 5) < 0.5 ? 1.7 : 1;
+        const a = Math.max(0, 1 - dist / 0.9) * 15 * mayor;
+        const i = (y * W + x) * 4;
+        img.data[i] = 226; img.data[i + 1] = 160; img.data[i + 2] = 110; img.data[i + 3] = a;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
   // ---------- navegación ----------
   function aplicar(p, inst) {
     const L = laminas[actual], antes = paso;
@@ -130,6 +171,7 @@
       paso = 0;
       const L = laminas[i], e = escenaDe(i);
       L.querySelectorAll('[data-paso]').forEach(function (el) { el.classList.remove('visto'); });
+      L.querySelectorAll('[data-hasta]').forEach(function (el) { el.classList.remove('ido'); });
       void L.offsetWidth;                       // que la entrada vuelva a animarse
       L.classList.add('activa');
       if (e) {
@@ -138,7 +180,12 @@
         if (e.entrar) e.entrar(L);
         if (e.alAjustar) e.alAjustar();
       }
-      lienzo.classList.toggle('visible', !!(e && e.tres && K.gl.ok));
+      // Entre dos escenas 3D distintas, el lienzo se funde en vez de cortar.
+      const nueva = e && e.tres && K.gl.ok ? e.tres : null;
+      clearTimeout(cambio);
+      if (nueva === K.vista) lienzo.classList.toggle('visible', !!nueva);
+      else if (K.quieto || !K.vista || !nueva) { if (nueva) K.vista = nueva; lienzo.classList.toggle('visible', !!nueva); if (!nueva) cambio = setTimeout(function () { K.vista = null; }, 340); }
+      else { lienzo.classList.remove('visible'); cambio = setTimeout(function () { K.vista = nueva; lienzo.classList.add('visible'); }, 300); }
       lienzo.classList.toggle('interactivo', !!(e && e.interactivo));
     }
     aplicar(K.acotar(p || 0, 0, pasosDe(i) - 1), inst);
@@ -146,7 +193,7 @@
   K.ir = ir;
   K.siguiente = function () {
     if (paso < pasosDe(actual) - 1) aplicar(paso + 1, false);
-    else if (actual < laminas.length - 1) ir(actual + 1, 0, false);
+    else if (actual < laminas.length - 1 && !laminas[actual + 1].dataset.respaldo) ir(actual + 1, 0, false);
   };
   K.anterior = function () {
     if (paso > 0) aplicar(paso - 1, true);
@@ -156,8 +203,8 @@
 
   function pintarCromo() {
     const total = laminas.filter(function (l) { return !l.dataset.respaldo; }).length;
-    const L = laminas[actual];
-    cuenta.textContent = L.dataset.respaldo ? 'respaldo' : (actual + 1) + ' / ' + total;
+    const L = laminas[actual], dos = function (n) { return (n < 10 ? '0' : '') + n; };
+    cuenta.textContent = L.dataset.respaldo ? 'RESPALDO' : dos(actual + 1) + ' / ' + dos(total);
     avance.style.width = (L.dataset.respaldo ? 100 : ((actual + (paso + 1) / pasosDe(actual)) / total) * 100) + '%';
     const notas = L.querySelector('aside.notas');
     panelNotas.innerHTML = notas ? notas.innerHTML : '';
@@ -180,16 +227,31 @@
     gsap.globalTimeline.paused(K.pausado);
   };
 
+  // ---------- demo en vivo (tecla D): la dirección sale de config.js ----------
+  const demo = document.getElementById('demo-vivo'), marco = document.getElementById('demo-marco');
+  K.demo = function (abrir) {
+    const url = K.config.demo && K.config.demo.url;
+    if (!demo || !url) return;
+    const si = abrir == null ? !demo.classList.contains('abierta') : !!abrir;
+    demo.classList.toggle('abierta', si);
+    marco.src = si ? url : 'about:blank';
+    document.getElementById('demo-aviso').textContent = 'Abriendo ' + (K.config.demo.texto || url) + '. Necesita internet.';
+    if (!si) window.focus();
+  };
+  if (demo) document.getElementById('demo-cerrar').addEventListener('click', function () { K.demo(false); });
+
   window.addEventListener('keydown', function (ev) {
     if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
     const k = ev.key;
+    if (demo && demo.classList.contains('abierta')) { if (k === 'Escape' || k === 'd' || k === 'D') K.demo(false); return; }
     if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Enter' || k === 'ArrowDown') { K.siguiente(); ev.preventDefault(); }
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace' || k === 'ArrowUp') { K.anterior(); ev.preventDefault(); }
     else if (k === 'Home') ir(0, 0, true);
-    else if (k === 'End') ir(laminas.length - 1, 0, true);
-    else if (/^[0-9]$/.test(k)) ir(k === '0' ? 9 : +k - 1, 0, false);
+    else if (k === 'End') ir(laminas.length - 2, 0, true);
+    else if (/^[0-9]$/.test(k)) ir(k === '0' ? laminas.length - 1 : +k - 1, 0, false);
     else if (k === 'n' || k === 'N') document.documentElement.classList.toggle('con-notas');
     else if (k === 'p' || k === 'P') K.pausar();
+    else if (k === 'd' || k === 'D') K.demo();
     else if (k === 'f' || k === 'F') {
       if (document.fullscreenElement) document.exitFullscreen();
       else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
@@ -211,9 +273,8 @@
     K.t += dt;
     if (actual < 0) return;
     const e = escenaDe(actual);
-    if (!e) return;
-    if (e.cuadro) e.cuadro(K.quieto ? (e.tQuieto == null ? 6 : e.tQuieto) : K.t - e._t0, dt);
-    if (e.tres && K.gl.ok) K.gl.renderer.render(e.tres.scene, e.tres.camera);
+    if (e && e.cuadro) e.cuadro(K.quieto ? (e.tQuieto == null ? 6 : e.tQuieto) : K.t - e._t0, dt);
+    if (K.vista && K.gl.ok) K.gl.renderer.render(K.vista.scene, K.vista.camera);
   }
 
   // Los números del HTML salen de datos.js: <span data-dato="terreno.colores.actuar" data-formato="miles">
@@ -234,15 +295,13 @@
       if (v == null) { console.warn('Dato sin valor:', el.dataset.dato); return; }
       el.textContent = el.dataset.formato ? formatos[el.dataset.formato](v) : v;
     });
-    const sbc = document.getElementById('tec-sbc');
-    if (sbc) sbc.textContent = d.sello.sbc_pasa ? 'sin sesgo: pasa' : 'no pasa';
-    const limites = document.getElementById('tec-limites');
-    if (limites) limites.innerHTML = d.sello.limitaciones.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    document.querySelectorAll('[data-tiempo]').forEach(function (el) { el.textContent = (K.config.tiempos || {})[el.dataset.tiempo] || ''; });
     const equipo = document.getElementById('equipo-nombres');
-    if (equipo && window.EQUIPO && window.EQUIPO.length) equipo.textContent = window.EQUIPO.join(' · ');
+    if (equipo && K.config.equipo && K.config.equipo.length) equipo.textContent = K.config.equipo.join(' · ');
   };
 
   K.arrancar = function () {
+    curvasDeNivel();
     ajustar();
     const m = leerMarca();
     ir(m.lamina, m.paso, m.paso > 0);
