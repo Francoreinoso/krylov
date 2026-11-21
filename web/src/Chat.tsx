@@ -52,7 +52,12 @@ const SIN_SERVIDOR =
 const OTRAS_COLUMNAS =
   'En el archivo del demo respondo con las columnas que eligió el equipo. Para probar otras, súbelo como archivo propio.'
 const ESCRITORIO = '(min-width: 1024px)'
-const ARCHIVO_QUE_NO_ALCANZA = 'leyes_pocos' // tecla M: el mismo banco con 12 pozos
+// Tecla M: archivos con los que Krylov no responde y dice por qué, cada uno con la tarjeta de su motor.
+// Se recorren en orden; el que no está exportado (su caso o su motor todavía no existe) se salta.
+const ARCHIVOS_QUE_NO_ALCANZAN = [
+  { nombre: 'leyes_pocos', base: 'leyes' }, // el mismo banco con 12 pozos
+  { nombre: 'taludes_corto', base: 'taludes' }, // una serie demasiado corta
+]
 
 // Escritorio o teléfono, al día con el tamaño de la ventana.
 const consulta = window.matchMedia(ESCRITORIO)
@@ -370,17 +375,30 @@ export default function Chat() {
     atender(id, caso, pendiente ?? '', archivo, true, false, null)
   }
 
-  // Tecla M: el mismo banco con muy pocos pozos. Krylov no responde y dice por qué.
-  const archivoQueNoAlcanza = () => {
-    const base = casos.find((c) => c.motor === 'espacial')
-    if (!base || pensando !== null) return
-    const caso: Caso = { ...base, nombre: ARCHIVO_QUE_NO_ALCANZA }
+  // Tecla M: un archivo que no alcanza. Krylov no responde y dice por qué. Otra M, desde esa
+  // conversación, abre el siguiente de la lista que exista.
+  const archivoQueNoAlcanza = async () => {
+    if (pensando !== null) return
+    const actual = ARCHIVOS_QUE_NO_ALCANZAN.findIndex((a) => a.nombre === conv.caso?.nombre)
+    const orden = ARCHIVOS_QUE_NO_ALCANZAN.map((_, i) => ARCHIVOS_QUE_NO_ALCANZAN[(actual + 1 + i) % ARCHIVOS_QUE_NO_ALCANZAN.length])
+    for (const archivo of orden) {
+      const base = casos.find((c) => c.nombre === archivo.base)
+      if (!base) continue
+      // El primero siempre está; los demás, solo si su respuesta existe.
+      if (archivo !== ARCHIVOS_QUE_NO_ALCANZAN[0] && !(await api.analizar(archivo.nombre).then(() => true, () => false))) continue
+      abrirArchivoQueNoAlcanza({ ...base, nombre: archivo.nombre }, base.titulo)
+      return
+    }
+  }
+
+  const abrirArchivoQueNoAlcanza = (caso: Caso, pregunta: string) => {
     const c = { ...nueva(caso), calceListo: true }
     setEstado((s) => ({ conversaciones: [c, ...s.conversaciones], activa: c.id }))
     setEnPanel(null)
     setTimeout(() => {
-      decir(c.id, { de: 'tu', texto: base.titulo })
-      responder(c.id, caso, 'decidir', null)
+      decir(c.id, { de: 'tu', texto: pregunta })
+      // La conversación nueva le da el foco al cuadro de texto; se suelta para que otra M funcione.
+      responder(c.id, caso, 'decidir', null).then(() => requestAnimationFrame(() => (document.activeElement as HTMLElement | null)?.blur()))
     })
   }
 

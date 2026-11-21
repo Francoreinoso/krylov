@@ -15,9 +15,14 @@ def _o_fijo(respuesta: dict, fijo, *args) -> dict:
 
 
 def _con_sello(respuesta: dict, motor_id: str, fijo, *args) -> dict:
-    """Una respuesta de la red solo sale si el sello de su motor pasa (AGENTS.md, regla 5); si no, el ejemplo fijo."""
+    """Una respuesta de la red solo sale si el sello de su motor pasa (AGENTS.md, regla 5); si no, el ejemplo fijo.
+
+    `rojo_datos` sale siempre: es la revisión del tamaño del archivo, antes de la red, y no depende del sello.
+    """
     if "error" in respuesta or respuesta.get("implementacion") != "red":
         return _o_fijo(respuesta, fijo, *args)
+    if respuesta.get("semaforo", {}).get("estado") == "rojo_datos":
+        return respuesta
     sello = nucleo.sello(motor_id)
     return respuesta if sello.get("pasa") is True and not sello.get("error") else fijo(*args)
 

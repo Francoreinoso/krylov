@@ -3,7 +3,7 @@
 // ancho es mucha duda. Tiene que leerse desde la última fila: textos grandes y pocas marcas.
 // Los rótulos salen de casos/textos.yaml (`textos`); sin ellos, la curva se dibuja sin rótulos.
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { FONDO } from './colores'
 import type { Curva as DatosCurva, Estado, Textos, Unidad } from './tipos'
 
@@ -25,6 +25,9 @@ function marcas(min: number, max: number): number[] {
   return salida
 }
 
+// Una flecha hacia arriba con la punta en (x, y): el abanico sigue más allá del borde.
+const flecha = (x: number, y: number) => `M${x.toFixed(1)},${(y - 12).toFixed(1)}L${(x + 9).toFixed(1)},${y.toFixed(1)}L${(x - 9).toFixed(1)},${y.toFixed(1)}Z`
+
 const numero = (v: number) => v.toLocaleString('es-CL', { maximumFractionDigits: 2 })
 const ancho = (texto: string) => texto.length * LETRA * 0.55 // aproximado, para no salirse del borde
 
@@ -38,7 +41,17 @@ export default function Curva({ curva, textos, escalones = false }: Props) {
   const { t, y, ahora, t_banda, bajo, medio, alto, limite, eje_t, eje_y, marca } = curva
   const ts = [...t, ...t_banda, ahora]
   // El límite siempre queda dentro del eje: es la referencia que importa.
-  const ys = [...y, ...bajo, ...alto, ...(limite !== null ? [limite] : [])]
+  const referencia = [...y, ...(limite !== null ? [limite] : [])]
+  // Un abanico que se dispara (un muro que se acelera: de 10 a 110 mm) aplastaría lo medido contra
+  // el fondo. Si sale a más del doble del rango medido, el eje se corta a un rango por encima (o por
+  // debajo), el abanico se recorta al gráfico y una flecha marca que sigue.
+  const refMin = Math.min(...referencia)
+  const refMax = Math.max(...referencia)
+  const refRango = refMax - refMin || Math.abs(refMax) || 1
+  const seDispara = (v: number) => v > refMax + 2 * refRango || v < refMin - 2 * refRango
+  const recortar = [...bajo, ...alto].some(seDispara)
+  const acotar = (v: number) => (recortar ? Math.min(refMax + refRango, Math.max(refMin - refRango, v)) : v)
+  const ys = [...referencia, ...bajo.map(acotar), ...alto.map(acotar)]
   const t0 = Math.min(...ts)
   const t1 = Math.max(...ts)
   const minimo = Math.min(...ys)
@@ -67,6 +80,9 @@ export default function Curva({ curva, textos, escalones = false }: Props) {
   const yLimite = limite !== null ? (py(limite) - 10 - LETRA < M.arr - 6 ? py(limite) + LETRA + 8 : py(limite) - 10) : 0
   // Cuánto falta (taludes): una franja tenue, recortada al final del eje; sin estirarlo.
   const franja = marca && ahora + marca.bajo <= t1 ? { x0: px(ahora + marca.bajo), x1: px(Math.min(ahora + marca.alto, t1)) } : null
+  // Dónde el abanico sale por arriba del gráfico (el primer punto de `alto` fuera del eje).
+  const salida = recortar ? t_banda.find((_, i) => alto[i] > y1) : undefined
+  const recorte = `curva-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`
 
   return (
     <figure className="flex min-h-0 flex-col">
@@ -102,11 +118,17 @@ export default function Curva({ curva, textos, escalones = false }: Props) {
 
         {franja && <rect x={franja.x0} y={M.arr} width={Math.max(2, franja.x1 - franja.x0)} height={H - M.arr - M.aba} fill="var(--color-actuar)" fillOpacity={0.14} />}
 
-        {/* Lo que viene: el abanico y su línea media. */}
-        <path d={abanico} fill="var(--abanico)" fillOpacity={0.35} />
-        <path d={linea(t_banda, alto)} fill="none" stroke="var(--abanico)" strokeWidth={2} />
-        <path d={linea(t_banda, bajo)} fill="none" stroke="var(--abanico)" strokeWidth={2} />
-        <path d={linea(t_banda, medio)} fill="none" stroke="var(--abanico)" strokeWidth={3} strokeDasharray="7 5" />
+        {/* Lo que viene: el abanico y su línea media, recortados al gráfico. */}
+        <clipPath id={recorte}>
+          <rect x={M.izq} y={M.arr} width={W - M.izq - M.der} height={H - M.arr - M.aba} />
+        </clipPath>
+        <g clipPath={`url(#${recorte})`}>
+          <path d={abanico} fill="var(--abanico)" fillOpacity={0.35} />
+          <path d={linea(t_banda, alto)} fill="none" stroke="var(--abanico)" strokeWidth={2} />
+          <path d={linea(t_banda, bajo)} fill="none" stroke="var(--abanico)" strokeWidth={2} />
+          <path d={linea(t_banda, medio)} fill="none" stroke="var(--abanico)" strokeWidth={3} strokeDasharray="7 5" />
+        </g>
+        {salida !== undefined && <path d={flecha(px(salida), M.arr)} fill="var(--abanico)" />}
 
         {/* La línea de «ahora». */}
         <line x1={xHoy} x2={xHoy} y1={M.arr - 14} y2={H - M.aba} stroke="var(--color-tinta-suave)" strokeWidth={2} strokeDasharray="5 4" />
@@ -151,6 +173,14 @@ export default function Curva({ curva, textos, escalones = false }: Props) {
             <span className="mt-1 h-3 w-5 shrink-0" style={{ backgroundColor: 'var(--abanico)', opacity: 0.7 }} />
             <span>{textos.abanico}</span>
           </span>
+          {salida !== undefined && textos.fuera && (
+            <span className="flex items-start gap-2">
+              <svg viewBox="0 0 20 14" className="mt-0.5 h-3.5 w-5 shrink-0" aria-hidden>
+                <path d={flecha(10, 13)} fill="var(--abanico)" />
+              </svg>
+              <span>{textos.fuera}</span>
+            </span>
+          )}
         </figcaption>
       )}
     </figure>

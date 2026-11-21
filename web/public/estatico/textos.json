@@ -7,5 +7,9 @@
   "limite": "Límite",
   "falta": "Faltan entre {bajo} y {alto} {unidad_tiempo}.",
   "sin_curva": "Esta unidad no tiene curva."
+ },
+ "chat": {
+  "probar_archivo": "Probar con el archivo de otra faena",
+  "no_disponible": "Esta decisión todavía no responde archivos propios: su red sigue practicando. Mientras, puedo responder con el archivo del demo."
  }
 }
