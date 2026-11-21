@@ -4,7 +4,7 @@
 >
 > **Tiempo estimado, no cronometrado:** contado en palabras, a 150 por minuto. El cronómetro de verdad es el primer ensayo.
 >
-> **No es el mismo pitch de `pitch/GUION.md`**, que abre con el barco, entra a la app para las decisiones y tiene siete momentos. Este es el del deck de venta, tal como quedó después de la revisión del sábado a las 14:40. Hay que dejar uno solo.
+> **No es el mismo pitch de `pitch/GUION.md`**, que abre con el barco, entra a la app para las decisiones y tiene siete momentos. Este es el del deck de venta, tal como quedó después de la revisión del sábado a las 15:50. Hay que dejar uno solo.
 
 ## Lo que se vende
 
@@ -12,19 +12,22 @@
 
 **Y la idea que cambia el marco: no es una red que predice, es Generative AI para datasets.** Un LLM aprendió cómo se escribe y por eso responde cualquier texto sin volver a entrenar. Krylov aprendió cómo se generan los datos de una mina (un modelo bayesiano simula millones de datasets posibles, y una red aprende qué hay detrás de cada uno) y por eso responde cualquier dataset de esa familia. Eso es Simulation-based Inference, o Bayesian Amortized Inference. La mina ya no necesita a un data scientist que entrene un modelo para un dataset en particular.
 
-El guion empuja esa idea en cinco golpes:
+El guion empuja esa idea en seis golpes:
 
 1. **El valor, antes que nada** (lámina 1): en el pasado, siete horas; hoy, menos de un segundo.
 2. **El cambio de paradigma** (láminas 2 y 3): Generative AI para datasets; en el pasado un modelo por dataset, hoy una red para todos.
 3. **La prueba** (láminas 4 y 5): con qué practicó, y cómo se ve responder.
 4. **El tamaño** (láminas 6 a 11): una mina toma cinco decisiones así todos los días, y cada una se ve.
-5. **El recuerdo** (lámina 12): el mensaje, el contador y el QR.
+5. **La confianza** (lámina 12): un número de 0 a 1, y el rango a la vista.
+6. **El recuerdo** (lámina 13): el mensaje, el contador y el QR.
+
+Y después del pitch, **las preguntas de quien dirige una empresa**, cada una con su lámina y su tecla (más abajo).
 
 ## La cuenta
 
-- **310 palabras = 124 segundos de habla.**
-- **13 pulsaciones** de `→` recorren las doce láminas. A 1,5 segundos por pulsación son 20 segundos.
-- Habla más pulsaciones: **2:24. Quedan 36 segundos libres** en un pitch de 3 minutos.
+- **345 palabras = 138 segundos de habla.**
+- **14 pulsaciones** de `→` recorren las trece láminas. A 1,5 segundos por pulsación son 21 segundos.
+- Habla más pulsaciones: **2:39. Quedan 21 segundos libres** en un pitch de 3 minutos. Es poco: si en el ensayo no alcanza, lo primero que sale está en «Si falta tiempo».
 
 | # | Lámina | Desde | Hasta | Palabras | Qué tiene que verse antes de seguir |
 |---|---|---|---|---|---|
@@ -33,13 +36,14 @@ El guion empuja esa idea en cinco golpes:
 | 3 | En el pasado vs. hoy | 0:36 | 0:51 | 36 | El reloj pasando las 4 h 40 min: la fila de «Hoy» se dispara |
 | 4 | Mundos simulados | 0:51 | 0:58 | 14 | El contador en 7.750.592 |
 | 5 | Entra un archivo, sale la respuesta | 0:58 | 1:13 | 28 | La muralla llenándose de mapas; después, 0,69 segundos contra 7 horas |
-| 6 | Cinco decisiones | 1:13 | 1:20 | 14 | Las cinco preguntas |
-| 7 | Qué roca conviene procesar | 1:20 | 1:38 | 38 | El terreno en tres colores; la A con sus US$ 8.943 |
-| 8 | La pared de la mina | 1:38 | 1:47 | 18 | La pared moviéndose; las dos curvas separándose |
-| 9 | El cobre en la planta | 1:47 | 1:56 | 20 | La espuma rebalsando; las columnas contra la meta |
-| 10 | Los camiones | 1:56 | 2:04 | 16 | Los camiones en la rampa; uno parpadeando cerca de la marca roja |
-| 11 | Los túneles | 2:04 | 2:14 | 20 | La explosión; los temblores, cada vez menos |
-| 12 | Cierre | 2:14 | 2:24 | 21 | El contador corriendo; el QR |
+| 6 | Cinco decisiones | 1:13 | 1:22 | 20 | Las cinco preguntas, y quién toma cada una |
+| 7 | Qué roca conviene procesar | 1:22 | 1:40 | 38 | El terreno en tres colores; la A con sus US$ 8.943 |
+| 8 | La pared de la mina | 1:40 | 1:49 | 18 | La pared moviéndose; las dos curvas separándose |
+| 9 | El cobre en la planta | 1:49 | 1:59 | 20 | La espuma rebalsando; las columnas contra la meta |
+| 10 | Los camiones | 1:59 | 2:07 | 16 | Los camiones pasando; uno en rojo, parpadeando |
+| 11 | Los túneles | 2:07 | 2:16 | 20 | La explosión; los temblores, cada vez menos |
+| 12 | Cómo sé que acierta | 2:16 | 2:29 | 29 | El 0,90; los puntos cayendo dentro de sus barras |
+| 13 | Cierre | 2:29 | 2:39 | 21 | El contador corriendo; el QR |
 
 ## El guion
 
@@ -85,13 +89,15 @@ Si se quiere rematar con la pantalla: «Con el mismo tiempo de cómputo: 228 dat
 
 > «228 análisis: menos de un segundo. Con el método de siempre, más de siete horas.»
 
-### 6 · Cinco decisiones (1:13 a 1:20)
+### 6 · Cinco decisiones (1:13 a 1:22)
 
 `[→]`
 
-> «Una mina decide esto todos los días. Cinco decisiones, un solo Artificial Data Scientist.»
+> «Una mina decide esto todos los días. Cinco decisiones, un solo Artificial Data Scientist, para quien decide en el turno.»
 
-### 7 · Qué roca conviene procesar (1:20 a 1:38)
+Bajo cada pregunta está escrito quién la toma: el geólogo, quien vigila la pared, el jefe de turno de la planta, quien planifica la mantención, el jefe de turno bajo tierra.
+
+### 7 · Qué roca conviene procesar (1:22 a 1:40)
 
 `[→]` *(el terreno se levanta, con sus curvas de nivel y sus tres colores)*
 
@@ -101,35 +107,56 @@ Si se quiere rematar con la pantalla: «Con el mismo tiempo de cómputo: 228 dat
 
 > «Y dice dónde perforar: una muestra más en A vale cerca de nueve mil dólares.»
 
-### 8 · La pared de la mina (1:38 a 1:47)
+### 8 · La pared de la mina (1:40 a 1:49)
 
 `[→]` *(la pared se mueve, sector por sector, con 48 horas de radar; a la izquierda, dos curvas que se separan)*
 
 > «La pared de la mina se mueve. Con lo que mide el radar, dice qué sectores conviene cerrar.»
 
-### 9 · El cobre en la planta (1:47 a 1:56)
+### 9 · El cobre en la planta (1:49 a 1:59)
 
 `[→]` *(los estanques se encienden; la espuma rebalsa y corre hasta la columna del final de cada línea)*
 
 > «¿Se está perdiendo cobre en la planta? Mirando los primeros estanques, dice qué líneas van a quedar bajo la meta.»
 
-### 10 · Los camiones (1:56 a 2:04)
+### 10 · Los camiones (1:59 a 2:07)
 
-`[→]` *(los camiones suben la rampa; la columna de cada uno crece hacia la marca roja)*
+`[→]` *(los camiones pasan por los cuatro niveles de la rampa; cada uno va cambiando de verde a rojo con su desgaste)*
 
 > «¿Qué camión paro? Con el aceite de toda la flota, dice a cuáles adelantarles la mantención.»
 
-### 11 · Los túneles (2:04 a 2:14)
+### 11 · Los túneles (2:07 a 2:16)
 
 `[→]` *(la explosión; después, los temblores en cada sector, cada vez menos)*
 
 > «Después de una explosión bajo tierra, la roca sigue crujiendo. Krylov dice dónde conviene esperar antes de volver a entrar.»
 
-### 12 · Cierre (2:14 a 2:24)
+### 12 · Cómo sé que acierta (2:16 a 2:29)
+
+`[→]` *(68 barras: el rango que Krylov dio para cada muestra escondida; después caen los puntos, lo que de verdad había: 61 adentro, 7 afuera)*
+
+> «¿Y cómo sabemos que acierta? Escondemos parte de tus datos y Krylov los adivina, cada uno con su rango: nueve de cada diez caen adentro. Nunca un número solo.»
+
+### 13 · Cierre (2:29 a 2:39)
 
 `[→]` *(el contador corre; la muralla de mapas se sigue llenando; el QR)*
 
 > «Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide. Eso es Krylov. Pruébenlo.»
+
+## Las preguntas de quien dirige una empresa
+
+Cada una tiene su lámina, fuera del recorrido. Se abre con su tecla desde cualquier parte; `Fin` vuelve al cierre.
+
+| Pregunta | Tecla | La respuesta, en una frase | Lo que no hay que decir |
+|---|---|---|---|
+| **¿Quién lo usa?** | `Q` | «Quien toma la decisión en el turno: el geólogo, quien vigila la pared, el jefe de turno. No un data scientist.» | Que hay clientes o pilotos: no los hay |
+| **¿Qué archivo recibe?** | `A` | «Un CSV común, una fila por medición: dónde y cuánto, o qué equipo, cuándo y cuánto. Krylov propone qué columna es cuál y la persona confirma.» | Que se conecta a sensores: el demo lee archivos |
+| **¿Y si le subo el archivo a un LLM?** | `L` | «Lo probamos, dos veces. Acierta parecido; tarda 15.000 veces más y cada vez lo hace distinto. Por eso usamos el LLM para leer y explicar, y los números los pone el motor.» | **Que el LLM responde mal: en la prueba no fue así** |
+| **¿Cómo garantizan que la inferencia es buena?** | lámina 12 | «Con un número: 0,90. De cada diez veces que da un rango, acierta nueve. Y lo vuelve a medir con cada archivo.» | Que 1 sería mejor: lo ideal es 0,90 |
+| **¿Y si falla en producción?** | `M` | «Cada respuesta trae su control: un semáforo que no deja responder si el archivo no sirve, y un examen con los datos de ese mismo archivo.» | Que hay un tablero de monitoreo o alertas: no existen |
+| **¿Cómo funciona por dentro?** | `0` | La arquitectura, con los números del sello | |
+
+**Sobre la prueba con el LLM, sin adornos.** Se le entregó a Claude Fable 5.2 (con herramientas: podía escribir y correr código) el mismo archivo y el mismo examen que se toma Krylov, con 3 minutos, dos veces. Resultado: 61 y 63 de 68 muestras dentro del rango, contra 61 de Krylov. **No respondió mal.** Tardó 152 y 177 segundos contra 10 milisegundos; las dos veces escribió un programa distinto (sus estimaciones difieren hasta 459 ppm en un lugar), y una de las dos terminó con su método de respaldo. A ese ritmo, «¿Dónde perforo?» (480 análisis) tomaría unas 20 horas en vez de 1,3 segundos: eso es una cuenta. Es una sola prueba, con un archivo simulado y el computador cargado; está completa en `pitch/deck/datos/prueba_llm/`. El argumento de venta no es «el LLM no sirve»: es **al instante, igual cada vez y con sello**.
 
 ## Lo que es cierto hoy, para decirlo bien
 
@@ -147,6 +174,8 @@ Cuando un motor empieza a responder, se vuelve a correr `pitch/deck/datos/genera
 
 **Si preguntan, se responde con la verdad:**
 
+- **«¿Por qué 0,90 y no 1?»** «Porque prometemos un rango de 90%. Si acertara siempre, el rango sería demasiado ancho y no serviría para decidir.»
+- **«¿Y con datos reales?»** «138 de 155 mediciones escondidas dentro del rango, escondiendo de a un quinto. En la partición que muestra la app, 24 de 31.» (0,89 y 0,77: los dos son ciertos.)
 - **«¿Entonces es un LLM?»** «No. Se parece en una cosa: se entrena antes, una vez, y después solo se usa. Lo que aprendió no es lenguaje: es el modelo estadístico de cada decisión, simulando millones de datasets.» (En la app sí hay un modelo de lenguaje, pero solo propone qué columna es cuál y redacta el texto; ningún número sale de él.)
 - **«¿Responde cualquier dataset?»** «Cualquiera de la familia con que practicó: la misma decisión, dentro de los tamaños que simuló. Si el archivo no se parece a nada que haya visto, lo dice y no responde.»
 - **«¿Y entrenar no cuesta?»** «Sí: 4 horas 40 minutos, una vez, y lo hacemos nosotros. En la lámina 3 se ve: durante ese rato el método de siempre va ganando. Después de eso, cada dataset cuesta 10 milisegundos.»
@@ -172,19 +201,26 @@ En pantalla, además:
 - **Lámina 5:** 10 milisegundos y 2 minutos por análisis; 228 análisis en 0,69 s.
 - **Lámina 7:** 147, 309 y 568 partes del terreno, de 1.024 (M-40), US$ 1.577.707 (M-41), US$ 1.500 (K-24), 480 análisis (M-43).
 - **Láminas 8 a 11:** cuántas unidades trae cada archivo de demo (36, 8, 40 y 8) y lo que esos archivos dicen de cada unidad: milímetros, porcentaje de cobre recuperado contra la meta de 84% (K-41), desgaste contra el límite, cantidad de temblores y la magnitud del más fuerte.
-- **Lámina 12:** el contador, que es una cuenta (segundos del pitch ÷ 10 ms).
+- **Lámina 12:** 0,90 (`cobertura_90` del sello, 2.000 casos de validación); 61 de 68 (el examen de `leyes`); 138 de 155 (`examen_5_particiones` del sello, datos reales públicos); 500 ppm (K-21).
+- **Lámina 13:** el contador, que es una cuenta (segundos del pitch ÷ 10 ms).
+- **Láminas de preguntas:** las filas de `datos/demo/leyes.csv` y `flota.csv`; entre 30 y 400 muestras; y la prueba con el LLM (61, 61 y 63 de 68; 10 ms, 152 s y 177 s; 459 ppm; 1,3 s de M-44; «unas 20 horas» y «15.000 veces», que son cuentas).
 
 ## Si falta tiempo
 
-1. **Las láminas 8 a 11 cuyo motor no responda**, 9 segundos cada una.
-2. **El segundo paso de la lámina 7** («¿Dónde perforo?»), 7 segundos.
-3. **La lámina 4** (mundos simulados), 7 segundos: la lámina 3 ya lo dijo.
+Quedan 21 segundos de margen. Si el ensayo se pasa, sale en este orden:
+
+1. **La lámina 4** (mundos simulados), 7 segundos: la lámina 3 ya lo dijo.
+2. **Las láminas 8 a 11 cuyo motor no responda**, 9 segundos cada una.
+3. **El segundo paso de la lámina 7** («¿Dónde perforo?»), 7 segundos.
+
+La lámina 12 no se saca: es la que responde «¿y cómo sé que acierta?» antes de que lo pregunten.
 
 ## Si sobra tiempo o si preguntan
 
-Sobran 36 segundos. Lo mejor que se puede hacer con ellos es quedarse en la lámina 3 hasta que el reloj pase las 4 h 40 min (tarda unos 6 segundos desde que entra): es el momento en que se entiende qué significa amortizar.
+Sobran 21 segundos. Lo mejor que se puede hacer con ellos es quedarse en la lámina 3 hasta que el reloj pase las 4 h 40 min (tarda unos 6 segundos desde que entra): es el momento en que se entiende qué significa amortizar.
 
 - **Tecla `D`: la demo real**, encima de las láminas. Necesita internet.
+- **Teclas `Q`, `A`, `L`, `M`:** las láminas de preguntas (arriba).
 - **Tecla `0`: cómo funciona.** Bayesian Amortized Inference en dos mitades, con los números del sello del motor.
 - **Lámina 7:** arrastrar con el mouse gira el terreno.
 
@@ -192,6 +228,6 @@ Sobran 36 segundos. Lo mejor que se puede hacer con ellos es quedarse en la lám
 
 | Falla | Qué se hace |
 |---|---|
-| El navegador no abre el deck o se ve mal | `pitch/deck/respaldo/krylov-deck.pdf`: las trece láminas en su estado final |
+| El navegador no abre el deck o se ve mal | `pitch/deck/respaldo/krylov-deck.pdf`: las dieciocho láminas en su estado final |
 | Una animación se traba | `P` la pausa; `→` sigue |
 | No hay internet | Nada cambia, salvo la tecla `D` |
