@@ -34,6 +34,8 @@ Consecuencia: el negocio (precio, tamaño de mercado) ocupa una frase y una lám
 
 **Es la versión principal:** la organización confirmó 3 minutos en generales y finales (cifra J-04, sáb 03:55). Las de 90 segundos y cinco minutos quedan de respaldo hasta la charla de las 20:00.
 
+**Tiempo estimado, no cronometrado (sáb 05:25, contando palabras a 150 por minuto):** momento 1, 27 s (presupuesto 25); **momento 2, 49 s (presupuesto 35)**; momento 3, 22 s (25); momento 4, 46 s (60, con clics); momento 5, 12 s (15); cierre, 22 s (20). Total de habla: 176 s, sin contar clics ni pausas: **no cabe**. Recorte propuesto para el momento 2, que decide quien presenta en el primer ensayo: (1) «Estos colores no son pronósticos, son decisiones: conviene retener, no hace falta, y no sabemos si conviene» → «Los colores son decisiones, no pronósticos» (los rótulos ya están en pantalla); (2) sacar «porque ya practicó con [N] millones de empresas simuladas», que el cierre repite. Ahorra cerca de 20 palabras (8 s). El cronómetro de verdad es S-11.
+
 **Momento 1 · El nombre y el problema (0:00 a 0:25).** Pantalla: vista de inicio, cuatro tarjetas.
 
 > «A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía. El capitán ya no calculaba en medio del desastre: miraba una tabla y decidía en segundos. Hoy las empresas deciden a ciegas, porque el que sabe hacer ese cálculo es un data scientist y casi ninguna tiene uno. Nosotros hicimos el cálculo antes. Se llama Krylov.»
