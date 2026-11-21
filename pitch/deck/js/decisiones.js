@@ -387,6 +387,9 @@
   });
 
   // ============================== 10 · Flota: los camiones en la rampa ==============================
+  // Cuarenta camiones mineros, cada uno hecho de miles de puntos sobre su carrocería, subiendo y bajando por los
+  // cuatro niveles de la rampa. El color de cada camión es su desgaste (del archivo): de verde, sano, a rojo, cerca
+  // de fallar; el que pasa el 85% del límite parpadea. No hay nada más en la escena.
   K.registrar('flota', {
     tres: null, tQuieto: 17,
     crear: function (L) {
@@ -397,108 +400,107 @@
       S.unidades.forEach(function (un) { this.horas = Math.max(this.horas, un.puntos[un.puntos.length - 1][0]); }, this);
       this.falla = S.umbral || 1;
       if (!K.gl.ok) return;
-      const B = (this.B = base(30)), azar = K.azar(37), VUELTAS = 1.7, ALTO_COL = 2.6, PIE = 1.85;
-      this.ALTO_COL = ALTO_COL; this.PIE = PIE;
-      // la rampa: una espiral que sube desde el fondo del rajo
-      const rampa = (this.rampa = function (s, afuera) {
-        const a = 0.5 + s * 6.2832 * VUELTAS, r = 3.0 + 6.9 * s + (afuera || 0);
-        return [1.28 * r * Math.cos(a), -3.5 + 6.6 * s, r * Math.sin(a)];
-      });
-      const pos = [], ar = [], paso = 6.9 / VUELTAS;                          // lo que crece el radio en una vuelta
-      for (let i = 0; i < 24000; i++) {
-        const s = -0.12 + azar() * 1.12, cresta = azar() < 0.24, w = cresta ? 0.34 + azar() * 0.012 : azar(), camino = w < 0.34;
-        // de la rampa hacia afuera: primero el camino, plano; después la pared, que sube hasta la vuelta siguiente
-        const sube = camino ? 0 : K.suave((w - 0.34) / 0.66) * (6.6 / VUELTAS), p = rampa(Math.max(s, -0.12), w * paso);
-        if ((s < 0 && w > 0.5) || p[1] + sube > 3.5) continue;
-        pos.push(p[0], p[1] + sube + (azar() - 0.5) * 0.05, p[2]); ar.push(cresta ? 2 : (camino ? 1 : 0), azar());
-      }
-      for (let i = 0; i < 700; i++) { const a = azar() * 6.2832, r = Math.sqrt(azar()) * 3.0; pos.push(1.28 * r * Math.cos(a), -3.5 - 0.1 * azar(), r * Math.sin(a)); ar.push(0, azar()); }
-      B.puntos({ position: [pos, 3], aR: [ar, 2] }, `
-        attribute vec2 aR;
-        void main() {
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          vColor = mix(ARENA, ARENA * 1.35, min(aR.x, 1.0));
-          vA = 0.26 + 0.2 * min(aR.x, 1.0) + 0.14 * aR.y + 0.16 * step(1.5, aR.x);
-          gl_PointSize = (0.055 + 0.045 * aR.y) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`);
-      // un camión, hecho de puntos para que se vea en cualquier pantalla: chasis, tolva, cabina, ruedas y dos focos
-      const T = [], tipo = [];
-      const punto = function (x, y, z, k) { T.push(x, y, z); tipo.push(k || 0); };
-      const arista = function (a, b) {                                                  // puntos seguidos a lo largo de una arista
-        const largo = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), cuantos = Math.max(2, Math.ceil(largo / 0.055));
-        for (let i = 0; i <= cuantos; i++) punto(K.mezcla(a[0], b[0], i / cuantos), K.mezcla(a[1], b[1], i / cuantos), K.mezcla(a[2], b[2], i / cuantos));
-      };
-      const caja = function (x0, x1, y0, y1, z0, z1) {
-        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].forEach(function (q, i, lista) {
-          const r = lista[(i + 1) % 4];
-          arista([q[0], q[1], z0], [r[0], r[1], z0]); arista([q[0], q[1], z1], [r[0], r[1], z1]); arista([q[0], q[1], z0], [q[0], q[1], z1]);
+      const B = (this.B = base(30)), azar = K.azar(37);
+      const ESC = (this.ESC = 0.62), NIVELES = (this.NIVELES = 4), LARGO = (this.LARGO = 48), RUEDA = 0.92, VEL = (this.VEL = 1.0);
+      this.nivel = function (k) { return { y: -3.6 + k * 2.0, z: 6.0 - k * 5.2, dir: k % 2 ? -1 : 1 }; };
+
+      // ---- un camión (x hacia adelante): P son posiciones; Q es (tipo, brillo, ángulo, radio). Tipo 1: rueda, que gira. Tipo 2: foco.
+      const P = [], Q = [];
+      const pt = function (x, y, z, tipo, brillo, ang, radio) { P.push(x, y, z); Q.push(tipo || 0, brillo == null ? 0.4 : brillo, ang || 0, radio || 0); };
+      const caja = function (x0, x1, y0, y1, z0, z1, cuantos, brillo) {
+        for (let i = 0; i < cuantos; i++) {
+          const cara = Math.floor(azar() * 3), u = azar(), v = azar(), lado = azar() < 0.5;
+          if (cara === 0) pt(lado ? x0 : x1, K.mezcla(y0, y1, u), K.mezcla(z0, z1, v), 0, brillo);
+          else if (cara === 1) pt(K.mezcla(x0, x1, u), lado ? y0 : y1, K.mezcla(z0, z1, v), 0, brillo);
+          else pt(K.mezcla(x0, x1, u), K.mezcla(y0, y1, v), lado ? z0 : z1, 0, brillo);
+        }
+        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].forEach(function (q, i, lista) {                 // sus aristas, más brillantes
+          const r = lista[(i + 1) % 4], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
+          for (let k = 0; k <= largo * 16; k++) { const f = k / (largo * 16); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z0, 0, 0.9); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z1, 0, 0.9); }
         });
       };
-      caja(-0.8, 0.8, 0.26, 0.46, -0.36, 0.36);                                         // chasis
-      caja(0.42, 0.78, 0.46, 0.86, -0.36, 0.02);                                        // cabina
-      const perfil = [[-0.74, 0.48], [0.3, 0.48], [0.44, 0.96], [0.9, 0.96], [0.9, 1.08], [-0.9, 1.08]];   // tolva, con visera
+      // la tolva, de lado: piso inclinado, pared del frente y la visera que tapa la cabina
+      const perfil = [[-2.95, 1.98], [0.15, 1.42], [0.55, 2.86], [2.8, 3.0], [2.8, 3.17], [-3.1, 2.8]];
+      const adentro = function (x, y) {
+        let si = false;
+        for (let i = 0, j = perfil.length - 1; i < perfil.length; j = i++) {
+          const a = perfil[i], b = perfil[j];
+          if ((a[1] > y) !== (b[1] > y) && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) si = !si;
+        }
+        return si;
+      };
+      for (let i = 0; i < 1500; i++) { let x, y; do { x = -3.1 + azar() * 5.9; y = 1.42 + azar() * 1.75; } while (!adentro(x, y)); pt(x, y, azar() < 0.5 ? -1.56 : 1.56, 0, 0.5); }
       perfil.forEach(function (q, i) {
-        const r = perfil[(i + 1) % perfil.length];
-        arista([q[0], q[1], -0.43], [r[0], r[1], -0.43]); arista([q[0], q[1], 0.43], [r[0], r[1], 0.43]); arista([q[0], q[1], -0.43], [q[0], q[1], 0.43]);
+        const r = perfil[(i + 1) % perfil.length], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
+        for (let k = 0; k < largo * 46; k++) { const f = azar(); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), (azar() - 0.5) * 3.12, 0, 0.3); }
+        for (let k = 0; k <= largo * 20; k++) { const f = k / (largo * 20); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), -1.56, 0, 1); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), 1.56, 0, 1); }
       });
-      [[-0.48, -0.42], [-0.48, 0.42], [0.5, -0.42], [0.5, 0.42]].forEach(function (c) {     // ruedas
-        for (let k = 0; k < 22; k++) { const a = (k / 22) * 6.2832; punto(c[0] + Math.cos(a) * 0.29, 0.29 + Math.sin(a) * 0.29, c[1]); }
-        for (let k = 0; k < 8; k++) { const a = (k / 8) * 6.2832; punto(c[0] + Math.cos(a) * 0.13, 0.29 + Math.sin(a) * 0.13, c[1]); }
+      caja(-2.5, 2.45, 0.98, 1.42, -0.95, 0.95, 320, 0.4);                                       // chasis
+      caja(1.0, 2.05, 1.42, 2.62, -1.5, 1.5, 420, 0.5);                                          // cabina y plataforma, bajo la visera
+      caja(2.05, 2.72, 0.95, 2.25, -1.3, 1.3, 380, 0.5);                                         // frente: radiador y parachoques
+      // seis neumáticos enormes: dos adelante, cuatro atrás
+      [[1.62, -1.32, 0.56], [1.62, 1.32, 0.56], [-1.38, -0.86, 0.5], [-1.38, -1.44, 0.5], [-1.38, 0.86, 0.5], [-1.38, 1.44, 0.5]].forEach(function (w) {
+        for (let i = 0; i < 170; i++) pt(w[0], RUEDA, w[1] + (azar() - 0.5) * w[2], 1, 0.9, azar() * 6.2832, RUEDA);                                  // la banda
+        for (let i = 0; i < 200; i++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.55, azar() * 6.2832, RUEDA * (0.42 + 0.58 * Math.sqrt(azar())));   // el costado
+        for (let k = 0; k < 6; k++) for (let j = 0; j < 5; j++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.9, (k / 6) * 6.2832, RUEDA * (0.08 + 0.07 * j));   // los rayos de la llanta: se ve que gira
       });
-      punto(0.84, 0.52, -0.26, 1); punto(0.84, 0.52, 0.26, 1);                          // focos
-      const ESC = 1.45, pt = [], ac = [], tt = [];
+      pt(2.74, 1.55, -0.9, 2, 1); pt(2.74, 1.55, 0.9, 2, 1);                                      // focos
+      const porCamion = P.length / 3, pos = [], aq = [], ac = [], tt = [];
       for (let i = 0; i < n; i++) {
         const col = tinteDe(S, S.unidades[i].id, null) || [0, 0, 0];
-        for (let k = 0; k < tipo.length; k++) { pt.push(T[k * 3] * ESC, T[k * 3 + 1] * ESC, T[k * 3 + 2] * ESC); ac.push(i, tipo[k]); tt.push(col[0], col[1], col[2]); }
+        for (let k = 0; k < porCamion; k++) {
+          pos.push(P[k * 3], P[k * 3 + 1], P[k * 3 + 2]); aq.push(Q[k * 4], Q[k * 4 + 1], Q[k * 4 + 2], Q[k * 4 + 3]);
+          ac.push(i); tt.push(col[0], col[1], col[2]);
+        }
       }
       this.cam = { value: [] }; this.est = { value: [] };
       for (let i = 0; i < n; i++) { this.cam.value.push(new THREE.Vector4()); this.est.value.push(new THREE.Vector2()); }
-      const comun = { uCam: this.cam, uEst: this.est, uResp: { value: S.respuesta ? 1 : 0 } };
-      const cabecera = `
-        attribute vec2 aCam;           // qué camión es, y si este punto es un foco (o la marca de la falla, en la columna)
+      B.puntos({ position: [pos, 3], aQ: [aq, 4], aCam: [ac, 1], aTinte: [tt, 3] }, `
+        attribute vec4 aQ;             // tipo (1: rueda, 2: foco), brillo, y para las ruedas su ángulo y su radio
+        attribute float aCam;
         attribute vec3 aTinte;
         uniform vec4 uCam[${n}];       // dónde va cada camión (x, y, z) y hacia dónde mira
         uniform vec2 uEst[${n}];       // su desgaste (0 a 1: 1 es la falla) y cuánto se ve
         uniform float uResp;
-        vec3 colorDe(float des) {
-          vec3 c = des < 0.55 ? mix(OXIDO, COBRE, des / 0.55) : mix(COBRE, ROJO, smoothstep(0.55, 0.9, des));
-          return mix(c, aTinte, uResp);
-        }`;
-      B.puntos({ position: [pt, 3], aCam: [ac, 2], aTinte: [tt, 3] }, cabecera + `
         void main() {
-          int i = int(aCam.x + 0.5);
+          int i = int(aCam + 0.5);
           vec4 c = uCam[i];
-          float co = cos(c.w), si = sin(c.w), des = uEst[i].x;
-          vec3 p = vec3(position.x * co - position.z * si, position.y, position.x * si + position.z * co) + c.xyz;
-          float alerta = smoothstep(0.8, 0.95, des) * (0.5 + 0.5 * sin(uT * 7.0));       // el que está por fallar, parpadea
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          vColor = aCam.y > 0.5 ? vec3(1.0, 0.95, 0.8) : colorDe(des) * (1.0 + 0.9 * alerta);
-          vA = uEst[i].y * (aCam.y > 0.5 ? 1.7 : 0.5 + 0.5 * alerta);
-          gl_PointSize = (aCam.y > 0.5 ? 0.17 : 0.062) * uEsc / -mv.z;
+          float des = uEst[i].x, rueda = step(0.5, aQ.x) * step(aQ.x, 1.5), foco = step(1.5, aQ.x);
+          vec3 p = position;
+          float giro = aQ.z - uT * ${(VEL / (RUEDA * ESC)).toFixed(3)};                     // las ruedas giran a la velocidad a la que avanza
+          p.x += rueda * aQ.w * cos(giro);
+          p.y += rueda * aQ.w * sin(giro);
+          float co = cos(c.w), si = sin(c.w);
+          vec3 w = vec3(p.x * co - p.z * si, p.y, p.x * si + p.z * co) * ${ESC.toFixed(2)} + c.xyz;
+          float frente = mix(0.22, 1.0, smoothstep(-0.5, 0.5, p.x * si + p.z * co));        // el costado que mira a la cámara, encendido; el otro, apagado
+          vec3 color = des < 0.5 ? mix(OXIDO, COBRE, des / 0.5) : mix(COBRE, ROJO, smoothstep(0.5, 0.88, des));
+          color = mix(color, aTinte, uResp);
+          float alerta = smoothstep(0.82, 0.95, des) * (0.5 + 0.5 * sin(uT * 7.0));          // el que está por fallar, parpadea
+          vec4 mv = modelViewMatrix * vec4(w, 1.0);
+          vColor = foco > 0.5 ? vec3(1.0, 0.95, 0.82) : mix(color, ARENA * 0.9, rueda * 0.55) * (1.0 + 0.9 * alerta);
+          vA = uEst[i].y * (foco > 0.5 ? 1.5 : (0.16 + 0.5 * aQ.y) * frente);
+          gl_PointSize = (foco > 0.5 ? 0.1 : 0.034 + 0.012 * aQ.y) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
-        }`, comun);
-      // sobre cada camión, su desgaste: la columna se llena hasta donde va; arriba, la marca de la falla
-      const pc = [], acol = [], fc = [], tc = [];
-      for (let i = 0; i < n; i++) {
-        const col = tinteDe(S, S.unidades[i].id, null) || [0, 0, 0];
-        for (let k = 0; k < 36; k++) { pc.push(0, 0, 0); acol.push(i, 0); fc.push((k + 0.5) / 36); tc.push(col[0], col[1], col[2]); }
-        for (let k = 0; k < 7; k++) { pc.push((k - 3) * 0.1, 0, 0); acol.push(i, 1); fc.push(1.0); tc.push(col[0], col[1], col[2]); }
+        }`, { uCam: this.cam, uEst: this.est, uResp: { value: S.respuesta ? 1 : 0 } });
+
+      // ---- la rampa: cuatro niveles; de cada uno se dibujan los dos bordes del camino y la pared que sube al siguiente
+      const pr = [], ar = [];
+      for (let k = 0; k < NIVELES; k++) {
+        const N = this.nivel(k), sig = this.nivel(k + 1);
+        for (let x = -LARGO / 2; x < LARGO / 2; x += 0.06) { pr.push(x, N.y, N.z + 1.75, x, N.y, N.z - 1.75); ar.push(1, azar(), 1, azar()); }
+        for (let i = 0; i < 1500; i++) { const f = azar(); pr.push((azar() - 0.5) * LARGO, K.mezcla(N.y, sig.y, K.suave(f)), K.mezcla(N.z - 1.75, sig.z + 1.75, f)); ar.push(0, azar()); }
+        for (let i = 0; i < 500; i++) { pr.push((azar() - 0.5) * LARGO, N.y, N.z + (azar() - 0.5) * 3.5); ar.push(0, azar()); }
       }
-      B.puntos({ position: [pc, 3], aCam: [acol, 2], aF: [fc, 1], aTinte: [tc, 3] }, cabecera + `
-        attribute float aF;            // la altura dentro de la columna (0 a 1)
+      B.puntos({ position: [pr, 3], aR: [ar, 2] }, `
+        attribute vec2 aR;
         void main() {
-          int i = int(aCam.x + 0.5);
-          float des = uEst[i].x, lleno = step(aF, des);
-          vec4 mv = modelViewMatrix * vec4(uCam[i].xyz + vec3(0.0, ${PIE.toFixed(2)} + aF * ${ALTO_COL.toFixed(2)}, 0.0), 1.0);
-          mv.x += position.x;                                               // la marca de la falla, siempre de frente
-          vColor = aCam.y > 0.5 ? ROJO : mix(ARENA, colorDe(des), lleno);
-          vA = uEst[i].y * (aCam.y > 0.5 ? 1.0 : 0.3 + 0.9 * lleno);
-          gl_PointSize = (aCam.y > 0.5 ? 0.09 : 0.05 + 0.1 * lleno) * uEsc / -mv.z;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vColor = ARENA;
+          vA = (0.16 + 0.34 * aR.x + 0.1 * aR.y) * smoothstep(${(LARGO / 2).toFixed(1)}, ${(LARGO / 2 - 6).toFixed(1)}, abs(position.x));
+          gl_PointSize = (0.035 + 0.02 * aR.y) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
-        }`, comun);
+        }`);
       this.etq = etiquetas(L, 2, 'nota');
-      this.etq[1].classList.add('alta');
       this.tres = B.tres;
     },
     alAjustar: function () { if (this.B) this.B.ajustar(); },
@@ -506,24 +508,28 @@
       const S = this.S, h = recorrido(t - 0.6, 12, 5) * this.horas;
       reloj(this.reloj, K.miles(Math.floor(h / 10) * 10) + ' h');
       if (!this.tres) return;
-      const B = this.B, orden = [];
+      const B = this.B, orden = [], paso = this.LARGO / Math.ceil(this.n / this.NIVELES);
       B.u.uT.value = t;
-      B.mirar(0.35 + t * 0.03, 0.66, 48, [0, 0.8, 0], -480);
+      B.mirar(-0.4 + Math.sin(t * 0.13) * 0.04, 0.2, 26, [4.6, -0.9, -1.0], -450);
       for (let i = 0; i < this.n; i++) {
-        const pts = S.unidades[i].puntos, des = K.acotar(leer(pts, h, 0) / this.falla, 0, 1);
-        const s = (((i / this.n + t * 0.013) % 1) + 1) % 1, p = this.rampa(s, 0.7), q = this.rampa(s + 0.004, 0.7);
-        this.cam.value[i].set(p[0], p[1], p[2], Math.atan2(q[2] - p[2], q[0] - p[0]));
-        this.est.value[i].set(des, K.acotar(s / 0.03, 0, 1) * K.acotar((1 - s) / 0.03, 0, 1));
-        orden.push([des, i, p]);
+        const des = K.acotar(leer(S.unidades[i].puntos, h, 0) / this.falla, 0, 1);
+        const N = this.nivel(i % this.NIVELES), j = Math.floor(i / this.NIVELES);
+        const x = ((((j * paso + N.dir * this.VEL * t + (i % this.NIVELES) * 1.7) % this.LARGO) + this.LARGO) % this.LARGO) - this.LARGO / 2;
+        this.cam.value[i].set(x, N.y, N.z, N.dir > 0 ? 0 : Math.PI);
+        this.est.value[i].set(des, K.acotar((this.LARGO / 2 - Math.abs(x)) / 5, 0, 1));
+        orden.push([des, i, x, N]);
       }
+      // las etiquetas siguen a los dos camiones más gastados que estén a la vista, lejos del texto y del reloj
       orden.sort(function (a, b) { return b[0] - a[0]; });
-      for (let k = 0; k < this.etq.length; k++) {
-        const o = orden[k];
-        // la etiqueta no se muestra mientras su camión pasa por debajo del reloj: dos textos nunca se pisan
-        const y = o[2][1] + this.PIE + this.ALTO_COL + 0.1, q = K.proyectar(o[2][0], y, o[2][2], B.camera), libre = !(q.x > 1130 && q.y < 390);
-        poner(this.etq[k], B.camera, o[2][0], y, o[2][2],
-          '<b>' + nombre(S.unidades[o[1]].id) + '</b>desgaste: ' + Math.floor(o[0] * 100) + '% del límite', libre && o[0] > 0.8 && this.est.value[o[1]].y > 0.9);
+      let puestas = 0;
+      for (let k = 0; k < orden.length && puestas < this.etq.length; k++) {
+        const o = orden[k], y = o[3].y + 3.35 * this.ESC, q = K.proyectar(o[2], y, o[3].z, B.camera);
+        if (o[0] < 0.8 || q.x < 1020 || q.x > 1560 || q.y < 190 || q.y > 980) continue;
+        if (puestas && Math.abs(q.x - this._x0) < 380 && Math.abs(q.y - this._y0) < 150) continue;       // que no se pisen entre sí
+        if (!puestas) { this._x0 = q.x; this._y0 = q.y; }
+        poner(this.etq[puestas++], B.camera, o[2], y, o[3].z, '<b>' + nombre(S.unidades[o[1]].id) + '</b>desgaste: ' + Math.floor(o[0] * 100) + '% del límite', true);
       }
+      for (; puestas < this.etq.length; puestas++) this.etq[puestas].classList.remove('ver');
     },
   });
 
