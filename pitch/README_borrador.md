@@ -34,6 +34,8 @@ Las ecuaciones completas están en `WORKPLAN.md`, sección 11.
 
 ## Cómo se entrenó y cómo se validó
 
+> La parte técnica completa la escribe PC 2 en `motor/README.md` (A-18): siete chequeos por motor, incluidos «lo que se decide» y el método rápido. El README final toma de ahí esta sección para que los dos digan lo mismo.
+
 | Motor | Datasets simulados | Minutos de entrenamiento | Computador | Cobertura del 90% (SBC) | Diferencia con el MCMC | Examen con datos reales | Responde |
 |---|---|---|---|---|---|---|---|
 | `supervivencia` | [M-21] | [M-23] | MacBook Air M3 | [sello] | [sello] | [M-03] | [red o precalculado] |

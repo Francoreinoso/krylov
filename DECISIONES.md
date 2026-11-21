@@ -113,11 +113,19 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **`supervivencia` no se corta antes:** un SBC intermedio a las 05:35 (83 minutos, 3,9 millones de datasets) da cobertura del 90% en 0,904 y 0,898 en el peor grupo, contracción media 0,74, pero 15 de 32 parámetros con KS sobre el límite (cortes de las encuestas, λ, log k, μ_c): todavía no pasa. La pérdida sigue bajando y la tasa de aprendizaje recién empieza a bajar. `jerarquico` se lanza en PC 3 a las 08:30, como estaba.
 · PC 2 (horario y modelo) y PC 3 (verificación).
 
+**D-32 · sáb 21-nov 06:15 · `analizar` trae `unidad`; criterios del sello para los motores de tabla.**
+- **`unidad` en `analizar`** (`{"singular", "plural"}`, copiado del YAML del caso): lo pidió PC 1 a las 05:04 y lo aprobó Rodrigo a las 05:52. Es un campo nuevo en el contrato congelado; no cambia ninguno de los que había. Con esto la web rehace el titular al mover los deslizadores sin leer el texto.
+- **Criterios del sello de `estados`, `jerarquico` y `supervivencia`** (propuestos por PC 2 a las 06:12; PC 3 los confirma, aplican 11.8 de `WORKPLAN.md`): (1) «SBC sin sesgo visible» = cada parámetro con χ² de uniformidad bajo el 1% repartido entre los parámetros (Bonferroni) y rango medio a menos de 0,03 de 0,5; `espacial` sigue con 1% por parámetro (7 parámetros). (2) La cobertura del 90% que va al sello (`cobertura_90`) es la de **lo que se decide**: la probabilidad de cada unidad contra la del paso local con el θ verdadero, entre 85% y 95%; la de θ va en `cobertura_90_parametros`. (3) `cobertura_90_metodo_rapido`: la misma medida con el intervalo de Wald de la regresión logística, en las mismas simulaciones. La cobertura se cuenta por rangos del SBC, no con cuantiles (los cuantiles de 99 muestras dan 0,882 con un posterior perfecto).
+- **Para que los cuatro sellos se lean igual, `supervivencia` usa los mismos criterios.** El SBC intermedio de D-31 (15 de 32 con KS sobre el límite, cobertura 0,904) se midió con el criterio anterior (KS al 5% sin repartir y cobertura por cuantiles): se vuelve a leer con este a las 08:30.
+- **Queda para una persona, al validar cada motor de tabla:** si la nube se conecta al semáforo (`rojo_modelo`) en `estados` y `jerarquico`. El ensayo de PC 2 indica que el segundo detector podría marcar el archivo real de crédito por el uso del cupo (límite conocido de D-30); el sello escribe `nube_archivo_real_dentro`.
+· PC 1 (pedido), Rodrigo (`unidad`), PC 2 (criterios) y PC 3 (confirmación).
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
 - S-10 (10:00): lista real de sponsors en el lugar; si AgendaPro no auspicia, su tarjeta pierde el nombre.
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
 - H2 por motor (12:15, 13:00, 14:00; tope 16:00): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta.
+- Al validar `estados` y `jerarquico` (D-32): ¿la nube se conecta al semáforo? Depende de si el archivo real cae dentro de las simulaciones.
 - 03:15: confirmar que hay dos sesiones de Claude Code en PC 2 y que PC 3 es el segundo computador de entrenamiento (D-26 lo asume). → Confirmado en D-27.
 -->
