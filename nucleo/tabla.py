@@ -13,6 +13,13 @@ from nucleo.casos import leer_columnas
 
 MUESTRAS = 32
 TRAMOS = ((0.0, 0.1), (0.1, 0.2), (0.2, 0.4), (0.4, 1.01))
+_SI_NO = {"yes": 1.0, "si": 1.0, "sí": 1.0, "1": 1.0, "1.0": 1.0, "true": 1.0, "no": 0.0, "0": 0.0, "0.0": 0.0, "false": 0.0}
+
+
+def si_no(texto: str) -> float:
+    """Una respuesta sí/no escrita como en los archivos de los casos (Yes/No, 1/0) a 1.0 o 0.0; vacío es NaN."""
+    texto = texto.strip().lower()
+    return _SI_NO[texto] if texto else float("nan")
 
 
 def unidades(ids: list[str], muestras_p: np.ndarray, costos: dict) -> list[dict]:
@@ -35,7 +42,7 @@ def examen(caso: dict, ids: list[str], p: np.ndarray) -> dict | None:
     if not caso.get("verdad"):
         return None
     tabla = leer_columnas(caso["verdad"])
-    verdad = {i: float(v) for i, v in zip(tabla["id"], tabla["objetivo"]) if v != ""}
+    verdad = {i: si_no(v) for i, v in zip(tabla["id"], tabla["objetivo"]) if v.strip()}
     pares = np.array([(p[j], verdad[str(i)]) for j, i in enumerate(ids) if str(i) in verdad])
     if len(pares) == 0:
         return None

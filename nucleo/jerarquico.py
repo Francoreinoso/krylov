@@ -204,7 +204,7 @@ def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 
 
 from nucleo.casos import leer_columnas          # noqa: E402
 
-_SI = {"yes": 1.0, "si": 1.0, "sí": 1.0, "1": 1.0, "1.0": 1.0, "no": 0.0, "0": 0.0, "0.0": 0.0}
+from nucleo.tabla import si_no                  # noqa: E402
 
 
 def leer_caso(caso: dict) -> dict:
@@ -223,5 +223,80 @@ def leer_caso(caso: dict) -> dict:
     efectos = col["efectos"]
     return {"espera": numeros(col["suave"]), "dia": numeros(col["categoria"]).astype(int), "sms": numeros(col["tratamiento"]),
             "edad": numeros(efectos[0]), "binarias": np.stack([numeros(e) for e in efectos[1:]], axis=1),
-            "respuesta": np.array([_SI[v.strip().lower()] if v.strip() else np.nan for v in t[col["objetivo"]]]),
+            "respuesta": np.array([si_no(v) for v in t[col["objetivo"]]]),
             "id": t[col["id"]], "paciente": paciente, "barrio": barrio, "barrio_del_paciente": barrio_del_paciente}
+
+
+from functools import cache                                   # noqa: E402
+
+from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
+from nucleo.casos import ErrorKrylov, implementacion          # noqa: E402
+
+
+@cache
+def _red(carpeta: str, _version: float):
+    import onnxruntime
+    opciones = onnxruntime.SessionOptions()
+    opciones.log_severity_level = 3
+    return (onnxruntime.InferenceSession(f"{carpeta}/codificador.onnx", opciones, providers=["CPUExecutionProvider"]),
+            flujo_numpy.cargar(f"{carpeta}/flujo.npz"))
+
+
+def posterior(z, datos: dict, impl: str, clave: str, muestras: int = tabla.MUESTRAS) -> np.ndarray:
+    """Muestras del posterior de θ, (muestras, 20): del flujo condicionado en s(D) (`red`) o del MCMC precalculado (`mcmc`)."""
+    carpeta = _casos.ARTEFACTOS / "jerarquico"
+    if impl == "red":
+        if not (carpeta / "codificador.onnx").exists():
+            raise ErrorKrylov("La red de inasistencias todavía no está exportada.", "no_disponible")
+        sesion, pesos = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+        tensor, mascara, _ = anidar(armar_filas(z, datos["respuesta"]), datos["barrio"], datos["paciente"])
+        resumen = sesion.run(None, {"filas": tensor[None], "mascara": mascara[None]})[0][0]
+        return flujo_numpy.muestrear(pesos, resumen, flujo_numpy.ruido(0, muestras, DIM_THETA)).astype(np.float64)
+    ruta = carpeta / "mcmc" / f"{clave}.npz"
+    if not ruta.exists():
+        raise ErrorKrylov("Este análisis de inasistencias todavía no está precalculado.", "no_disponible")
+    with np.load(ruta) as archivo:
+        theta = archivo["theta"].astype(np.float64)
+    return theta[np.sort(np.random.default_rng(0).choice(len(theta), size=min(muestras, len(theta)), replace=False))]
+
+
+def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
+    """Qué citas por decidir conviene confirmar: p de no llegar por muestra del posterior, decisión, qué pesa y examen."""
+    col = caso["columnas"]
+    del_modelo = {col["suave"], col["categoria"], col["tratamiento"], *col["efectos"]}
+    for t in transformaciones:
+        if t.removeprefix("quitar_factor:") in del_modelo:
+            raise ErrorKrylov("Ese factor es parte del modelo de inasistencias y no se puede quitar.", "no_disponible")
+    impl = implementacion("jerarquico")
+    datos = leer_caso(caso)
+    por_decidir = np.isnan(datos["respuesta"])
+    conocidas = datos["respuesta"][~por_decidir]
+    n = len(por_decidir)
+    if n < 200:
+        return {"implementacion": impl, **tabla.rojo_datos(f"Hay {n} citas y hacen falta al menos 200.")}
+    if conocidas.sum() < 10 or (1 - conocidas).sum() < 10:
+        return {"implementacion": impl, **tabla.rojo_datos("Casi todas las citas tienen la misma respuesta: no hay de dónde aprender.")}
+
+    z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
+    clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)
+    theta = posterior(z, datos, impl, clave)
+    muestras_p = paso_local(theta, z, datos["respuesta"], datos["paciente"], datos["barrio_del_paciente"])[por_decidir]
+    ids = [i for i, falta in zip(datos["id"], por_decidir) if falta]
+
+    th = a_restringido(theta)
+    etiquetas = caso.get("etiquetas", {})
+    def fila(nombre, muestras):
+        return decision.factor(nombre, etiquetas.get(nombre, nombre), muestras)
+    # Espera: el riesgo a 30 días de espera contra 1 día, f(log 31) − f(log 2), con el posterior del spline.
+    contraste = (base_spline(np.log1p(30.0)) - base_spline(np.log1p(1.0)))[1:]
+    factores = ([fila(col["suave"], th["coef"][:, 1:6] @ contraste), fila(col["tratamiento"], th["coef"][:, 11])]
+                + [fila(nombre, th["coef"][:, 13 + j]) for j, nombre in enumerate(col["efectos"])])
+    return {
+        "implementacion": impl, "unidades": tabla.unidades(ids, muestras_p, costos),
+        "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
+        "columnas": {"usadas": [col["suave"], col["categoria"], col["tratamiento"], *col["efectos"]],
+                     "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},
+        "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
+        "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(datos['barrio_del_paciente'])} pacientes",
+                     f"{int(datos['barrio'].max()) + 1} barrios", f"{len(theta)} versiones creíbles"],
+    }
