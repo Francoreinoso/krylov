@@ -901,7 +901,7 @@ Herramientas (detalle y versiones en `STACK.md`, sección 5)
 - PyTorch en la GPU del Mac y exportación a ONNX. https://docs.pytorch.org/docs/2.15/notes/mps.html · https://docs.pytorch.org/docs/2.15/onnx.html
 - Claude Code: instrucciones de proyecto y skills. https://code.claude.com/docs/en/memory.md · https://code.claude.com/docs/en/skills.md
 
-Contexto del campo (solo si preguntan; consultado el 21-nov por un agente, sáb 06:45)
+Contexto del campo (solo si preguntan; consultado el 21-nov por un agente, sáb 07:05)
 - Laboratorio de Stefan T. Radev, autor de BayesFlow: lista de investigación en inferencia amortizada. https://bayesops.com/research/
 - PyMC Labs, «Amortized Bayesian Inference: Fully Bayesian Inference in Milliseconds» (actualizado el 5-nov-2026). https://www.pymc-labs.com/blog-posts/amortized-bayesian-inference
 
