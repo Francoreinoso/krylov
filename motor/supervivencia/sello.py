@@ -4,8 +4,8 @@
     uv run python -m motor.supervivencia.sello --sin-mcmc             # todo menos el MCMC (si hay un entrenamiento corriendo al lado)
     uv run python -m motor.supervivencia.sello --ensayo --sin-mcmc    # el recorrido en chico, a una carpeta temporal: prueba el programa, no la red
 
-Parte del punto de guardado (`motor/checkpoints/supervivencia/ultimo.pt` o, si no está, el `pesos.pt` ya exportado) y hace,
-en orden, los chequeos de WORKPLAN.md 11.8. Deja `motor/artefactos/supervivencia/` completo:
+Parte del punto de guardado que vio más simulaciones (`motor/checkpoints/supervivencia/ultimo.pt` o el `pesos.pt` ya exportado)
+y hace, en orden, los chequeos de WORKPLAN.md 11.8. Deja `motor/artefactos/supervivencia/` completo:
 
 1. Exporta (`codificador.onnx`, `flujo.npz`, `pesos.pt`) y comprueba que onnxruntime y el flujo en NumPy coinciden con torch.
 2. SBC y cobertura del intervalo de 90% de θ en empresas simuladas nuevas, en total y por grupos (chicas y grandes; pocos y muchos cargos).
@@ -40,6 +40,17 @@ from nucleo import casos, supervivencia as nucleo_sv, tabla
 
 CASO, CASO_MALO = "rotacion", "rotacion_malo"
 ARTEFACTOS = exportar.ARTEFACTOS
+
+
+def punto_mas_entrenado() -> Path:
+    """Entre el punto de guardado local y el `pesos.pt` exportado, el que vio más simulaciones.
+
+    La red se entrena en PC 3 y llega a los otros computadores como `pesos.pt`; en PC 2 queda además un `ultimo.pt` viejo, de la prueba de humo.
+    """
+    candidatos = [ruta for ruta in (CARPETA / "ultimo.pt", ARTEFACTOS / "pesos.pt") if ruta.exists()]
+    if not candidatos:
+        raise SystemExit("No hay punto de guardado: ni motor/checkpoints/supervivencia/ultimo.pt ni motor/artefactos/supervivencia/pesos.pt")
+    return max(candidatos, key=lambda ruta: torch.load(ruta, map_location="cpu", weights_only=False)["datasets_simulados"])
 
 
 def filas_reales(caso: dict | None = None) -> tuple[np.ndarray, list[str]]:
@@ -152,7 +163,7 @@ def examen_y_latencia(empresas_de_la_cartera: int | None) -> dict:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--punto", type=Path, default=None, help="punto de guardado; por defecto ultimo.pt y, si no está, el pesos.pt exportado")
+    p.add_argument("--punto", type=Path, default=None, help="punto de guardado; por defecto, el más entrenado entre ultimo.pt y el pesos.pt exportado")
     p.add_argument("--salida", type=Path, default=ARTEFACTOS)
     p.add_argument("--sbc", type=int, default=2000, help="empresas simuladas nuevas para el SBC")
     p.add_argument("--unidades", type=int, default=100, help="empresas simuladas para la cobertura de lo que se decide")
@@ -167,7 +178,7 @@ def main() -> None:
         a.salida, a.sbc, a.unidades, a.simulados, a.nube = Path(tempfile.mkdtemp(prefix="krylov_sello_")) / "supervivencia", 100, 10, 1, 1500
         del_mcmc, empresas_de_la_cartera = {"pasos": 20, "n": 300, "cadenas": 2, "profundidad": 4}, 50
     if a.punto is None:
-        a.punto = CARPETA / "ultimo.pt" if (CARPETA / "ultimo.pt").exists() else ARTEFACTOS / "pesos.pt"
+        a.punto = punto_mas_entrenado()
 
     red, estado = cargar_red(a.punto)
     a.salida.mkdir(parents=True, exist_ok=True)
@@ -175,7 +186,7 @@ def main() -> None:
     for origen, destino in ((a.punto, a.salida / "pesos.pt"), (simular.RUTA_CONFIG, a.salida / "config.json")):
         if origen.resolve() != destino.resolve():
             shutil.copyfile(origen, destino)
-    print("[1/6] exportado:", informe["exportacion"], flush=True)
+    print(f"[1/6] {a.punto} ({estado['datasets_simulados']:,} simulaciones) exportado:".replace(",", "."), informe["exportacion"], flush=True)
     casos.ARTEFACTOS = a.salida.parent                                    # `nucleo` lee lo recién exportado
     os.environ["KRYLOV_MOTOR_SUPERVIVENCIA"] = "red"
 
