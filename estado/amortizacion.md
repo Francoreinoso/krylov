@@ -3,11 +3,12 @@
 > **Hackathon:** el producto se termina el **sábado a las 18:00**; después solo se itera el demo y el pitch. Lo más simple que se vea bien.
 
 Lo edita solo PC 2 (skill `actualizar-estado`). Líneas cortas, con hora de Santiago.
-Persona: [nombre] · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZACION.md`.
+Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZACION.md`.
 
 ## Hecho
 
 - sáb 03:00 · Plan final recibido. Nada construido todavía.
+- sáb 03:24 · Arranque de PC 2 (sesión A): clon con dos destinos de push y rol declarado. Primer commit propio; `git ls-remote` de los dos repositorios comparado.
 
 ## En curso
 
