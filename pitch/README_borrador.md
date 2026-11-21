@@ -30,10 +30,10 @@ Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. 
 | Motor | Decisión | Modelo generativo | Parámetros | Estado |
 |---|---|---|---|---|
 | `espacial` | Leyes y arsénico: ¿este bloque va a la planta o se aparta?, ¿dónde perforo? | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición. Red convolucional sobre una grilla de 32 × 32 con cabeza de mapa (predictivo posterior marginal) y cabeza de flujo (q(θ \| D)) | 7 | **Validado:** 7.750.592 terrenos simulados, 280 min; cobertura del 90% = 0,90; 0,26 desviaciones contra el MCMC |
-| `deformacion` | Taludes y relaves: ¿es ruido o va a ceder?, ¿cuánto falta? | Mezcla por sector entre fluencia estable y acelerada (ley de velocidad inversa), jerárquica entre sectores, en unidades normalizadas | 7 + 2 por sector | [red validada / MCMC precalculado] |
-| `cinetica` | Flotación: ¿qué línea termina bajo la meta? | Cinética de primer orden con fracción rápida y lenta, jerárquica entre líneas, observada solo en las primeras celdas | 6 + 2 por línea | [ídem] |
-| `desgaste` | Flota: ¿qué camión no llega a su mantención? | Proceso gamma jerárquico con mediciones ruidosas y una covariable de exigencia | 5 + 2 por camión | [ídem, o no incluido] |
-| `sismico` | Sismicidad: ¿se puede reingresar? | Proceso de Hawkes temporal con núcleo exponencial y magnitudes de Gutenberg-Richter, jerárquico entre sectores | 6 + 2 por sector | [ídem, o no incluido] |
+| `deformacion` | Taludes y relaves: ¿es ruido o va a ceder?, ¿cuánto falta? | Mezcla por sector entre fluencia estable y acelerada (ley de velocidad inversa), jerárquica entre sectores, en unidades normalizadas | 7 + 3 por sector, más su estado | **Validado:** 1.684.160 muros simulados, 146 min; cobertura del 90% de lo que se decide = 0,905 |
+| `cinetica` | Flotación: ¿qué línea termina bajo la meta? | Cinética de primer orden con fracción rápida y lenta, jerárquica entre líneas, observada solo en las primeras celdas | 6 + 2 por línea | **Validado:** 43.160.576 plantas simuladas, 153 min; cobertura = 0,905 |
+| `desgaste` | Flota: ¿qué camión no llega a su mantención? | Proceso gamma jerárquico con mediciones ruidosas y una covariable de exigencia | 5 + 2 por camión | **Validado:** 15.241.472 flotas simuladas, 168 min; cobertura = 0,898 |
+| `sismico` | Sismicidad: ¿se puede reingresar? | Proceso de Hawkes temporal con núcleo exponencial y magnitudes de Gutenberg-Richter, jerárquico entre sectores | 6 + 2 por sector | **Validado:** 3.723.712 minas simuladas, 120 min; cobertura = 0,895 |
 
 Los cuatro motores de series usan **amortización factorizada**, q(η | s(D)) · Π_j q(λ_j | η, s_j, s(D)): un flujo para los parámetros globales y uno chico, compartido, para los de cada unidad (`motor/comun/series.py`). Las ecuaciones y los priors están en `WORKPLAN.md`, sección 11.
 

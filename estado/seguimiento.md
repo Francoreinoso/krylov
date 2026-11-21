@@ -9,6 +9,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Hecho
 
+- sáb 20:15 · A-36 (parte): método lento (NUTS, 4 cadenas, 500 + 500) corrido aquí, de a un dataset y sin nada entrenando, por encargo de la persona de PC 3. `espacial` sobre `leyes`: `uv run python -m motor.espacial.mcmc --caso leyes` (r̂ 1,002; `motor/artefactos/espacial/mcmc/leyes.npz`). Para `cinetica`, `sismico`, `deformacion` y `desgaste` no existía `mcmc.py`: lo escribí fuera de `motor/`, en `estado/a36_metodo_lento/` (ver su `LEEME.md`), como propuesta para PC 2. Nada entró a ningún sello. Resultados en «Números medidos».
+- sáb 20:07 · Ronda: `desgaste` PASA (19:35, PC 2): cinco redes validadas. Verificado aquí `flota` con su red (8, 31 y 1; US$ 804). Cifras M-48, M-49, M-51 y M-52 cerradas; guion y tablero al día; URL pública nueva (krylov-krylov.vercel.app) en `platanus-hack-project.jsonc`, deck y borradores.
 - sáb 12:40 · S-21 terminada: pivote a minería en el repositorio (D-37). Primera parte: `AGENTS.md`, `GLOSARIO.md`, `WORKPLAN.md`, `contratos/CONTRATO.md` con sus ejemplos, los tres `PC*.md`, `casos/`, `datos/`, `pitch/CIFRAS.md` y el tablero. Segunda parte, en el commit siguiente: `pitch/` (guion, láminas, hoja de ruta, borradores de entrega), las doce skills, `SKILLS.md`, `STACK.md`, `motor/README.md`, la descripción del proyecto y el tablero en vivo (repositorio `krylov-panel`). Lo hizo una sesión de Claude Code en el computador de Rodrigo, a pedido suyo. Ver: `git log` y `estado/TABLERO.md`.
 - sáb 12:40 · Investigación de respaldo (dos agentes, fuentes abiertas hoy): cifras de minería con enlace (`pitch/CIFRAS.md`, I-01 en adelante; falta la firma de una persona, S-25) y datos abiertos por caso (`pitch/CIFRAS.md`, «Datos de los casos»).
 - sáb 13:00 · S-27 adelantada: deck minero en `pitch/deck/` con `leyes` como caso estrella, respaldo estático y `pitch/PITCH_v2.md` (356 palabras). Ver: `git log -- pitch/deck`.
@@ -39,6 +41,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## En curso
 
+- sáb 20:15 · A-36: corriendo el método lento de `desgaste` (archivo de `flota` y 4 flotas simuladas, 10 minutos de presupuesto cada una). Es lento: en la prueba corta tardó 601 s con 200 + 200.
 - sáb 18:17 · Nada entrenando en PC 3. **Batería en 8%: si el Mac se apaga, todo lo de la ronda 2 ya está subido.**
 
 
@@ -63,6 +66,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- sáb 20:15 · **A PC 2 (A-36):** revisar `estado/a36_metodo_lento/` y decidir si entra a `motor/<id>/mcmc.py` y a los sellos. Ojo: con `deformacion` la diferencia media sale 0,376 (sobre el 0,3 del criterio `mcmc_bajo_0_3`), casi toda en `log_sigma_e`, y el método lento no convergió en 3 de 5 datasets; escrito al sello tal cual, `deformacion` dejaría de decir «pasa». No lo escribí: lo decide una persona.
+- sáb 20:07 · **A PC 1:** `flota` ya responde con su red (`KRYLOV_MOTOR_DESGASTE=red`): exportar el estático con las cinco y redesplegar. El tercer espejo (`Francoreinoso/krylov`) no lo configuré: exige que la persona de este computador acepte la invitación.
 - sáb 13:25 · **A PC 2 (A-25):** `deformacion` es lo que este computador espera para la ronda 1: avisar en el estado apenas pase su prueba de humo. (El pedido de A-21 quedó resuelto a las 13:02.)
 - sáb 13:25 · **A PC 1:** no hay estado nuevo desde las 12:40. Subir P-21 con lo que haya y anotar la hora; H4 solo exige `leyes` en la URL pública (P-22).
 - sáb 13:27 · **A PC 1 (P-24):** ya están los archivos de prueba para subir, `datos/demo/subida_<caso>.csv`; el calce esperado de cada uno (con su transformación) está en la cabecera de `datos/preparar/subida.py`. Hoy solo `subida_leyes.csv` responde (verde); los otros cuatro dan `no_disponible` hasta que su red valide. Los `subida_rotacion_*` antiguos se borran cuando PC 2 retire sus pruebas (A-32).
@@ -91,6 +96,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Números medidos
 
+- sáb 20:15 · Método lento contra la red, MacBook Air M3, a batería, un dataset a la vez (archivo del demo más 4 simulados por motor; `estado/a36_metodo_lento/registro.jsonl` y `comparacion_con_la_red.jsonl`). **`cinetica`:** 5 de 5 convergen (r̂ máx 1,021), 13,7 s por dataset, diferencia media con la red 0,141 desviaciones. **`sismico`:** 5 de 5 convergen (r̂ máx 1,008; un simulado con 257 divergencias), 28,0 s por dataset, diferencia 0,171. **`deformacion`:** convergen 2 de 5 (r̂ hasta 1,94; `taludes` 1,56), 63,0 s por dataset, diferencia 0,376; la diferencia está en el ruido de lectura (`log_sigma_e`: la red da un rango 2,5 a 3 veces más ancho); en qué sectores aceleran, red y método lento coinciden. **`espacial` sobre `leyes`:** r̂ 1,002, 1.078 s, pero corrió junto a otras pruebas: ese tiempo no vale como medida. `desgaste`: corriendo. Sin fila en `pitch/CIFRAS.md` todavía: no se muestran hasta que PC 2 revise el código.
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
 | `deformacion`: sello (sin método lento) | NO PASA. 1.684.160 muros simulados en 146 min; SBC global pasa; SBC por unidad no pasa; cobertura del 90%: parámetros 0,902, locales 0,906, lo que se decide 0,905 (peor tramo 0,905); un análisis en 181 ms; examen: 30 sectores con cerca de 0% y cedió 0; 6 con cerca de 80% y cedieron 5 | `motor/artefactos/deformacion/sello.json`, 2.000 datasets nuevos | 16:11 |

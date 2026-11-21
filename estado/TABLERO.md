@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 20:10 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, ya cerrado: las cinco pasaron
+**Actualizado:** sáb 21-nov 20:07 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, ya cerrado: las cinco pasaron
 
 **URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
 
