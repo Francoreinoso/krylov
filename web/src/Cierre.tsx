@@ -5,7 +5,7 @@ import Particulas from './Particulas'
 
 const FRASE = 'Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.'
 const SEGUNDA = 'En un segundo, porque ya practicó con millones de minas simuladas.'
-const DIRECCION = 'krylov-tan.vercel.app'
+const DIRECCION = 'krylov-krylov.vercel.app'
 
 export default function Cierre({ alCerrar }: { alCerrar: () => void }) {
   return (
