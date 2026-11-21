@@ -64,6 +64,7 @@ Reglas:
 - Una columna que solo tiene dato cuando la respuesta ya se sabe delata la respuesta: no la uses como factor.
 - La transformación de un papel se aplica a todas sus columnas: si una columna no la necesita, no pongas transformación en ese papel.
 - Usa una transformación solo para llevar la columna a las unidades que pide el papel (minutos a horas: `dividir` por 60; un porcentaje a una fracción entre 0 y 1: `dividir` por 100; una escala donde el límite es 120 a una donde es 1: `dividir` por 120), nunca para mejorar el modelo: el modelo ya considera efectos no lineales. Si la columna ya está en esas unidades, `ninguna`. Los parámetros que no usa la transformación van en null.
+- Si viene `caso`, el papel `valor` es la columna que mide `lo_que_mide_el_valor` (no otra medida parecida) y lleva la `transformacion_del_valor` cuando viene una.
 - `motivo`: una frase corta, sin jerga, que diga por qué esa columna cumple el papel.
 - `confianza`: alta si el nombre y los valores calzan sin duda, media si es probable, baja si es una adivinanza."""
 
@@ -227,10 +228,13 @@ def validar(propuesto: dict, papeles: list[dict], tabla: dict[str, list[str]]) -
     return calce
 
 
-def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str, list[str]]) -> tuple[dict, str] | None:
+def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str, list[str]],
+                      pistas: dict[str, str]) -> tuple[dict, str] | None:
     nombres = [c["nombre"] for c in resumen]
     pedido = {"papeles": [{k: p[k] for k in ("papel", "minimo", "maximo", "tipo", "texto_largo")} for p in papeles],
               "columnas": resumen}
+    if pistas:                                                 # sin esto, en leyes elige el cobre en vez del arsénico
+        pedido["caso"] = {"lo_que_mide_el_valor": pistas.get("valor"), "transformacion_del_valor": pistas.get("transformacion_valor")}
     escrito = lenguaje.pedir(SISTEMA_CALCE, json.dumps(pedido, ensure_ascii=False), _esquema_calce(papeles, nombres))
     if escrito is None:
         return None
@@ -272,11 +276,11 @@ def proponer_calce(motor_id: str, contenido: bytes, caso: str | None = None) -> 
     except ArchivoNoCalza as e:
         raise PeticionInvalida(e.motivo, "archivo_ilegible") from None
     resumen = resumen_columnas(columnas)
-    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen, columnas)
+    pistas = _pistas(caso, motor_id)
+    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen, columnas, pistas)
     if del_modelo:
         (calce, proveedor), origen = del_modelo, "modelo"
     else:
-        pistas = _pistas(caso, motor_id)
         calce = calce_por_regla(respuesta["papeles"], resumen, pistas)
         valor = calce.get("valor")
         if pistas.get("transformacion_valor") and valor and valor["columnas"]:
