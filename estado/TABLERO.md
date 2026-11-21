@@ -2,40 +2,40 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 04:03 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 04:38 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
 
-**URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 a las 04:02, en tamaño teléfono: inicio y rotación en modo estático, `casos.json` en 95 ms y `analizar/rotacion.json` en 358 ms. Falta la prueba con un teléfono real y datos móviles.
+**URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟢 adelantado | P-01 y P-02 en `main`, verificados en PC 3. Sigue P-03 |
-| amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B4 en `main`. `espacial` entrena en PC 2 desde las 03:50. `supervivencia` lista para PC 3 |
-| seguimiento (PC 3) | 🟢 adelantado | S-02 con respuesta, S-03, S-04 y S-05 en `main`. `supervivencia` entrena aquí desde las 04:05 |
+| producto (PC 1) | 🟢 al día | P-01 y P-02 verificados. P-03 en curso, sin commit desde las 03:59 (vence 05:00) |
+| amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B4 en `main`. `espacial` entrena en PC 2 desde las 03:50 |
+| seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05 hechas. `supervivencia` entrena en PC 3 desde las 04:05: 1,58 millones de datasets y punto de guardado a las 04:35 |
 
-## H0: cerrado a las 04:00 (D-27, D-28)
+## Antes de dormir (05:15): cómo vamos
 
-- ✅ Los tres empujan a los dos repositorios. ✅ Contrato congelado desde las 03:45 (cambiarlo exige entrada en `DECISIONES.md` y aviso).
-- ✅ La web pinta el inicio y las respuestas fijas, con API y sin ella (pie «Modo estático»). ✅ Espejo público.
-- **El pitch dura 3 minutos** (respuesta de la organización, J-04). Se presenta desde nuestro computador, con audio y video.
+- ✅ Dos entrenamientos corriendo con puntos de guardado: `espacial` en PC 2, `supervivencia` en PC 3. Los dos terminan solos a las 08:30.
+- ✅ URL pública con el esqueleto. ✅ Datos de rotación y terreno (y crédito) en el repositorio.
+- Falta: la lista nocturna de PC 1 y de PC 2 (A-05) escrita en su estado antes de dormir.
 
 ## Siguiente tarea de cada uno
 
-- **PC 1 · producto:** P-03 (vista 1 y vista 2 de los casos con lista). Una persona abre la URL en un teléfono con datos móviles. Ojo: el orden de las tarjetas lo manda `casos/INICIO` (rotación, terreno, inasistencias, crédito); el ejemplo fijo trae otro orden.
-- **PC 2 · amortizacion:** sesión A: `espacial` entrenando; seguir con A-05 y la lista nocturna. Sesión B: A-N2 (paso local y NumPyro). Rotación, terreno (con `terreno_grilla.csv`) y crédito ya están en `datos/demo/`.
-- **PC 3 · seguimiento:** `supervivencia` entrena aquí desde las 04:05 hasta las 08:30 (S-05b, adelantado; cómo retomar en `estado/seguimiento.md`). Antes de dormir, lista nocturna (S-N1 ya tiene el crudo de inasistencias). Guion: la versión de 3 minutos pasa a ser la principal.
+- **PC 1 · producto:** terminar P-03 y empujar (un commit por hora como mínimo). Antes de dormir, lista nocturna (P-N1, P-N2) en `estado/producto.md`. Ojo: el orden de las tarjetas lo manda `casos/INICIO`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
+- **PC 2 · amortizacion:** adelanta en orden (D-29). Sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N1 y A-N3. Sesión B: A-N2. Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
+- **PC 3 · seguimiento:** nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. El agente: solo la lista nocturna (S-N1 a S-N4, en `estado/seguimiento.md`). 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
 
 ## Qué cambió respecto del plan
 
-- **D-29 (04:36): solo en PC 2, las horas del plan son topes, no horas de inicio.** PC 2 adelanta sus tareas A en orden; PC 1 y PC 3 siguen igual que antes (`AGENTS.md`, regla 21).
-- D-26 sigue mandando donde un archivo choque. Pendientes de actualizar: `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md`, skills, resto de `WORKPLAN.md` (uno o dos por ronda).
-- S-05 (crédito) se adelantó a las 03:28. El crudo de inasistencias ya está en PC 3: no hace falta copiar `datos_crudos/`.
-- PC 2 anotó en `pitch/VALIDACION.md` (carpeta de PC 3) las respuestas de la organización. Bien recibidas; la próxima vez, como pedido en su estado.
+- **D-29 (04:36): solo en PC 2, las horas del plan son topes, no horas de inicio.** PC 2 adelanta sus tareas A en orden; PC 1 y PC 3 siguen su horario (`AGENTS.md`, regla 21).
+- `supervivencia` se lanzó a las 04:05 y `espacial` a las 03:50: casi una hora más de entrenamiento cada uno.
+- Guion: la versión de 3 minutos es la principal (J-04). «Escondimos a 294 personas reales» pasó a «escondimos la respuesta de 294 personas del archivo»: el archivo de rotación es ficticio (D-01).
+- D-26 sigue mandando donde un archivo choque. Pendientes: `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md`, skills, resto de `WORKPLAN.md`.
 
 ## Próxima decisión
 
-- Quién presenta: se decide después (a más tardar en H1). Presentar dura 3 minutos.
+- Quién presenta: se decide después (a más tardar en H1). El pitch dura 3 minutos.
 - H1, sáb 08:45: ¿sobrevivió la noche? Criterios en `WORKPLAN.md`, sección 6.5.
 
 ## Casos en el inicio

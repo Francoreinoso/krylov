@@ -32,13 +32,15 @@ Consecuencia: el negocio (precio, tamaño de mercado) ocupa una frase y una lám
 
 ## Versión de tres minutos
 
+**Es la versión principal:** la organización confirmó 3 minutos en generales y finales (cifra J-04, sáb 03:55). Las de 90 segundos y cinco minutos quedan de respaldo hasta la charla de las 20:00.
+
 **Momento 1 · El nombre y el problema (0:00 a 0:25).** Pantalla: vista de inicio, cuatro tarjetas.
 
 > «A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía. El capitán ya no calculaba en medio del desastre: miraba una tabla y decidía en segundos. Hoy las empresas deciden a ciegas, porque el que sabe hacer ese cálculo es un data scientist y casi ninguna tiene uno. Nosotros hicimos el cálculo antes. Se llama Krylov.»
 
 **Momento 2 · La respuesta (0:25 a 1:00).** Pantalla: vista de respuesta, caso tipo Buk. *(clic en la tarjeta)*
 
-> «Una empresa de 1.470 personas. ¿A quién conviene retener? Un segundo. Estos colores no son pronósticos, son decisiones: conviene retener, no hace falta, y no sabemos si conviene. Si reemplazar a alguien te cuesta más…» *(mueve el deslizador)* «…la respuesta cambia en vivo. Y este número es el que nadie más te da: lo que te cuesta no saber, [plata]. ¿Qué pesa? [Factor A]: seguro. [Factor B]: con estos datos no se puede saber. Para esto, el método lento de siempre tarda [X] minutos por empresa. Krylov, [Y] milisegundos, porque ya practicó con [N] millones de empresas simuladas. Y no nos crean a nosotros: escondimos a [294] personas reales, y de las que Krylov dijo [30]% de riesgo, se fue el [N]%.»
+> «Una empresa de 1.470 personas. ¿A quién conviene retener? Un segundo. Estos colores no son pronósticos, son decisiones: conviene retener, no hace falta, y no sabemos si conviene. Si reemplazar a alguien te cuesta más…» *(mueve el deslizador)* «…la respuesta cambia en vivo. Y este número es el que nadie más te da: lo que te cuesta no saber, [plata]. ¿Qué pesa? [Factor A]: seguro. [Factor B]: con estos datos no se puede saber. Para esto, el método lento de siempre tarda [X] minutos por empresa. Krylov, [Y] milisegundos, porque ya practicó con [N] millones de empresas simuladas. Y no nos crean a nosotros: escondimos la respuesta de 294 personas del archivo, y de las que Krylov dijo [30]% de riesgo, se fue el [N]%.»
 
 **Momento 3 · Datos malos (1:00 a 1:25).** Pantalla: la nube. *(tecla M)*
 
