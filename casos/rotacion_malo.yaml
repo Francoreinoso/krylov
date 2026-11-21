@@ -26,6 +26,8 @@ columnas:
   extra: [fecha_salida]        # la columna que delata la respuesta. No entra a la red: la detecta la nube con ejes con nombre (D-26)
   disponibles: 36
   elegidas_por: equipo
+# Nombre en pantalla de cada columna o factor (lo lee nucleo/; sin esto se muestra el nombre de la columna).
+etiquetas: { OverTime: "Horas extra", DistanceFromHome: "Distancia a la casa", NumCompaniesWorked: "Empresas anteriores", MonthlyIncome: "Sueldo", JobRole: "Cargo", EnvironmentSatisfaction: "Satisfacción con el ambiente", JobSatisfaction: "Satisfacción con el trabajo", RelationshipSatisfaction: "Satisfacción con las relaciones", WorkLifeBalance: "Equilibrio entre trabajo y vida", fecha_salida: "Fecha de salida", compromiso: "Compromiso (según las cuatro encuestas)" }
 costos:
   falso_si: { valor: 1500, min: 200, max: 5000, etiqueta: "Costo de un plan de retención", tipo: hipótesis, cifra: K-01 }
   falso_no: { valor: 6000, min: 1000, max: 20000, etiqueta: "Costo de reemplazar a alguien", tipo: hipótesis, cifra: K-02 }

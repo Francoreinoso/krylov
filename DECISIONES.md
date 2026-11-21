@@ -102,6 +102,11 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Corrección:** entre las 04:44 y las 04:38 esta entrada y la regla 21 dijeron por error «solo PC 2». Vale el alcance original: los tres computadores.
 · Pedido por Rodrigo (PC 2), que editó por esta vez `AGENTS.md`, `WORKPLAN.md`, los tres `PC*.md` y una línea del tablero para escribir la regla. Regla 21 de `AGENTS.md`.
 
+**D-30 · sáb 21-nov 05:14 · Dos ajustes chicos de lo construido, registrados por PC 3.**
+- **`estados` (crédito) se aparta de `WORKPLAN.md` 11.4** (lo decidió PC 2 a las 05:11 al mirar el archivo real): el atraso va en 5 niveles y no 6, porque el código 1 no aparece en los cinco meses más antiguos; θ queda en 33 parámetros y no 35; el prior es una normal independiente por parámetro en el espacio sin restricciones. Anotado en 11.4, en `pitch/LAMINAS.md` y en el borrador del README.
+- **Los casos traen un bloque opcional `etiquetas`** (nombre en pantalla de cada columna o factor), a pedido de PC 2. Es un campo nuevo y opcional: no cambia la forma de nada de lo que ya existe; si falta, se muestra el nombre de la columna. Ya está en los cinco YAML.
+· PC 2 (el modelo) y PC 3 (las etiquetas).
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).

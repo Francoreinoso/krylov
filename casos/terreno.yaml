@@ -22,6 +22,8 @@ rotulos:
   en_duda: "No sabemos: conviene medir"
   costo_de_no_saber: "Lo que te cuesta no saber"
 columnas: { x: x, y: y, valor: zinc, tendencia: dist, umbral: 720, unidad_valor: "mg/kg", transformacion: log }   # umbral: valor de intervención holandés para zinc, cifra K-11
+# Nombre en pantalla de cada factor de «qué manda en el terreno» (lo lee nucleo/ si quiere; hoy están en nucleo/espacial.py con el mismo texto).
+etiquetas: { tendencia: "Cercanía al río", continuidad: "Lo que pasa en los bloques vecinos", ruido: "Error de cada medición" }
 costos:
   falso_si: { valor: 20000, min: 5000, max: 60000, etiqueta: "Costo de limpiar un bloque", tipo: hipótesis, cifra: K-12 }
   falso_no: { valor: 50000, min: 10000, max: 200000, etiqueta: "Costo de dejar un bloque contaminado", tipo: hipótesis, cifra: K-13 }

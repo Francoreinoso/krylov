@@ -34,7 +34,7 @@ En un segundo, porque ya practicó con millones de mundos simulados.
 | Terreno (`espacial`) | Proceso gaussiano anisotrópico con tendencia en √(distancia al río) y error de medición; 7 parámetros | [M-01] terrenos, [M-02] min, MacBook Air M4 | Cobertura del 90%: [sello] | [sello] | [M-13] | [red o precalculado] |
 | Rotación (`supervivencia`) | Weibull con censura, B-spline del sueldo, efecto por cargo y compromiso latente que genera cuatro encuestas; 32 parámetros | [M-21] empresas, [M-23] min, MacBook Air M3 | [sello] | [sello] | [M-03] | [red o precalculado] |
 | Inasistencias (`jerarquico`) | Logístico con propensión por paciente y efecto por barrio; espera no lineal; SMS que cambia con la espera; 22 parámetros | [M-22], [M-23] | [sello] | [sello] | [pendiente] | [red o precalculado] |
-| Crédito (`estados`) | Cadena de Markov oculta de tres estados con seis meses de emisiones; 35 parámetros | [M-22], [M-23] | [sello] | [sello] | [pendiente] | [red o precalculado] |
+| Crédito (`estados`) | Cadena de Markov oculta de tres estados con seis meses de emisiones; 33 parámetros | [M-22], [M-23] | [sello] | [sello] | [pendiente] | [red o precalculado] |
 
 - **«¿Dónde mido?»:** rehace el análisis completo [M-08] veces en [M-09] segundos. Los mismos análisis con el MCMC: [M-10]. Un solo análisis lento del terreno tarda segundos; lo que se compara es rehacer los [M-08].
 - **El método rápido de siempre** (regresión logística, kriging con parámetros fijos) cuando dice 90% acierta [P]% (M-11).

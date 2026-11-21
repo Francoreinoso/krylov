@@ -27,7 +27,7 @@ Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. 
 |---|---|---|---|
 | `supervivencia` | Rotación | Weibull con censura por intervalos, B-spline del log del sueldo, efecto aleatorio por cargo y un compromiso latente por persona que genera cuatro encuestas ordinales | 32 |
 | `jerarquico` | Inasistencias | Logístico con propensión latente por paciente y efecto por barrio; B-spline de la espera con salto en «mismo día»; efecto del SMS que cambia con la espera | 22 |
-| `estados` | Crédito | Cadena de Markov oculta de tres estados, seis meses de emisiones (atraso ordinal, uso del cupo, pago) y transiciones que dependen de cupo, edad y educación | 35 |
+| `estados` | Crédito | Cadena de Markov oculta de tres estados, seis meses de emisiones (atraso ordinal, uso del cupo, pago) y transiciones que dependen de cupo, edad y educación; atraso en 5 niveles | 33 |
 | `espacial` | Terreno | Proceso gaussiano anisotrópico con tendencia en √(distancia al río) y error de medición | 7 |
 
 Las ecuaciones completas están en `WORKPLAN.md`, sección 11.

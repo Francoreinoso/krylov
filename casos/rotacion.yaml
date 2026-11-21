@@ -28,6 +28,8 @@ columnas:
   extra: []                    # columnas que el archivo declara como factor y el modelo no usa; las revisa el semáforo
   disponibles: 35            # columnas del archivo original (verificado). Tres son constantes: EmployeeCount, Over18, StandardHours
   elegidas_por: equipo
+# Nombre en pantalla de cada columna o factor (lo lee nucleo/; sin esto se muestra el nombre de la columna).
+etiquetas: { OverTime: "Horas extra", DistanceFromHome: "Distancia a la casa", NumCompaniesWorked: "Empresas anteriores", MonthlyIncome: "Sueldo", JobRole: "Cargo", EnvironmentSatisfaction: "Satisfacción con el ambiente", JobSatisfaction: "Satisfacción con el trabajo", RelationshipSatisfaction: "Satisfacción con las relaciones", WorkLifeBalance: "Equilibrio entre trabajo y vida", compromiso: "Compromiso (según las cuatro encuestas)" }
 costos:
   falso_si: { valor: 1500, min: 200, max: 5000, etiqueta: "Costo de un plan de retención", tipo: hipótesis, cifra: K-01 }
   falso_no: { valor: 6000, min: 1000, max: 20000, etiqueta: "Costo de reemplazar a alguien", tipo: hipótesis, cifra: K-02 }

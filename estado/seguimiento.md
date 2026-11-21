@@ -23,6 +23,8 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 04:51 · **S-11, textos de pantalla v1** (adelantado): `casos/textos.yaml`, las plantillas del contrato (sección 5) para titulares, `en_palabras`, motivos del semáforo, examen, sello, «¿Dónde mido?», nube, cartera y deslizadores. Falta la parte de S-11 que exige a una persona: el guion v1 en voz alta y cronometrado.
 - sáb 05:03 · **S-12, esqueleto de láminas** (adelantado): `pitch/LAMINAS.md` con el texto de portada y cierre para PC 1 (P-13) y las tres de respaldo (técnica, negocio, qué existe y qué es hoja de ruta). Cada número con su id de `CIFRAS.md`; lo no medido, entre corchetes.
 - sáb 05:03 · Ronda: P-N1 de PC 1 verificado (`npm run prueba`: 45 pasan). PC 2: `uv run pytest nucleo/prueba_decision.py nucleo/prueba_api.py nucleo/prueba_nube.py nucleo/prueba_espacial.py -q`: 15 pasan; `api.casos()` sigue el orden de `casos/INICIO`; `api.analizar("terreno")` responde `no_disponible` (esperado hasta la red validada). `supervivencia`: 2,8 millones de datasets, punto de guardado 04:55.
+- sáb 05:14 · Ronda: el rediseño de PC 1 (tema oscuro, mapa P-N2, nube P-N3, deslizadores) revisado a 1280×720 en modo estático con `?caso=rotacion`, `?caso=terreno` y `?caso=rotacion_malo`: se ven bien. Dos pedidos a PC 1 (abajo). PC 2 dejó `estados` listo para entrenar en PC 2 cuando quede libre. `supervivencia`: 3,3 millones de datasets, punto de guardado 05:05.
+- sáb 05:14 · `etiquetas` (nombre en pantalla de cada columna) en los cinco YAML de `casos/`, a pedido de PC 2; `nucleo/estados.py` ya las lee. D-30 registra eso y el cambio de `estados` a 33 parámetros (atraso en 5 niveles), también en `WORKPLAN.md` 11.4, `pitch/LAMINAS.md` y el borrador del README.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 ## En curso
@@ -41,7 +43,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 | Mirar cómo va | `tail -n 1 motor/checkpoints/supervivencia/registro.jsonl` |
 | Si se cae | El mismo comando. La primera línea de `corrida.log` tiene que decir `[retomar] … paso N`. Nunca `--nuevo` |
 | Detener antes de las 08:30 | `pkill -INT -f "motor.supervivencia.entrenar"` (guarda y sale). A las 08:30 se detiene solo |
-| Después (S-06b, 08:30) | `uv run python -m motor.supervivencia.exportar` y subir `motor/artefactos/supervivencia/` (pasos 7 y 8 de `estado/amortizacion.md`) |
+| Después (S-06b, 08:30) | **Primero `git pull`** (desde las 05:11 `exportar_onnx` deja un solo `codificador.onnx`, con los pesos dentro). Después `uv run python -m motor.supervivencia.exportar` y subir `motor/artefactos/supervivencia/` (pasos 7 y 8 de `estado/amortizacion.md`) |
 
 ## Lista nocturna de PC 3 (el agente solo, 05:15 a 08:15)
 
@@ -63,6 +65,9 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 - sáb 03:28 · A PC 2: crédito también está en `main` (`datos/demo/credito.csv`). La respuesta `default` es 0 o 1, y vacía en las 400 por decidir.
 - sáb 04:47 · A PC 2: `datos/demo/rotacion_malo.csv` está en `main`. `fecha_salida` es texto (AAAA-MM-DD) o vacío: lo que delata la respuesta es si está o no, así que el eje «mejor factor por sí solo» de la nube tiene que tratar el vacío como un valor.
 - sáb 04:47 · A PC 2: inasistencias no está en el repositorio (licencia no comercial). Si lo necesitas en PC 2 para el predictivo a priori de `jerarquico`, el encabezado de `datos/preparar/inasistencias.py` trae el `curl` y el SHA-256; sale idéntico. En PC 3 ya está, para entrenar y validar `jerarquico` aquí.
+- sáb 05:14 · A PC 1: en el estado rojo (`?caso=rotacion_malo`) el pie dice «Respondió la red que practicó con casos simulados», pero ahí Krylov no responde: en rojo, ese pie no va.
+- sáb 05:14 · A PC 1: los rótulos de los ejes de la nube son muy chicos para el proyector (ejes con nombre, momento 3 del guion). Más grandes, y horizontales si caben.
+- sáb 05:14 · A PC 2: hecho tu pedido de las 05:11: `etiquetas` está en `casos/credito.yaml` y en los otros cuatro casos.
 - sáb 04:51 · A PC 2: las plantillas de texto están en `casos/textos.yaml` (contrato, sección 5: las escribe `seguimiento`). `nucleo/api.py` arma hoy el titular con un f-string; que lea la plantilla de ahí. El titular de verde dice lo mismo que el tuyo.
 - sáb 04:36 · A PC 2 (respuesta a tu pedido de las 04:00): `supervivencia` corre en PC 3 desde las 04:05 y termina sola a las 08:30. A las 08:30 PC 3 exporta y sube (paso 7).
 

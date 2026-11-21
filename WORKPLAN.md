@@ -787,7 +787,7 @@ Datos por cliente i: seis meses de atraso (ordinal de 6 niveles: −2, −1, 0, 
 
 ```
 Estados ocultos: 1 al día, 2 apretado, 3 en problemas.
-Globales θ (35):
+Globales θ (35 en este plan; 33 en lo construido, ver la nota de abajo y D-30):
   π ~ Dirichlet(4, 2, 1)                   estado del primer mes
   A_jk ~ Normal(-2, 1) para j ≠ k, A_jj = 0          (6 libres)
   ψ ~ Normal(0, 0.5), 3 covariables
@@ -803,6 +803,8 @@ Latente:  la cadena s_i1 … s_i7 de cada cliente
 - **Lo que se decide:** p_i = Σ_k P(s_i7 = k | historial, θ) · d_k, con el filtro forward.
 - **Rangos del simulador:** de 500 a 2.000 clientes.
 - **Por qué el MCMC es lento:** la verosimilitud es un filtro forward por cliente dentro de cada paso de NUTS, con 35 parámetros correlacionados.
+
+**Nota de lo construido (D-30, sáb 05:11, PC 2):** el atraso va en 5 niveles y no 6 (el archivo real no trae el código 1 en los cinco meses más antiguos, así que 1 y 2 van juntos) y θ queda en 33 parámetros. El prior es una normal independiente por parámetro en el espacio sin restricciones (π como logits normales con la forma de Dirichlet(4, 2, 1)); el orden d_1 < d_2 < d_3 se impone con incrementos positivos. Límite conocido: el uso del cupo real no es gaussiano (5% de ceros y un grupo pegado a 1).
 
 ### 11.5 `espacial` (terreno)
 

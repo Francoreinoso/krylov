@@ -37,6 +37,8 @@ columnas:
   extra: []
   disponibles: 14
   elegidas_por: equipo
+# Nombre en pantalla de cada columna o factor (lo lee nucleo/; sin esto se muestra el nombre de la columna).
+etiquetas: { Age: "Edad", Scholarship: "Beca social", Hipertension: "Hipertensión", Diabetes: "Diabetes", Alcoholism: "Alcoholismo", SMS_received: "Recordatorio por SMS", dias_de_espera: "Días de espera", dia_semana: "Día de la semana", Neighbourhood: "Barrio", PatientId: "Paciente" }
 costos:
   falso_si: { valor: 15, min: 2, max: 50, etiqueta: "Costo de confirmar o sobrerreservar una cita", tipo: hipótesis, cifra: K-05 }
   falso_no: { valor: 40, min: 10, max: 200, etiqueta: "Costo de una hora perdida", tipo: hipótesis, cifra: K-06 }
