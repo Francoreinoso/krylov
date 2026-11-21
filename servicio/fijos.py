@@ -41,6 +41,11 @@ def _motor_de(caso: str) -> str:
     raise PeticionInvalida(f"No conozco el caso «{caso}».", "caso_desconocido")
 
 
+def casos_del_demo_o_error(caso: str) -> None:
+    if caso not in {c["nombre"] for c in casos()["casos"]}:
+        raise PeticionInvalida(f"No conozco el caso «{caso}».", "caso_desconocido")
+
+
 def clave(caso: str, transformaciones=(), mediciones=()) -> str:
     """Nombre del archivo estático de una petición (CONTRATO.md, sección 6)."""
     partes = [caso]

@@ -1,0 +1,69 @@
+{
+ "motor_id": "estados",
+ "caso_base": "credito",
+ "papeles": [
+  {
+   "papel": "id",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "texto",
+   "texto": "Identificador del cliente",
+   "texto_largo": "Identificador del cliente"
+  },
+  {
+   "papel": "objetivo",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "si_no",
+   "texto": "No pagó el mes siguiente (vacío en los clientes por decidir)",
+   "texto_largo": "No pagó el mes siguiente (vacío en los clientes por decidir)"
+  },
+  {
+   "papel": "atraso",
+   "cantidad": 6,
+   "minimo": 6,
+   "maximo": 6,
+   "tipo": "entero",
+   "texto": "Atraso de cada mes, del más antiguo al más reciente (códigos de −2 a 8)",
+   "texto_largo": "Atraso de cada mes, del más antiguo al más reciente (códigos de −2 a 8)"
+  },
+  {
+   "papel": "saldo",
+   "cantidad": 6,
+   "minimo": 6,
+   "maximo": 6,
+   "tipo": "numero",
+   "texto": "Saldo de cada mes, en el mismo orden",
+   "texto_largo": "Saldo de cada mes, en el mismo orden"
+  },
+  {
+   "papel": "pago",
+   "cantidad": 6,
+   "minimo": 6,
+   "maximo": 6,
+   "tipo": "numero",
+   "texto": "Pago de cada mes, en el mismo orden",
+   "texto_largo": "Pago de cada mes, en el mismo orden"
+  },
+  {
+   "papel": "cupo",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "numero",
+   "texto": "Cupo de la tarjeta",
+   "texto_largo": "Cupo de la tarjeta"
+  },
+  {
+   "papel": "transiciones",
+   "cantidad": 3,
+   "minimo": 0,
+   "maximo": 3,
+   "tipo": "numero",
+   "texto": "Hasta tres datos del cliente de los que depende que mejore o empeore, por posición; el primero se lee en logaritmo. Una posición sin columna va vacía",
+   "texto_largo": "Hasta tres datos del cliente de los que depende que mejore o empeore, por posición; el primero se lee en logaritmo. Una posición sin columna va vacía"
+  }
+ ]
+}

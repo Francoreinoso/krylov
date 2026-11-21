@@ -1,0 +1,112 @@
+{
+ "caso": "credito",
+ "motor_id": "estados",
+ "calce": {
+  "id": {
+   "columnas": [
+    "ID"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "objetivo": {
+   "columnas": [
+    "default"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "atraso": {
+   "columnas": [
+    "PAY_6",
+    "PAY_5",
+    "PAY_4",
+    "PAY_3",
+    "PAY_2",
+    "PAY_0"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "saldo": {
+   "columnas": [
+    "BILL_AMT6",
+    "BILL_AMT5",
+    "BILL_AMT4",
+    "BILL_AMT3",
+    "BILL_AMT2",
+    "BILL_AMT1"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "pago": {
+   "columnas": [
+    "PAY_AMT6",
+    "PAY_AMT5",
+    "PAY_AMT4",
+    "PAY_AMT3",
+    "PAY_AMT2",
+    "PAY_AMT1"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "cupo": {
+   "columnas": [
+    "LIMIT_BAL"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "transiciones": {
+   "columnas": [
+    "LIMIT_BAL",
+    "AGE",
+    "EDUCATION"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  }
+ },
+ "columnas": [
+  "ID",
+  "LIMIT_BAL",
+  "SEX",
+  "EDUCATION",
+  "MARRIAGE",
+  "AGE",
+  "PAY_0",
+  "PAY_2",
+  "PAY_3",
+  "PAY_4",
+  "PAY_5",
+  "PAY_6",
+  "BILL_AMT1",
+  "BILL_AMT2",
+  "BILL_AMT3",
+  "BILL_AMT4",
+  "BILL_AMT5",
+  "BILL_AMT6",
+  "PAY_AMT1",
+  "PAY_AMT2",
+  "PAY_AMT3",
+  "PAY_AMT4",
+  "PAY_AMT5",
+  "PAY_AMT6",
+  "default"
+ ],
+ "no_usadas": [
+  "SEX",
+  "MARRIAGE"
+ ],
+ "origen": "equipo",
+ "precalculado": true
+}

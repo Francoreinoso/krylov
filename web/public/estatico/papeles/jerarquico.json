@@ -1,0 +1,78 @@
+{
+ "motor_id": "jerarquico",
+ "caso_base": "inasistencias",
+ "papeles": [
+  {
+   "papel": "id",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "texto",
+   "texto": "Identificador de la cita",
+   "texto_largo": "Identificador de la cita"
+  },
+  {
+   "papel": "objetivo",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "si_no",
+   "texto": "No llegó (vacío en las citas por decidir)",
+   "texto_largo": "No llegó (vacío en las citas por decidir)"
+  },
+  {
+   "papel": "paciente",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "texto",
+   "texto": "Persona: puede tener varias citas",
+   "texto_largo": "Persona: puede tener varias citas"
+  },
+  {
+   "papel": "grupo",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "texto",
+   "texto": "Grupo al que pertenece la persona (barrio, sede)",
+   "texto_largo": "Grupo al que pertenece la persona (barrio, sede)"
+  },
+  {
+   "papel": "suave",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "entero",
+   "texto": "Días de espera entre agendar y la cita (0 = el mismo día)",
+   "texto_largo": "Días de espera entre agendar y la cita (0 = el mismo día)"
+  },
+  {
+   "papel": "categoria",
+   "cantidad": 1,
+   "minimo": 0,
+   "maximo": 1,
+   "tipo": "entero",
+   "texto": "Día de la semana (0 = lunes … 4 = viernes)",
+   "texto_largo": "Día de la semana (0 = lunes … 4 = viernes)"
+  },
+  {
+   "papel": "tratamiento",
+   "cantidad": 1,
+   "minimo": 0,
+   "maximo": 1,
+   "tipo": "si_no",
+   "texto": "Recibió recordatorio (1 o 0)",
+   "texto_largo": "Recibió recordatorio (1 o 0)"
+  },
+  {
+   "papel": "efectos",
+   "cantidad": 5,
+   "minimo": 0,
+   "maximo": 5,
+   "tipo": "numero",
+   "texto": "Hasta cinco factores de la persona, por posición: el primero es la edad en años y los otros cuatro son 1 o 0. Una posición sin columna va vacía",
+   "texto_largo": "Hasta cinco factores de la persona, por posición: el primero es la edad en años y los otros cuatro son 1 o 0. Una posición sin columna va vacía"
+  }
+ ]
+}

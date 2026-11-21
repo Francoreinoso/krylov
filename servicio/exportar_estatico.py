@@ -7,7 +7,9 @@ import json
 import shutil
 from pathlib import Path
 
+from nucleo import api as nucleo
 from servicio import fijos
+from servicio.calce import calce_del_demo
 
 DESTINO = Path(__file__).resolve().parent.parent / "web" / "public" / "estatico"
 CORRECCION = ["quitar_factor:fecha_salida"]
@@ -35,7 +37,9 @@ def exportar() -> int:
             _escribir(f"donde-medir/{nombre}", fijos.donde_medir(nombre))
             n += 1
         _escribir(f"sello/{c['motor']}", fijos.sello(c["motor"]))
-        n += 1
+        _escribir(f"papeles/{c['motor']}", nucleo.papeles(c["motor"]))
+        _escribir(f"calce/{nombre}", calce_del_demo(nombre))
+        n += 3
     # El arco rojo → corrección → verde del archivo malo.
     for t in ([], CORRECCION):
         clave = fijos.clave("rotacion_malo", t)
