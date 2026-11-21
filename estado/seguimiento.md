@@ -37,6 +37,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 |---|---|---|
 | sáb 03:50 · H0 | `uv sync --group entrenar` y `uv run pytest nucleo motor -q`: 33 pasan (40 s). Los dos repositorios en el mismo commit. Espejo público (API de GitHub). PC 1 sin commits, sin `web/` | D-27: H0 pasa en parte, `h0` espera a P-01. Tablero con la siguiente tarea de cada rol |
 | sáb 03:58 · cierre H0 | P-01 de PC 1: `uv run uvicorn servicio.app:app --port 8010` y `npm run dev`; inicio con 4 tarjetas, respuesta de rotación y del terreno; API detenida → «Modo estático» | D-28: tag `h0`. Pitch de 3 minutos (J-04). Orden de tarjetas: manda `casos/INICIO` |
+| sáb 04:02 · P-02 | https://krylov-tan.vercel.app/ en navegador con tamaño de teléfono (375×812): inicio, rotación, pie «Modo estático»; `casos.json` 95 ms, `analizar/rotacion.json` 358 ms | `deploy-url` de `platanus-hack-project.jsonc` pasa a la URL de Vercel. Tablero al día |
 
 ## Números medidos
 

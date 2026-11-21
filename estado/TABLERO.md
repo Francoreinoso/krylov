@@ -2,14 +2,16 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 04:00 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 04:03 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15 · **Producto terminado: sáb 18:00**
+
+**URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 a las 04:02, en tamaño teléfono: inicio y rotación en modo estático, `casos.json` en 95 ms y `analizar/rotacion.json` en 358 ms. Falta la prueba con un teléfono real y datos móviles.
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟢 al día | P-01 en `main`, verificado en PC 3 con API y en modo estático. P-02 en curso |
-| amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B3 en `main`. Sus 33 pruebas pasan también en PC 3 |
+| producto (PC 1) | 🟢 adelantado | P-01 y P-02 en `main`, verificados en PC 3. Sigue P-03 |
+| amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B4 en `main`. `espacial` entrena en PC 2 desde las 03:50. `supervivencia` lista para PC 3 |
 | seguimiento (PC 3) | 🟢 adelantado | S-02 con respuesta, S-03, S-04 y S-05 en `main`. Grupo `entrenar` instalado |
 
 ## H0: cerrado a las 04:00 (D-27, D-28)
@@ -20,9 +22,9 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 ## Siguiente tarea de cada uno
 
-- **PC 1 · producto:** P-02, primer despliegue (lo importa en Vercel el dueño de `Silent-math`). Si a las 05:15 no salió, se deja para las 08:30. Después P-03. Ojo: el orden de las tarjetas lo manda `casos/INICIO` (rotación, terreno, inasistencias, crédito); el ejemplo fijo trae otro orden.
-- **PC 2 · amortizacion:** sesión A: lanzar `espacial` (A-04, 04:45). Sesión B: A-B4, dejar `supervivencia` lista para lanzar en PC 3 a las 04:55. Rotación, terreno (con `terreno_grilla.csv`) y crédito ya están en `datos/demo/`.
-- **PC 3 · seguimiento:** 04:55: S-05b, lanzar `entrenar-motor supervivencia`. Antes de dormir, lista nocturna (S-N1 ya tiene el crudo de inasistencias). Guion: la versión de 3 minutos pasa a ser la principal.
+- **PC 1 · producto:** P-03 (vista 1 y vista 2 de los casos con lista). Una persona abre la URL en un teléfono con datos móviles. Ojo: el orden de las tarjetas lo manda `casos/INICIO` (rotación, terreno, inasistencias, crédito); el ejemplo fijo trae otro orden.
+- **PC 2 · amortizacion:** sesión A: `espacial` entrenando; seguir con A-05 y la lista nocturna. Sesión B: A-N2 (paso local y NumPyro). Rotación, terreno (con `terreno_grilla.csv`) y crédito ya están en `datos/demo/`.
+- **PC 3 · seguimiento:** S-05b: lanzar `supervivencia` con la sección «Lanzar `supervivencia` en PC 3» de `estado/amortizacion.md` (todo listo desde las 04:00; plan: 04:55). Antes de dormir, lista nocturna (S-N1 ya tiene el crudo de inasistencias). Guion: la versión de 3 minutos pasa a ser la principal.
 
 ## Qué cambió respecto del plan
 
