@@ -9,7 +9,9 @@ import json
 from functools import cache
 from pathlib import Path
 
-EJEMPLOS = Path(__file__).resolve().parent.parent / "contratos" / "ejemplos"
+RAIZ = Path(__file__).resolve().parent.parent
+EJEMPLOS = RAIZ / "contratos" / "ejemplos"
+INICIO = RAIZ / "casos" / "INICIO"
 
 
 class PeticionInvalida(ValueError):
@@ -48,7 +50,13 @@ def clave(caso: str, transformaciones=(), mediciones=()) -> str:
 
 
 def casos() -> dict:
-    return _copia("casos.json")
+    """Las tarjetas del inicio, en el orden de casos/INICIO."""
+    lineas = INICIO.read_text(encoding="utf-8").splitlines()
+    orden = [l.strip() for l in lineas if l.strip() and not l.startswith("#")]
+    respuesta = _copia("casos.json")
+    por_nombre = {c["nombre"]: c for c in respuesta["casos"]}
+    respuesta["casos"] = [por_nombre[n] for n in orden if n in por_nombre]
+    return respuesta
 
 
 def analizar(caso: str, transformaciones=(), mediciones=()) -> dict:

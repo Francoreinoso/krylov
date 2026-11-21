@@ -1,11 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --color-actuar: #4f46e5;
-  --color-no-actuar: #a8a29e;
-  --color-en-duda: #f59e0b;
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-papel: #edf1f3;
+  --color-tinta: #0f2c3f;
+  --color-tinta-suave: #5b7282;
+  --color-linea: #c9d4da;
+  --color-actuar: #146c7c;
+  --color-en-duda: #e2a31b;
+  --color-no-actuar: #bfcbd2;
+}
+
+html {
+  font-size: 18px;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  @apply bg-papel text-tinta antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Titulares y número grande: Archivo en ancho condensado. */
+.condensado {
+  font-stretch: 72%;
+}
+
+/* La duda se ve como trama, no solo como color. */
+.achurado {
+  background-color: var(--color-en-duda);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    rgb(255 255 255 / 0.55) 3px 5px
+  );
+}
+
+.lista-unidades {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-linea) transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-actuar);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

@@ -1,75 +1,61 @@
-// Vista 2 · la respuesta de un caso: titular, lo que cuesta no saber y las unidades en tres colores.
+// Vista 2 · la respuesta de un caso: titular, lo que cuesta no saber, las unidades en tres
+// colores, qué pesa y el pie.
 
-import type { Analisis, Estado } from './tipos'
-
-const COLOR: Record<Estado, string> = {
-  actuar: 'bg-actuar',
-  en_duda: 'bg-en-duda',
-  no_actuar: 'bg-no-actuar',
-}
-const ORDEN: Estado[] = ['actuar', 'en_duda', 'no_actuar']
+import { FONDO, ORDEN } from './colores'
+import ListaUnidades from './ListaUnidades'
+import Pie from './Pie'
+import QuePesa from './QuePesa'
+import type { Analisis } from './tipos'
 
 const plata = (valor: number, moneda: string) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(valor)
 
-const porcentaje = (p: number) => `${Math.round(p * 100)}%`
-
 export default function Respuesta({ analisis }: { analisis: Analisis }) {
-  const { semaforo, rotulos, costo_de_no_saber, resumen_colores, unidades } = analisis
+  const { semaforo, rotulos, costo_de_no_saber, resumen_colores, unidades, factores } = analisis
   const rojo = semaforo.estado === 'rojo_datos' || semaforo.estado === 'rojo_modelo'
 
   return (
     <section>
       {analisis.precalculado && (
-        <span className="rounded-full bg-stone-200 px-3 py-1 text-xs font-medium uppercase tracking-wide text-stone-700">
-          Precalculado
-        </span>
+        <p className="mb-3 inline-block rounded-sm bg-tinta px-2 py-0.5 text-sm text-papel">Precalculado</p>
       )}
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">{analisis.titular}</h1>
+      <h1 className="condensado max-w-[30ch] text-4xl leading-[1.05] font-bold text-balance sm:text-5xl">{analisis.titular}</h1>
 
       {rojo && (
-        <div className="mt-6 rounded-2xl bg-red-50 p-5 text-red-900 ring-1 ring-red-200">
+        <div className="mt-8 max-w-[60ch] border-l-4 border-red-700 bg-red-50 py-4 pr-4 pl-5 text-red-950">
           <p className="font-medium">{semaforo.motivo}</p>
-          {semaforo.propuesta && <p className="mt-2 text-sm">{semaforo.propuesta.texto}</p>}
+          {semaforo.propuesta && <p className="mt-2">{semaforo.propuesta.texto}</p>}
         </div>
       )}
 
-      {costo_de_no_saber && (
-        <div className="mt-8">
-          <p className="text-sm text-stone-500">{rotulos.costo_de_no_saber}</p>
-          <p className="text-6xl font-semibold tabular-nums">
-            {plata(costo_de_no_saber.valor, costo_de_no_saber.moneda)}
-          </p>
-        </div>
-      )}
-
-      {resumen_colores && (
-        <ul className="mt-8 flex flex-wrap gap-6">
-          {ORDEN.map((estado) => (
-            <li key={estado} className="flex items-center gap-2">
-              <span className={`h-3 w-3 rounded-full ${COLOR[estado]}`} />
-              <span className="tabular-nums font-medium">{resumen_colores[estado]}</span>
-              <span className="text-stone-600">{rotulos[estado]}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {unidades && (
-        <ul className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {[...unidades]
-            .sort((a, b) => b.duda - a.duda)
-            .map((u) => (
-              <li key={u.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm ring-1 ring-stone-200">
-                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${COLOR[u.estado]}`} />
-                <span className="font-medium">{u.etiqueta}</span>
-                <span className="ml-auto tabular-nums text-stone-500">{porcentaje(u.p)}</span>
+      {costo_de_no_saber && resumen_colores && (
+        <div className="mt-8 flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
+          <div>
+            <p className="text-tinta-suave">{rotulos.costo_de_no_saber}</p>
+            <p className="condensado text-6xl leading-none font-extrabold sm:text-[6rem]">
+              {plata(costo_de_no_saber.valor, costo_de_no_saber.moneda)}
+            </p>
+          </div>
+          <ul className="space-y-2 text-lg">
+            {ORDEN.map((estado) => (
+              <li key={estado} className="flex items-center gap-3">
+                <span className={`h-4 w-7 rounded-sm ${FONDO[estado]}`} />
+                <span className="w-10 text-right font-semibold">{resumen_colores[estado]}</span>
+                <span>{rotulos[estado]}</span>
               </li>
             ))}
-        </ul>
+          </ul>
+        </div>
       )}
 
-      <p className="mt-8 text-sm text-stone-500">{analisis.origen_datos}</p>
+      {(unidades || factores) && (
+        <div className="mt-10 grid gap-12 md:grid-cols-[1fr_18rem]">
+          {unidades && <ListaUnidades unidades={unidades} puntoDeCorte={analisis.punto_de_corte} />}
+          {factores && <QuePesa factores={factores} />}
+        </div>
+      )}
+
+      <Pie analisis={analisis} />
     </section>
   )
 }

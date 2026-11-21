@@ -12,6 +12,16 @@
    "tiene_cartera": true
   },
   {
+   "nombre": "terreno",
+   "titulo": "¿Dónde limpio y dónde mido?",
+   "empresa_o_industria": "Terreno",
+   "sponsor": null,
+   "motor": "espacial",
+   "sintetico": false,
+   "origen_datos": "Datos públicos reales de metales en un suelo.",
+   "tiene_cartera": false
+  },
+  {
    "nombre": "inasistencias",
    "titulo": "¿Qué citas conviene confirmar?",
    "empresa_o_industria": "Caso tipo AgendaPro",
@@ -29,16 +39,6 @@
    "motor": "estados",
    "sintetico": false,
    "origen_datos": "Datos públicos reales de tarjetas de crédito.",
-   "tiene_cartera": false
-  },
-  {
-   "nombre": "terreno",
-   "titulo": "¿Dónde limpio y dónde mido?",
-   "empresa_o_industria": "Terreno",
-   "sponsor": null,
-   "motor": "espacial",
-   "sintetico": false,
-   "origen_datos": "Datos públicos reales de metales en un suelo.",
    "tiene_cartera": false
   }
  ]

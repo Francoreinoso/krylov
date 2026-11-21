@@ -64,6 +64,7 @@ export interface Analisis {
     motivo: string
     propuesta: { transformacion: string; texto: string } | null
   }
+  sello_resumen: { frase: string; medido: boolean }
   rotulos: Record<Estado | 'costo_de_no_saber', string>
   registro: string[]
   tiempo_ms: number
