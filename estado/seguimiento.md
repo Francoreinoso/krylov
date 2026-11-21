@@ -36,3 +36,4 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 | Extraños que repiten la idea, prueba 1 (12:30) | sin medir | `ensayo-pitch` | — |
 | Extraños que repiten la idea, prueba 2 (19:00) | sin medir | `ensayo-pitch` | — |
 | Ensayo del pitch, tiempo total | sin medir | `ensayo-pitch` | — |
+- 03:20 arranque
