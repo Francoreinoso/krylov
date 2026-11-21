@@ -1,0 +1,62 @@
+{
+ "motor_id": "deformacion",
+ "nombres_eta": [
+  "logit_pi",
+  "mu_v",
+  "log_sigma_v",
+  "mu_f",
+  "log_sigma_f",
+  "mu_A",
+  "log_sigma_e"
+ ],
+ "nombres_lam": [
+  "log_v",
+  "log_falta",
+  "log_A"
+ ],
+ "canales": 4,
+ "dim_cov": 2,
+ "dim_tam": 3,
+ "con_clase": true,
+ "max_unidades": 80,
+ "max_lecturas": 200,
+ "diseno": {
+  "unidades": [
+   6,
+   80
+  ],
+  "lecturas": [
+   24,
+   200
+  ],
+  "faltantes": [
+   0.0,
+   0.15
+  ]
+ },
+ "prior": {
+  "pi_a": 1.5,
+  "pi_b": 6.0,
+  "mu_v_media": 0.0,
+  "mu_v_desv": 0.6,
+  "sigma_v_escala": 0.7,
+  "mu_f_media": -1.2039728043259361,
+  "mu_f_desv": 0.8,
+  "sigma_f_escala": 0.6,
+  "mu_A_media": 0.4054651081081644,
+  "mu_A_desv": 0.6,
+  "sigma_A": 0.5,
+  "sigma_e_media": -2.995732273553991,
+  "sigma_e_desv": 0.7
+ },
+ "arquitectura": "codificador por unidad (convoluciones 1D con máscara) + atención sobre unidades + flujo de acoplamiento afín global (8 capas) y local compartido (6 capas); NPE factorizada",
+ "entrenada": true,
+ "pasos": 18677,
+ "simulaciones_entrenamiento": 1684160,
+ "entrenamiento_min": 146.1,
+ "diferencias_exportacion": {
+  "onnx": 4.76837158203125e-07,
+  "flujo_numpy": 4.76837158203125e-07,
+  "flujo_local_numpy": 9.5367431640625e-07
+ }
+}

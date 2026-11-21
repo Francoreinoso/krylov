@@ -1,0 +1,85 @@
+{
+ "motor_id": "deformacion",
+ "implementacion": "red",
+ "pasa": false,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "sbc_local_sin_sesgo": false,
+  "cobertura_parametros_entre_85_y_95": true,
+  "cobertura_decision_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "analisis_bajo_1_s": true
+ },
+ "simulaciones_entrenamiento": 1684160,
+ "entrenamiento_min": 146,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.9049,
+ "cobertura_90_parametros": 0.9021,
+ "cobertura_90_locales": 0.9059,
+ "cobertura_90_peor_grupo": 0.9046,
+ "peor_grupo": "unidades con muchas lecturas",
+ "peor_grupo_de": "tamaño del archivo",
+ "sbc_pasa": true,
+ "sbc_local_pasa": false,
+ "recuperacion": {
+  "media": 0.748,
+  "minima": 0.224,
+  "parametro_de_la_minima": "log_sigma_f",
+  "por_parametro": {
+   "logit_pi": 0.707,
+   "mu_v": 0.896,
+   "log_sigma_v": 0.913,
+   "mu_f": 0.664,
+   "log_sigma_f": 0.224,
+   "mu_A": 0.84,
+   "log_sigma_e": 0.995
+  }
+ },
+ "rangos": {
+  "unidades": [
+   6,
+   80
+  ],
+  "lecturas": [
+   24,
+   200
+  ],
+  "faltantes": [
+   0.0,
+   0.15
+  ]
+ },
+ "latencia_ms": 181,
+ "examen": {
+  "tipo": "verdad_escondida",
+  "n": 36,
+  "frase": "Cuando dijimos cerca de 0% de riesgo, cedió el 0%.",
+  "tramos": [
+   {
+    "dijimos": 0.003,
+    "paso": 0.0,
+    "n": 30
+   },
+   {
+    "dijimos": 0.801,
+    "paso": 0.833,
+    "n": 6
+   }
+  ]
+ },
+ "mcmc_datasets_comparados": null,
+ "mcmc_s_por_dataset": null,
+ "mcmc_diferencia_media": null,
+ "mcmc_r_hat_max": null,
+ "amortizacion": null,
+ "fecha": "2026-11-21",
+ "hora": "16:10",
+ "ensayo": false,
+ "limitaciones": [
+  "Entre 6 y 80 sectores, cada uno con 24 a 200 lecturas en la ventana y hasta 15% faltantes",
+  "Dos regímenes por sector: estable (velocidad constante) o acelerando hacia la falla con la ley de velocidad inversa",
+  "Un sector que se acelera y después frena no está en las reglas",
+  "El modo común se resta con la mediana entre sectores: si la mitad del muro se acelera a la vez, se confunde con él",
+  "Sin comparación todavía con el método lento"
+ ]
+}

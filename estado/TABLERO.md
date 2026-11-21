@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 14:43 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 16:18 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ (todavía muestra las cuatro tarjetas anteriores; cambia con P-21 y P-22).
 
-**Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **Ronda 1 corriendo, hasta las 16:10:** `cinetica` en PC 2 desde las 13:38 y `deformacion` en PC 3 desde las 13:44. El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
+**Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **Ronda 1 terminada en PC 3:** `deformacion` no pasó su sello (falla solo el SBC por unidad). **Ronda 2:** `sismico` entrena en PC 3 desde las 16:14, hasta las 18:15. Falta el veredicto de `cinetica` (PC 2). El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
 
 ## Los cinco casos
 
@@ -15,10 +15,10 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 | Caso | Motor | Datos | Simulador | Red | Sello | En la app | Método lento | Responde |
 |---|---|---|---|---|---|---|---|---|
 | leyes | espacial | listo | listo | listo | listo | pendiente | pendiente | red |
-| taludes | deformacion | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
+| taludes | deformacion | listo | listo | listo | no pasa | pendiente | pendiente | ejemplo |
 | flotacion | cinetica | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 | flota | desgaste | listo | listo | pendiente | pendiente | pendiente | pendiente | ejemplo |
-| sismicidad | sismico | listo | listo | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| sismicidad | sismico | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 
 Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus pruebas pasan (`pytest motor/cinetica motor/desgaste motor/sismico motor/deformacion`); `leyes` responde verde con la red y ya tiene su examen por color (A-22; M-54: de 147 bloques «conviene apartar», 138 estaban sobre el límite). Las cuatro tarjetas nuevas responden `no_disponible` hasta que su red valide, y la web pinta su ejemplo.
 
@@ -28,7 +28,7 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 |---|---|---|
 | producto (PC 1) | 🟡 atrasado | P-21 subida (commit `cc97fdc`), una hora después de su tope. Ahora P-22, que es lo que exige H4 y ya pasó su tope (13:50) |
 | amortizacion (PC 2) | 🟢 adelantado | A-21 a A-29 hechas salvo dos pruebas de humo (`desgaste`, `sismico`); `cinetica` entrena desde las 13:38, cerca de 8.700 datasets por segundo |
-| seguimiento (PC 3) | 🟡 entrenando | `deformacion` corre desde las 13:44. El ritmo cayó a menos de la mitad y a las 14:40 se relanzó con lote 64 desde su punto de guardado (977.664 datasets hasta ahí). Valida a las 16:10 |
+| seguimiento (PC 3) | 🟡 entrenando | `sismico` corre desde las 16:14. `deformacion`: 1.684.160 muros en 146 min; pasa todo salvo el SBC por unidad. Sin método lento corrido |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
@@ -45,5 +45,5 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 ## Próxima decisión
 
 - **Ahora, una persona,** de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
-- **H4 · 14:30:** `leyes` en la URL pública; cinco tarjetas; ronda 1 entrenando o por lanzarse.
+- **Ahora, PC 2 y una persona, por `taludes`:** su red no pasó (solo el SBC por unidad; coberturas en 0,90). Opciones: revisar el criterio, seguir entrenando después de la ronda 2, o adelantar su método lento para salir «precalculada». Hasta entonces la tarjeta sigue de ejemplo.
 - **17:30, una persona, por `flota` y por `sismicidad`:** detener su entrenamiento para adelantar el método lento de su archivo (sale «precalculada» a las 18:00), o dejarla fuera del inicio y sumarla si su red pasa antes de las 20:30. PC 3 lleva la pregunta a las 17:15 con el avance de cada red.

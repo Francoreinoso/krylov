@@ -24,23 +24,26 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 14:00 · `ventana: 6` en `casos/sismicidad.yaml`: **no aplicado**. Con esa línea falla `motor/sismico/prueba_sismico.py::test_fuera_del_rango_es_rojo_datos` (sin ella pasan las 5): `analizar_archivo` hereda la `ventana` del caso base, así que un archivo subido de 0,3 horas se trata como si cubriera 6. Ver pedido a PC 2.
 - sáb 13:59 · Ritmo de `deformacion` revisado a los 15 minutos: entre 410 y 540 datasets por segundo (partió en 539; caída cerca de 15%, bajo el 30% que obliga a relanzar). Primer punto de guardado a las 13:53: 276.480 datasets, pérdida de 10,2 a 4,3.
 - sáb 14:40 · `deformacion` relanzado desde su punto de guardado con lote 64 (sin `--nuevo`). El ritmo había caído de 539 a entre 206 y 249 datasets por segundo (más de 50%; la regla era relanzar si caía más de 30%). Se detuvo con `pkill -INT` (guardó: paso 7.638, 977.664 datasets en 56,7 min, pérdida media de 9,6 a 2,1). Con lote 64 volvió a cerca de 490 datasets por segundo en el primer minuto. A las 14:40 el Mac estaba **con batería, no enchufado** (88%): avisado a la persona. El registro del primer tramo quedó en `motor/checkpoints/deformacion/entrenar_lote128.log`.
+- sáb 16:11 · S-28, `deformacion` validado sin método lento: **NO PASA**, por un solo criterio. `uv run python -m motor.deformacion.exportar` y `uv run python -m motor.deformacion.validar` (2.000 datasets nuevos); sello y artefactos subidos en `motor/artefactos/deformacion/`. Pasa: SBC global, cobertura de parámetros (0,902), cobertura de lo que se decide (0,905; peor tramo 0,905), latencia (181 ms) y examen. Falla: SBC por unidad, la prueba de uniformidad en los tres locales (`log_v`, `log_falta`, `log_A`), con cobertura local 0,906. Recuperación baja en `log_sigma_f` (0,22). No se corrió ningún método lento. La tarjeta `taludes` sigue sin responder con la red (`no_disponible`).
+- sáb 16:14 · Prueba de humo de `sismico`: corre. 104.192 datasets en 3 min (GPU del Mac, lote 64); la pérdida bajó de 4,55 a 2,30; `validar --sbc 200` corre (ensayo, no es resultado).
+- sáb 16:14 · Ronda 2 lanzada en este computador: `sismico` hasta las 18:15.
 
 ## En curso
 
-- sáb 13:44 · `deformacion` entrenando hasta las 16:10; primer punto de guardado a las 13:54. A las 16:10: S-28 (detener, `validar-motor deformacion` sin método lento, exportar y subir).
+- sáb 16:14 · `sismico` entrenando hasta las 18:15. A las 18:15: S-32 (validar sin método lento, exportar y subir). **El Mac está con batería (85% a las 16:15): hay que enchufarlo.**
 - sáb 13:25 · S-22: una persona confirma las decisiones de D-37. Sigue: S-26 (guion contra lo que existe; leerlo en voz alta es de una persona) y S-25 (firmas, una persona). Con la partida y A-25 subida: `medir-rendimiento deformacion` y lanzar `deformacion` aquí hasta las 16:10.
 
 ## Entrenamiento en curso
 
 | Qué | Valor |
 |---|---|
-| Motor | `deformacion` (ronda 1), en PC 3 |
-| Comando exacto | Desde las 14:40: `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 64 --guardar-cada-min 10` (retomó desde `ultimo.pt`). De 13:44 a 14:40 corrió con `--lote 128 --nuevo`, con la salida en `motor/checkpoints/deformacion/entrenar.log` |
+| Motor | `sismico` (ronda 2), en PC 3. `deformacion` terminó a las 16:10 |
+| Comando exacto | `caffeinate -dims uv run python -m motor.sismico.entrenar --hasta 18:15 --dispositivo mps --lote 64 --guardar-cada-min 10 --nuevo`, con la salida en `motor/checkpoints/sismico/entrenar.log` |
 | Dónde corre | En el worktree `.claude/worktrees/pc3-seguimiento-tableros-d4cd0b` de este computador, con el Python de `~/Downloads/krylov/.venv` |
-| Puntos de guardado | `motor/checkpoints/deformacion/ultimo.pt`, cada 10 minutos (no se versionan) |
+| Puntos de guardado | `motor/checkpoints/sismico/ultimo.pt`, cada 10 minutos (no se versionan) |
 | Para retomar si se cae | El mismo comando sin `--nuevo`: retoma solo desde `ultimo.pt` |
-| Para detener | `pkill -INT -f "motor.deformacion.entrenar"` (guarda antes de salir) |
-| Hora de inicio | sáb 13:44 |
+| Para detener | `pkill -INT -f "python -m motor.sismico.entrenar"` (guarda antes de salir) |
+| Hora de inicio | sáb 16:14 (`sismico`). `deformacion`: 13:44 a 16:10 |
 
 ## Bloqueos
 
@@ -67,6 +70,10 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
+| `deformacion`: sello (sin método lento) | NO PASA. 1.684.160 muros simulados en 146 min; SBC global pasa; SBC por unidad no pasa; cobertura del 90%: parámetros 0,902, locales 0,906, lo que se decide 0,905 (peor tramo 0,905); un análisis en 181 ms; examen: 30 sectores con cerca de 0% y cedió 0; 6 con cerca de 80% y cedieron 5 | `motor/artefactos/deformacion/sello.json`, 2.000 datasets nuevos | 16:11 |
+| `taludes` forzando la red (no es lo que muestra la app) | 5 sectores «conviene actuar», 29 «no hace falta», 2 «no sabemos»; lo que cuesta no saber, US$ 78.574 | `KRYLOV_MOTOR_DEFORMACION=red`, `api.analizar("taludes")` | 16:16 |
+| `deformacion`: ritmo real del entrenamiento | 192 datasets por segundo en promedio (1.684.160 en 146 min); partió en 539 y terminó cerca de 90 | registro del entrenamiento | 16:10 |
+| `sismico`: prueba de humo | 104.192 datasets en 3 min (579 por segundo), pérdida de 4,55 a 2,30 | `motor.sismico.entrenar --minutos 3`, GPU del Mac, lote 64 | 16:14 |
 | `deformacion`: datasets simulados por segundo al entrenar, en este Mac (M3) | GPU del Mac, lote 128: 509; lote 256: 639; procesador, lote 64: 91. Se eligió GPU con lote 128 (más pasos por minuto; es lo que recomendó PC 2). A ese ritmo, cerca de 4,4 millones de muros simulados hasta las 16:10 (estimación) | Tres corridas de 1,2 min con `--minutos 1.2 --nuevo` en una carpeta temporal, sin nada más entrenando | 13:42 |
 | `leyes`: «¿Dónde perforo?», 480 análisis rehechos (M-44) | 1,3 s (cinco corridas: 1,30 a 1,48) | `api.donde_medir("leyes")` con la red, MacBook Air M3, sin nada entrenando | 13:27 |
 | `leyes`: un análisis completo | 0,007 a 0,008 s | `api.analizar("leyes")`, cinco corridas, lo mismo | 13:27 |

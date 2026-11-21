@@ -70,15 +70,15 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/deformacion/prueba_deformacion.py`)
 - [x] Red: el andamio de series con estado discreto por sector, sin entrenar; exporta y responde `analizar("taludes")` con la forma del contrato
 - [x] Prueba de humo: 129.536 datasets en 3 min (GPU del Mac, lote 128); la pérdida bajó de 10,2 a 4,9; el SBC de 200 corre
-- [ ] Entrenamiento: en curso en PC 3 desde las 13:44, hasta las 16:10 (GPU del Mac, lote 128; cerca de 510 datasets por segundo)
-- [ ] SBC global
-- [ ] SBC por unidad
-- [ ] Cobertura de lo que se decide, por tamaño
-- [ ] Examen con la verdad escondida
-- [ ] Exportación y app
+- [x] Entrenamiento: 1.684.160 muros simulados en 146 min, en PC 3 (GPU del Mac; lote 128 hasta las 14:40 y lote 64 después, porque el ritmo cayó a menos de la mitad)
+- [x] SBC global: pasa; cobertura del 90% de los parámetros, 0,902 (2.000 datasets nuevos)
+- [ ] SBC por unidad: **no pasa** la prueba de uniformidad en los tres locales (log v, lo que falta, log A; 50.800 sectores), aunque su cobertura del 90% es 0,906. Es el único criterio que falla
+- [x] Cobertura de lo que se decide, por tamaño: 0,905; peor tramo 0,905 (sectores con muchas lecturas)
+- [x] Examen con la verdad escondida: de 30 sectores con cerca de 0% de riesgo no cedió ninguno; de 6 con cerca de 80%, cedieron 5 (datos simulados)
+- [ ] Exportación y app: exportada a `motor/artefactos/deformacion/` (un análisis en 181 ms); la tarjeta no responde con la red porque el sello dice «no pasa»
 - [ ] Método lento
 
-**Falta ahora:** que termine su entrenamiento en PC 3 (16:10) y validarlo ahí, sin método lento (S-28).
+**Falta ahora:** que PC 2 mire por qué falla el SBC por unidad (sello del sáb 16:10) y el equipo decida: seguir entrenando después de la ronda 2, o adelantar su método lento para que `taludes` salga «precalculada».
 
 ## `cinetica` · caso `flotacion`
 
