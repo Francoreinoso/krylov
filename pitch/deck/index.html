@@ -11,6 +11,7 @@
   Krylov · láminas de venta (Platanus Hack 26, track Simulaciones). Versión minería.
   Abre con doble clic y corre sin internet. Teclas: flechas o espacio (avanzar), 1 a 9 (ir a una lámina), Fin (cierre),
   0 (cómo funciona), D (demo en vivo, necesita internet), N (notas), P (pausa), F (pantalla completa).
+  Para las preguntas: Q (quién lo usa), A (qué archivo recibe), L (por qué no un LLM), M (qué pasa en producción).
   El enlace de la demo, el QR y los nombres del equipo se cambian en config.js. De dónde sale cada dato: README.md y las notas (N).
 -->
 <div id="escenario">
@@ -137,22 +138,22 @@
     <div class="velo-pie"></div>
     <div class="bloque cabeza" data-paso="0">
       <div class="t2">Una mina decide esto todos los días.</div>
-      <div class="p">Cinco decisiones, cinco modelos de especialista. Un solo Artificial Data Scientist.</div>
+      <div class="p">Cinco decisiones, cinco modelos de especialista. Un solo Artificial Data Scientist, para la persona que decide en el turno.</div>
     </div>
 
     <div class="cinco" data-paso="0" style="--d:.5s">
-      <div><div class="t3">¿Qué roca conviene procesar?</div></div>
-      <div><div class="t3">¿La pared de la mina va a ceder?</div></div>
-      <div><div class="t3">¿Se está perdiendo cobre en la planta?</div></div>
-      <div><div class="t3">¿Qué camión paro antes de que falle?</div></div>
-      <div><div class="t3">¿Puede la gente volver a entrar al túnel?</div></div>
+      <div><div class="t3">¿Qué roca conviene procesar?</div><div class="p quien">Lo decide el geólogo de la mina</div></div>
+      <div><div class="t3">¿La pared de la mina va a ceder?</div><div class="p quien">Lo decide quien vigila la pared</div></div>
+      <div><div class="t3">¿Se está perdiendo cobre en la planta?</div><div class="p quien">Lo decide el jefe de turno de la planta</div></div>
+      <div><div class="t3">¿Qué camión paro antes de que falle?</div><div class="p quien">Lo decide quien planifica la mantención</div></div>
+      <div><div class="t3">¿Puede la gente volver a entrar al túnel?</div><div class="p quien">Lo decide el jefe de turno bajo tierra</div></div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="vision"></span></h4>
-        <p class="dice">«Una mina decide esto todos los días. Cinco decisiones, un solo Artificial Data Scientist.»</p></div>
+        <p class="dice">«Una mina decide esto todos los días. Cinco decisiones, un solo Artificial Data Scientist, para quien decide en el turno.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Son las cinco decisiones de D-37. Las cinco figuras son ilustraciones. <b>Qué responde hoy de verdad cada una está en la tabla «Los cinco casos» de <code>estado/TABLERO.md</code>:</b> revisarla antes de subir al escenario, porque si preguntan «¿esto ya funciona?» la respuesta tiene que ser la del tablero. En taludes y sismicidad, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
+        <p class="fuente">Son las cinco decisiones de D-37. Las cinco figuras son ilustraciones. Bajo cada pregunta va quién la toma: es <b>a quién se le vendería primero</b> (el área que toma esa decisión todos los días), dicho como rol, sin nombrar ninguna empresa. <b>No hay clientes ni pilotos, y no se dice que los haya.</b> <b>Qué responde hoy de verdad cada una está en la tabla «Los cinco casos» de <code>estado/TABLERO.md</code>:</b> revisarla antes de subir al escenario, porque si preguntan «¿esto ya funciona?» la respuesta tiene que ser la del tablero. En taludes y sismicidad, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
     </div></aside>
   </section>
 
@@ -249,7 +250,7 @@
     <div class="bloque columna">
       <div class="t2" data-paso="0">¿Qué camión paro antes de que falle?</div>
       <div class="p" data-paso="0" style="--d:.35s">Un camión que falla cargado, en plena subida, es lo caro. Con el análisis de aceite de toda la flota, Krylov dice a cuáles conviene adelantarles la mantención.</div>
-      <div class="cuantas" data-paso="0" style="--d:.7s"><div class="num"></div><div class="p">camiones. Sobre cada uno, su desgaste; la marca roja es la falla</div></div>
+      <div class="cuantas" data-paso="0" style="--d:.7s"><div class="num"></div><div class="p">camiones. El color de cada uno es su desgaste: en rojo, los que están cerca de fallar</div></div>
       <div class="leyenda" data-paso="0" style="--d:1s" hidden>
         <div class="fila"><span class="muestra actuar"></span><span data-rotulo="actuar"></span><span class="num" data-cuenta="actuar"></span></div>
         <div class="fila"><span class="muestra en-duda"></span><span data-rotulo="en_duda"></span><span class="num" data-cuenta="en_duda"></span></div>
@@ -290,7 +291,24 @@
     </div></aside>
   </section>
 
-  <!-- ============================== 12 · Cierre ============================== -->
+  <!-- ============================== 12 · ¿Y cómo sé que acierta? ============================== -->
+  <section class="lamina" id="l-confianza" data-id="confianza" data-pasos="1">
+    <canvas></canvas>
+    <div class="bloque columna">
+      <div class="t2" data-paso="0">¿Y cómo sé que acierta?</div>
+      <div class="grande" data-paso="0" style="--d:.3s"><div class="num" id="conf-numero">0,90</div><div class="p">De cada 10 veces que Krylov da un rango, la respuesta cae adentro 9.</div></div>
+      <div class="filas" id="conf-filas" data-paso="0" style="--d:.7s"></div>
+      <div class="p remate" data-paso="0" style="--d:1.1s">Nunca un número solo: siempre un rango. Y un examen con cada archivo.</div>
+    </div>
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · <span data-tiempo="confianza"></span></h4>
+        <p class="dice">«¿Y cómo sabemos que acierta? Escondemos parte de tus datos y Krylov los adivina, cada uno con su rango: nueve de cada diez caen adentro. Nunca un número solo.»</p></div>
+      <div><h4>Para quien presenta</h4>
+        <p class="fuente">Es la respuesta para quien no quiere ver gráficos de convergencia: <b>un número de 0 a 1</b>. Mide una sola cosa: cuando Krylov dice «entre tanto y tanto» (rango de 90%), ¿la respuesta cayó adentro? <b>Lo ideal es 0,90, no 1:</b> un rango que acierta siempre es un rango demasiado ancho. A la derecha, el examen del archivo de <code>leyes</code>: 68 muestras escondidas, 61 dentro de su rango (el <code>examen</code> que entrega <code>api.analizar</code>); el banco es simulado. 0,90 en 2.000 casos de validación: sello del motor (<code>cobertura_90</code>). Datos reales públicos (río Mosa): 138 de 155 escondiendo de a un quinto (<code>examen_5_particiones</code> del sello); <b>la partición que muestra la app es 24 de 31, o 0,77 (M-13)</b>, y hay que decirlo si preguntan. El eje es de multiplicar (logarítmico), porque así trabaja el modelo.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 13 · Cierre ============================== -->
   <section class="lamina" id="l-cierre" data-id="cierre" data-pasos="1">
     <canvas></canvas>
     <div class="bloque frase" data-paso="0">
@@ -317,7 +335,92 @@
       <div><h4>Qué se dice · <span data-tiempo="cierre"></span></h4>
         <p class="dice">«Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide. Eso es Krylov. Pruébenlo.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>El contador es una cuenta, no una medición:</b> los segundos desde la primera pulsación del pitch, divididos por lo que tarda un análisis con la red (10 ms, <code>latencia_ms</code> del sello) y con el método lento (117 s, M-25). Los mapas son los de la lámina 5: la respuesta de la red para 32 bancos simulados, repetidos. <b>El QR se dibuja solo desde <code>config.js</code>:</b> al cambiar <code>demo.url</code>, cambian el QR, el texto y la tecla D. «Cualquier industria» es visión: hoy los casos son de minería.</p></div>
+        <p class="fuente"><b>El contador es una cuenta, no una medición:</b> los segundos desde la primera pulsación del pitch, divididos por lo que tarda un análisis con la red (10 ms, <code>latencia_ms</code> del sello) y con el método lento (117 s, M-25). Los mapas son los de la lámina 5: la respuesta de la red para 32 bancos simulados, repetidos. <b>El QR se dibuja solo desde <code>config.js</code>:</b> al cambiar <code>demo.url</code>, cambian el QR, el texto y la tecla D. «Cualquier industria» es visión: hoy los casos son de minería. <b>Para las preguntas, cada una con su tecla:</b> Q, quién lo usa; A, qué archivo recibe; L, por qué no un LLM; M, qué pasa en producción; 0, cómo funciona.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== Q · ¿Quién lo usa? (fuera del recorrido) ============================== -->
+  <section class="lamina pregunta" id="l-quien" data-id="quien" data-pasos="1" data-respaldo="1" data-tecla="q">
+    <div class="bloque cabeza" data-paso="0">
+      <div class="t2">¿Quién lo usa? <span class="cobre">Quien decide en el turno.</span></div>
+      <div class="p">No un data scientist. La persona que hoy toma esa decisión con un promedio, porque el modelo serio no llega a tiempo.</div>
+    </div>
+    <div class="bloque roles" data-paso="0" style="--d:.5s">
+      <div class="fila"><span class="t3">El geólogo de la mina</span><span class="p">decide qué roca se procesa y cuál se aparta, después de cada explosión</span></div>
+      <div class="fila"><span class="t3">Quien vigila la pared</span><span class="p">decide si un sector se cierra, con lo que mide el radar</span></div>
+      <div class="fila"><span class="t3">El jefe de turno de la planta</span><span class="p">decide qué línea ajustar antes de perder cobre</span></div>
+      <div class="fila"><span class="t3">Quien planifica la mantención</span><span class="p">decide qué camión se detiene antes de que falle</span></div>
+      <div class="fila"><span class="t3">El jefe de turno bajo tierra</span><span class="p">decide cuándo puede volver a entrar la gente</span></div>
+    </div>
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas</h4>
+        <p class="dice">«Lo usa quien toma la decisión en el turno, no un data scientist. Hoy esa persona decide con un promedio o una regla fija, porque el modelo que mide el riesgo exige un especialista y horas. Krylov le entrega ese modelo desde un archivo.»</p></div>
+      <div><h4>Fuentes y límites</h4>
+        <p class="fuente">Son roles, no empresas: es <b>a quién se le vendería primero</b>, el área que toma cada decisión todos los días. <b>No hay clientes ni pilotos</b> y no se afirma cómo trabaja ninguna minera (regla 10). En la pared y bajo tierra, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== A · ¿Qué archivo recibe? (fuera del recorrido) ============================== -->
+  <section class="lamina pregunta" id="l-archivo" data-id="archivo" data-pasos="1" data-respaldo="1" data-tecla="a">
+    <div class="bloque cabeza" data-paso="0">
+      <div class="t2">¿Qué archivo recibe? <span class="cobre">Un CSV. Tres columnas.</span></div>
+      <div class="p">Una fila por medición, tal como la mina ya la guarda. Un modelo de lenguaje propone qué columna es cuál; la persona lo confirma.</div>
+    </div>
+    <div class="bloque tablas" data-paso="0" style="--d:.5s">
+      <div><div class="p rotulo"><b>Para un mapa</b> (qué roca procesar): dónde, dónde y cuánto.</div><div id="archivo-mapa"></div></div>
+      <div><div class="p rotulo"><b>Para una flota, una planta o una pared</b>: qué equipo, cuándo y cuánto.</div><div id="archivo-series"></div></div>
+    </div>
+    <div class="bloque pie" data-paso="0" style="--d:.9s">
+      <div class="p">El mapa se responde con <b class="nb" id="archivo-rango">entre 30 y 400 muestras</b>. Si el archivo no alcanza, o no se parece a nada que Krylov conozca, no responde y dice por qué.</div>
+    </div>
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas</h4>
+        <p class="dice">«Un CSV común, una fila por medición. Para el mapa: dónde y cuánto. Para lo demás: qué equipo, cuándo y cuánto. No hay que renombrar columnas: Krylov propone cuál es cuál y la persona lo confirma.»</p></div>
+      <div><h4>Fuentes y límites</h4>
+        <p class="fuente">Las filas son las primeras de <code>datos/demo/leyes.csv</code> y <code>datos/demo/flota.csv</code> (simulados); el papel de cada columna sale de <code>casos/&lt;caso&gt;.yaml</code>. «Entre 30 y 400 muestras»: el rango con que practicó el motor espacial (<code>nucleo/espacial</code>). Los cuatro motores de series tienen cada uno su rango de unidades y lecturas (D-38); fuera de él, la respuesta es roja. El calce de columnas lo propone un modelo de lenguaje leyendo los nombres y un resumen de cada columna, nunca las filas (D-34, D-35). El demo lee archivos: no hay conexión a sensores.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== L · ¿Y si le subo el archivo a un LLM? (fuera del recorrido) ============================== -->
+  <section class="lamina pregunta" id="l-llm" data-id="llm" data-pasos="1" data-respaldo="1" data-tecla="l">
+    <div class="bloque cabeza" data-paso="0">
+      <div class="t2">¿Y si le subo el archivo a un LLM? <span class="cobre">Lo probamos.</span></div>
+      <div class="p">El mismo archivo, el mismo examen, a Claude Fable 5.2 con herramientas y 3 minutos. Dos veces.</div>
+    </div>
+    <div class="bloque prueba" data-paso="0" style="--d:.5s">
+      <div class="fila cab"><span></span><span class="t3 cobre">Krylov</span><span class="t3">El LLM, primera vez</span><span class="t3">El LLM, segunda vez</span></div>
+      <div class="fila"><span class="p">Muestras escondidas dentro del rango que dio</span><span class="num cobre" id="llm-k-rango"></span><span class="num" id="llm-a-rango"></span><span class="num" id="llm-b-rango"></span></div>
+      <div class="fila"><span class="p">Lo que tardó</span><span class="num cobre" id="llm-k-seg"></span><span class="num" id="llm-a-seg"></span><span class="num" id="llm-b-seg"></span></div>
+      <div class="fila"><span class="p">Cómo lo calculó</span><span class="p fuerte">Siempre igual, y con su sello</span><span class="p">Escribió un programa en el momento</span><span class="p">Escribió otro distinto: difieren <span class="nb" id="llm-difiere"></span></span></div>
+      <div class="fila"><span class="p">«¿Dónde perforo?»: rehacerlo <span class="nb"><span id="llm-analisis">480</span> veces</span></span><span class="num cobre" id="llm-k-donde"></span><span class="num" id="llm-a-donde"></span><span class="p">(es una cuenta)</span></div>
+    </div>
+    <div class="bloque pie" data-paso="0" style="--d:.9s">
+      <div class="p"><b>Acierta parecido. Tarda <span class="nb" id="llm-veces">15.000 veces</span> más, y cada vez lo hace distinto.</b> Por eso Krylov usa el modelo de lenguaje para lo que hace mejor, leer el archivo y explicar la respuesta, y deja los números al motor.</div>
+    </div>
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas</h4>
+        <p class="dice">«Lo probamos. Le dimos el mismo archivo a un LLM de frontera, con herramientas y tres minutos, dos veces. Acertó parecido: no es que responda mal. Pero tardó tres minutos donde Krylov tarda milésimas, y las dos veces lo hizo distinto. Con ese tiempo no se puede preguntar dónde perforar, que exige rehacer el análisis 480 veces.»</p></div>
+      <div><h4>Fuentes y límites</h4>
+        <p class="fuente"><b>La prueba no dio lo que uno esperaría: el LLM no respondió mal.</b> 61 y 63 de 68 dentro del rango, contra 61 de Krylov. Lo que sí es cierto: 152 y 177 segundos contra 10 ms; dos programas distintos (uno kriging, el otro un promedio de vecinos, después de dos intentos que no terminaron), con estimaciones que difieren hasta 459 ppm en un lugar; y ningún sello. «Unas 20 horas» es 480 × 152 s: <b>una cuenta</b>. «15.000 veces» es 152 s ÷ 10 ms. 1,3 s es M-44. Una sola prueba, dos corridas, un archivo simulado, con el computador cargado: todo está en <code>pitch/deck/datos/prueba_llm/</code>, con su <code>LEEME.md</code>. No se dice que un LLM «no sirve»: en la app se usa, para el calce y el texto.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== M · ¿Y si falla en producción? (fuera del recorrido) ============================== -->
+  <section class="lamina pregunta" id="l-produccion" data-id="produccion" data-pasos="1" data-respaldo="1" data-tecla="m">
+    <div class="bloque cabeza" data-paso="0">
+      <div class="t2">¿Y si falla en producción? <span class="cobre">Cada respuesta trae su propio control.</span></div>
+      <div class="p">Quien lo usa no tiene que confiar a ciegas ni llamar a un especialista: lo ve en la misma pantalla, con cada archivo.</div>
+    </div>
+    <div class="bloque controles" data-paso="0" style="--d:.5s">
+      <div class="fila"><span class="t3"><span class="luces"><i class="luz verde"></i><i class="luz ambar"></i><i class="luz roja"></i></span>Semáforo</span><span class="p">Antes de responder revisa si el archivo alcanza y si se parece a lo que conoce. Si no, <b>no responde</b>, y dice por qué: <span id="prod-motivo"></span></span></div>
+      <div class="fila"><span class="t3"><span class="num" id="prod-examen">61 de 68</span>Examen</span><span class="p">Con cada archivo esconde una parte de los datos y se pone a prueba. Si un día el número baja, se ve ese mismo día, en esa respuesta.</span></div>
+      <div class="fila"><span class="t3"><span class="num" id="prod-sello">7 de 7</span>Sello</span><span class="p">Cada motor publica su ficha antes de responder un solo archivo: las pruebas que pasó, en casos nuevos y contra el método lento.</span></div>
+    </div>
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas</h4>
+        <p class="dice">«Cada respuesta trae su propio control. Un semáforo: si el archivo no alcanza o no se parece a nada que conozca, Krylov no responde y dice por qué. Y un examen: con cada archivo esconde datos y se pone a prueba; si ese número baja, se ve en el momento.»</p></div>
+      <div><h4>Fuentes y límites</h4>
+        <p class="fuente">Lo que existe hoy: el semáforo (verde, amarillo, rojo por datos, rojo por modelo), el examen de cada respuesta y el sello de cada motor. El motivo en pantalla es el que entrega la API para el archivo <code>leyes_pocos</code>. «7 de 7» son los criterios del sello del motor espacial. <b>Lo que no existe:</b> un historial ni un tablero que siga esos números en el tiempo, ni alertas; si preguntan, es hoja de ruta. Tampoco hay conexión a sensores: el demo lee archivos.</p></div>
     </div></aside>
   </section>
 
@@ -375,7 +478,9 @@
 <script src="js/vision.js"></script>
 <script src="js/terreno.js"></script>
 <script src="js/decisiones.js"></script>
+<script src="js/confianza.js"></script>
 <script src="js/cierre.js"></script>
+<script src="js/preguntas.js"></script>
 <script src="js/arquitectura.js"></script>
 <script>K.enlazarDatos(); K.arrancar();</script>
 </body>

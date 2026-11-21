@@ -194,7 +194,8 @@
   K.siguiente = function () {
     if (!K.partida) K.partida = performance.now();          // la primera pulsación: ahí empieza el pitch
     if (paso < pasosDe(actual) - 1) aplicar(paso + 1, false);
-    else if (actual < laminas.length - 1 && !laminas[actual + 1].dataset.respaldo) ir(actual + 1, 0, false);
+    // del cierre no se pasa de largo a las láminas de preguntas; entre ellas sí se avanza
+    else if (actual < laminas.length - 1 && (laminas[actual].dataset.respaldo || !laminas[actual + 1].dataset.respaldo)) ir(actual + 1, 0, false);
   };
   K.anterior = function () {
     if (paso > 0) aplicar(paso - 1, true);
@@ -205,7 +206,7 @@
   function pintarCromo() {
     const total = laminas.filter(function (l) { return !l.dataset.respaldo; }).length;
     const L = laminas[actual], dos = function (n) { return (n < 10 ? '0' : '') + n; };
-    cuenta.textContent = L.dataset.respaldo ? 'RESPALDO' : dos(actual + 1) + ' / ' + dos(total);
+    cuenta.textContent = L.dataset.respaldo ? 'PREGUNTAS · TECLA ' + (L.dataset.tecla || '0').toUpperCase() : dos(actual + 1) + ' / ' + dos(total);
     avance.style.width = (L.dataset.respaldo ? 100 : ((actual + (paso + 1) / pasosDe(actual)) / total) * 100) + '%';
     const notas = L.querySelector('aside.notas');
     panelNotas.innerHTML = notas ? notas.innerHTML : '';
@@ -248,7 +249,7 @@
     if (k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'Enter' || k === 'ArrowDown') { K.siguiente(); ev.preventDefault(); }
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace' || k === 'ArrowUp') { K.anterior(); ev.preventDefault(); }
     else if (k === 'Home') ir(0, 0, true);
-    else if (k === 'End') ir(laminas.length - 2, 0, true);
+    else if (k === 'End') ir(laminas.reduce(function (a, l, i) { return l.dataset.respaldo ? a : i; }, 0), 0, true);
     else if (/^[0-9]$/.test(k)) ir(k === '0' ? laminas.length - 1 : +k - 1, 0, false);
     else if (k === 'n' || k === 'N') document.documentElement.classList.toggle('con-notas');
     else if (k === 'p' || k === 'P') K.pausar();
@@ -257,8 +258,11 @@
       if (document.fullscreenElement) document.exitFullscreen();
       else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
     } else {
+      // las láminas de preguntas se abren con su letra (data-tecla)
+      const con = laminas.findIndex(function (l) { return l.dataset.tecla && l.dataset.tecla === k.toLowerCase(); });
       const e = actual >= 0 ? escenaDe(actual) : null;
-      if (e && e.tecla) e.tecla(k);
+      if (con >= 0) ir(con, 0, false);
+      else if (e && e.tecla) e.tecla(k);
     }
   });
 
