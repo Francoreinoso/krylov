@@ -1,0 +1,34 @@
+[project]
+name = "krylov"
+version = "0.1.0"
+description = "Krylov: inferencia basada en simulación amortizada, caso por caso (cuatro motores NPE con su MCMC de referencia)."
+requires-python = "==3.12.*"
+# Base: lo que usan los tres computadores y el servidor (512 MB). Nada de torch, zuko, jax ni numpyro aquí.
+dependencies = [
+    "numpy>=2.0",
+    "pyyaml",
+    "onnxruntime",
+    "fastapi[standard]",
+    "pandas",
+    "pytest",
+]
+
+[dependency-groups]
+# Solo PC 2 y PC 3: `uv sync --group entrenar`. Entrenar las redes (torch, zuko), exportar el
+# codificador (onnx, onnxscript) y correr el MCMC de referencia (numpyro sobre jax). Vive solo en motor/.
+entrenar = [
+    "torch",
+    "zuko",
+    "onnx",
+    "onnxscript",
+    "numpyro",
+    "jax",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["nucleo", "motor"]
+python_files = ["prueba_*.py", "test_*.py"]
