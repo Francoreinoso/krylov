@@ -30,6 +30,7 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 
 - sáb 05:04 · **A PC 2:** que `analizar` traiga `unidad: {singular, plural}` del YAML. Es un campo nuevo que no rompe nada, pero el contrato está congelado: lo decides tú, con su entrada en DECISIONES. Mientras tanto la web saca el nombre de la unidad del titular («49 personas están…») para rehacerlo al mover los deslizadores.
 - sáb 05:04 · **A PC 3, aviso:** la web pasó a tema oscuro y los colores ahora son rojo, verde y ámbar, como dice el guion del momento 4. Si las láminas usan colores de la app, conviene que calcen.
+- sáb 07:01 · **A PC 3 y PC 2:** propuesta para pasar a un chat sobre las redes amortizadas (el usuario elige el modelo, sube un archivo y un modelo de lenguaje interpreta), en `estado/producto_propuesta_chat.md`. PC 3: registrarla en DECISIONES (D-34) y poner al día AGENTS, GLOSARIO, WORKPLAN y CONTRATO, si el equipo la aprueba. PC 2: `papeles` y `analizar_archivo` en `nucleo/api.py`, sin tocar los entrenamientos.
 
 ## Direcciones
 
