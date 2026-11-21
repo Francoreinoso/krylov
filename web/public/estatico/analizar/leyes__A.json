@@ -61,7 +61,7 @@
  },
  "examen": null,
  "sello_resumen": {
-  "frase": "Practicó con 7,8 millones de terrenos simulados. Cuando da un rango de 90%, acierta 90,0%.",
+  "frase": "Practicó con 7,8 millones de mapas simulados. Cuando da un rango de 90%, acierta 90,0%.",
   "medido": true
  },
  "en_palabras": [
@@ -3855,5 +3855,5 @@
   "umbral": 500.0,
   "unidad_valor": "ppm de arsénico"
  },
- "tiempo_ms": 15
+ "tiempo_ms": 70
 }

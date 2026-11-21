@@ -6,7 +6,8 @@
   "abanico": "Rango creíble de lo que viene (9 de cada 10 futuros simulados caen aquí)",
   "limite": "Límite",
   "falta": "Faltan entre {bajo} y {alto} {unidad_tiempo}.",
-  "sin_curva": "Esta unidad no tiene curva."
+  "sin_curva": "Esta unidad no tiene curva.",
+  "fuera": "El rango sigue subiendo más allá del gráfico."
  },
  "chat": {
   "probar_archivo": "Probar con el archivo de otra faena",

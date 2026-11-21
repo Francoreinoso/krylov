@@ -8407,7 +8407,7 @@
  },
  "en_palabras": [
   "En 5 sectores, conviene cerrar, y saber más no cambiaría la decisión.",
-  "En 2 sectores los datos no alcanzan para decidir: no sabemos: seguir midiendo.",
+  "En 2 sectores los datos no alcanzan para decidir.",
   "Lo que más pesa es error de cada lectura del radar, comparado con el movimiento de fondo."
  ],
  "rotulos": {
@@ -8427,5 +8427,5 @@
  ],
  "sintetico": true,
  "origen_datos": "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina.",
- "tiempo_ms": 883
+ "tiempo_ms": 795
 }

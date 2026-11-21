@@ -1046,12 +1046,12 @@
   ]
  },
  "sello_resumen": {
-  "frase": "Practicó con 43,2 millones de plantas simulados. Cuando da un rango de 90%, acierta 90,5%.",
+  "frase": "Practicó con 43,2 millones de plantas simuladas. Cuando da un rango de 90%, acierta 90,5%.",
   "medido": true
  },
  "en_palabras": [
   "En 2 líneas, conviene ajustar, y saber más no cambiaría la decisión.",
-  "En 3 líneas los datos no alcanzan para decidir: no sabemos: esperar otra medición.",
+  "En 3 líneas los datos no alcanzan para decidir.",
   "Lo que más pesa es qué parte del cobre flota rápido."
  ],
  "rotulos": {
@@ -1071,5 +1071,5 @@
  ],
  "sintetico": true,
  "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina.",
- "tiempo_ms": 187
+ "tiempo_ms": 203
 }

@@ -52,7 +52,7 @@
    6.0
   ]
  },
- "latencia_ms": 64,
+ "latencia_ms": 38,
  "examen": {
   "tipo": "verdad_escondida",
   "n": 8,
@@ -81,7 +81,7 @@
  "mcmc_r_hat_max": null,
  "amortizacion": null,
  "fecha": "2026-11-21",
- "hora": "17:09",
+ "hora": "18:16",
  "ensayo": false,
  "limitaciones": [
   "Entre 2 y 16 líneas, cada una medida en 3 a 12 celdas",
@@ -92,7 +92,7 @@
   "Sin comparación todavía con el método lento"
  ],
  "frases": [
-  "Practicó con 43,2 millones de plantas simulados.",
+  "Practicó con 43,2 millones de plantas simuladas.",
   "Cuando da un rango de 90%, acierta 90,5%.",
   "En el caso más difícil (unidades con pocas lecturas) acierta 90,4%."
  ]
