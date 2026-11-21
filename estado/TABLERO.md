@@ -2,44 +2,37 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 05:51 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 05:53 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
-**URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
+**URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
-**⚠️ Para Rodrigo, camino crítico del H2 de las 12:15:** A-N2 (paso local y NumPyro de `supervivencia`) no avanza desde las 04:00; de ahí dependen `analizar` de rotación, la cartera y la nube con el archivo malo. PC 2 pregunta: ¿se reactiva la sesión B o la sesión A toma `supervivencia`? También es tuya la decisión de agregar `unidad` a `analizar` (pedido de PC 1).
+**⚠️ Para Rodrigo, camino crítico del H2 de las 12:15:** A-N2 (paso local y NumPyro de `supervivencia`) no avanza desde las 04:00; de ahí dependen `analizar` de rotación, la cartera y la nube con el archivo malo. PC 2 pregunta: ¿se reactiva la sesión B o la sesión A toma `supervivencia`? También es tuya la decisión de agregar `unidad` a `analizar` (pedido de PC 1; va con entrada en `DECISIONES.md`).
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟢 adelantado | P-01 a P-03 y P-N1 a P-N3 verificados en PC 3: tema oscuro, deslizadores, mapa y nube, en una pantalla de 1280×720 |
-| amortizacion (PC 2) | 🟡 bloqueo en A-N2 | A-01 a A-04, A-B1 a A-B4, A-N1, A-N3, el código de A-11 y A-12, la nube común (A-13) y parte de A-N5 en `main`; 15 pruebas de `nucleo/` pasan en PC 3. `espacial` entrena desde las 03:50 |
-| seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05, S-N1 a S-N3, S-08, S-12 y los textos de pantalla v1 hechos (D-29). `supervivencia` entrena en PC 3 desde las 04:05: 2,1 millones de datasets a las 04:46 |
-
-## La madrugada (D-31: dormir a las 05:15 ya no es obligatorio)
-
-- ✅ Dos entrenamientos corriendo con puntos de guardado: `espacial` en PC 2, `supervivencia` en PC 3. Los dos terminan solos a las 08:30.
-- ✅ URL pública con el esqueleto. ✅ Datos de rotación, terreno, crédito y el archivo malo en el repositorio. Inasistencias: solo en PC 3 (licencia no comercial); se regenera con `datos/preparar/inasistencias.py`.
-- `supervivencia` a los 83 min: cobertura 0,904 pero 15 de 32 con sesgo en el SBC; sigue hasta las 08:30. `jerarquico` (20 parámetros) y `estados` (33) listos para lanzar: PC 3 a las 08:30 y PC 2 cuando termine `espacial`.
+| producto (PC 1) | 🟢 adelantado | P-01 a P-03 y P-N1 a P-N3 verificados en PC 3: tema oscuro, deslizadores, mapa y nube en 1280×720 |
+| amortizacion (PC 2) | 🟡 bloqueo en A-N2 | `espacial` entrena desde las 03:50. `jerarquico` (20 parámetros) y `estados` (33) con código, prueba de humo y `analizar`; cartera en lote (mecánica); textos desde `casos/textos.yaml` |
+| seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05, S-N1 a S-N3, S-08, S-12 y textos v1 hechos. `supervivencia` entrena aquí: 5,1 millones de datasets a las 05:45; SBC intermedio sin pasar todavía (D-31) |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
-- **PC 1 · producto:** ahora P-07 (tecla `M` y corrección); después P-09 (pines de «¿Dónde mido?»). Dos arreglos chicos: en rojo, el pie no dice «Respondió la red»; los rótulos de los ejes de la nube, más grandes. Texto de portada y cierre (P-13) en `pitch/LAMINAS.md`. **Pedido tuyo a PC 2, copiado:** que `analizar` traiga `unidad`. Ojo: P-03 agregó `@fontsource-variable/archivo`: quien tenga la web abierta hace `npm ci` y reinicia `npm run dev`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
-- **PC 2 · amortizacion:** sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N3. Sesión B: A-N2. Las plantillas de texto están en `casos/textos.yaml` y las `etiquetas` en cada caso (D-30). `estados` espera a que `espacial` termine (08:30). `jerarquico`: su predictivo a priori calza con el archivo real (lo corrió PC 3, percentiles 30 a 64); tiene que quedar con prueba de humo para lanzarlo en PC 3 a las 08:30. **PC 1 pide** que `analizar` traiga `unidad` (campo nuevo: decídelo con entrada en DECISIONES). Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
-- **PC 3 · seguimiento:** ahora S-N4 (rondas de lectura 06:15, 07:15, 08:15); lo demás de la mañana exige a una persona o números de los motores. Para una persona en la mañana: borradores `pitch/README_borrador.md` y `pitch/descripcion_borrador.md`, y tres cifras por revisar (sección «Revisión de fuentes» de `pitch/CIFRAS.md`). Nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
+- **PC 1 · producto:** ahora P-07 (tecla `M` y corrección); después P-09 (pines de «¿Dónde mido?»). Dos arreglos chicos: en rojo, el pie no dice «Respondió la red»; ejes de la nube más grandes. Portada y cierre (P-13): texto en `pitch/LAMINAS.md`. Desde las 05:11 `codificador.onnx` es un solo archivo, con los pesos dentro.
+- **PC 2 · amortizacion:** ahora resolver A-N2 (arriba); después A-10 (código de rotación). **Una línea tuya rota por mi cambio de textos:** `nucleo/prueba_api.py:99` tiene que esperar «Cuando dijimos cerca de 30% de riesgo, se fue el 28%.». Variantes en singular en `casos/textos.yaml` (`hay_actuar_una`, `hay_en_duda_una`). Terreno con `KRYLOV_ESPACIAL_THETA=mcmc`: «qué manda» lleva «precalculado» y el pie, `precalculado.pie_espacial_mixto`.
+- **PC 3 · seguimiento:** ahora S-N4 (rondas 06:15, 07:15, 08:15); a las 08:15 S-06 y a las 08:30 S-06b (`git pull`, exportar `supervivencia` y lanzar `jerarquico`). Para una persona: los borradores `pitch/README_borrador.md` y `pitch/descripcion_borrador.md`, y tres cifras por revisar en `pitch/CIFRAS.md` («Revisión de fuentes»).
 
 ## Qué cambió respecto del plan
 
-- **D-29 (texto final de las 04:38): las horas del plan son topes, no horas de inicio, en los tres computadores.** Quien termina una tarea toma la siguiente de su lista sin esperar; lo que no tiene insumo se hace contra el ejemplo fijo y se anota. No se adelanta el MCMC ni se mide encima de un entrenamiento (`AGENTS.md`, regla 21).
-- `supervivencia` se lanzó a las 04:05 y `espacial` a las 03:50: casi una hora más de entrenamiento cada uno.
-- Guion: la versión de 3 minutos es la principal (J-04). «Escondimos a 294 personas reales» pasó a «escondimos la respuesta de 294 personas del archivo»: el archivo de rotación es ficticio (D-01).
-- D-26 ya está en todos los archivos del plan (revisado 04:47 con `git grep`: lo que nombra a `regresion` o «Sube tus datos» dice que se cortó).
+- **D-29:** las horas del plan son topes, no horas de inicio, en los tres computadores. No se adelanta el MCMC ni se mide encima de un entrenamiento (`AGENTS.md`, regla 21).
+- **D-30 y D-31:** `estados` con 33 parámetros y `jerarquico` con 20 (anotado en `WORKPLAN.md` 11.3 y 11.4); los casos traen `etiquetas`; dormir a las 05:15 ya no es obligatorio; `supervivencia` sigue hasta las 08:30.
+- Guion: la versión de 3 minutos es la principal (J-04) y, contando palabras, no cabe (176 s de habla): recorte propuesto del momento 2 en `pitch/GUION.md`.
 
 ## Próxima decisión
 
-- Quién presenta: se decide después (a más tardar en H1). El pitch dura 3 minutos.
+- Rodrigo: A-N2 y `unidad` (arriba). El equipo: quién presenta, a más tardar en H1.
 - H1, a más tardar sáb 08:45: ¿sobrevivió la noche? Criterios en `WORKPLAN.md`, sección 6.5.
 
 ## Casos en el inicio
 
-`casos/INICIO`: rotación, terreno, inasistencias, crédito. Con datos: rotación, terreno y crédito. Inasistencias: S-N1 esta noche.
+`casos/INICIO`: rotación, terreno, inasistencias, crédito. Los cuatro tienen datos (inasistencias solo en PC 3 y en PC 2, fuera del repositorio por su licencia) y el archivo malo está en el repositorio.
