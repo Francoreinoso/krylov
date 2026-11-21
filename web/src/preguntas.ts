@@ -11,22 +11,24 @@ export interface Pregunta {
   texto: string
 }
 
-// Lo que hace cada motor, en palabras de pantalla (GLOSARIO.md).
+// Lo que hace cada motor, en palabras de pantalla (GLOSARIO.md, «Qué se dice en vez de la jerga»).
 export const MOTOR_EN_PALABRAS: Record<string, string> = {
-  supervivencia: 'Cuánto tarda en pasar algo, aunque muchos casos sigan abiertos',
-  jerarquico: 'Cada unidad y cada grupo con su propia tendencia',
-  estados: 'Estados que no se ven, mes a mes',
-  espacial: 'Datos con ubicación: qué manda y dónde medir',
+  espacial: 'La roca vecina se parece',
+  deformacion: 'El muro se mueve cada vez más rápido',
+  cinetica: 'El cobre flota rápido al principio y cada vez más lento',
+  desgaste: 'El desgaste avanza a saltos y nunca retrocede',
+  sismico: 'Cada sismo sube por un rato la probabilidad del siguiente',
 }
 
-export function preguntasDe(caso: Caso): Pregunta[] {
+// `dondeMedir` es el rótulo del caso («¿Dónde perforo?»), que llega con la primera respuesta.
+export function preguntasDe(caso: Caso, dondeMedir?: string): Pregunta[] {
   const espacial = caso.motor === 'espacial'
   return [
     { intencion: 'decidir', texto: caso.titulo },
     { intencion: 'costo', texto: '¿Cuánto me cuesta no saber?' },
-    { intencion: 'que_pesa', texto: espacial ? '¿Qué manda en el terreno?' : '¿Qué pesa?' },
+    ...(espacial ? [{ intencion: 'donde_medir' as const, texto: dondeMedir ?? '¿Dónde conviene medir?' }] : []),
+    { intencion: 'que_pesa', texto: '¿Qué pesa?' },
     { intencion: 'examen', texto: '¿Qué tan bien le fue a Krylov?' },
-    ...(espacial ? [{ intencion: 'donde_medir' as const, texto: '¿Dónde mido?' }] : []),
   ]
 }
 
@@ -34,7 +36,7 @@ export const normalizar = (texto: string) =>
   texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[¿?¡!.,;:]/g, ' ')
 
 const CLAVES: [Intencion, RegExp][] = [
-  ['donde_medir', /\b(medir|mido|medicion|muestre|muestreo)/],
+  ['donde_medir', /\b(medir|mido|medicion|muestre|muestreo|perfor)/],
   ['examen', /\b(examen|acierta|acerto|confia|exact|precis|calibr)|bien le fue|que tan bien/],
   ['que_pesa', /\b(pesa|importa|factor|influye|manda|explica|por que|causa)/],
   ['costo', /\b(cuesta|cuanto vale|plata|costo|dinero|no saber|averiguar)/],

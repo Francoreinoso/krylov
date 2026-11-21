@@ -5,7 +5,8 @@ import { plata } from './titular'
 
 const DURACION_MS = 300
 
-export default function NumeroGrande({ valor, moneda }: { valor: number; moneda: string }) {
+// `tope`: el tamaño máximo en rem. La cifra va en cobre, como en la lámina 4.
+export default function NumeroGrande({ valor, moneda, tope = 4.25 }: { valor: number; moneda: string; tope?: number }) {
   const [mostrado, setMostrado] = useState(valor)
   const desde = useRef(valor)
 
@@ -30,12 +31,12 @@ export default function NumeroGrande({ valor, moneda }: { valor: number; moneda:
     return () => cancelAnimationFrame(cuadro)
   }, [valor])
 
+  // «US$ 1.577.707», con espacio después del símbolo, como en el deck.
   const texto = plata(mostrado, moneda)
-  // La cifra se achica para caber en su columna, sea cual sea el ancho de la letra del diseño.
-  const tope = texto.length > 10 ? 3 : 4.5
+  // La cifra se achica para caber en su columna. Big Shoulders es angosta: medio em por carácter.
   return (
     <div className="@container">
-      <p className="condensado leading-none font-extrabold" style={{ fontSize: `min(${tope}rem, ${(100 / (texto.length * 0.66)).toFixed(1)}cqi)` }}>
+      <p className="titular leading-[0.9] text-cobre" style={{ fontSize: `min(${tope}rem, ${(100 / (texto.length * 0.5)).toFixed(1)}cqi)` }}>
         {texto}
       </p>
     </div>

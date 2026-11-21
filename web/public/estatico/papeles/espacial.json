@@ -1,6 +1,6 @@
 {
  "motor_id": "espacial",
- "caso_base": "terreno",
+ "caso_base": "leyes",
  "papeles": [
   {
    "papel": "x",
@@ -29,5 +29,12 @@
    "texto": "Lo que se midió en ese lugar",
    "texto_largo": "Lo que se midió en ese lugar"
   }
- ]
+ ],
+ "rangos": {
+  "muestras": {
+   "minimo": 30,
+   "maximo": 400
+  },
+  "frase": "Practiqué con terrenos de 30 a 400 muestras."
+ }
 }

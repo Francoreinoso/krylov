@@ -1,0 +1,45 @@
+{
+ "caso": "leyes",
+ "motor_id": "espacial",
+ "calce": {
+  "x": {
+   "columnas": [
+    "x"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "y": {
+   "columnas": [
+    "y"
+   ],
+   "transformacion": null,
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  },
+  "valor": {
+   "columnas": [
+    "as_ppm"
+   ],
+   "transformacion": {
+    "nombre": "log"
+   },
+   "motivo": "Elegida por el equipo para este caso",
+   "confianza": "alta"
+  }
+ },
+ "columnas": [
+  "pozo",
+  "x",
+  "y",
+  "as_ppm",
+  "cu_pct"
+ ],
+ "no_usadas": [
+  "pozo",
+  "cu_pct"
+ ],
+ "origen": "equipo",
+ "precalculado": true
+}

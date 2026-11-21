@@ -2,13 +2,14 @@
 // Pide a la API; si no hay API configurada, si no responde en 1,5 s o si la URL trae
 // ?estatico=1, lee la copia precalculada de /estatico/<archivo>.json.
 
-import type { Analisis, Calce, CalcePapel, Casos, DondeMedir, Interpretacion, Nube, Papeles } from './tipos'
+import type { Analisis, Calce, CalcePapel, Casos, DondeMedir, Interpretacion, MedicionNueva, Nube, Papeles } from './tipos'
 
 const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8010' : '')
 const TOPE_MS = 1500
 const TOPE_ARCHIVO_MS = 25000 // el servidor gratuito puede estar dormido
 const TOPE_INTERPRETAR_MS = 12000 // el modelo de lenguaje escribe después de los números y no los bloquea
+const TOPE_DONDE_MEDIR_MS = 8000 // rehace cientos de análisis; en el computador del escenario tarda cerca de 1 s
 const forzarEstatico = new URLSearchParams(window.location.search).has('estatico')
 
 // Hay servidor al que preguntar: un archivo propio y una interpretación nueva lo necesitan.
@@ -28,9 +29,10 @@ export interface Respuesta<T> {
   origen: Origen
 }
 
-// Nombre del archivo estático: el caso, más `__` y cada transformación en orden.
-export function clave(caso: string, transformaciones: string[] = []): string {
-  return [caso, ...transformaciones.map((t) => t.replace(':', '-'))].join('__')
+// Nombre del archivo estático: el caso, más `__` y cada transformación y muestra nueva en orden
+// (igual que `servicio/fijos.py`).
+export function clave(caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []): string {
+  return [caso, ...transformaciones.map((t) => t.replace(':', '-')), ...mediciones.map((m) => m.etiqueta)].join('__')
 }
 
 async function desdeApi<T>(ruta: string, cuerpo?: object, topeMs = TOPE_MS, senal?: AbortSignal): Promise<T> {
@@ -53,14 +55,15 @@ async function desdeApi<T>(ruta: string, cuerpo?: object, topeMs = TOPE_MS, sena
 
 async function desdeEstatico<T>(archivo: string): Promise<T> {
   const r = await fetch(`${import.meta.env.BASE_URL}estatico/${archivo}.json`)
-  if (!r.ok) throw new Error(`No está precalculado: ${archivo}`)
+  // Sin el archivo, el servidor de desarrollo devuelve la página: tampoco está precalculado.
+  if (!r.ok || !r.headers.get('content-type')?.includes('json')) throw new Error(`no está precalculado (${archivo})`)
   return (await r.json()) as T
 }
 
-async function pedir<T>(ruta: string, archivo: string, cuerpo?: object): Promise<Respuesta<T>> {
+async function pedir<T>(ruta: string, archivo: string, cuerpo?: object, topeMs = TOPE_MS): Promise<Respuesta<T>> {
   if (API_URL && !forzarEstatico) {
     try {
-      return { datos: await desdeApi<T>(ruta, cuerpo), origen: 'api' }
+      return { datos: await desdeApi<T>(ruta, cuerpo, topeMs), origen: 'api' }
     } catch {
       // Sigue con la copia precalculada.
     }
@@ -125,10 +128,11 @@ export function despertarApi(): void {
 
 export const api = {
   casos: () => pedir<Casos>('casos', 'casos'),
-  analizar: (caso: string, transformaciones: string[] = []) =>
-    pedir<Analisis>('analizar', `analizar/${clave(caso, transformaciones)}`, {
+  analizar: (caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []) =>
+    pedir<Analisis>('analizar', `analizar/${clave(caso, transformaciones, mediciones)}`, {
       caso,
       transformaciones,
+      mediciones,
     }),
   nube: (caso: string, transformaciones: string[] = []) =>
     pedir<Nube>('nube', `nube/${clave(caso, transformaciones)}`, { caso, transformaciones }),
@@ -138,5 +142,5 @@ export const api = {
   analizarArchivo: (archivo: File, motor: string, columnas: ColumnasConfirmadas) =>
     conArchivo<Analisis>('analizar_archivo', { archivo, motor_id: motor, columnas: JSON.stringify(columnas) }),
   interpretar,
-  dondeMedir: (caso: string) => pedir<DondeMedir>('donde-medir', `donde-medir/${clave(caso)}`, { caso, mediciones: [] }),
+  dondeMedir: (caso: string) => pedir<DondeMedir>('donde-medir', `donde-medir/${clave(caso)}`, { caso, mediciones: [] }, TOPE_DONDE_MEDIR_MS),
 }

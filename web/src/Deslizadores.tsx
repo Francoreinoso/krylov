@@ -17,7 +17,7 @@ function Deslizador({ costo, valor, moneda, alCambiar }: { costo: Costo; valor: 
   const paso = Math.max(1, Math.round((costo.max - costo.min) / 200))
   return (
     <label className="block">
-      <span className="block text-sm">{costo.etiqueta}</span>
+      <span className="block text-sm leading-snug text-tinta-suave">{costo.etiqueta}</span>
       <span className="flex items-center gap-3">
         <input
         type="range"
@@ -28,7 +28,7 @@ function Deslizador({ costo, valor, moneda, alCambiar }: { costo: Costo; valor: 
         value={valor}
         onChange={(e) => alCambiar(Number(e.target.value))}
         />
-        <span className="w-24 shrink-0 text-right font-semibold">{plata(valor, moneda)}</span>
+        <span className="w-28 shrink-0 text-right font-mono text-sm whitespace-nowrap">{plata(valor, moneda)}</span>
       </span>
     </label>
   )
@@ -37,7 +37,7 @@ function Deslizador({ costo, valor, moneda, alCambiar }: { costo: Costo; valor: 
 export default function Deslizadores({ falsoSi, falsoNo, costos, moneda, alCambiar }: Props) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-tinta-suave">Supuestos. Muévelos y la respuesta cambia.</p>
+      <p className="dato">Supuestos del demo · muévelos y la respuesta cambia</p>
       <Deslizador costo={falsoSi} valor={costos.falsoSi} moneda={moneda} alCambiar={(v) => alCambiar({ ...costos, falsoSi: v })} />
       <Deslizador costo={falsoNo} valor={costos.falsoNo} moneda={moneda} alCambiar={(v) => alCambiar({ ...costos, falsoNo: v })} />
     </div>

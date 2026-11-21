@@ -1,0 +1,52 @@
+{
+ "caso": "leyes",
+ "implementacion": "red",
+ "precalculado": false,
+ "candidatas": [
+  {
+   "puesto": 1,
+   "etiqueta": "A",
+   "x": 9,
+   "y": 153,
+   "valor_de_medir": 8943,
+   "costo_medicion": 1500,
+   "valor_neto": 7443,
+   "resultados_posibles": {
+    "bajo": 206,
+    "medio": 375,
+    "alto": 683
+   }
+  },
+  {
+   "puesto": 2,
+   "etiqueta": "B",
+   "x": 39,
+   "y": 14,
+   "valor_de_medir": 8376,
+   "costo_medicion": 1500,
+   "valor_neto": 6876,
+   "resultados_posibles": {
+    "bajo": 226,
+    "medio": 392,
+    "alto": 680
+   }
+  },
+  {
+   "puesto": 3,
+   "etiqueta": "C",
+   "x": 24,
+   "y": 7,
+   "valor_de_medir": 7966,
+   "costo_medicion": 1500,
+   "valor_neto": 6466,
+   "resultados_posibles": {
+    "bajo": 223,
+    "medio": 387,
+    "alto": 674
+   }
+  }
+ ],
+ "mensaje_parada": null,
+ "analisis_rehechos": 480,
+ "tiempo_ms": 3358
+}

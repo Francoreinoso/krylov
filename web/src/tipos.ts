@@ -35,6 +35,22 @@ export interface Unidad {
   muestras_p: number[]
   estado: Estado
   duda: number
+  curva?: Curva | null
+}
+
+// D-37: lo medido de una unidad y lo que Krylov cree que viene (CONTRATO.md, sección 6).
+export interface Curva {
+  t: number[]
+  y: number[]
+  ahora: number
+  t_banda: number[]
+  bajo: number[]
+  medio: number[]
+  alto: number[]
+  limite: number | null
+  eje_t: string
+  eje_y: string
+  marca?: { texto: string; bajo: number; medio: number; alto: number } | null
 }
 
 export interface Factor {
@@ -102,7 +118,7 @@ export interface Analisis {
     propuesta: { transformacion: string; texto: string } | null
   }
   sello_resumen: { frase: string; medido: boolean }
-  rotulos: Record<Estado | 'costo_de_no_saber', string>
+  rotulos: Record<Estado | 'costo_de_no_saber', string> & { donde_medir?: string }
   en_palabras: string[]
   registro: string[]
   tiempo_ms: number
@@ -119,11 +135,22 @@ export interface Candidata {
   valor_de_medir: number
   costo_medicion: number
   valor_neto: number
+  resultados_posibles?: { bajo: number; medio: number; alto: number }
 }
 
 export interface DondeMedir {
   caso: string
   candidatas: Candidata[]
+  analisis_rehechos?: number
+  tiempo_ms?: number
+}
+
+// Una muestra simulada en un pin de «¿Dónde perforo?».
+export interface MedicionNueva {
+  x: number
+  y: number
+  valor: number
+  etiqueta: string
 }
 
 // D-34 y D-35: los papeles de columna de cada motor y el calce de un archivo.

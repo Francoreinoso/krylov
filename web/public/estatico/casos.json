@@ -1,43 +1,53 @@
 {
  "casos": [
   {
-   "nombre": "rotacion",
-   "titulo": "¿A quién conviene retener?",
-   "empresa_o_industria": "Caso tipo Buk",
-   "sponsor": "Buk",
-   "motor": "supervivencia",
-   "sintetico": false,
-   "origen_datos": "Datos públicos de ejemplo, ficticios, creados por IBM. No son datos de Buk.",
-   "tiene_cartera": true
-  },
-  {
-   "nombre": "terreno",
-   "titulo": "¿Dónde limpio y dónde mido?",
-   "empresa_o_industria": "Terreno",
+   "nombre": "leyes",
+   "titulo": "¿Este bloque va a la planta o se aparta?",
+   "empresa_o_industria": "Leyes y arsénico · rajo abierto",
    "sponsor": null,
    "motor": "espacial",
-   "sintetico": false,
-   "origen_datos": "Datos públicos reales: 155 muestras de metales en un suelo junto al río Mosa, Países Bajos.",
+   "sintetico": true,
+   "origen_datos": "Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina.",
    "tiene_cartera": false
   },
   {
-   "nombre": "inasistencias",
-   "titulo": "¿Qué citas conviene confirmar?",
-   "empresa_o_industria": "Caso tipo AgendaPro",
-   "sponsor": "AgendaPro",
-   "motor": "jerarquico",
-   "sintetico": false,
-   "origen_datos": "Datos públicos reales: 110.527 citas médicas en Brasil (Kaggle, CC BY-NC-SA 4.0). No son datos de AgendaPro.",
-   "tiene_cartera": false
-  },
-  {
-   "nombre": "credito",
-   "titulo": "¿A quién le apruebo el crédito?",
-   "empresa_o_industria": "Crédito",
+   "nombre": "taludes",
+   "titulo": "¿Es ruido o el muro va a ceder?",
+   "empresa_o_industria": "Taludes y relaves · radar",
    "sponsor": null,
-   "motor": "estados",
-   "sintetico": false,
-   "origen_datos": "Datos públicos reales: clientes de tarjetas de crédito en Taiwán (UCI, CC BY 4.0).",
+   "motor": "deformacion",
+   "sintetico": true,
+   "origen_datos": "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina.",
+   "tiene_cartera": false
+  },
+  {
+   "nombre": "flotacion",
+   "titulo": "¿Se me está yendo cobre al relave?",
+   "empresa_o_industria": "Flotación · planta",
+   "sponsor": null,
+   "motor": "cinetica",
+   "sintetico": true,
+   "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina.",
+   "tiene_cartera": false
+  },
+  {
+   "nombre": "flota",
+   "titulo": "¿Qué camión paro antes de que falle?",
+   "empresa_o_industria": "Flota de camiones · mantención",
+   "sponsor": null,
+   "motor": "desgaste",
+   "sintetico": true,
+   "origen_datos": "Flota simulada: 40 camiones con sus muestras de aceite. No son datos de ninguna mina.",
+   "tiene_cartera": false
+  },
+  {
+   "nombre": "sismicidad",
+   "titulo": "¿Puede volver a entrar la gente?",
+   "empresa_o_industria": "Sismicidad · mina subterránea",
+   "sponsor": null,
+   "motor": "sismico",
+   "sintetico": true,
+   "origen_datos": "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina.",
    "tiene_cartera": false
   }
  ]

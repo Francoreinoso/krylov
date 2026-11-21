@@ -1,0 +1,58 @@
+{
+ "caso": "leyes_pocos",
+ "motor_id": "espacial",
+ "implementacion": "red",
+ "precalculado": false,
+ "titular": "No respondo todavía: con estos datos no alcanza.",
+ "costo_de_no_saber": null,
+ "costos": {
+  "falso_si": {
+   "valor": 9000,
+   "min": 2000,
+   "max": 40000,
+   "etiqueta": "Costo de apartar un bloque que podía ir a la planta"
+  },
+  "falso_no": {
+   "valor": 30000,
+   "min": 5000,
+   "max": 150000,
+   "etiqueta": "Costo de mandar a la planta un bloque con demasiado arsénico"
+  },
+  "medicion": {
+   "valor": 1500,
+   "etiqueta": "Costo de una muestra más (perforar y analizar)"
+  }
+ },
+ "punto_de_corte": 0.231,
+ "unidades": null,
+ "resumen_colores": null,
+ "factores": null,
+ "columnas": null,
+ "semaforo": {
+  "estado": "rojo_datos",
+  "motivo": "Hay 12 mediciones y hacen falta al menos 30.",
+  "propuesta": null
+ },
+ "examen": null,
+ "sello_resumen": {
+  "frase": "",
+  "medido": false
+ },
+ "en_palabras": [],
+ "rotulos": {
+  "actuar": "Conviene apartar",
+  "no_actuar": "Puede ir a la planta",
+  "en_duda": "No sabemos: conviene muestrear",
+  "costo_de_no_saber": "Lo que te cuesta no saber",
+  "donde_medir": "¿Dónde perforo?"
+ },
+ "unidad": {
+  "singular": "bloque",
+  "plural": "bloques"
+ },
+ "registro": [],
+ "sintetico": true,
+ "origen_datos": "Banco de tronadura simulado, con solo 12 de sus 340 pozos. No son datos de ninguna mina.",
+ "mapa": null,
+ "tiempo_ms": 6
+}

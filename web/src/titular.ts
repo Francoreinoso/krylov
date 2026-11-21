@@ -22,6 +22,8 @@ export function titular(enDuda: number, unidad: string, total: number, moneda: s
   return `${enDuda} ${unidad} ${verbo} en duda. No saber te cuesta cerca de ${enPlata(total, moneda)}.`
 }
 
-// Plata en cifras para la pantalla: «US$7.420».
+// Plata en cifras para la pantalla: «US$ 7.420», con espacio, como en el deck.
 export const plata = (valor: number, moneda: string) =>
-  new Intl.NumberFormat('es-CL', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(valor)
+  new Intl.NumberFormat('es-CL', { style: 'currency', currency: moneda, maximumFractionDigits: 0 })
+    .format(valor)
+    .replace(/^(US\$|\$)\s?/, '$1 ')

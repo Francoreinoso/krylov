@@ -1,34 +1,115 @@
 @import "tailwindcss";
 
-/* Diseño Estudio: claro, de asistente. */
-@theme {
-  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Roboto, "Helvetica Neue", sans-serif;
+/* La cara del deck (pitch/deck/deck.css): basalto, curvas topográficas, cobre, óxido de cobre y oro.
+   Titulares en Big Shoulders Display, texto en Instrument Sans, datos en JetBrains Mono.
+   Cuatro diseños para comparar en local (disenos.ts); cada uno redefine estos tokens. */
 
-  --color-fondo: #ffffff;
-  --color-superficie: #f4f4f7;
-  --color-linea: #e5e5ec;
-  --color-tinta: #1a1b25;
-  --color-tinta-suave: #6b6d80;
-  --color-actuar: #d93f3f;
-  --color-en-duda: #e0a100;
-  --color-no-actuar: #1f9d61;
-  --color-acento: #5b5bd6;
-  --color-sobre-acento: #ffffff;
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fuentes/big-shoulders-display-latin-ext-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(/fuentes/big-shoulders-display-latin-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url(/fuentes/instrument-sans-latin-ext-standard-normal.woff2) format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url(/fuentes/instrument-sans-latin-standard-normal.woff2) format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(/fuentes/jetbrains-mono-latin-wght-normal.woff2) format("woff2-variations");
 }
 
-/* Tokens que no generan utilidades: radio de la caja del chat, sombra, fuente de los titulares,
-   el degradado del saludo y el color de las rayas del achurado (lo lee también el canvas). */
+@theme {
+  --font-sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-titular: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+  --color-fondo: #0b0a09;
+  --color-superficie: #14120f;
+  --color-linea: #2d2924;
+  --color-tinta: #f4efe6;
+  --color-tinta-suave: #b9b0a1;
+  --color-tenue: #8a8274;
+  --color-cobre: #e2854a;
+  --color-oxido: #36c2ae;
+  --color-oro: #eec25a;
+  --color-actuar: #e4603c;
+  --color-en-duda: #eec25a;
+  --color-no-actuar: #1fa87a;
+  --color-acento: #e2854a;
+  --color-sobre-acento: #0b0a09;
+}
+
+/* Tokens que no generan utilidades. --color-trama: las rayas de la duda (lo lee también el canvas).
+   --color-curva: las curvas de nivel del fondo. --abanico: el relleno del abanico de cada curva. */
 :root {
-  --radio-caja: 28px;
-  --sombra: 0 1px 2px #1a1b2512, 0 6px 24px #1a1b250d;
-  --fuente-titular: var(--font-sans);
-  --color-trama: #ffffff80;
-  --degradado: linear-gradient(100deg, #5b5bd6 0%, #9a5fd8 45%, #e0844a 100%);
+  --radio-caja: 2px;
+  --sombra: none;
+  --color-trama: #0b0a09b3;
+  --color-curva: #f4efe60f;
+  --abanico: #e2854a;
+  color-scheme: dark;
+}
+
+/* Mesa: los dos paneles del respaldo técnico, «Antes» en cobre y «En vivo» en óxido. */
+[data-diseno="mesa"] {
+  --color-fondo: #0d0c0a;
+  --color-superficie: #17140f;
+  --color-curva: #f4efe60a;
+}
+
+/* Lámina: el escenario negro del deck, todo más grande. */
+[data-diseno="lamina"] {
+  --color-fondo: #070605;
+  --color-superficie: #12100d;
+  --color-linea: #2a2520;
+  --color-curva: #f4efe608;
+}
+
+/* Óxido: el panel «En vivo». Turquesa de acento; el cobre queda solo para lo que cuesta no saber. */
+[data-diseno="oxido"] {
+  --color-fondo: #070d0c;
+  --color-superficie: #0d1716;
+  --color-linea: #1d302d;
+  --color-tinta: #eef3f1;
+  --color-tinta-suave: #a5b7b3;
+  --color-tenue: #71857f;
+  --color-acento: #36c2ae;
+  --color-sobre-acento: #04110f;
+  --color-trama: #070d0cb3;
+  --color-curva: #36c2ae10;
+  --abanico: #36c2ae;
 }
 
 html {
-  font-size: 18px;
-  color-scheme: light;
+  font-size: 17px;
 }
 
 body {
@@ -36,9 +117,25 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Titulares y número grande. */
-.condensado {
-  font-family: var(--fuente-titular);
+/* En la capa de componentes: así un color de Tailwind (text-oxido) le gana al de .dato. */
+@layer components {
+/* Titulares y cifras: Big Shoulders, apretado y en bloque. */
+.titular {
+  font-family: var(--font-titular);
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+/* Rótulo de dato, como el pie de las láminas: mono, versalitas tenues. */
+.dato {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-tenue);
 }
 
 /* La duda se ve como trama, no solo como color. */
@@ -46,13 +143,22 @@ body {
   background-color: var(--color-en-duda);
   background-image: repeating-linear-gradient(-45deg, transparent 0 3px, var(--color-trama) 3px 5px);
 }
+}
 
 .desliza-lista {
   scrollbar-width: thin;
   scrollbar-color: var(--color-linea) transparent;
 }
 
-/* Deslizador de costos */
+@layer components {
+/* Panel rectangular de borde fino, como los dos cronómetros de la lámina 2. */
+.panel {
+  border: 1px solid var(--color-linea);
+  background: color-mix(in srgb, var(--color-superficie) 70%, transparent);
+}
+}
+
+/* Deslizador de costos: riel fino, pulgar de cobre. */
 .deslizador {
   appearance: none;
   width: 100%;
@@ -61,43 +167,32 @@ body {
   cursor: pointer;
 }
 .deslizador::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 2px;
+  height: 2px;
   background: var(--color-linea);
 }
 .deslizador::-moz-range-track {
-  height: 4px;
-  border-radius: 2px;
+  height: 2px;
   background: var(--color-linea);
 }
 .deslizador::-webkit-slider-thumb {
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 6px;
+  height: 20px;
   margin-top: -9px;
-  border-radius: 50%;
-  background: var(--color-tinta);
-  border: 4px solid var(--color-fondo);
-  box-shadow: 0 0 0 2px var(--color-tinta);
+  border-radius: 0;
+  background: var(--color-cobre);
 }
 .deslizador::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--color-tinta);
-  border: 4px solid var(--color-fondo);
-  box-shadow: 0 0 0 2px var(--color-tinta);
+  width: 6px;
+  height: 20px;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-cobre);
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-en-duda);
+  outline: 2px solid var(--color-oro);
   outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
 }
 
 /* La caja del chat marca el foco en su borde, no en el campo. */
@@ -105,15 +200,7 @@ body {
   outline: none;
 }
 
-/* Saludo del inicio en degradado. */
-.texto-degradado {
-  background: var(--degradado);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* «Calculando…»: un brillo que recorre el texto. */
+/* «Calculando…»: un brillo de cobre que recorre el texto. */
 @keyframes brillo {
   from {
     background-position: 100% 0;
@@ -123,7 +210,7 @@ body {
   }
 }
 .brillo {
-  background: linear-gradient(90deg, var(--color-tinta-suave) 0%, var(--color-tinta-suave) 40%, var(--color-tinta) 50%, var(--color-tinta-suave) 60%, var(--color-tinta-suave) 100%);
+  background: linear-gradient(90deg, var(--color-tenue) 0%, var(--color-tenue) 40%, var(--color-cobre) 50%, var(--color-tenue) 60%, var(--color-tenue) 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -131,20 +218,30 @@ body {
   animation: brillo 1.6s linear infinite;
 }
 
-/* Lo que llega después del titular aparece suave. */
+/* Lo que llega después del titular sube y se enfoca, como los pasos del deck. */
 @keyframes aparecer {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px);
+    filter: blur(4px);
   }
 }
 .aparecer {
-  animation: aparecer 0.35s ease-out both;
+  animation: aparecer 0.55s cubic-bezier(0.16, 0.8, 0.2, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
   .brillo,
   .aparecer {
     animation: none;
   }
+}
+
+/* Las vistas de antes (Respuesta en pantalla completa, VistaClasica) usan este nombre. */
+.condensado {
+  font-family: var(--font-titular);
+  font-weight: 800;
 }

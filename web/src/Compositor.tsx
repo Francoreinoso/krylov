@@ -21,6 +21,7 @@ interface Props {
   alAdjuntar: () => void
   alQuitarAdjunto: () => void
   alElegirCaso: (c: Caso) => void
+  comando?: boolean // la barra de comando del diseño Lámina
 }
 
 export default function Compositor(p: Props) {
@@ -37,7 +38,7 @@ export default function Compositor(p: Props) {
 
   return (
     <form
-      className="compositor rounded-(--radio-caja) border border-linea bg-fondo shadow-(--sombra) transition-colors focus-within:border-tinta-suave/50"
+      className={`compositor relative border bg-superficie/90 backdrop-blur transition-colors focus-within:border-acento/70 ${p.comando ? 'border-linea font-mono text-sm' : 'border-linea'}`}
       onSubmit={(e) => {
         e.preventDefault()
         p.alEnviar()
@@ -48,6 +49,7 @@ export default function Compositor(p: Props) {
           <TarjetaArchivo info={p.adjunto} alQuitar={p.alQuitarAdjunto} />
         </div>
       )}
+      {p.comando && <span className="pointer-events-none absolute mt-4 ml-4 text-cobre">›</span>}
       <textarea
         ref={campo}
         rows={1}
@@ -61,7 +63,7 @@ export default function Compositor(p: Props) {
           }
         }}
         placeholder={p.placeholder}
-        className="block w-full resize-none bg-transparent px-5 pt-4 pb-1 leading-relaxed outline-none placeholder:text-tinta-suave/80"
+        className={`block w-full resize-none bg-transparent pt-4 pb-1 leading-relaxed outline-none placeholder:text-tenue ${p.comando ? 'pr-5 pl-9' : 'px-5'}`}
       />
       <div className="flex items-center gap-1 px-2.5 pb-2.5">
         <button
@@ -69,7 +71,7 @@ export default function Compositor(p: Props) {
           onClick={p.alAdjuntar}
           title="Adjuntar un CSV"
           aria-label="Adjuntar un CSV"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-tinta-suave hover:bg-superficie hover:text-tinta"
+          className="flex h-9 w-9 items-center justify-center text-tinta-suave hover:bg-linea/50 hover:text-tinta"
         >
           <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
             <path d="M10 4v12M4 10h12" />
@@ -81,7 +83,7 @@ export default function Compositor(p: Props) {
           type="submit"
           disabled={vacio || p.ocupado}
           aria-label="Enviar"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-tinta text-fondo transition-colors disabled:bg-linea disabled:text-tinta-suave"
+          className="flex h-9 w-9 items-center justify-center bg-acento text-sobre-acento transition-colors disabled:bg-linea disabled:text-tenue"
         >
           <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M10 16V4M5 9l5-5 5 5" />

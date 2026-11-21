@@ -8,7 +8,7 @@ const pct = (p: number) => `${Math.round(p * 100)}%`
 export default function Examen({ examen }: { examen: DatosExamen }) {
   return (
     <div>
-      <h2 className="text-xl font-semibold">El examen</h2>
+      <h2 className="titular text-3xl">El examen</h2>
       <p className="mt-2 text-sm">{examen.frase}</p>
       {examen.tramos.length > 1 && (
         <ul className="mt-3 space-y-1.5 text-xs text-tinta-suave">

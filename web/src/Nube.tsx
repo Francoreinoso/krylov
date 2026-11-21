@@ -67,7 +67,7 @@ export default function Nube({ nube }: { nube: DatosNube }) {
 
   return (
     <figure className="flex min-h-0 flex-col">
-      <h2 className="text-xl font-semibold">
+      <h2 className="titular text-3xl">
         {archivo.dentro ? 'Se parece a lo que practicó' : 'No se parece a nada que haya visto'}
       </h2>
       <p className="text-sm text-tinta-suave">

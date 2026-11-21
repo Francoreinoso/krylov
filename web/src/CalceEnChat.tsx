@@ -70,7 +70,7 @@ export default function CalceEnChat({
   }
 
   return (
-    <div className="aparecer rounded-2xl border border-linea p-4">
+    <div className="aparecer rounded-[2px] border border-linea p-4">
       <p className="text-sm text-tinta-suave">
         {origen(calce)}
         {calce.precalculado && ' · precalculado'}
@@ -90,7 +90,7 @@ export default function CalceEnChat({
                     value={columna}
                     onChange={(e) => cambiar(p.papel, i, e.target.value)}
                     aria-label={`${p.texto}, columna ${i + 1}`}
-                    className="max-w-full rounded-lg border border-linea bg-fondo px-2 py-1 font-mono text-sm"
+                    className="max-w-full rounded-[2px] border border-linea bg-fondo px-2 py-1 font-mono text-sm"
                   >
                     {(p.minimo < p.maximo || columna === VACIA) && <option value={VACIA}>(ninguna)</option>}
                     {calce.columnas.map((c) => (
@@ -101,7 +101,7 @@ export default function CalceEnChat({
                   </select>
                 ) : (
                   columna !== VACIA && (
-                    <span key={i} className="rounded-lg bg-superficie px-2 py-1 font-mono text-sm">
+                    <span key={i} className="rounded-[2px] bg-superficie px-2 py-1 font-mono text-sm">
                       {columna}
                     </span>
                   )
@@ -122,7 +122,7 @@ export default function CalceEnChat({
       )}
       <button
         onClick={() => alConfirmar(asignacion)}
-        className="mt-4 rounded-full bg-acento px-5 py-2 text-sm font-medium text-sobre-acento hover:opacity-90"
+        className="mt-4 bg-acento px-5 py-2 text-sm font-medium text-sobre-acento hover:opacity-90"
       >
         Confirmar y analizar
       </button>

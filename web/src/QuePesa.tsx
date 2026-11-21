@@ -18,7 +18,7 @@ interface Props {
 export default function QuePesa({ factores, titulo, flechas }: Props) {
   return (
     <div>
-      <h2 className="text-xl font-semibold">{titulo}</h2>
+      <h2 className="titular text-3xl">{titulo}</h2>
       <ul className="mt-2">
         {factores.map((f) => (
           <li

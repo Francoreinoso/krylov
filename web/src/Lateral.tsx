@@ -1,7 +1,8 @@
-// La barra lateral: nuevo análisis, los modelos y las conversaciones de esta sesión (solo en memoria).
+// La barra lateral: nuevo análisis, las cinco decisiones con su dibujo y quién responde, y las
+// conversaciones de esta sesión (solo en memoria).
 
-import Marca from './Marca'
-import { lineaDelCaso } from './textos'
+import Decisiones, { type Quien } from './Decisiones'
+import Marca, { Logotipo } from './Marca'
 import type { Caso } from './tipos'
 
 export interface Reciente {
@@ -11,64 +12,56 @@ export interface Reciente {
 
 interface Props {
   casos: Caso[]
+  quien: Record<string, Quien>
+  activo: string | null
   recientes: Reciente[]
   activa: number
   alNuevo: () => void
   alElegirModelo: (c: Caso) => void
   alAbrir: (id: number) => void
-  alCerrar: () => void
+  alCerrar?: () => void
 }
 
 export function IconoLateral() {
   return (
-    <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-      <rect x="3" y="4" width="14" height="12" rx="2.5" />
+    <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <rect x="3" y="4" width="14" height="12" />
       <path d="M8 4v12" />
     </svg>
   )
 }
 
-export default function Lateral({ casos, recientes, activa, alNuevo, alElegirModelo, alAbrir, alCerrar }: Props) {
-  const fila = 'block w-full truncate rounded-xl px-3 py-2 text-left text-sm hover:bg-linea/60'
+export default function Lateral({ casos, quien, activo, recientes, activa, alNuevo, alElegirModelo, alAbrir, alCerrar }: Props) {
+  const fila = 'block w-full truncate px-3 py-2 text-left text-sm hover:bg-linea/40'
   return (
-    <aside className="flex h-full w-72 flex-col bg-superficie px-3 py-3">
-      <div className="flex items-center justify-between px-1">
-        <span className="flex items-center gap-2.5 text-lg font-semibold">
+    <aside className="flex h-full w-80 flex-col border-r border-linea bg-superficie/95 px-3 py-4 backdrop-blur">
+      <div className="flex items-center justify-between px-2">
+        <button onClick={alNuevo} className="flex items-center gap-2.5">
           <Marca />
-          Krylov
-        </span>
-        <button onClick={alCerrar} title="Cerrar la barra" aria-label="Cerrar la barra" className="rounded-lg p-1.5 text-tinta-suave hover:bg-linea/60 hover:text-tinta">
-          <IconoLateral />
+          <Logotipo className="text-xl" />
         </button>
+        {alCerrar && (
+          <button onClick={alCerrar} title="Cerrar la barra" aria-label="Cerrar la barra" className="p-1.5 text-tinta-suave hover:bg-linea/60 hover:text-tinta">
+            <IconoLateral />
+          </button>
+        )}
       </div>
 
-      <button onClick={alNuevo} className="mt-4 flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium hover:bg-linea/60">
-        <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
-          <path d="M14 3.5l2.5 2.5L8 14.5l-3.5 1 1-3.5z" />
-        </svg>
-        Nuevo análisis
+      <button onClick={alNuevo} className="mx-2 mt-5 border border-linea px-3 py-2 text-left text-sm hover:border-acento">
+        + Nuevo análisis
       </button>
 
-      <nav className="desliza-lista mt-5 min-h-0 flex-1 overflow-y-auto">
-        <p className="px-3 pb-1 text-xs font-medium text-tinta-suave">Modelos</p>
-        <ul>
-          {casos.map((c) => (
-            <li key={c.nombre}>
-              <button onClick={() => alElegirModelo(c)} className={fila} title={c.titulo}>
-                {c.titulo}
-                <span className="block truncate text-xs text-tinta-suave">{lineaDelCaso(c)}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      <nav className="desliza-lista mt-6 min-h-0 flex-1 overflow-y-auto">
+        <p className="dato px-2 pb-2">Decisiones de la mina</p>
+        <Decisiones casos={casos} quien={quien} activo={activo} alElegir={alElegirModelo} forma="lista" />
 
         {recientes.length > 0 && (
           <>
-            <p className="mt-5 px-3 pb-1 text-xs font-medium text-tinta-suave">Esta sesión</p>
+            <p className="dato mt-6 px-2 pb-1">Esta sesión</p>
             <ul>
               {recientes.map((r) => (
                 <li key={r.id}>
-                  <button onClick={() => alAbrir(r.id)} className={`${fila} ${r.id === activa ? 'bg-linea/70 font-medium' : ''}`}>
+                  <button onClick={() => alAbrir(r.id)} className={`${fila} ${r.id === activa ? 'bg-linea/50 text-tinta' : 'text-tinta-suave'}`}>
                     {r.titulo}
                   </button>
                 </li>
@@ -78,9 +71,7 @@ export default function Lateral({ casos, recientes, activa, alNuevo, alElegirMod
         )}
       </nav>
 
-      <a href={`/clasico${window.location.search}`} className="mt-2 rounded-xl px-3 py-2 text-sm text-tinta-suave hover:bg-linea/60 hover:text-tinta">
-        Vista clásica ↗
-      </a>
+      <p className="dato px-2 pt-3">Datos simulados · los costos son supuestos</p>
     </aside>
   )
 }

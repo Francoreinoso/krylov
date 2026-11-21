@@ -34,8 +34,10 @@ export function useDecision(analisis: Analisis): Recalculo {
     const bloques =
       analisis.mapa?.p.map((p) => (p === null ? null : decidirEspacial(p, falsoSi, falsoNo))) ?? null
     const decisiones = unidades ?? bloques?.filter((b): b is Decision => b !== null) ?? null
-    const resumen = decisiones ? resumenColores(decisiones.map((d) => d.estado)) : null
     const sinCambios = falsoSi === analisis.costos.falso_si.valor && falsoNo === analisis.costos.falso_no.valor
+    // Con los costos del caso, los conteos del motor (los mismos del titular); al moverlos, los del navegador.
+    const resumen =
+      sinCambios && analisis.resumen_colores ? analisis.resumen_colores : decisiones ? resumenColores(decisiones.map((d) => d.estado)) : null
     // Con los costos del caso manda el número del motor (usa todo el rango creíble; aquí solo llegan 32 versiones).
     const total =
       sinCambios && analisis.costo_de_no_saber

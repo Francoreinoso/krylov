@@ -13,7 +13,7 @@ export default function Inicio({ casos, alElegir }: Props) {
   return (
     <section className="max-w-4xl">
       <p className="max-w-[40ch] text-xl text-tinta-suave">
-        Sabe cuánto no sabe, y te dice cuánto vale averiguarlo.
+        Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide.
       </p>
       <h1 className="condensado mt-4 text-5xl font-bold">¿Qué quieres saber?</h1>
       <ul className="mt-5 border-t border-linea">

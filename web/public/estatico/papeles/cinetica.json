@@ -1,0 +1,44 @@
+{
+ "motor_id": "cinetica",
+ "caso_base": "flotacion",
+ "papeles": [
+  {
+   "papel": "unidad",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "texto",
+   "texto": "La línea de flotación",
+   "texto_largo": "A qué línea de la planta pertenece cada medición."
+  },
+  {
+   "papel": "tiempo",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "numero",
+   "texto": "Minutos en la línea",
+   "texto_largo": "Cuántos minutos lleva la pulpa en la línea al salir de la celda donde se midió."
+  },
+  {
+   "papel": "valor",
+   "cantidad": 1,
+   "minimo": 1,
+   "maximo": 1,
+   "tipo": "numero",
+   "texto": "Cobre recuperado, de 0 a 1",
+   "texto_largo": "Qué parte del cobre que entró ya se recuperó a la salida de esa celda, entre 0 y 1."
+  }
+ ],
+ "rangos": {
+  "unidades": {
+   "minimo": 2,
+   "maximo": 16
+  },
+  "lecturas_por_unidad": {
+   "minimo": 3,
+   "maximo": 12
+  },
+  "frase": "Practiqué con plantas de 2 a 16 líneas, cada una medida en 3 a 12 celdas."
+ }
+}

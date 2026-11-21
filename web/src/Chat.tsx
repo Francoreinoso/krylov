@@ -1,21 +1,30 @@
-// Inicio tipo chat (D-34). Las preguntas son plantillas (preguntas.ts) y cada respuesta sale del JSON
-// del motor. Antes de la primera respuesta se confirma el calce de columnas (D-35): el del equipo en
-// un archivo del demo; en un archivo propio, el que propone el servidor, que después lo analiza con
-// la red del motor. Un archivo propio exige el servidor: sin él, el chat lo dice.
+// Inicio tipo chat (D-34) con la cara del deck. Las preguntas son plantillas (preguntas.ts) y cada
+// respuesta sale del JSON del motor. Antes de la primera respuesta se confirma el calce de columnas
+// (D-35): el del equipo en un archivo del demo; en un archivo propio, el que propone el servidor.
+// Un archivo propio exige el servidor: sin él, el chat lo dice.
+//
+// Cuatro disposiciones para comparar (disenos.ts): Carta (una columna), Mesa (chat y lienzo),
+// Lámina (cada respuesta como una lámina) y Óxido (las cinco decisiones siempre a la vista).
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { api, despertarApi, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { api, clave as claveEstatica, despertarApi, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
 import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
+import Decisiones, { type Quien } from './Decisiones'
+import { useDiseno } from './disenos'
 import Lateral, { IconoLateral } from './Lateral'
-import Marca from './Marca'
+import Marca, { Logotipo } from './Marca'
+import Mesa from './Mesa'
+import Particulas from './Particulas'
 import { elegirCaso, interpretar, MOTOR_EN_PALABRAS, preguntasDe, type Intencion } from './preguntas'
 import Respuesta from './Respuesta'
 import RespuestaEnChat, { type DatosRespuesta } from './RespuestaEnChat'
+import SelectorDiseno from './SelectorDiseno'
 import TarjetaArchivo from './TarjetaArchivo'
-import { lineaDelCaso } from './textos'
-import type { Calce, Caso, Papel } from './tipos'
+import { lineaDelCaso, rotuloQuien } from './textos'
+import type { Calce, Candidata, Caso, MedicionNueva, Papel } from './tipos'
+import Topografia from './Topografia'
 
 type Contenido =
   | { de: 'tu'; texto: string; adjunto?: InfoCsv }
@@ -35,12 +44,26 @@ interface Conversacion {
   mensajes: Mensaje[]
 }
 
-const FRASE = 'Sé cuánto no sé, y te digo cuánto vale averiguarlo.'
+type Nueva = Omit<DatosRespuesta, 'completa' | 'nuevas' | 'perforacion' | 'antes'> & Partial<Pick<DatosRespuesta, 'nuevas' | 'perforacion' | 'antes'>>
+
+const FRASE = 'Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide.'
 const SIN_SERVIDOR =
   'Para analizar un archivo propio necesito el servidor, y no responde ahora. Puedo responder con el archivo del demo: quita el adjunto y pregunta de nuevo.'
 const OTRAS_COLUMNAS =
   'En el archivo del demo respondo con las columnas que eligió el equipo. Para probar otras, súbelo como archivo propio.'
 const ESCRITORIO = '(min-width: 1024px)'
+const ARCHIVO_QUE_NO_ALCANZA = 'leyes_pocos' // tecla M: el mismo banco con 12 pozos
+
+// Escritorio o teléfono, al día con el tamaño de la ventana.
+const consulta = window.matchMedia(ESCRITORIO)
+const useEscritorio = () =>
+  useSyncExternalStore(
+    (avisar) => {
+      consulta.addEventListener('change', avisar)
+      return () => consulta.removeEventListener('change', avisar)
+    },
+    () => consulta.matches,
+  )
 
 let siguienteId = 0
 const nueva = (caso: Caso | null = null): Conversacion => ({
@@ -59,7 +82,12 @@ const tituloDe = (c: Conversacion) => {
 }
 
 export default function Chat() {
+  const { id: disposicion } = useDiseno()
+  const enEscritorio = useEscritorio()
+  // En Óxido la barra queda siempre a la vista en escritorio; en los demás se abre con su botón.
+  const fijaYVisible = disposicion === 'oxido' && enEscritorio
   const [casos, setCasos] = useState<Caso[]>([])
+  const [quien, setQuien] = useState<Record<string, Quien>>({})
   const [estado, setEstado] = useState(() => {
     const c = nueva()
     return { conversaciones: [c], activa: c.id }
@@ -70,11 +98,14 @@ export default function Chat() {
   const [arrastrando, setArrastrando] = useState(false)
   const [completa, setCompleta] = useState<DatosRespuesta | null>(null)
   const [origen, setOrigen] = useState<Origen | null>(null)
-  const [lateral, setLateral] = useState(() => window.matchMedia(ESCRITORIO).matches)
+  const [abierta, setLateral] = useState(false)
+  const [enPanel, setEnPanel] = useState<number | null>(null) // Mesa: la respuesta que muestra el lienzo
   const ultimaPregunta = useRef<HTMLLIElement>(null)
   const selectorArchivo = useRef<HTMLInputElement>(null)
 
   const conv = estado.conversaciones.find((c) => c.id === estado.activa)!
+  const lateral = abierta || fijaYVisible
+  const escritorio = () => window.matchMedia(ESCRITORIO).matches
 
   useEffect(() => {
     despertarApi()
@@ -83,18 +114,24 @@ export default function Chat() {
       .then((r) => {
         setCasos(r.datos.casos)
         setOrigen(r.origen)
+        // Quién responde cada tarjeta hoy: red, precalculado o ejemplo.
+        for (const c of r.datos.casos) {
+          api
+            .analizar(c.nombre)
+            .then((a) => setQuien((q) => ({ ...q, [c.nombre]: rotuloQuien(a.datos) })))
+            .catch(() => {})
+        }
       })
       .catch(() => setOrigen('estatico'))
   }, [])
 
-  // Como en los chats conocidos: la última pregunta (o el calce recién confirmado) sube al borde de
-  // arriba y la respuesta llega debajo.
+  // Como en los chats conocidos: la última pregunta sube al borde de arriba y la respuesta llega debajo.
   useEffect(() => {
     ultimaPregunta.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
   }, [conv.mensajes.length, conv.id])
 
   const cerrarLateralEnTelefono = () => {
-    if (!window.matchMedia(ESCRITORIO).matches) setLateral(false)
+    if (!escritorio()) setLateral(false)
   }
 
   const modificar = (id: number, cambio: (c: Conversacion) => Conversacion) =>
@@ -107,11 +144,15 @@ export default function Chat() {
     }))
 
   // La primera respuesta de una conversación trae todos los paneles; las siguientes, el que se pidió.
-  const decirRespuesta = (id: number, datos: Omit<DatosRespuesta, 'completa'>) =>
+  const decirRespuesta = (id: number, datos: Nueva) => {
+    const mensaje = siguienteId++
     modificar(id, (c) => {
       const completa = !c.mensajes.some((m) => m.de === 'krylov' && m.tipo === 'respuesta')
-      return { ...c, mensajes: [...c.mensajes, { de: 'krylov', tipo: 'respuesta', datos: { ...datos, completa }, id: siguienteId++, creado: Date.now() }] }
+      const todo: DatosRespuesta = { nuevas: [], perforacion: null, antes: null, ...datos, completa }
+      return { ...c, mensajes: [...c.mensajes, { de: 'krylov', tipo: 'respuesta', datos: todo, id: mensaje, creado: Date.now() }] }
     })
+    setEnPanel(mensaje)
+  }
 
   // Abre una conversación vacía, o reusa la actual si todavía no tiene mensajes.
   const empezar = (caso: Caso | null = null) => {
@@ -125,6 +166,7 @@ export default function Chat() {
     })
     setTexto('')
     setAdjunto(null)
+    setEnPanel(null)
     cerrarLateralEnTelefono()
   }
 
@@ -142,12 +184,42 @@ export default function Chat() {
       const analisis = r.datos
       const [nube, donde] = await Promise.all([
         analisis.semaforo.estado === 'rojo_modelo' ? api.nube(caso.nombre).then((n) => n.datos) : null,
-        intencion === 'donde_medir' ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
+        intencion === 'donde_medir' && analisis.mapa ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
       ])
       setOrigen(r.origen)
       decirRespuesta(id, { intencion, analisis, nube, donde, clave: caso.nombre })
     } catch (e) {
       decir(id, { de: 'krylov', tipo: 'texto', texto: e instanceof SinServidor ? SIN_SERVIDOR : `No pude responder: ${(e as Error).message}` })
+    } finally {
+      setPensando(null)
+    }
+  }
+
+  // «¿Dónde perforo?»: simula la muestra en el pin elegido (su resultado medio) y rehace el análisis.
+  const perforar = async (desde: DatosRespuesta, c: Candidata) => {
+    const caso = conv.caso
+    const valor = c.resultados_posibles?.medio
+    if (!caso || valor === undefined || pensando !== null) return
+    const id = conv.id
+    const medicion: MedicionNueva = { x: c.x, y: c.y, valor, etiqueta: c.etiqueta }
+    const nuevas = [...desde.nuevas, medicion]
+    decir(id, { de: 'tu', texto: `Perforar en ${c.etiqueta}` })
+    setPensando(id)
+    try {
+      const r = await api.analizar(caso.nombre, [], nuevas)
+      setOrigen(r.origen)
+      decirRespuesta(id, {
+        intencion: 'donde_medir',
+        analisis: r.datos,
+        nube: null,
+        donde: desde.donde,
+        clave: claveEstatica(caso.nombre, [], nuevas),
+        nuevas,
+        perforacion: { candidata: c, valor },
+        antes: desde.analisis.costo_de_no_saber?.valor ?? null,
+      })
+    } catch (e) {
+      decir(id, { de: 'krylov', tipo: 'texto', texto: `No pude simular esa muestra: ${(e as Error).message}` })
     } finally {
       setPensando(null)
     }
@@ -166,8 +238,8 @@ export default function Chat() {
         de: 'krylov',
         tipo: 'texto',
         texto: archivo
-          ? `Leí las columnas de ${archivo.nombre}. Esta es mi propuesta de qué columna cumple cada papel del modelo de ${modelo}: revísala antes de analizar.`
-          : `Antes de analizar, revisa qué columna del archivo cumple cada papel del modelo de ${modelo}.`,
+          ? `Leí las columnas de ${archivo.nombre}. Esta es mi propuesta de qué columna cumple cada papel del modelo («${modelo}»): revísala antes de analizar.`
+          : `Antes de analizar, revisa qué columna del archivo cumple cada papel del modelo («${modelo}»).`,
       })
       decir(id, { de: 'krylov', tipo: 'calce', calce, papeles: papeles.datos.papeles, intencion, confirmado: false })
     } catch (e) {
@@ -200,6 +272,12 @@ export default function Chat() {
     responder(id, caso, intencion, columnas && conv.archivo ? { archivo: conv.archivo, columnas } : null)
   }
 
+  // El rótulo de medir del caso («¿Dónde perforo?») llega con la primera respuesta.
+  const rotuloMedir = (c: Conversacion) => {
+    const r = c.mensajes.findLast((m) => m.de === 'krylov' && m.tipo === 'respuesta')
+    return r?.de === 'krylov' && r.tipo === 'respuesta' ? r.datos.analisis.rotulos.donde_medir : undefined
+  }
+
   // Qué hacer con una pregunta, una vez que hay modelo.
   const atender = (
     id: number,
@@ -223,8 +301,8 @@ export default function Chat() {
       de: 'krylov',
       tipo: 'texto',
       texto: recienElegido
-        ? `Listo, trabajo con el modelo de ${MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor}. ¿Qué quieres saber?`
-        : 'Con este modelo sé responder estas preguntas. Elige una o escribe su número.',
+        ? `Listo, trabajo con la decisión «${caso.titulo}». ¿Qué quieres saber?`
+        : 'Con esta decisión sé responder estas preguntas. Elige una o escribe su número.',
       nota: recienElegido ? caso.origen_datos : undefined,
       accion: 'preguntas',
     })
@@ -245,7 +323,7 @@ export default function Chat() {
     decir(id, { de: 'tu', texto: pregunta, adjunto: adj ?? undefined })
 
     if (!caso) {
-      decir(id, { de: 'krylov', tipo: 'texto', texto: '¿Con qué modelo lo vemos?', accion: 'modelos' })
+      decir(id, { de: 'krylov', tipo: 'texto', texto: '¿Qué decisión es?', accion: 'modelos' })
     } else if (!pregunta && adj) {
       decir(id, {
         de: 'krylov',
@@ -258,13 +336,37 @@ export default function Chat() {
     }
   }
 
-  // Elegir un modelo desde las tarjetas que ofrece Krylov retoma la pregunta que quedó esperando.
+  // Elegir una decisión desde las tarjetas que ofrece Krylov retoma la pregunta que quedó esperando.
   const elegirModelo = (caso: Caso) => {
     const { id, pendiente, archivo } = conv
     modificar(id, (c) => ({ ...c, caso, pendiente: null, calceListo: false, columnas: null }))
     decir(id, { de: 'tu', texto: caso.titulo })
     atender(id, caso, pendiente ?? '', archivo, true, false, null)
   }
+
+  // Tecla M: el mismo banco con muy pocos pozos. Krylov no responde y dice por qué.
+  const archivoQueNoAlcanza = () => {
+    const base = casos.find((c) => c.motor === 'espacial')
+    if (!base || pensando !== null) return
+    const caso: Caso = { ...base, nombre: ARCHIVO_QUE_NO_ALCANZA }
+    const c = { ...nueva(caso), calceListo: true }
+    setEstado((s) => ({ conversaciones: [c, ...s.conversaciones], activa: c.id }))
+    setEnPanel(null)
+    setTimeout(() => {
+      decir(c.id, { de: 'tu', texto: base.titulo })
+      responder(c.id, caso, 'decidir', null)
+    })
+  }
+
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      const escribiendo = e.target instanceof HTMLElement && e.target.closest('input, textarea, select')
+      if (escribiendo || e.metaKey || e.ctrlKey || e.altKey) return
+      if (e.key === 'm' || e.key === 'M') archivoQueNoAlcanza()
+    }
+    window.addEventListener('keydown', tecla)
+    return () => window.removeEventListener('keydown', tecla)
+  })
 
   const adjuntar = async (archivo: File | undefined) => {
     if (!archivo) return
@@ -278,8 +380,9 @@ export default function Chat() {
   if (completa) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-[90rem] flex-col px-4 py-5 sm:px-8 md:h-dvh md:min-h-0">
+        <Topografia />
         <header className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-          <button onClick={() => setCompleta(null)} className="rounded-full border border-linea px-4 py-1.5 text-sm hover:bg-superficie">
+          <button onClick={() => setCompleta(null)} className="border border-linea px-4 py-1.5 text-sm hover:border-acento">
             ← Volver al chat
           </button>
           {conv.caso && <p className="text-tinta-suave">{lineaDelCaso(conv.caso)}</p>}
@@ -287,6 +390,7 @@ export default function Chat() {
         <main className="flex min-h-0 flex-1 flex-col pb-10 lg:pb-0">
           <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} />
         </main>
+        <SelectorDiseno />
       </div>
     )
   }
@@ -294,12 +398,19 @@ export default function Chat() {
   const vacia = conv.mensajes.length === 0
   const ultimo = conv.mensajes.at(-1)
   const ultimaDelUsuario = conv.mensajes.findLast((m) => m.de === 'tu' || (m.de === 'krylov' && m.tipo === 'calce' && m.confirmado))
-  const preguntas = conv.caso ? preguntasDe(conv.caso) : []
+  const preguntas = conv.caso ? preguntasDe(conv.caso, rotuloMedir(conv)) : []
   const seguimiento =
-    ultimo?.de === 'krylov' && pensando === null && (ultimo.tipo === 'respuesta' || (ultimo.tipo === 'texto' && ultimo.accion === 'preguntas'))
-      ? preguntas.filter((p) => ultimo.tipo !== 'respuesta' || p.intencion !== ultimo.datos.intencion)
+    ultimo?.de === 'krylov' &&
+    pensando === null &&
+    ((ultimo.tipo === 'respuesta' && !ultimo.datos.analisis.semaforo.estado.startsWith('rojo')) || (ultimo.tipo === 'texto' && ultimo.accion === 'preguntas'))
+      ? preguntas.filter((p) => ultimo.tipo !== 'respuesta' || p.intencion !== ultimo.datos.intencion || ultimo.datos.perforacion)
       : []
   const recientes = estado.conversaciones.filter((c) => c.mensajes.length > 0).map((c) => ({ id: c.id, titulo: tituloDe(c) }))
+  const respuestas = conv.mensajes.filter((m): m is Extract<Mensaje, { tipo: 'respuesta' }> => m.de === 'krylov' && m.tipo === 'respuesta')
+  // La mesa necesita ancho: en teléfono la respuesta va entera en el chat, como en Carta.
+  const mesa = disposicion === 'mesa' && enEscritorio
+  const lamina = disposicion === 'lamina'
+  const enLienzo = mesa ? (respuestas.find((m) => m.id === enPanel) ?? respuestas.at(-1) ?? null) : null
 
   const compositor = (
     <Compositor
@@ -308,7 +419,8 @@ export default function Chat() {
       casos={casos}
       caso={conv.caso}
       ocupado={pensando !== null}
-      placeholder={conv.caso ? 'Pregúntale algo a tus datos' : 'Elige un modelo o escribe qué quieres saber'}
+      comando={lamina}
+      placeholder={conv.caso ? 'Pregúntale algo a tus datos' : 'Elige una decisión o escribe qué quieres saber'}
       alEscribir={setTexto}
       alEnviar={() => enviar()}
       alAdjuntar={() => selectorArchivo.current?.click()}
@@ -318,9 +430,195 @@ export default function Chat() {
   )
 
   const aviso = (
-    <p className="mt-2.5 text-center text-xs text-tinta-suave" title={origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}>
-      Krylov practicó con casos simulados. Los costos son supuestos y los números, de ejemplo.
+    <p className="dato mt-3 text-center" title={origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}>
+      Krylov practicó con minas simuladas · los costos son supuestos
     </p>
+  )
+
+  const chips = (lista: typeof preguntas, alinear = 'justify-start') => (
+    <div className={`flex flex-wrap gap-2 ${alinear}`}>
+      {lista.map((p) => (
+        <Chip key={p.intencion} texto={p.texto} alElegir={() => enviar(p.texto)} />
+      ))}
+    </div>
+  )
+
+  const decisiones = (forma: 'fila' | 'grilla' = 'fila') => (
+    <Decisiones casos={casos} quien={quien} alElegir={(c) => enviar(c.titulo, c)} forma={forma} />
+  )
+
+  // El inicio, distinto en cada disposición.
+  const inicio = (() => {
+    if (conv.caso) {
+      return (
+        <div className={`w-full ${mesa ? '' : 'max-w-3xl'}`}>
+          <p className="dato">{conv.caso.empresa_o_industria}</p>
+          <h1 className="titular mt-2 text-5xl sm:text-6xl">{conv.caso.titulo}</h1>
+          <p className="mt-3 text-lg text-tinta-suave">{MOTOR_EN_PALABRAS[conv.caso.motor]}</p>
+          <div className="mt-8">{compositor}</div>
+          <div className="mt-5">{chips(preguntas)}</div>
+          {aviso}
+        </div>
+      )
+    }
+    if (mesa) {
+      return (
+        <div className="w-full">
+          <Marca grande />
+          <h1 className="titular mt-6 text-5xl">¿Qué decisión tienes que tomar?</h1>
+          <p className="mt-3 text-tinta-suave">{FRASE} Elige una a la derecha, o escríbela.</p>
+          <div className="mt-8">{compositor}</div>
+          {aviso}
+        </div>
+      )
+    }
+    if (lamina) {
+      return (
+        <div className="w-full max-w-7xl">
+          <section className="relative -mx-4 overflow-hidden px-4 pt-4 pb-10 sm:min-h-[24rem]">
+            <Particulas className="pointer-events-none absolute inset-0 h-full w-full opacity-90" />
+            <div className="relative max-w-2xl">
+              <h1 className="titular text-[5.5rem] leading-[0.85] sm:text-[9rem]">Krylov</h1>
+              <p className="titular mt-3 text-4xl leading-[1.02] sm:text-5xl">
+                Un <span className="text-cobre">data scientist artificial</span> para la minería.
+              </p>
+              <p className="mt-4 max-w-xl text-xl text-tinta-suave">{FRASE}</p>
+            </div>
+          </section>
+          <div className="max-w-3xl">{compositor}</div>
+          <p className="titular mt-16 mb-8 border-t border-linea pt-8 text-4xl">Una mina decide esto todos los días.</p>
+          {decisiones()}
+          <div className="mt-8">{aviso}</div>
+        </div>
+      )
+    }
+    if (disposicion === 'oxido') {
+      return (
+        <div className="w-full max-w-3xl">
+          <h1 className="titular text-5xl sm:text-7xl">¿Qué decisión tienes que tomar?</h1>
+          <p className="mt-3 text-lg text-tinta-suave">{FRASE}</p>
+          <div className="mt-8">{compositor}</div>
+          <div className="mt-5 hidden lg:block">
+            <p className="dato mb-2">O empieza por una</p>
+            <div className="flex flex-wrap gap-2">
+              {casos.map((c) => (
+                <Chip key={c.nombre} texto={c.titulo} alElegir={() => enviar(c.titulo, c)} />
+              ))}
+            </div>
+          </div>
+          <div className="mt-10 lg:hidden">{decisiones('grilla')}</div>
+          {aviso}
+        </div>
+      )
+    }
+    // Carta.
+    return (
+      <div className="w-full max-w-6xl">
+        <h1 className="titular max-w-4xl text-6xl sm:text-8xl">¿Qué decisión tienes que tomar?</h1>
+        <p className="mt-4 max-w-2xl text-xl text-tinta-suave">{FRASE}</p>
+        <div className="mt-12">{decisiones()}</div>
+        <div className="mt-12 max-w-3xl">{compositor}</div>
+        <div className="max-w-3xl">{aviso}</div>
+      </div>
+    )
+  })()
+
+  const mensajeRespuesta = (m: Extract<Mensaje, { tipo: 'respuesta' }>, n: number) => {
+    const contenido = (
+      <RespuestaEnChat
+        datos={m.datos}
+        creado={m.creado}
+        alAbrir={() => setCompleta(m.datos)}
+        alPerforar={(c) => perforar(m.datos, c)}
+        ocupado={pensando !== null}
+        grande={lamina}
+        soloTitular={mesa}
+      />
+    )
+    if (mesa) {
+      const activa = enLienzo?.id === m.id
+      return (
+        <MensajeKrylov>
+          <button onClick={() => setEnPanel(m.id)} className={`block w-full border-l-2 pl-4 text-left ${activa ? 'border-oxido' : 'border-linea hover:border-tinta-suave'}`}>
+            {contenido}
+            <span className={`dato mt-2 block ${activa ? 'text-oxido' : ''}`}>{activa ? 'En el lienzo' : 'Ver en el lienzo'}</span>
+          </button>
+        </MensajeKrylov>
+      )
+    }
+    if (lamina) {
+      return (
+        <section className="panel flex flex-col px-5 py-6 sm:px-10 sm:py-9 lg:min-h-[min(82vh,48rem)]">
+          {contenido}
+          <footer className="mt-auto flex items-end justify-between pt-8">
+            <Logotipo className="text-base text-tenue" />
+            <span className="dato">
+              {String(n).padStart(2, '0')} / {String(respuestas.length).padStart(2, '0')}
+            </span>
+          </footer>
+        </section>
+      )
+    }
+    return <MensajeKrylov>{contenido}</MensajeKrylov>
+  }
+
+  const listaMensajes = (
+    <ol className={`mx-auto space-y-10 py-8 ${mesa ? 'max-w-none' : lamina ? 'max-w-6xl' : 'max-w-5xl'}`}>
+      {conv.mensajes.map((m) => {
+        const ancha = m.de === 'krylov' && m.tipo === 'respuesta' && (m.datos.completa || m.datos.perforacion || lamina)
+        return (
+          <li key={m.id} ref={m === ultimaDelUsuario ? ultimaPregunta : undefined} className={`mx-auto scroll-mt-4 ${ancha || mesa ? '' : 'max-w-3xl'}`}>
+            {m.de === 'tu' ? (
+              <MensajeTu texto={m.texto} adjunto={m.adjunto} />
+            ) : m.tipo === 'respuesta' ? (
+              <>
+                {mensajeRespuesta(m, respuestas.indexOf(m) + 1)}
+                {m === ultimo && seguimiento.length > 0 && <div className={`aparecer mt-5 ${mesa || lamina ? '' : 'pl-11'}`}>{chips(seguimiento)}</div>}
+              </>
+            ) : (
+              <MensajeKrylov>
+                {m.tipo === 'calce' ? (
+                  <CalceEnChat
+                    calce={m.calce}
+                    papeles={m.papeles}
+                    confirmado={m.confirmado}
+                    alConfirmar={(a) => conv.caso && confirmarCalce(conv.id, m.id, conv.caso, m.calce, m.intencion, a)}
+                  />
+                ) : (
+                  <>
+                    <p className="text-lg leading-relaxed">{m.texto}</p>
+                    {m.nota && <p className="dato mt-2">{m.nota}</p>}
+                    {m.accion === 'modelos' && (
+                      <div className="mt-5">
+                        <Decisiones casos={casos} quien={quien} alElegir={elegirModelo} forma="grilla" desactivadas={conv.caso !== null} />
+                      </div>
+                    )}
+                  </>
+                )}
+                {m === ultimo && seguimiento.length > 0 && <div className="aparecer mt-5">{chips(seguimiento)}</div>}
+              </MensajeKrylov>
+            )}
+          </li>
+        )
+      })}
+      {pensando === conv.id && (
+        <li className={`mx-auto ${mesa ? '' : 'max-w-3xl'}`}>
+          <MensajeKrylov pensando>
+            <p className="brillo text-lg">Calculando con el modelo…</p>
+          </MensajeKrylov>
+        </li>
+      )}
+    </ol>
+  )
+
+  const pie = (
+    <footer className="relative shrink-0 px-4 pb-3">
+      <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-fondo" />
+      <div className={`mx-auto ${mesa ? '' : 'max-w-3xl'}`}>
+        {compositor}
+        {aviso}
+      </div>
+    </footer>
   )
 
   return (
@@ -339,125 +637,85 @@ export default function Chat() {
         adjuntar(e.dataTransfer.files[0])
       }}
     >
+      <Topografia />
+
       {lateral && (
         <>
-          <div className="fixed inset-0 z-30 bg-tinta/20 lg:hidden" onClick={() => setLateral(false)} />
+          <div className="fixed inset-0 z-30 bg-fondo/60 lg:hidden" onClick={() => setLateral(false)} />
           <div className="fixed inset-y-0 left-0 z-40 lg:static">
             <Lateral
               casos={casos}
+              quien={quien}
+              activo={conv.caso?.nombre ?? null}
               recientes={recientes}
               activa={conv.id}
               alNuevo={() => empezar()}
               alElegirModelo={(c) => empezar(c)}
               alAbrir={(id) => {
                 setEstado((s) => ({ ...s, activa: id }))
+                setEnPanel(null)
                 cerrarLateralEnTelefono()
               }}
-              alCerrar={() => setLateral(false)}
+              alCerrar={fijaYVisible ? undefined : () => setLateral(false)}
             />
           </div>
         </>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center gap-2 px-3">
+        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-linea/60 pr-24 pl-4 lg:pr-4">
           {!lateral && (
             <>
-              <button onClick={() => setLateral(true)} title="Abrir la barra" aria-label="Abrir la barra" className="rounded-lg p-1.5 text-tinta-suave hover:bg-superficie hover:text-tinta">
+              <button onClick={() => setLateral(true)} title="Abrir la barra" aria-label="Abrir la barra" className="p-1.5 text-tinta-suave hover:text-tinta">
                 <IconoLateral />
               </button>
-              <button onClick={() => empezar()} className="rounded-lg px-2 py-1 text-lg font-semibold hover:bg-superficie">
-                Krylov
+              <button onClick={() => empezar()} className="flex items-center gap-2" title="Nuevo análisis">
+                <Marca />
+                <Logotipo className="text-lg" />
               </button>
             </>
           )}
-          {!vacia && <p className="min-w-0 flex-1 truncate text-center text-sm text-tinta-suave">{tituloDe(conv)}</p>}
+          <p className="min-w-0 flex-1 truncate text-center text-sm text-tinta-suave">{vacia ? '' : tituloDe(conv)}</p>
+          {conv.caso && <span className="dato hidden sm:block">{conv.caso.empresa_o_industria}</span>}
         </header>
 
-        {vacia ? (
-          <main className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pb-16">
-            <div className="my-auto flex w-full max-w-3xl flex-col items-center py-6">
-              <Marca grande />
-              <h1 className="condensado texto-degradado mt-5 pb-1 text-center text-4xl font-semibold tracking-tight sm:text-5xl">¿Qué quieres saber?</h1>
-              <p className="mt-2 text-center text-tinta-suave">
-                {conv.caso ? `${MOTOR_EN_PALABRAS[conv.caso.motor] ?? conv.caso.motor} · ${lineaDelCaso(conv.caso)}` : FRASE}
-              </p>
-              <div className="mt-8 w-full">{compositor}</div>
-              <div className="mt-5 w-full">
-                {conv.caso ? (
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {preguntas.map((p) => (
-                      <Chip key={p.intencion} texto={p.texto} alElegir={() => enviar(p.texto)} />
-                    ))}
-                  </div>
-                ) : (
-                  <TarjetasModelo casos={casos} alElegir={(c) => enviar(c.titulo, c)} />
-                )}
-              </div>
-              {aviso}
-            </div>
+        {mesa ? (
+          <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+            <section className="flex min-h-0 flex-col lg:w-[27rem] lg:shrink-0 xl:w-[30rem]">
+              {vacia ? (
+                <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-8">
+                  <div className="my-auto">{inicio}</div>
+                </main>
+              ) : (
+                <>
+                  <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-5" aria-live="polite">
+                    {listaMensajes}
+                  </main>
+                  {pie}
+                </>
+              )}
+            </section>
+            <Mesa
+              datos={enLienzo?.datos ?? null}
+              clave={enLienzo?.id ?? null}
+              caso={conv.caso}
+              casos={casos}
+              quien={quien}
+              pensando={pensando === conv.id}
+              alElegir={(c) => enviar(c.titulo, c)}
+              alPerforar={(c) => enLienzo && perforar(enLienzo.datos, c)}
+            />
+          </div>
+        ) : vacia ? (
+          <main className="desliza-lista flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pb-16 sm:px-8">
+            <div className="my-auto flex w-full flex-col items-center py-10">{inicio}</div>
           </main>
         ) : (
           <>
-            <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-4" aria-live="polite">
-              <ol className="mx-auto max-w-5xl space-y-8 py-6">
-                {conv.mensajes.map((m) => (
-                  <li
-                    key={m.id}
-                    ref={m === ultimaDelUsuario ? ultimaPregunta : undefined}
-                    className={`mx-auto scroll-mt-4 ${m.de === 'krylov' && m.tipo === 'respuesta' && m.datos.completa ? '' : 'max-w-3xl'}`}
-                  >
-                    {m.de === 'tu' ? (
-                      <MensajeTu texto={m.texto} adjunto={m.adjunto} />
-                    ) : (
-                      <MensajeKrylov>
-                        {m.tipo === 'respuesta' ? (
-                          <RespuestaEnChat datos={m.datos} creado={m.creado} alAbrir={() => setCompleta(m.datos)} />
-                        ) : m.tipo === 'calce' ? (
-                          <CalceEnChat
-                            calce={m.calce}
-                            papeles={m.papeles}
-                            confirmado={m.confirmado}
-                            alConfirmar={(a) => conv.caso && confirmarCalce(conv.id, m.id, conv.caso, m.calce, m.intencion, a)}
-                          />
-                        ) : (
-                          <>
-                            <p className="leading-relaxed">{m.texto}</p>
-                            {m.nota && <p className="mt-1 text-sm text-tinta-suave">{m.nota}</p>}
-                            {m.accion === 'modelos' && (
-                              <div className="mt-4">
-                                <TarjetasModelo casos={casos} alElegir={elegirModelo} desactivadas={conv.caso !== null} />
-                              </div>
-                            )}
-                          </>
-                        )}
-                        {m === ultimo && seguimiento.length > 0 && (
-                          <div className="aparecer mt-5 flex flex-wrap gap-2">
-                            {seguimiento.map((p) => (
-                              <Chip key={p.intencion} texto={p.texto} alElegir={() => enviar(p.texto)} />
-                            ))}
-                          </div>
-                        )}
-                      </MensajeKrylov>
-                    )}
-                  </li>
-                ))}
-                {pensando === conv.id && (
-                  <li className="mx-auto max-w-3xl">
-                    <MensajeKrylov pensando>
-                      <p className="brillo">Calculando con el modelo…</p>
-                    </MensajeKrylov>
-                  </li>
-                )}
-              </ol>
+            <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-4 sm:px-8" aria-live="polite">
+              {listaMensajes}
             </main>
-            <footer className="relative shrink-0 px-4 pb-14 lg:pb-3">
-              <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-fondo" />
-              <div className="mx-auto max-w-3xl">
-                {compositor}
-                {aviso}
-              </div>
-            </footer>
+            {pie}
           </>
         )}
       </div>
@@ -475,12 +733,14 @@ export default function Chat() {
 
       {arrastrando && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-fondo/85 backdrop-blur-sm">
-          <div className="rounded-3xl border-2 border-dashed border-acento px-10 py-8 text-center">
-            <p className="text-xl font-semibold">Suelta tu CSV</p>
-            <p className="mt-1 text-sm text-tinta-suave">Queda adjunto a tu próxima pregunta</p>
+          <div className="border border-dashed border-acento px-10 py-8 text-center">
+            <p className="titular text-4xl">Suelta tu CSV</p>
+            <p className="mt-2 text-sm text-tinta-suave">Queda adjunto a tu próxima pregunta</p>
           </div>
         </div>
       )}
+
+      <SelectorDiseno />
     </div>
   )
 }
@@ -489,7 +749,11 @@ function MensajeTu({ texto, adjunto }: { texto: string; adjunto?: InfoCsv }) {
   return (
     <div className="flex flex-col items-end gap-2">
       {adjunto && <TarjetaArchivo info={adjunto} />}
-      {texto && <p className="max-w-[80%] rounded-3xl bg-superficie px-5 py-2.5 leading-relaxed whitespace-pre-wrap">{texto}</p>}
+      {texto && (
+        <p className="max-w-[85%] border-r-2 border-cobre bg-superficie/80 px-4 py-2 font-mono text-sm leading-relaxed whitespace-pre-wrap text-tinta-suave">
+          {texto}
+        </p>
+      )}
     </div>
   )
 }
@@ -497,8 +761,8 @@ function MensajeTu({ texto, adjunto }: { texto: string; adjunto?: InfoCsv }) {
 function MensajeKrylov({ children, pensando = false }: { children: ReactNode; pensando?: boolean }) {
   return (
     <div className="flex gap-4">
-      <span className={`mt-0.5 ${pensando ? 'animate-pulse' : ''}`}>
-        <Marca />
+      <span className="mt-1">
+        <Marca pensando={pensando} />
       </span>
       <div className="min-w-0 flex-1 pt-0.5">{children}</div>
     </div>
@@ -507,28 +771,8 @@ function MensajeKrylov({ children, pensando = false }: { children: ReactNode; pe
 
 function Chip({ texto, alElegir }: { texto: string; alElegir: () => void }) {
   return (
-    <button onClick={alElegir} className="rounded-full border border-linea px-4 py-2 text-sm hover:bg-superficie">
+    <button onClick={alElegir} className="border border-linea bg-fondo/60 px-3.5 py-2 text-sm transition-colors hover:border-acento hover:text-tinta">
       {texto}
     </button>
-  )
-}
-
-function TarjetasModelo({ casos, alElegir, desactivadas = false }: { casos: Caso[]; alElegir: (c: Caso) => void; desactivadas?: boolean }) {
-  return (
-    <ul className="grid gap-3 sm:grid-cols-2">
-      {casos.map((c) => (
-        <li key={c.nombre}>
-          <button
-            onClick={() => alElegir(c)}
-            disabled={desactivadas}
-            className="h-full w-full rounded-2xl border border-linea p-4 text-left transition-colors hover:bg-superficie disabled:opacity-50 disabled:hover:bg-transparent"
-          >
-            <span className="block font-medium">{c.titulo}</span>
-            <span className="mt-1 block text-sm text-tinta-suave">{MOTOR_EN_PALABRAS[c.motor] ?? c.motor}</span>
-            <span className="mt-2 block text-xs text-tinta-suave">{lineaDelCaso(c)}</span>
-          </button>
-        </li>
-      ))}
-    </ul>
   )
 }

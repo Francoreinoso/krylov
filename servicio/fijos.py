@@ -69,6 +69,9 @@ def analizar(caso: str, transformaciones=(), mediciones=()) -> dict:
         return _copia("analizar_espacial.json")
     if caso.endswith("_malo") and not transformaciones:
         return _copia("analizar_rojo.json")
+    # Los casos mineros de lista tienen su propio ejemplo fijo, con curva (D-37).
+    if (EJEMPLOS / f"analizar_{caso}.json").exists():
+        return _copia(f"analizar_{caso}.json")
     respuesta = _copia("analizar_tabla.json")
     respuesta["caso"] = caso
     respuesta["motor_id"] = motor

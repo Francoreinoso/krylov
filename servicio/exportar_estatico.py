@@ -1,6 +1,6 @@
 """Escribe en web/public/estatico/ cada respuesta que el recorrido del demo puede pedir.
 
-Correr (configuración del H2): KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_SUPERVIVENCIA=mcmc uv run python -m servicio.exportar_estatico
+Correr: KRYLOV_MOTOR_ESPACIAL=red uv run python -m servicio.exportar_estatico
 """
 
 import json
@@ -13,7 +13,7 @@ from servicio.calce import calce_del_demo
 from servicio.interpretar import interpretar
 
 DESTINO = Path(__file__).resolve().parent.parent / "web" / "public" / "estatico"
-CORRECCION = ["quitar_factor:fecha_salida"]
+ARCHIVO_QUE_NO_ALCANZA = "leyes_pocos"  # tecla M: banda roja con el motivo
 
 
 def _escribir(ruta: str, datos: dict) -> None:
@@ -29,6 +29,17 @@ def _analisis(clave: str, datos: dict) -> int:
     return 2
 
 
+def _si_existe(ruta: str, pedir) -> int:
+    try:
+        datos = pedir()
+    except Exception:  # noqa: BLE001 — lo que falta se reporta al final como no exportado
+        return 0
+    if "error" in datos:
+        return 0
+    _escribir(ruta, datos)
+    return 1
+
+
 def exportar() -> int:
     shutil.rmtree(DESTINO, ignore_errors=True)
     lista = respuestas.casos()
@@ -41,18 +52,19 @@ def exportar() -> int:
             _escribir(f"cartera/{nombre}", respuestas.cartera(nombre))
             n += 1
         if c["motor"] == "espacial":
-            _escribir(f"donde-medir/{nombre}", respuestas.donde_medir(nombre))
+            donde = respuestas.donde_medir(nombre)
+            _escribir(f"donde-medir/{nombre}", donde)
             n += 1
-        _escribir(f"sello/{c['motor']}", respuestas.sello(c["motor"]))
-        _escribir(f"papeles/{c['motor']}", nucleo.papeles(c["motor"]))
-        _escribir(f"calce/{nombre}", calce_del_demo(nombre))
-        n += 3
-    # El arco rojo → corrección → verde del archivo malo.
-    for t in ([], CORRECCION):
-        clave = fijos.clave("rotacion_malo", t)
-        n += _analisis(clave, respuestas.analizar("rotacion_malo", t))
-        _escribir(f"nube/{clave}", respuestas.nube("rotacion_malo", t))
-        n += 1
+            # «¿Dónde perforo?»: el mapa rehecho con la muestra simulada en cada pin (su resultado medio).
+            for p in donde.get("candidatas", []):
+                medicion = {"x": p["x"], "y": p["y"], "valor": p["resultados_posibles"]["medio"], "etiqueta": p["etiqueta"]}
+                n += _analisis(fijos.clave(nombre, mediciones=[medicion]), respuestas.analizar(nombre, mediciones=[medicion]))
+        # Un motor que todavía no tiene sello ni papeles (los de series antes de su ronda) no los exporta:
+        # sin papeles, el chat analiza directo con las columnas del caso.
+        n += _si_existe(f"sello/{c['motor']}", lambda: respuestas.sello(c["motor"]))
+        n += _si_existe(f"papeles/{c['motor']}", lambda: nucleo.papeles(c["motor"]))
+        n += _si_existe(f"calce/{nombre}", lambda: calce_del_demo(nombre))
+    n += _analisis(ARCHIVO_QUE_NO_ALCANZA, respuestas.analizar(ARCHIVO_QUE_NO_ALCANZA))
     return n
 
 
