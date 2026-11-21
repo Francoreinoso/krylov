@@ -34,7 +34,7 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - **Se lanzó a las 03:50 y no a las 05:05**, porque todo lo mínimo estaba listo; el comando termina solo a las 08:30.
 - **`git pull --rebase --autostash`** en este computador: dos sesiones comparten el clon y `pull --rebase` falla si la otra tiene cambios sin commit. El autostash los guarda y los repone intactos (comprobado con `md5`).
 
-## Reparto de sesiones en PC 2 (D-29)
+## Reparto de sesiones en PC 2
 
 Un dueño por motor. Antes de tomar un motor sin dueño, anótate aquí y súbelo; nadie edita los archivos de otro.
 

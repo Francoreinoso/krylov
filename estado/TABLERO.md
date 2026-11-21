@@ -28,7 +28,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 ## Qué cambió respecto del plan
 
-- **D-29 (04:36): solo en PC 2, las horas del plan son topes, no horas de inicio.** PC 2 adelanta sus tareas A en orden; PC 1 y PC 3 siguen su horario (`AGENTS.md`, regla 21).
+- **D-29: las horas del plan son topes, no horas de inicio, en los tres computadores.** Quien termina una tarea toma la siguiente de su lista sin esperar; lo que no tiene insumo se hace contra el ejemplo fijo y se anota. No se adelanta el MCMC ni se mide encima de un entrenamiento (`AGENTS.md`, regla 21).
 - `supervivencia` se lanzó a las 04:05 y `espacial` a las 03:50: casi una hora más de entrenamiento cada uno.
 - Guion: la versión de 3 minutos es la principal (J-04). «Escondimos a 294 personas reales» pasó a «escondimos la respuesta de 294 personas del archivo»: el archivo de rotación es ficticio (D-01).
 - D-26 sigue mandando donde un archivo choque. Pendientes: `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md`, skills, resto de `WORKPLAN.md`.
