@@ -1,199 +1,184 @@
-# Krylov · el guion del deck (versión minería)
+# Krylov · el guion del deck
 
-> **Qué es este archivo.** El guion de 3 minutos (J-04) para presentar **el deck completo**, lámina por lámina, sin salir a la app. Las mismas frases están en las notas de cada lámina (tecla `N`).
+> El guion para presentar `pitch/deck/index.html` de principio a fin. Las mismas frases están en las notas de cada lámina (tecla `N`).
 >
-> **El guion oficial sigue siendo `pitch/GUION.md`**, que parte en el deck, entra a la app en los momentos 4 a 6 y vuelve al deck para el cierre. Los dos cuentan lo mismo con las mismas cifras; cambia dónde se muestra. Abajo, en «Cómo calza con `GUION.md`», está la equivalencia y lo que no coincide. **Una persona del equipo elige cuál se ensaya.**
+> **Tiempo estimado, no cronometrado:** contado en palabras, a 150 por minuto. El cronómetro de verdad es el primer ensayo.
 >
-> **Tiempo estimado, no cronometrado:** contado en palabras, a 150 por minuto. El cronómetro de verdad es el primer ensayo (S-26).
+> **No es el mismo pitch de `pitch/GUION.md`**, que abre con el barco, entra a la app para las decisiones y tiene siete momentos. Este es el del deck de venta, tal como quedó después de la revisión del sábado a las 13:15. Hay que dejar uno solo.
 
-## La idea, en una frase
+## Lo que se vende
 
-**Krylov es un Artificial Data Scientist para la minería:** responde en un segundo lo que hoy toma horas y exige un data scientist, dice cuánto no sabe y cuánto vale averiguarlo.
+**Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide.** Krylov es el Artificial Data Scientist de la minería. Su motor es Bayesian Amortized Inference: practicar antes con millones de casos simulados para responder después en un solo paso.
 
-El término se dice en voz alta tres veces (láminas 1, 3 y 8) y está en pantalla en cuatro (1, 3, 8 y 9). El problema queda dicho antes del segundo 25.
+Todo el guion empuja esa idea en tres golpes: el problema (lámina 1), la prueba de que es rápido (láminas 2 y 3) y las cinco decisiones de la mina que resuelve (láminas 4 a 9).
 
 ## La cuenta
 
-- **356 palabras = 142 segundos de habla.**
-- **19 pulsaciones** de `→` recorren las nueve láminas. A 1,5 segundos por pulsación son 28 segundos.
-- Habla más pulsaciones: **2:51. Quedan 9 segundos libres.** En total hay 38 segundos sin hablar.
+- **320 palabras = 128 segundos de habla.**
+- **17 pulsaciones** de `→` recorren las once láminas. A 1,5 segundos por pulsación son 26 segundos.
+- Habla más pulsaciones: **2:34. Quedan 26 segundos libres** en un pitch de 3 minutos.
 
-| # | Lámina | Desde | Hasta | Palabras | Pulsaciones dentro | Qué tiene que verse antes de seguir |
-|---|---|---|---|---|---|---|
-| 1 | El problema | 0:00 | 0:23 | 51 | 2 | El rajo completo; «tardan horas»; el nombre |
-| 2 | Demo | 0:23 | 0:45 | 43 | 2 | El mapa en la pantalla de Krylov; el reloj en 7:24:59 |
-| 3 | Mundos simulados | 0:45 | 1:06 | 44 | 1 | El contador en 7.750.592; la pila |
-| 4 | El banco | 1:06 | 1:31 | 52 | 2 | Las muestras; la superficie en tres colores; la malla |
-| 5 | ¿Dónde perforo? | 1:31 | 1:51 | 42 | 1 | La A con sus US$ 8.943; el taladro y el mapa rehecho |
-| 6 | Sabe cuando no sabe | 1:51 | 2:12 | 43 | 2 | La nube; el archivo afuera, rojo; adentro, verde |
-| 7 | Cinco decisiones | 2:12 | 2:27 | 32 | 0 | Las cinco preguntas con su estado |
-| 8 | Negocio | 2:27 | 2:43 | 32 | 1 | El rajo; la esfera |
-| 9 | Cierre | 2:43 | 2:51 | 17 | 0 | El QR |
-
-A cada lámina se llega con una pulsación más: 11 dentro de las láminas y 8 entre láminas.
+| # | Lámina | Desde | Hasta | Palabras | Qué tiene que verse antes de seguir |
+|---|---|---|---|---|---|
+| 1 | El problema | 0:00 | 0:29 | 65 | El rajo; «un especialista y horas de cómputo»; el nombre |
+| 2 | Entra un archivo, sale la respuesta | 0:29 | 0:48 | 41 | La muralla llenándose de mapas; después, 0,69 segundos contra 7 horas |
+| 3 | Mundos simulados | 0:48 | 1:05 | 35 | El contador en 7.750.592; la pila |
+| 4 | Cinco decisiones | 1:05 | 1:14 | 19 | Las cinco preguntas |
+| 5 | Leyes | 1:14 | 1:37 | 48 | El banco en tres colores; la A con sus US$ 8.943 |
+| 6 | Taludes | 1:37 | 1:46 | 19 | La cordillera de sectores |
+| 7 | Flotación | 1:46 | 1:55 | 19 | Las curvas y la meta |
+| 8 | Flota | 1:55 | 2:03 | 16 | Las curvas y la línea de falla |
+| 9 | Sismicidad | 2:03 | 2:12 | 18 | Los temblores por sector |
+| 10 | Sabe cuando no sabe | 2:12 | 2:24 | 19 | El archivo afuera, rojo; adentro, verde |
+| 11 | Cierre | 2:24 | 2:34 | 21 | La esfera; el QR |
 
 ## El guion
 
 `[→]` es una pulsación. Entre paréntesis, lo que hace la pantalla.
 
-### 1 · El problema (0:00 a 0:23)
+### 1 · El problema (0:00 a 0:29)
 
 *(un rajo hecho de puntos aparece con un barrido; entran tres preguntas)*
 
-> «En una mina, las decisiones no esperan: dónde perforar, a dónde va la roca, qué camión parar.»
+> «En una mina, las decisiones no esperan: a dónde va la roca, si un muro va a ceder, qué camión parar.»
 
 `[→]`
 
-> «Los modelos que las responden bien tardan horas y exigen un data scientist. Cuando la respuesta llega, la decisión ya se tomó.»
+> «Los modelos que las responden bien exigen un especialista y horas de cómputo. Por eso casi nadie los usa cuando hay que decidir.»
 
-`[→]` *(la cámara baja; aparece el nombre)*
+`[→]` *(aparece el nombre)*
 
-> «Nosotros construimos un Artificial Data Scientist para la minería. Se llama Krylov.»
+> «Krylov es el Artificial Data Scientist de la minería: esos mismos modelos, en un segundo y para quien toma la decisión.»
 
-### 2 · Demo (0:23 a 0:45)
+### 2 · Entra un archivo, sale la respuesta (0:29 a 0:48)
 
-`[→]` *(dos pantallas en espera)*
+`[→]` *(un archivo tras otro entra a la red y sale su mapa; la muralla se llena; el contador sube)*
 
-> «Se lo mostramos. El mismo encargo, al mismo tiempo: 228 análisis de un terreno.»
+> «Así se ve. Entra un archivo, sale la respuesta. Y otro, y otro. Cada mapa es un análisis completo, de los que antes tomaban dos minutos.»
 
-`[→]` *(parten las dos; la de Krylov termina en 0,69 s y muestra su mapa; la otra dice «Análisis 1 de 228»)*
+`[→]`
 
-> «Krylov: listo, con el mapa en pantalla. El método de siempre todavía va en el primer análisis.»
+> «228 análisis: menos de un segundo. Con el método de siempre, más de siete horas.»
 
-`[→]` *(la pantalla lenta corre acelerada hasta 7:24:59)*
-
-> «Termina en más de siete horas. Krylov, en menos de un segundo.»
-
-*Si hay internet y tiempo: `D` abre la demo real encima de las láminas; `Esc` vuelve.*
-
-### 3 · Millones de mundos simulados (0:45 a 1:06)
+### 3 · Mundos simulados (0:48 a 1:05)
 
 `[→]` *(remolino de terrenos simulados; el contador sube hasta 7.750.592)*
 
-> «¿Cómo? Antes de ver un solo dato real, practicó con más de siete millones de terrenos simulados, donde la respuesta correcta se conoce.»
+> «¿Cómo? Bayesian Amortized Inference. Antes de ver un solo dato real, Krylov practicó con más de siete millones de terrenos simulados.»
 
 `[→]` *(los terrenos se apilan)*
 
-> «Lo que queda es un Artificial Data Scientist ya entrenado: calcula antes, como el ingeniero naval Krylov, para decidir al instante.»
+> «Lo que queda es un Artificial Data Scientist ya entrenado, que cualquiera puede usar.»
 
-### 4 · El banco (1:06 a 1:31)
+### 4 · Cinco decisiones (1:05 a 1:14)
 
-`[→]` *(caen las 340 muestras sobre el banco)*
+`[→]`
 
-> «Primera decisión: un banco de la mina, recién tronado. En cada pozo se midió el arsénico.»
+> «Y una mina decide esto todos los días. Cinco decisiones, cinco modelos de especialista, un solo Artificial Data Scientist.»
 
-`[→]` *(la superficie sube, con sus curvas de nivel y sus tres colores; aparece US$ 1.577.707)*
+### 5 · Leyes (1:14 a 1:37)
 
-> «Krylov responde el banco entero. Verde, puede ir a la planta. Rojo, conviene apartarlo. Ámbar, no sabemos. Y este número es lo que te cuesta no saber.»
+`[→]` *(el banco se levanta, con sus curvas de nivel y sus tres colores)*
 
-`[→]` *(aparece la malla sobre la superficie)*
-
-> «La malla de arriba es cuánto se puede equivocar.»
-
-### 5 · ¿Dónde perforo? (1:31 a 1:51)
+> «¿Esta roca va a la planta o se aparta? Krylov responde el banco entero: verde, a la planta; rojo, se aparta; ámbar, no sabemos. Y pone en plata lo que cuesta no saber.»
 
 `[→]` *(un barrido enciende 40 columnas de luz; quedan A, B y C)*
 
-> «La pregunta que vale plata: una muestra más, ¿dónde perforo? Krylov probó cada lugar dudoso y rehízo el análisis completo 480 veces. Una muestra en A vale cerca de nueve mil dólares, y cuesta mil quinientos.»
+> «Y dice dónde perforar: una muestra más en A vale cerca de nueve mil dólares.»
 
-`[→]` *(baja el taladro en A; el mapa se rehace desde ahí)*
+### 6 · Taludes (1:37 a 1:46)
 
-> «Perforo, y el mapa se rehace.»
+`[→]` *(la cordillera de sectores se dibuja de izquierda a derecha)*
 
-### 6 · Sabe cuando no sabe (1:51 a 2:12)
+> «¿El muro va a ceder? Con lo que mide el radar, dice qué sectores conviene cerrar y cuánto falta.»
 
-`[→]` *(se forma la nube de terrenos con que practicó)*
+### 7 · Flotación (1:46 a 1:55)
 
-> «¿Y si los datos no alcanzan? Antes de responder, compara el archivo con todo lo que practicó.»
+`[→]`
 
-`[→]` *(un banco con 12 muestras cae en la zona «Nunca practicó»)*
+> «¿Se me está yendo cobre? Mirando el principio de cada línea, dice cuáles van a terminar bajo la meta.»
 
-> «Este trae doce muestras: nunca practicó con tan pocas. No responde, y dice qué falta.»
+### 8 · Flota (1:55 a 2:03)
 
-`[→]` *(con sus 340 muestras, el archivo viaja hacia adentro y se pone verde)*
+`[→]`
 
-> «Con el banco completo, recién ahí contesta. Sabe cuando no sabe.»
+> «¿Qué camión paro? Con el aceite de toda la flota, dice a cuáles adelantarles la mantención.»
 
-### 7 · Cinco decisiones (2:12 a 2:27)
+### 9 · Sismicidad (2:03 a 2:12)
 
-`[→]` *(cinco figuras, cinco preguntas, cada una con su estado)*
+`[→]`
 
-> «La misma idea, en cuatro decisiones más: si un muro va a ceder, si se está yendo cobre, qué camión parar, cuándo vuelve a entrar la gente. Hoy son hoja de ruta.»
+> «¿Puede volver a entrar la gente? Con los temblores que siguen a la tronadura, dice dónde conviene esperar.»
 
-*La última frase dice lo que diga el tablero a las 20:30. Si alguna ya responde: «Estas dos ya responden; las otras son hoja de ruta.»*
+### 10 · Sabe cuando no sabe (2:12 a 2:24)
 
-### 8 · Negocio (2:27 a 2:43)
+`[→]` *(se forma la nube)*
 
-`[→]` *(el rajo, otra vez)*
+> «¿Y si los datos no alcanzan?»
 
-> «Partimos por la minería: tiene los problemas más difíciles y es la industria que más pesa en Chile.»
+`[→]` *(el archivo cae afuera, en rojo)*
 
-`[→]` *(el rajo se envuelve en una esfera)*
+> «No responde, y dice qué falta.»
 
-> «Y el mismo Artificial Data Scientist sirve en cualquier industria que decida con datos.»
+`[→]` *(vuelve adentro, en verde)*
 
-### 9 · Cierre (2:43 a 2:51)
+> «Con el archivo completo, recién ahí contesta.»
 
-`[→]` *(la esfera se dispersa; la frase y el QR)*
+### 11 · Cierre (2:24 a 2:34)
 
-> «Está en línea: escaneen y pruébenlo. Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.»
+`[→]` *(el rajo se envuelve en una esfera; el QR)*
+
+> «Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide. Eso es Krylov. Pruébenlo.»
+
+## Lo que es cierto hoy, para decirlo bien
+
+El deck habla de las cinco decisiones como producto, y el guion también. **Lo que se diga en voz alta tiene que ser cierto en el momento de presentar.** Antes de subir al escenario se mira la tabla «Los cinco casos» de `estado/TABLERO.md`.
+
+| Lámina | Qué había al escribir esto (sáb 21-nov, 13:20) | Si a la hora de presentar sigue así |
+|---|---|---|
+| 5 · Leyes | Responde la red validada. Banco simulado | Se dice tal cual |
+| 6 · Taludes | El motor no respondía. La lámina dibuja las lecturas del archivo de demo, sin decisión | «Con lo que mide el radar, **va a decir** qué sectores conviene cerrar»; o se salta la lámina |
+| 7 · Flotación | Igual | Igual: «va a decir», o se salta |
+| 8 · Flota | Igual. Es la primera en el orden de corte de D-37 | Igual |
+| 9 · Sismicidad | Igual | Igual |
+
+Cuando un motor empieza a responder, se vuelve a correr `pitch/deck/datos/generar.py` y su lámina muestra la decisión de cada unidad con sus colores y cifras; ahí la frase en presente es cierta.
+
+**Si preguntan, se responde con la verdad:**
+
+- **«¿Esos datos son de una mina?»** «No: son archivos de demostración, simulados con la misma física. Con datos reales públicos, el motor del banco dejó 24 de 31 mediciones escondidas dentro del rango que dio.» (M-13: 77%, no 90%.)
+- **«¿Las cinco funcionan hoy?»** Lo que diga el tablero. «La del banco está validada; las otras cuatro son motores más chicos que [están entrenando / ya responden].»
+- **«¿Y las siete horas?»** «Son 228 análisis a casi dos minutos cada uno, que es lo que medimos con el método lento. No las corrimos seguidas.»
+- **Taludes y sismicidad:** «Krylov apoya la decisión de un especialista; no la reemplaza.»
 
 ## De dónde sale cada número que se dice
 
-| Se dice | Cifra | Cuidado |
-|---|---|---|
-| «228 análisis», «menos de un segundo» | M-08, M-09 (0,69 s) | Medidos en el terreno real, no en el banco |
-| «más de siete horas», «tardan horas» | M-10: 26.699 s | **Es 228 × 117,1 s** (M-25, medido por análisis en 6 terrenos). No se corrieron las siete horas seguidas |
-| «más de siete millones de terrenos simulados» | M-01: 7.750.592 | |
-| «480 veces» | M-43 | **Sin tiempo:** M-44 no se ha medido limpio |
-| «cerca de nueve mil dólares» | M-46: US$ 8.943 | |
-| «cuesta mil quinientos» | K-24 | Hipótesis del caso |
-| «doce muestras» | `datos/demo/leyes_pocos.csv` | |
-| «a comienzos del 1900» (solo en pantalla) | N-01 | Sin fecha exacta ni nombre de barco |
+| Se dice | Cifra |
+|---|---|
+| «dos minutos» por análisis | M-25: 117 s con el método lento |
+| «228 análisis: menos de un segundo» | M-08, M-09 (0,69 s) |
+| «más de siete horas» | M-10: 26.699 s = 228 × 117,1 s |
+| «más de siete millones de terrenos simulados» | M-01: 7.750.592 |
+| «cerca de nueve mil dólares» | M-46: US$ 8.943, con el costo supuesto K-24 |
 
-En pantalla, además: US$ 1.577.707 (M-41), 147, 309 y 568 bloques (M-40), 500 ppm (K-21), y lo que baja al perforar (US$ 10.263 con el resultado del medio; sin id todavía).
-
-Lo que **no** se dice ni se muestra: las cifras de minería I-01 a I-22 (ninguna tiene todavía la firma de una persona); las del documento técnico que `CIFRAS.md` descarta; el 77% del examen con datos reales (M-13: solo si preguntan, y está en la lámina `0`); un tiempo para «¿Dónde perforo?»; precio; nombres de faenas.
-
-## Cómo calza con `GUION.md`
-
-| Momento de `GUION.md` | En este deck | Qué no coincide |
-|---|---|---|
-| 1 · El nombre (el barco) | La idea del nombre está en una frase de la lámina 3 | **El barco ya no está.** La lámina 1 es el problema |
-| 2 · El problema y la carrera | Láminas 1 y 2 | El problema se dice antes de la carrera, y la carrera es una demostración con dos pantallas |
-| 3 · Cómo | Lámina 3 | Sale «una noche, en un MacBook Air» |
-| 4 · El banco | Lámina 4 (o la app, tecla `1`) | Los mismos números. En el deck no se mueve un deslizador |
-| 5 · ¿Dónde perforo? | Lámina 5 (o la app, tecla `D`) | El deck muestra por defecto el resultado del medio, no «sale alto» |
-| 6 · Cuatro decisiones más | Lámina 7 (o la app, teclas `2` a `5`) | En el deck es una sola lámina de 15 segundos; en la app, 55 segundos con cada tarjeta respondiendo |
-| — | Lámina 6: sabe cuando no sabe | No está en la versión de tres minutos de `GUION.md` |
-| — | Lámina 8: negocio | `LAMINAS.md` lo deja fuera |
-| 7 · Cierre | Lámina 9 | Igual |
-
-**Si se presenta como dice `GUION.md`** (deck → app → deck): del deck se usan las láminas 1 a 3 y la 9, y las láminas 4 a 7 quedan de respaldo por si la app falla.
+En pantalla, además: 10 milisegundos por análisis (`latencia_ms` del sello), 147, 309 y 568 bloques (M-40), US$ 1.577.707 (M-41), US$ 1.500 (K-24), 480 análisis (M-43), y cuántas unidades trae cada archivo de demo (36, 8, 40 y 8).
 
 ## Si falta tiempo
 
-Se corta en este orden:
-
-1. **Lámina 8 (negocio), 16 segundos.** Desde la 7 se aprieta `9`.
-2. **Lámina 6 (sabe cuando no sabe), 22 segundos.** Desde la 5 se aprieta `7`.
-3. **El tercer paso de la lámina 4**, 5 segundos: no se muestra la malla.
-
-No se cortan nunca el problema, la demo, el banco ni «¿Dónde perforo?».
+1. **Lámina 10 (sabe cuando no sabe), 12 segundos.** Desde la 9 se aprieta `Fin`.
+2. **Las láminas 6 a 9 cuyo motor no responda**, 9 segundos cada una.
+3. **El segundo paso de la lámina 5** («¿Dónde perforo?»), 8 segundos.
 
 ## Si sobra tiempo o si preguntan
 
 - **Tecla `D`: la demo real**, encima de las láminas. Necesita internet.
-- **Tecla `0`: cómo funciona.** La arquitectura en dos mitades, con los números del sello del motor.
-- **Lámina 5, con el mouse:** elegir B o C en el mapa, y «Bajo», «Medio» o «Alto» en la regla. Arrastrar gira el banco.
-- **«¿Ese banco es de una mina?»** «No: es simulado, y lo dice en pantalla. El mismo motor lo probamos con datos reales públicos: escondimos 31 mediciones y 24 cayeron dentro del rango que dimos» (M-13). Se dice tal cual: es 77%, no 90%.
-- **«¿Eso corre en vivo?»** «En la app, sí. En estas láminas se anima la respuesta que dio la red, guardada.»
-- **Sobre taludes y sismicidad:** «Krylov apoya la decisión de un especialista; no la reemplaza» (regla 22).
+- **Tecla `0`: cómo funciona.** Bayesian Amortized Inference en dos mitades, con los números del sello del motor.
+- **Lámina 5:** arrastrar con el mouse gira el banco.
 
 ## Si algo falla
 
 | Falla | Qué se hace |
 |---|---|
-| El navegador no abre el deck o se ve mal | `pitch/deck/respaldo/krylov-deck.pdf`: las diez láminas en su estado final |
-| Una animación se traba | `P` la pausa; `→` sigue. Cada paso tiene un estado final legible |
-| No hay internet | Nada cambia, salvo la tecla `D`: muestra un aviso y `Esc` vuelve |
+| El navegador no abre el deck o se ve mal | `pitch/deck/respaldo/krylov-deck.pdf`: las doce láminas en su estado final |
+| Una animación se traba | `P` la pausa; `→` sigue |
+| No hay internet | Nada cambia, salvo la tecla `D` |
