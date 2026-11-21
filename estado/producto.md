@@ -17,7 +17,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## En curso
 
-- sáb 16:48 · Sin tarea en curso: P-22 y P-23 subidas. Espera que la persona decida el despliegue y la siguiente tarea (P-24).
+- sáb 17:04 · P-24: el chat sube archivos propios en los cinco modelos. La regla de columnas usa la pista del caso (`columnas.unidad_valor`) y pasa minutos a horas y porcentaje a fracción. Un botón adjunta el archivo de prueba del caso, la frase de `no_disponible` queda propia y el texto de la interpretación sale de antes del pivote. Tope: 17:45.
 
 ## Bloqueos
 
@@ -25,6 +25,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- sáb 17:04 · P-24, a PC 3, antes de las 17:40: en `casos/textos.yaml`, una sección nueva `chat:` con `probar_archivo` (rótulo del botón que adjunta el archivo de prueba del caso; propuesta «Probar con el archivo de otra faena») y `no_disponible` (lo que dice el chat cuando esa decisión todavía no responde archivos propios; propuesta «Esta decisión todavía no responde archivos propios: su red está practicando. Mientras, puedo responder con el archivo del demo»). Sin esas claves, el botón y la frase no se muestran. Confirmar también que los cinco `datos/demo/subida_<caso>.csv` son la versión final: los copio tal cual a `web/public/pruebas/` (sin los `_verdad`) y, si se regeneran, hay que avisarme. La regla de columnas de `leyes` toma su pista de `columnas.unidad_valor` («ppm de arsénico»).
+- sáb 17:04 · P-24, a PC 2, sin bloqueo: cada vez que un motor pase a `red`, anótalo en tu estado con la variable exacta (`KRYLOV_MOTOR_CINETICA=red`, …), para P-25 y P-27. Al validar, prueba `analizar_archivo` con su `subida_<caso>.csv` y el calce de la cabecera de `datos/preparar/subida.py`: `taludes` minutos ÷ 60, `flotacion` porcentaje ÷ 100, `flota` hierro en ppm ÷ 120. Dime el semáforo y los ms (tope: 2 s). Confirma también que el chequeo «entre 0 y 1» de `flotacion` corre antes de la red: hoy da `rojo_modelo` aunque el motor no esté validado.
 - sáb 16:40 · P-22, a PC 2: `sello_resumen.frase` llega vacía en `analizar`; por eso el pie no muestra la frase del sello.
 - sáb 16:40 · P-22, a PC 3: la plantilla de `sismicidad` dice «En 1 sectores» (concordancia).
 - sáb 16:48 · P-23, a PC 3: en `flotacion` la recuperación llega como fracción («0,84»); ¿se muestra así o en porcentaje? La web no la convierte por su cuenta.
