@@ -13,10 +13,11 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 - sáb 03:53 · **P-01** en `main`: API con las 7 rutas del contrato sobre los ejemplos fijos (`servicio/fijos.py`, una sola tabla para la API y el modo estático), `exportar_estatico` escribe 15 archivos en `web/public/estatico/`, y la web pinta el inicio (4 tarjetas) y la respuesta (titular, número grande, tres colores, unidades, banda roja, rótulo «precalculado»). Pie: «API» o «modo estático». Verificación: `curl -XPOST localhost:8010/api/analizar -d '{"caso":"credito"}'` y `npm run build` sin errores; `/?estatico=1` lee solo archivos.
 
 - sáb 03:59 · **P-02**: web en Vercel desde `Silent-math/krylov` (importó el dueño del espejo). Página, JS y `/estatico/*.json` responden 200 en 0,3 a 0,7 s medidos con curl desde PC 1. El paquete es el mismo de la compilación local. Probada desde un teléfono a las 04:01: abre casi al instante, con `?estatico=1` y sin él.
+- sáb 04:37 · **P-03** en `main` y desplegado: el inicio muestra las preguntas en el orden de `casos/INICIO`. La respuesta trae titular, número grande, tres colores (la duda achurada), lista de mayor a menor riesgo con su rango creíble y una sola línea del punto de corte, «qué pesa» con la certeza en palabras y un pie que dice quién respondió. Fuente Archivo instalada en local (`@fontsource-variable/archivo`) para funcionar sin internet. `?caso=rotacion` abre la respuesta directo. Verificado con capturas a 1280×720 y 390 px: se lee completa en el proyector y en el teléfono. El examen queda para P-10.
 
 ## En curso
 
-- sáb 03:59 · Sigue P-03: vista 1 y vista 2 de los casos con lista contra `analizar_tabla.json`.
+- sáb 04:37 · Sigue: lista nocturna (P-N1 `decision.ts` y deslizadores, P-N2 mapa, P-N3 nube) a las 05:00.
 
 ## Bloqueos
 
