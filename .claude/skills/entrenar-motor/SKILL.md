@@ -14,13 +14,13 @@ Los comandos son orientativos: ajústalos al código real. `<id>` es el `motor_i
 
 ## Lo mínimo para lanzar
 
-Simulador, red del andamio, pérdida, puntos de guardado y una prueba de humo con un SBC chico de 200 datasets (11.7). **El MCMC en NumPyro y la integración con `api.py` no bloquean el lanzamiento**: el MCMC del archivo del demo se corre antes solo si tarda menos de 10 minutos (A-26); si no, al terminar la ronda, sin nada entrenando.
+Simulador, red del andamio, pérdida, puntos de guardado y una prueba de humo con un SBC chico de 200 datasets (11.7). El simulador sortea el tamaño de cada dataset (el grupo `Diseño del dataset` de su modelo, `WORKPLAN.md`, 11). **El MCMC en NumPyro y la integración con `api.py` no bloquean el lanzamiento.** El método lento de los cinco motores se corre al final, después de validar (D-38, tarea A-36); antes de lanzar no se corre ninguno.
 
 ## Antes
 
 - El simulador llama a la misma función de preprocesamiento de `nucleo/` que el servicio usa con el archivo del caso (en `deformacion`, incluida la corrección del modo común). Hay una prueba que lo comprueba. Si no, para y arréglalo.
-- El predictivo a priori se miró contra el archivo del demo: cae dentro de lo simulado, y el prior quedó escrito en `motor/artefactos/<id>/config.json`. Si cambiaste un prior, avisa a PC 3 para que regenere el archivo (S-24).
-- El andamio pasó su prueba (A-23) y la red **sin entrenar** ya exportó (`uv run python -m motor.<id>.exportar --prueba`): el codificador a ONNX con formas fijas con relleno y dos salidas, s(D) y los s_j; los flujos a `flujo.npz` y `flujo_local.npz`; y con los mismos pesos y el mismo ruido, NumPy y `torch` dan la misma muestra.
+- El predictivo a priori se miró contra el archivo del demo: cae bien adentro de lo simulado, en valores y en tamaño (unidades y lecturas por unidad), y el prior con sus rangos de tamaño quedó escrito en `motor/artefactos/<id>/config.json`. Si cambiaste un prior, avisa a PC 3 para que regenere el archivo (S-24).
+- El andamio pasó su prueba (A-23) y la red **sin entrenar** ya exportó (`uv run python -m motor.<id>.exportar --prueba`): el codificador a ONNX con relleno y máscara hasta el tamaño máximo del motor, el tamaño real como entrada y dos salidas, s(D) y los s_j; los flujos a `flujo.npz` y `flujo_local.npz`; y con los mismos pesos y el mismo ruido, NumPy y `torch` dan la misma muestra.
 - `medir-rendimiento <id>` corrida y dispositivo elegido.
 - **No hay otro entrenamiento corriendo en este computador.** Uno por computador.
 
@@ -37,7 +37,7 @@ De 16:10 a 16:30 y de 18:15 a 19:00 no hay nada entrenando: ahí se valida y se 
 
 ## Pasos
 
-1. **Prueba de humo (3 a 5 min):** `uv run python -m motor.<id>.entrenar --minutos 3` y después un SBC chico de 200 datasets simulados (`uv run python -m motor.<id>.validar --sbc 200`). No tiene que pasar: tiene que correr, la pérdida tiene que bajar, no hay valores no numéricos y se escribe un punto de guardado.
+1. **Prueba de humo (3 a 5 min):** `uv run python -m motor.<id>.entrenar --minutos 3` y después un SBC chico de 200 datasets simulados (`uv run python -m motor.<id>.validar --sbc 200`). No tiene que pasar: tiene que correr con datasets de tamaños distintos (el más chico y el más grande del rango incluidos), la pérdida tiene que bajar, no hay valores no numéricos y se escribe un punto de guardado.
 2. **Lanza la corrida larga**, en una terminal aparte que no se cierre:
    `caffeinate -dims uv run python -m motor.<id>.entrenar --dispositivo <cpu|mps> --hasta <hora> --guardar-cada-min 10`
    El bucle cuenta los datasets simulados y lo escribe en cada punto de guardado: esa es la cifra «practicó con N millones».
@@ -48,13 +48,13 @@ De 16:10 a 16:30 y de 18:15 a 19:00 no hay nada entrenando: ahí se valida y se 
 ## Si algo se atrasa
 
 - **Se cayó la corrida:** retoma desde el último punto de guardado con el comando anotado y avisa a PC 3. La validación se corre igual a la hora de su ronda, con lo que alcanzó.
-- **El motor no está listo a la hora de lanzar:** se lanza cuando esté. Si a las 15:15 un motor de la ronda 1 no tiene prueba de humo, sale con el método lento y su computador pasa a la ronda 2.
+- **El motor no está listo a la hora de lanzar:** se lanza cuando esté. Si a las 15:15 un motor de la ronda 1 no tiene prueba de humo, se adelanta su método lento (D-38) y su computador pasa a la ronda 2.
 - **El andamio no está subido a las 13:45:** los motores de la ronda 1 se lanzan con el flujo global solamente, y lo propio de cada unidad se resuelve con el método lento para el archivo del demo.
 
 ## Topes
 
 - Validación de la ronda 1 a las 16:10 y de la ronda 2 a las 18:15. **Tope de redes: 20:30.** Después no cambia quién responde cada tarjeta, y no se entrena más.
-- El motor que no validó sale con la implementación `mcmc`, rotulado «precalculado», y el guion no dice que responde la red. Si a las 17:30 tampoco tiene su método lento, la tarjeta sale del inicio.
+- Para el motor que no validó se adelanta el método lento de su archivo del demo (10 minutos de presupuesto, sin nada entrenando): sale con la implementación `mcmc`, rotulado «precalculado», y el guion no dice que responde la red. Si a las 17:30 no tiene red validada ni método lento, la tarjeta sale del inicio.
 
 ## Terminado cuando
 

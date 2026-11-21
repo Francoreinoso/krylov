@@ -180,10 +180,26 @@ def _papeles(motor_id: str) -> list[dict]:
     return completos
 
 
+def _rangos(motor_id: str) -> dict | None:
+    """Los tamaños de dataset con que practicó la red (D-38): `RANGOS` del módulo del motor, el mismo diseño de su `config.json`."""
+    try:
+        return dict(_motor(motor_id, "RANGOS"))
+    except ErrorKrylov:
+        pass
+    ruta = _casos.ARTEFACTOS / motor_id / "config.json"
+    prior = json.loads(ruta.read_text(encoding="utf-8")).get("prior", {}) if motor_id == "espacial" and ruta.exists() else {}
+    if "n_min" not in prior:
+        return None
+    return {"muestras": {"minimo": prior["n_min"], "maximo": prior["n_max"]},
+            "frase": f"Practiqué con terrenos de {prior['n_min']} a {prior['n_max']} muestras."}
+
+
 @_con_errores
 def papeles(motor_id: str) -> dict:
     """Los papeles de columna que recibe la red del motor (cuántas columnas acepta cada uno y de qué tipo) y su caso base."""
-    return {"motor_id": motor_id, "caso_base": _caso_base(motor_id)["nombre"], "papeles": _papeles(motor_id)}
+    respuesta = {"motor_id": motor_id, "caso_base": _caso_base(motor_id)["nombre"], "papeles": _papeles(motor_id)}
+    rangos = _rangos(motor_id)
+    return {**respuesta, "rangos": rangos} if rangos else respuesta
 
 
 def _celda(valor) -> str:

@@ -232,6 +232,32 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Lo que una persona del equipo tiene que confirmar** (hasta entonces vale lo escrito): (1) la excepción de las 20:30; (2) el orden de las rondas; (3) que las tarjetas usen datos simulados rotulados; (4) quién presenta.
 · Pedido del equipo (Rodrigo). El detalle es propuesta del plan; el equipo lo confirma o lo cambia en el tablero.
 
+**D-38 · sáb 21-nov 13:10 · El método lento de cada motor se corre al final, y cada modelo lleva un nivel explícito para el tamaño del dataset.** Reemplaza de D-37 «cada motor tiene primero su método lento precalculado (plan B)» y, de la sección 11 de `WORKPLAN.md`, los tamaños de dataset que eran casi fijos. No cambia la forma de ninguna respuesta.
+
+- **Por qué lo primero.** El MCMC de referencia es lo que más tiempo de cómputo gasta, y con un entrenamiento por computador le quita minutos a las redes. Lo que primero interesa saber es qué da la inferencia amortizada; la comparación con el método lento se agrega después.
+- **Orden por motor.** Modelo con su nivel de diseño del dataset → simulador y predictivo a priori contra el archivo del demo → red → prueba de humo → entrenar → validar con lo que no depende del MCMC (SBC global y local, cobertura de lo que se decide, examen con la verdad escondida, todo por tramos de tamaño) → exportar → `analizar` → app. El MCMC de los cinco motores va después de todo eso (tarea A-36).
+- **Cuándo se adelanta.** Solo si dejarlo al final no es factible, y se anota en el estado con la hora. El caso previsto: una red no pasa su sello y esa tarjeta no tendría con qué responder a las 17:30. Para la ronda 1 se usa la ventana sin entrenamiento de las 16:10. Las redes de la ronda 2 validan a las 18:15: a las 17:30 el equipo decide por cada una entre detener su entrenamiento para adelantar el método lento de su archivo, o dejar la tarjeta fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30.
+- **Presupuesto.** 10 minutos por dataset. Si el MCMC de un motor no converge en ese tiempo, se anota y se sigue.
+- **El sello se escribe sin MCMC.** Los campos `mcmc_*` y `amortizacion` quedan en `null`, y «pasa» se decide con SBC, cobertura (también en el peor tramo de tamaño), examen y latencia. La comparación se agrega cuando exista; si contradice a la red (más de 0,3 desviaciones estándar en las medias de los parámetros globales, con el MCMC convergido), se informa en el sello y el equipo revisa el veredicto.
+- **Se informa lo que salga, tal cual:** tiempo por dataset, r̂ y diferencia con la red. No se elige ni se degrada un método de referencia para que la red se vea mejor. Si el MCMC resulta rápido en un modelo chico, se dice. La comparación que se cuente tiene que ser cierta y decir exactamente qué se comparó (un análisis, rehacer cientos de análisis, o rehacerlo con cada dato nuevo). Qué se cuenta en el pitch lo decide el equipo con los números medidos.
+- **Por qué lo segundo.** Krylov recibe datasets enteros, de tamaño distinto en cada uso. Una red que entrena con un tamaño fijo no extrapola al archivo de un usuario: antes del pivote, un archivo más chico que el del demo cayó fuera de lo simulado siendo de la misma familia (`estado/historia/amortizacion_hasta_el_pivote.md`, sáb 09:44).
+- **El nivel de diseño del dataset.** Cada modelo jerárquico sortea, antes que sus parámetros, cuántas unidades hay, cuántas lecturas tiene cada unidad (distintas entre unidades), tiempos irregulares y lecturas faltantes. Va escrito en el primer grupo de cada bloque de ecuaciones de `WORKPLAN.md`, sección 11 (`Diseño del dataset:`), en el simulador y en el `config.json` de cada motor:
+
+  | Motor | Unidades | Lecturas por unidad |
+  |---|---|---|
+  | `deformacion` | sectores: log-uniforme de 6 a 80 | de 24 a 200, hasta 15% faltantes |
+  | `cinetica` | líneas: de 2 a 16 | celdas de 5 a 12; medidas, de 3 al total |
+  | `desgaste` | camiones: log-uniforme de 8 a 120 | de 3 a 20 muestras, a intervalos irregulares |
+  | `sismico` | sectores: de 2 a 16 | las genera el proceso (tope 300); ventana observada log-uniforme de 2 a 24 h |
+  | `espacial` | muestras: log-uniforme de 30 a 400 (ya lo tenía) | no se reentrena; solo se documenta |
+
+  Son puntos de partida: se ajustan con el predictivo a priori, y lo que quede manda desde el `config.json`.
+- **En la red:** tensores con relleno y máscara hasta el máximo del motor; el tamaño entra además como dato explícito al codificador (el pooling normalizado no lo ve); cada lote de entrenamiento puede compartir un tamaño para no gastar relleno.
+- **En la validación:** SBC y cobertura por tramos de tamaño, con el peor tramo en el sello (`peor_grupo`, `cobertura_90_peor_grupo`, que ya existían).
+- **En el producto:** fuera del rango, `rojo_datos` con un motivo que nombra lo que hay y lo que el motor conoce; sobre el máximo, submuestra con semilla fija y aviso. `papeles()` y la tabla «Rangos que el motor conoce» de `contratos/CONTRATO.md` publican el mismo rango que el `config.json`. Los archivos del demo quedan bien adentro (36 sectores, 8 líneas, 40 camiones, 8 sectores y 340 pozos).
+- **Qué se toca:** `WORKPLAN.md` (1.2, 6.1, 6.3, 6.5, 6.7, 6.8, 8 y 11), las tareas A-22, A-24, A-26, A-29, A-30, A-32 y A-35, la tarea nueva A-36, `PC2_AMORTIZACION.md`, las skills `entrenar-motor` y `validar-motor`, la tabla de rangos del contrato, y `estado/MODELOS.md` con el tablero en vivo, que desde ahora muestran el modelo de cada caso pieza por pieza.
+· Pedido del equipo (Rodrigo). Lo escribe PC 2 por encargo directo; PC 3 queda avisado en `estado/amortizacion.md`.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
@@ -239,6 +265,7 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
 - D-37 (pivote a minería): confirmar la excepción de las 20:30, el orden de las rondas, los datos simulados rotulados y quién presenta.
 - H5 (16:30) y tope de redes (20:30): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta nueva.
+- D-38, a las 17:30: por cada tarjeta de la ronda 2 (`flota`, `sismicidad`), detener su entrenamiento para adelantar el método lento de su archivo, o dejarla fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30.
 - Al validar `estados` y `jerarquico` (D-32): ¿la nube se conecta al semáforo? Depende de si el archivo real cae dentro de las simulaciones.
 - D-34: la clave de Anthropic (`ANTHROPIC_API_KEY` en Render) la pone una persona; el despliegue de Render lo hace PC 1 con `desplegar`.
 - Al validar `supervivencia` (D-33): si el archivo real de rotación cae fuera por el segundo detector, ¿`KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso`?

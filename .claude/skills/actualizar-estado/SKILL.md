@@ -19,8 +19,9 @@ Rol: todos. Un minuto. Es la única forma en que los otros dos computadores sabe
    - **Bloqueos:** qué te frena, desde cuándo, qué probaste.
    - **Pedidos a otros:** a quién, qué y para cuándo.
    - **Números medidos:** valor, cómo se midió, hora.
-4. Si un número se va a mostrar al jurado, pídele a `seguimiento` que lo registre (skill `registrar-cifra`).
-5. Sube: `git add estado/<rol>.md && git commit -m "estado <rol> HH:MM" && git pull --rebase && git push`. El push va a los dos repositorios; si uno falla, repite `git push`.
+4. **Si construiste o validaste una pieza de un motor, marca su casilla en `estado/MODELOS.md`** (lo edita quien construye el motor, sea cual sea su rol). En la sección de ese motor, bajo `### Estado`, cambia `- [ ]` por `- [x]` solo si la pieza corrió y se verificó; después de los dos puntos puedes dejar una nota corta con lo medido («Entrenamiento: 2.100.000 simulaciones en 98 min»). No cambies el nombre ni el orden de las trece casillas: el tablero en vivo las cuenta («7 de 13»). Reescribe la línea `**Falta ahora:**` con lo siguiente que falta, en una línea. Si cambiaste un a priori o un rango de tamaño, corrige también su fila en `### Niveles`; las ecuaciones viven solo en `WORKPLAN.md`, sección 11.
+5. Si un número se va a mostrar al jurado, pídele a `seguimiento` que lo registre (skill `registrar-cifra`).
+6. Sube: `git add estado/<rol>.md estado/MODELOS.md && git commit -m "estado <rol> HH:MM" && git pull --rebase && git push`. El push va a los dos repositorios; si uno falla, repite `git push`.
 
 ## Reglas
 

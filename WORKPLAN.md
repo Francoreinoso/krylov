@@ -77,7 +77,7 @@ Krylov no reemplaza al especialista: le entrega, en el tiempo que sí tiene, lo 
 | 4 | `flota` | ¿Qué camión paro antes de que falle en la rampa? | Cada camión acumula un desgaste que no se ve, a saltos y sin retroceder; lo que se mide es una huella con error | Una incógnita por cada tramo de cada camión | Red, precalculado o fuera. Motor `desgaste`, ronda 2 |
 | 5 | `sismicidad` | Tras una tronadura bajo tierra: ¿puede volver a entrar la gente? | Cada sismo sube por un rato la probabilidad del siguiente; los grandes, más | Cada sismo nuevo obliga a recalcular toda la historia | Red, precalculado o fuera. Motor `sismico`, ronda 2 |
 
-Cada motor tiene su versión con el método lento de siempre (MCMC), que se calcula una vez para el archivo del demo y se guarda: es la vara para validar la red y el plan B de la tarjeta. Una tarjeta que sale del plan B se rotula «precalculado» y el guion no dice que responde la red. El detalle técnico está en la sección 11.
+Cada motor tiene su versión con el método lento de siempre (MCMC). **Se corre al final, después de que las cinco redes tengan su veredicto (D-38):** da la comparación de tiempos y una segunda vara para la red, y sus muestras del archivo del demo quedan guardadas como respaldo de la tarjeta. Se adelanta solo para una tarjeta cuya red no pasó su sello. Una tarjeta que responde con ese respaldo se rotula «precalculado» y el guion no dice que responde la red. El detalle técnico está en la sección 11.
 
 **Lo que cada motor nuevo NO es todavía** (y se dice): el modelo completo del documento técnico del equipo. `deformacion` no lleva el muro entero con miles de nodos; `cinetica` no resuelve las ecuaciones de varias fases; `desgaste` no cruza telemetría; `sismico` no usa la ubicación de cada sismo; `espacial` no separa dominios geológicos ni trabaja en tres dimensiones. Son la versión que cabe en una tarde, hecha para que la idea se vea funcionando.
 
@@ -273,7 +273,7 @@ Regla de corte: **si una tarea lleva el doble de su duración, se corta o se sim
 | **H5 · 16:30** | | A-31: **lanza la ronda 2** | Lanza `sismico` aquí |
 | **16:30 a 18:00** | P-27 a P-29: últimas tarjetas, modo demo | A-32, A-33: retirar motores antiguos, cifras | S-29 a S-31: extraños, entrega, congelar |
 | **H6 · 18:00** PRODUCTO TERMINADO | | | |
-| **18:00 a 20:30** | P-30: re-exportar si un motor pasa a `red` | A-34, A-35: validar la ronda 2, README técnico | S-32, ensayos, extraños, charla |
+| **18:00 a 20:30** | P-30: re-exportar si un motor pasa a `red` | A-34 a A-36: validar la ronda 2, README técnico y, al final, el método lento de los cinco motores | S-32, ensayos, extraños, charla |
 | **Tope de redes · 20:30** | | | |
 | **20:30 a 00:00** | Video de respaldo | README técnico | Entrega |
 | **Dom 00:00 a 06:00** | Duermen los tres | | |
@@ -311,36 +311,40 @@ Dueño de `nucleo/` y `motor/`. Skills: `medir-rendimiento`, `entrenar-motor`, `
 | Cuándo | PC 2 · MacBook Air M4, 16 GB | PC 3 · MacBook Air M3, 16 GB |
 |---|---|---|
 | 12:10 | Se detiene `estados` | Se detiene `jerarquico` |
-| 12:30 a 14:30 | Nada largo: pruebas de humo y MCMC cortos de los archivos del demo | Libre: MCMC de `leyes` si PC 2 lo pide |
+| 12:30 a 14:30 | Nada largo: pruebas de humo y predictivo a priori contra los archivos del demo | Libre |
 | 14:30 a 16:10 | **Ronda 1:** entrena `cinetica` | **Ronda 1:** entrena `deformacion` |
-| 16:10 a 16:30 | **Nada entrenando.** `validar-motor cinetica`; MCMC de los archivos de la ronda 2 | **Nada entrenando.** `validar-motor deformacion` |
+| 16:10 a 16:30 | **Nada entrenando.** `validar-motor cinetica` (sin MCMC). Solo si la red no pasa: el MCMC de su archivo del demo, adelantado | **Nada entrenando.** `validar-motor deformacion`, igual |
 | 16:30 a 18:15 | **Ronda 2:** entrena `desgaste` | **Ronda 2:** entrena `sismico` |
 | 18:15 a 19:00 | **Nada entrenando.** `validar-motor desgaste`; tiempos del recorrido | **Nada entrenando.** `validar-motor sismico` |
-| 19:00 a 20:30 | Libre para seguir entrenando el motor que esté más cerca de pasar | Igual |
+| 19:00 a 20:30 | Seguir entrenando el motor que esté más cerca de pasar; si nada entrena aquí, **el método lento de los cinco motores (A-36)** | Igual, con los motores que entrenó |
+| 20:30 a 22:00 | Lo que falte de A-36, ya sin nada entrenando; sellos completos | Igual |
 
 Si un motor de la ronda 1 no está listo para lanzarse a las 14:30, se lanza cuando esté y su validación se corre igual a las 16:10 con lo que alcanzó. **Tope de redes: 20:30.**
+
+**Orden por motor (D-38):** modelo con su nivel de diseño del dataset → simulador y predictivo a priori contra el archivo del demo → red → prueba de humo → entrenar → validar con lo que no depende del MCMC (SBC global y local, cobertura de lo que se decide, examen con la verdad escondida, todo por tramos de tamaño) → exportar → `analizar` → app. **El MCMC de referencia de los cinco motores va después de todo eso (A-36).** Es lo que más tiempo de cómputo gasta, y primero interesa ver qué da la inferencia amortizada. Se adelanta solo para una tarjeta cuya red no pasó su sello y que no tendría con qué responder a las 17:30; cuando pase, se anota en el estado con la hora.
 
 | Id | Cuándo | Min | Tarea | Entregable | Listo cuando |
 |---|---|---|---|---|---|
 | A-21 | 12:15 | 15 | *La persona.* Detener `estados` (Ctrl-C guarda) y no relanzar nada antiguo. `MOTORES` de `nucleo/casos.py` suma `deformacion`, `cinetica`, `desgaste` y `sismico`; `prueba_api` espera el `INICIO` nuevo | Estado | Las pruebas de `nucleo/` pasan con el `INICIO` nuevo |
-| A-22 | 12:30 | 30 | *Sesión B.* `leyes` con `espacial`: confirmar `analizar` y `donde_medir` con la red; examen contra `datos/demo/leyes_verdad.csv` (de los bloques en cada color, cuántos estaban de verdad sobre el límite); MCMC de referencia del archivo (`mcmc/leyes.npz`) con su tiempo; textos del caso sin «limpiar» (`casos/textos.yaml` ya es genérico) | Sello de `leyes` en el estado | Verde con la red; el plan B existe; el tiempo del método lento por análisis está medido |
-| A-23 | 12:30 | 60 | *Sesión A.* **El andamio de series** (11.6): `motor/comun/series.py` (codificador por unidad con máscara, agregación, flujo global, flujo local, pérdida, SBC global y local, exportación a ONNX con dos salidas y dos `flujo*.npz`) y `nucleo/series.py` (leer el archivo largo, muestrear en NumPy, armar `unidades`, `curva` y el examen con lo de `nucleo/tabla.py`). **Subirlo apenas pase su prueba: la sesión B lo espera** | Andamio | Con un simulador de juguete: exporta, NumPy = `torch`, y la pérdida baja en 2 minutos |
-| A-24 | 13:00 | 60 | *Sesión B.* `cinetica` (11.3): `nucleo/cinetica.py`, `motor/cinetica/` (simular, mcmc, red, entrenar, validar, exportar, sello). Predictivo a priori contra `datos/demo/flotacion.csv`. Prueba de humo con SBC chico | Motor listo para lanzar | El archivo del demo cae dentro de lo simulado; el SBC chico corre |
+| A-22 | 12:30 | 30 | *Sesión B.* `leyes` con `espacial`: confirmar `analizar` y `donde_medir` con la red; examen contra `datos/demo/leyes_verdad.csv` (de los bloques en cada color, cuántos estaban de verdad sobre el límite); textos del caso sin «limpiar» (`casos/textos.yaml` ya es genérico). El MCMC de referencia de este archivo pasa a A-36 (D-38) | Examen de `leyes` en el estado | Verde con la red; el examen está medido |
+| A-23 | 12:30 | 60 | *Sesión A.* **El andamio de series** (11.6): `motor/comun/series.py` (codificador por unidad con máscara y con el tamaño del dataset como entrada, agregación, flujo global, flujo local, pérdida, SBC global y local por tramos de tamaño, exportación a ONNX con dos salidas y dos `flujo*.npz`) y `nucleo/series.py` (leer el archivo largo, muestrear en NumPy, armar `unidades`, `curva` y el examen con lo de `nucleo/tabla.py`). **Subirlo apenas pase su prueba: la sesión B lo espera** | Andamio | Con un simulador de juguete: exporta, NumPy = `torch`, y la pérdida baja en 2 minutos |
+| A-24 | 13:00 | 60 | *Sesión B.* `cinetica` (11.3): `nucleo/cinetica.py`, `motor/cinetica/` (simular con su diseño del dataset, red, entrenar, validar, exportar, sello; `mcmc` se escribe en A-36). Predictivo a priori contra `datos/demo/flotacion.csv`. Prueba de humo con SBC chico | Motor listo para lanzar | El archivo del demo cae bien adentro de lo simulado, en tamaño y en valores; el SBC chico corre |
 | A-25 | 13:30 | 60 | *Sesión A.* `deformacion` (11.2): lo mismo, con la corrección del modo común en el preprocesamiento. Subir: **lo lanza la persona de PC 3** | Motor listo para lanzar | Igual que A-24, contra `datos/demo/taludes.csv` |
-| A-26 | 14:30 | 10 | `medir-rendimiento cinetica` y **lanzar la ronda 1** en PC 2 hasta las 16:10. Antes, el MCMC del archivo del demo de `cinetica` y `deformacion` si cada uno corre en menos de 10 minutos | Proceso corriendo | Primer punto de guardado; el estado dice cómo retomar |
+| A-26 | 14:30 | 10 | `medir-rendimiento cinetica` y **lanzar la ronda 1** en PC 2 hasta las 16:10. No se corre ningún MCMC antes (D-38) | Proceso corriendo | Primer punto de guardado; el estado dice cómo retomar |
 | A-27 | 14:40 | 50 | *Sesión B.* `desgaste` (11.4), sin lanzar | Motor listo | Igual que A-24, contra `datos/demo/flota.csv` |
 | A-28 | 14:40 | 60 | *Sesión A.* `sismico` (11.5), sin lanzar: simulador por ramificación y lo que se decide en forma cerrada | Motor listo | Igual, contra `datos/demo/sismicidad.csv`; la forma cerrada coincide con simular hacia adelante |
-| A-29 | 15:40 | 30 | `analizar` de `flotacion` y `taludes` con `mcmc` y con la red sin entrenar: `unidades`, `muestras_p`, `curva`, `factores`, examen con la verdad escondida. Entregar a PC 1 | Dos rutas | Las dos tarjetas responden con la forma del contrato |
-| A-30 | 16:10 | 20 | **Sin nada entrenando.** Detener la ronda 1. `validar-motor cinetica` aquí; en PC 3, `validar-motor deformacion`. MCMC de los archivos del demo de `desgaste` y `sismico` | Dos sellos | Cada uno dice PASA o NO PASA con sus números |
+| A-29 | 15:40 | 30 | `analizar` de `flotacion` y `taludes` con la red sin entrenar (la forma de la respuesta, no sus números): `unidades`, `muestras_p`, `curva`, `factores`, examen con la verdad escondida, y `rojo_datos` fuera de los rangos de tamaño. Entregar a PC 1 | Dos rutas | Las dos tarjetas responden con la forma del contrato |
+| A-30 | 16:10 | 20 | **Sin nada entrenando.** Detener la ronda 1. `validar-motor cinetica` aquí; en PC 3, `validar-motor deformacion`. Sin MCMC: los campos `mcmc_*` del sello quedan en `null`. Solo si una red no pasa, se adelanta el MCMC de su archivo del demo (10 minutos de presupuesto) y se anota | Dos sellos | Cada uno dice PASA o NO PASA con sus números, incluido el peor tramo de tamaño |
 | A-31 | 16:30 | 10 | **Lanzar la ronda 2:** `desgaste` en PC 2; PC 3 lanza `sismico`. Hasta las 18:15 | Procesos corriendo | Primer punto de guardado en los dos |
-| A-32 | 16:40 | 50 | Retirar `supervivencia`, `jerarquico` y `estados` (código, artefactos, pruebas, `cartera`) y pedir a PC 3 que borre sus casos. `analizar` de `flota` y `sismicidad` con `mcmc` | Repositorio limpio | `uv run pytest nucleo motor -q` pasa; `grep -ri rotacion nucleo motor` no encuentra nada |
+| A-32 | 16:40 | 50 | Retirar `supervivencia`, `jerarquico` y `estados` (código, artefactos, pruebas, `cartera`) y pedir a PC 3 que borre sus casos. `analizar` de `flota` y `sismicidad` con la red sin entrenar | Repositorio limpio | `uv run pytest nucleo motor -q` pasa; `grep -ri rotacion nucleo motor` no encuentra nada |
 | A-33 | 17:30 | 30 | Cifras por motor para PC 3. Fijar `KRYLOV_MOTOR_<ID>` de cada tarjeta para las 18:00. Ayudar a PC 1 con `exportar_estatico` | Variables fijadas | Cada tarjeta dice la verdad sobre quién responde |
 | A-34 | 18:15 | 45 | **Sin nada entrenando.** `validar-motor desgaste` aquí y `sismico` en PC 3. Tiempos del recorrido. El motor que pase antes de las 20:30 pasa a `red` y se avisa a PC 1 | Sellos | Veredicto de los cuatro motores nuevos en el estado |
-| A-35 | 19:00 | 60 | Sellos finales, `limitaciones` y README técnico (`motor/README.md`) con los cinco motores y sus nombres precisos | Texto | Cada corchete del guion que depende de PC 2 tiene su número o se declara sin número |
+| A-35 | 19:00 | 60 | Sellos (todavía sin MCMC), `limitaciones` y README técnico (`motor/README.md`) con los cinco motores, sus nombres precisos y los rangos de tamaño que cada uno conoce | Texto | Cada corchete del guion que depende de PC 2 tiene su número o se declara sin número |
+| A-36 | 20:00 | 90 | **Al final y sin nada entrenando: el método lento (MCMC de referencia, NUTS) de los cinco motores.** Por motor: el archivo del demo y de 3 a 5 datasets simulados, con 10 minutos de presupuesto por dataset. Se informa lo que salga, tal cual: tiempo, r̂ y diferencia con la red. Si no converge en su presupuesto, se anota y se sigue. Se completan los campos `mcmc_*` y `amortizacion` de cada sello. Empieza antes si un computador queda sin entrenar. En PC 3, los motores que entrenó ahí | Cinco sellos completos; `mcmc/<clave>.npz` por motor | Cada sello trae sus `mcmc_*` medidos o la frase «no convergió en 10 minutos»; `amortizacion.que_se_compara` dice exactamente qué se comparó |
 
 Qué recibe: de PC 3, los archivos del demo y los casos, y su computador para dos entrenamientos. Qué entrega: a PC 1, las funciones de `nucleo/api.py`; a PC 3, los números.
 
-**Lo que este calendario no garantiza.** Son cuatro motores nuevos en una tarde. Comprometido para las 18:00: `leyes` con su red, y `flotacion` y `taludes` respondiendo con red o con el método lento. `flota` y `sismicidad` son meta: si a las 17:30 no tienen ni su método lento, salen del inicio y quedan en el pitch como hoja de ruta.
+**Lo que este calendario no garantiza.** Son cuatro motores nuevos en una tarde. Comprometido para las 18:00: `leyes` con su red, y `flotacion` y `taludes` respondiendo con su red o, si no pasó, con su método lento adelantado. `flota` y `sismicidad` son meta: sus redes validan a las 18:15, así que a las 17:30 el equipo decide por cada una entre detener su entrenamiento para adelantar el método lento de su archivo, o dejarla fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30.
 
 ### 6.4 PC 3 · seguimiento (monitoreo, guía, ajustes al plan y al pitch)
 
@@ -372,12 +376,12 @@ Cada uno lo corre PC 3 con la skill `punto-de-control` y deja un tag en los dos 
 **H4 · sábado 14:30 · ¿Arrancó el pivote?**
 - Pasa si: `leyes` responde con la red en la URL pública, con «¿Dónde perforo?»; el inicio muestra las cinco tarjetas (cuatro con su ejemplo fijo, rotulado); la ronda 1 está entrenando en los dos computadores o lista para lanzarse en los próximos 15 minutos.
 - Si falla lo primero: PC 1 deja todo y saca `leyes`. Es el demo mínimo.
-- Si la ronda 1 no está lista: se lanza cuando esté y valida a las 16:10 con lo que alcanzó. Si a las 15:15 un motor de la ronda 1 no tiene prueba de humo, sale con el método lento y su computador pasa a la ronda 2.
+- Si la ronda 1 no está lista: se lanza cuando esté y valida a las 16:10 con lo que alcanzó. Si a las 15:15 un motor de la ronda 1 no tiene prueba de humo, se adelanta su método lento (D-38) y su computador pasa a la ronda 2.
 
 **H5 · sábado 16:30 · ¿Responden las primeras tarjetas nuevas?**
 - Pasa si: `flotacion` y `taludes` responden en la app con datos del motor (red o precalculado, rotulado); la ronda 2 está entrenando; el guion minero cabe en 3 minutos.
-- **Por motor, red o plan B:** si pasó `validar-motor`, `KRYLOV_MOTOR_<ID>=red`. Si no pasó pero mejora, puede seguir entrenando después de la ronda 2 en el computador que quede libre. Si no pasó, `mcmc` y «precalculado».
-- Si una tarjeta de la ronda 1 no tiene ni su método lento: sale del inicio a las 17:30.
+- **Por motor:** si pasó `validar-motor` (que ya no espera al MCMC, D-38), `KRYLOV_MOTOR_<ID>=red`. Si no pasó, se adelanta el método lento de su archivo del demo en la ventana sin entrenamiento: si converge en 10 minutos, `mcmc` y «precalculado». Si no pasó pero mejora, puede seguir entrenando después de la ronda 2 en el computador que quede libre.
+- Si una tarjeta de la ronda 1 no tiene red validada ni método lento: sale del inicio a las 17:30.
 
 **H6 · sábado 18:00 · PRODUCTO TERMINADO.** Tag `congelado`. Alguien que no sea de PC 1 hace el recorrido de 4.3 dos veces seguidas, en la URL pública y con el wifi apagado en local. Lo que no funciona se saca de la pantalla. Desde aquí no entra ninguna función.
 
@@ -421,24 +425,26 @@ Domingo: ensayo 06:30, ensayo 07:30, entrega 08:00, cierre de repositorios 08:30
 
 | Hora | Número | Quién |
 |---|---|---|
-| Sáb 13:00 | `leyes`: bloques en cada color, lo que cuesta no saber, examen, análisis rehechos y lo que vale el mejor pin. El método lento por análisis en ese archivo | PC 2 |
+| Sáb 13:00 | `leyes`: bloques en cada color, lo que cuesta no saber, examen, análisis rehechos y lo que vale el mejor pin | PC 2 |
 | Sáb 14:30 | Ronda 1: datasets simulados por segundo de `cinetica` y `deformacion` | PC 2, PC 3 |
-| Sáb 16:30 | Ronda 1: simulaciones, minutos, SBC, cobertura, diferencia con el método lento, milisegundos por análisis | PC 2, PC 3 |
+| Sáb 16:30 | Ronda 1: simulaciones, minutos, SBC, cobertura (global, por unidad y en el peor tramo de tamaño), milisegundos por análisis | PC 2, PC 3 |
 | Sáb 17:00 | Extraños que repiten la idea, prueba 1 | PC 3 |
 | Sáb 17:30 | Por tarjeta: unidades en cada color, lo que cuesta no saber, examen con la verdad escondida | PC 2 |
 | Sáb 19:00 | Ronda 2: lo mismo que la ronda 1. Tiempos del recorrido sin nada entrenando | PC 2, PC 3 |
 | Sáb 19:30 | Extraños que repiten la idea, prueba 2 | PC 3 |
 | Sáb 20:30 | Qué tarjetas responden con su red y cuáles salieron precalculadas | PC 2 |
+| Sáb 22:00 | El método lento de cada motor: segundos por dataset, r̂, diferencia con la red, y qué se comparó exactamente (A-36) | PC 2, PC 3 |
 
 ### 6.8 Riesgos que nos dejan sin demo
 
 | Riesgo | Señal | Qué se hace |
 |---|---|---|
 | El pivote deja la app a medias | H4 | `leyes` es lo primero que se conecta y ya responde con la red. Las tarjetas nuevas parten con su ejemplo fijo rotulado. El tag `h1` tiene la app anterior si hubiera que volver |
-| Cuatro motores no caben en una tarde | H5 y H6 | Motores chicos, un andamio común, cada uno con su método lento primero. Orden de corte escrito. Comprometido: `leyes`, y dos tarjetas más con red o precalculado |
+| Cuatro motores no caben en una tarde | H5 y H6 | Motores chicos, un andamio común, y el método lento al final para no gastar cómputo antes de ver las redes (D-38). Orden de corte escrito. Comprometido: `leyes`, y dos tarjetas más con red o precalculado |
 | El andamio de series se atrasa | A-23 sin subir a las 13:45 | Los motores de la ronda 1 se lanzan con el flujo global solamente y lo propio de cada unidad se resuelve con el método lento para el archivo del demo |
-| Un motor no pasa su sello | 16:10 y 18:15 | Tarjeta «precalculada». Si mejora, sigue entrenando hasta las 20:30 |
-| El método lento tampoco converge en un motor | A-26, A-30 | Esa tarjeta sale del inicio y queda como hoja de ruta. Se dice |
+| Un motor no pasa su sello | 16:10 y 18:15 | Se adelanta el método lento de su archivo del demo: tarjeta «precalculada». Si mejora, sigue entrenando hasta las 20:30 |
+| El método lento tampoco converge en un motor | A-30, A-34, A-36 | Se anota y se sigue. Si además su red no pasó, esa tarjeta sale del inicio y queda como hoja de ruta. Se dice |
+| El archivo de un usuario es más chico o más grande que lo que la red practicó | Al subir un archivo propio | Cada modelo sortea el tamaño del dataset (sección 11); fuera del rango, `rojo_datos` con su motivo; sobre el máximo, submuestra con semilla fija y aviso |
 | Un entrenamiento se cae o un Mac se duerme | Sin puntos de guardado recientes | Tapa abierta y `caffeinate`. Se retoma del último punto |
 | El archivo del demo cae fuera de lo simulado | A-24, A-25, A-27, A-28 | Los archivos se generan con las mismas ecuaciones de la sección 11; si PC 2 cambia un prior, PC 3 regenera (S-24) |
 | La revisión del código encuentra motores de recursos humanos | Entrega | A-32 los retira. Si no alcanza el sábado, se hace el domingo antes de las 08:00, con las pruebas pasando |
@@ -463,7 +469,7 @@ Domingo: ensayo 06:30, ensayo 07:30, entrega 08:00, cierre de repositorios 08:30
 | Motor `espacial`: red entrenada con 7,75 millones de terrenos simulados, validada; `leyes` con «¿Dónde perforo?» | Dominios geológicos, tres dimensiones, cobre y arsénico a la vez |
 | Motores `cinetica` y `deformacion`: red validada si pasó; si no, método lento precalculado y rotulado. **Se dice cuál** | Las ecuaciones de varias fases; el muro completo con miles de nodos |
 | Motores `desgaste` y `sismico`: red, precalculado o fuera. **Se dice cuál** | Telemetría de la flota; ubicación de cada sismo |
-| Cinco modelos generativos escritos, cada uno con su simulador y su método lento | Clientes, pilotos, precios |
+| Cinco modelos generativos escritos, cada uno con su simulador (el método lento de cada uno se corre al final, D-38) | Clientes, pilotos, precios |
 | Archivos del demo simulados, con verdad escondida, rotulados | Datos reales de una faena |
 
 ## 9. Historia: qué había antes del pivote
@@ -497,14 +503,28 @@ con s_j el resumen aprendido de la unidad j y s(D) el del dataset. Así la dimen
 
 **Tamaño.** Entre 5 y 7 parámetros globales y 2 locales por motor. Es una decisión, no un límite del método: anoche el motor de 7 parámetros pasó su sello y el de 32 no (M-28).
 
+**El diseño del dataset es un nivel del modelo (D-38).** Krylov recibe datasets enteros, de tamaño distinto en cada uso. Una red que entrena con un tamaño fijo no extrapola al archivo de un usuario: ya pasó antes del pivote, cuando un archivo más chico que el del demo cayó fuera de lo simulado siendo de la misma familia. Por eso cada modelo jerárquico parte con un nivel explícito, el primer grupo de cada bloque de ecuaciones (`Diseño del dataset:`): cuántas unidades hay, cuántas lecturas tiene cada unidad (distintas entre unidades), tiempos irregulares y lecturas faltantes. Los niveles quedan así: diseño del dataset → parámetros de la faena (η) → parámetros de cada unidad (λ_j) → lo que se mide → lo que se decide. El simulador sortea el diseño en cada dataset, el `config.json` del motor guarda sus rangos, y `papeles()` y la tabla «Rangos que el motor conoce» de `contratos/CONTRATO.md` publican esos mismos rangos. Los archivos del demo quedan bien adentro.
+
+| Motor | Unidades | Lecturas por unidad | Archivo del demo |
+|---|---|---|---|
+| `deformacion` | sectores: log-uniforme de 6 a 80 | de 24 a 200, hasta 15% faltantes | 36 sectores, 88 a 95 lecturas |
+| `cinetica` | líneas: de 2 a 16 | celdas de 5 a 12; medidas, de 3 al total, distinto en cada línea | 8 líneas, 3 a 5 celdas medidas de 8 |
+| `desgaste` | camiones: log-uniforme de 8 a 120 | de 3 a 20 muestras, a intervalos irregulares | 40 camiones, 4 a 10 muestras |
+| `sismico` | sectores: de 2 a 16 | las genera el proceso (tope 300); ventana observada log-uniforme de 2 a 24 h | 8 sectores, 6 h, 5 a 35 sismos |
+| `espacial` | muestras: log-uniforme de 30 a 400 | una por lugar; tres diseños de muestreo | 340 pozos |
+
 Todos los priors de abajo son puntos de partida. Antes de lanzar un entrenamiento se mira el predictivo a priori contra el archivo del demo y se ajusta; lo que quede va en `config.json` y PC 3 regenera el archivo si hace falta (S-24).
 
 ### 11.2 `deformacion` (taludes y relaves)
 
-Datos: J sectores (12 a 60); un sector es un prisma topográfico o un grupo de píxeles del radar. Por sector, K lecturas (48 a 144) de desplazamiento acumulado d_jk en una ventana [0, T]. El preprocesamiento (uno solo, en `nucleo/`) hace tres cosas: resta en cada lectura la mediana entre sectores (el modo común: el efecto de la atmósfera sobre el radar, que mueve a todos a la vez); pasa el tiempo a u = t/T; y divide el desplazamiento por la escala del archivo, e = la mediana entre sectores del movimiento total en la ventana. **Así el motor no depende de las unidades:** sirve igual para un radar que mide cada 4 minutos y para prismas que se leen cada 4 horas.
+Datos: J sectores (6 a 80); un sector es un prisma topográfico o un grupo de píxeles del radar. Por sector, hasta K lecturas (24 a 200, menos las que falten) de desplazamiento acumulado d_jk en una ventana [0, T]. El preprocesamiento (uno solo, en `nucleo/`) hace tres cosas: resta en cada lectura la mediana entre sectores (el modo común: el efecto de la atmósfera sobre el radar, que mueve a todos a la vez); pasa el tiempo a u = t/T; y divide el desplazamiento por la escala del archivo, e = la mediana entre sectores del movimiento total en la ventana. **Así el motor no depende de las unidades:** sirve igual para un radar que mide cada 4 minutos y para prismas que se leen cada 4 horas.
 
 ```
 En unidades normalizadas (u ∈ [0, 1], desplazamiento / e):
+Diseño del dataset:
+  J ~ LogUniforme(6, 80), entero                  cuántos sectores trae el archivo
+  K ~ LogUniforme(24, 200), entero                cuántas lecturas tiene la ventana, a paso parejo en u
+  f_j ~ Uniforme(0, 0.15)                         fracción de lecturas que le faltan al sector j, al azar
 Globales η (7):
   π ~ Beta(1.5, 6)                               fracción de sectores que se están acelerando
   μ_v ~ Normal(0, 0.6),  σ_v ~ HalfNormal(0.7)          velocidad de fondo, en log (1 = el sector típico)
@@ -524,16 +544,22 @@ Lectura:        y_jk = d_j(u_k) + ε_jk,   ε_jk ~ Normal(0, σ_e)
 - **Local λ_j:** (z_j, log(u_f,j − 1)). Una cabeza da P(z_j = 1 | η, s_j) y el flujo local da el tiempo que falta, condicionado a z_j = 1.
 - **Lo que se decide:** p_j = P(z_j = 1 y u_f,j ≤ 1 + H/T | datos), con H el horizonte del caso (`columnas.horizonte`, en las unidades de tiempo del archivo).
 - **Curva:** las lecturas, y el abanico de d_j de T a T + H con las muestras de (η, λ_j), de vuelta en las unidades del archivo. `marca`: la mediana y el rango de 90% de lo que falta para la falla.
-- **Rangos del simulador:** J de 12 a 60; K de 48 a 144, con lecturas faltantes al azar (hasta 15%).
+- **Rangos del simulador:** los del grupo `Diseño del dataset`: J de 6 a 80; K de 24 a 200, con hasta 15% de lecturas faltantes por sector. Tensores con relleno hasta 80 × 200 y máscara.
 - **MCMC de referencia:** NUTS con z_j marginalizado (mezcla de las dos trayectorias por sector). Es multimodal: se corre con 4 cadenas y se informa r̂.
 - **Método rápido de siempre:** una recta sobre la velocidad inversa de las últimas lecturas, sector por sector, sin rango.
 - **Datos reales (S-24):** los prismas del rajo de Zenodo 15003054 (CC BY 4.0). Las series reales no son hipérbolas limpias (hay prismas que se aceleran y después frenan): si el archivo real cae fuera de lo simulado, el semáforo lo dice y el demo usa el archivo simulado, rotulado.
 
 ### 11.3 `cinetica` (flotación)
 
-Datos: B líneas (4 a 12). Cada línea tiene K celdas (6 a 10) y la recuperación acumulada de cobre R_bk ∈ (0, 1) medida a la salida de las **primeras m_b celdas** (m_b entre 3 y K), a tiempos de residencia acumulados t_k en minutos. Se decide sobre la recuperación al final de la línea, t_K, que todavía no se ve.
+Datos: B líneas (2 a 16). La planta tiene líneas de K celdas (5 a 12) y la recuperación acumulada de cobre R_bk ∈ (0, 1) se mide a la salida de las **primeras m_b celdas** de cada línea (m_b entre 3 y K, distinto en cada línea), a tiempos de residencia acumulados t_bk en minutos, propios de cada línea. Se decide sobre la recuperación al final de la línea, t_final = K·Δ, que todavía no se ve.
 
 ```
+Diseño del dataset:
+  B ~ UniformeEntera(2, 16)                                  cuántas líneas trae el archivo
+  K ~ UniformeEntera(5, 12)                                  cuántas celdas tiene cada línea de la planta
+  m_b ~ UniformeEntera(3, K)                                 cuántas de esas celdas ya se midieron en la línea b
+  Δ ~ LogUniforme(2, 6)                                      minutos de residencia por celda en la planta; t_final = K·Δ
+  Δ_b = Δ·Uniforme(0.85, 1.15)                               cada línea, su tiempo por celda; t_bk = mín(k·Δ_b, t_final)
 Globales η (6):
   μ_k ~ Normal(log 0.25, 0.6),  σ_k ~ HalfNormal(0.5)       velocidad de flotación, 1/min, en log
   μ_R ~ Normal(logit 0.90, 0.6), σ_R ~ HalfNormal(0.6)      recuperación máxima alcanzable, en logit
@@ -542,20 +568,27 @@ Globales η (6):
   (fijo: la fracción lenta flota 8 veces más lento)
 Por línea:   log k_b ~ Normal(μ_k, σ_k),   logit Rmax_b ~ Normal(μ_R, σ_R)
 Curva:       R_b(t) = Rmax_b · [ 1 − φ·exp(−k_b·t) − (1 − φ)·exp(−k_b·t / 8) ]
-Medición:    y_bk = R_b(t_k) + ε,   ε ~ Normal(0, σ_y),   para k ≤ m_b
+Medición:    y_bk = R_b(t_bk) + ε,   ε ~ Normal(0, σ_y),   para k ≤ m_b
 ```
 
 - **Local λ_b:** (log k_b, logit Rmax_b). Con pocas celdas medidas, k y Rmax se confunden: el posterior local es alargado o bimodal, y por eso va un flujo y no una gaussiana.
-- **Lo que se decide:** p_b = P(R_b(t_K) < meta | datos), con la meta del caso (`columnas.umbral`).
-- **Curva:** las mediciones, y el abanico de R_b(t) hasta t_K.
-- **MCMC de referencia:** NUTS sobre η y los 2B locales. Rápido por dataset; la cifra de amortización es rehacerlo con cada lectura nueva en todas las líneas.
+- **Lo que se decide:** p_b = P(R_b(t_final) < meta | datos), con la meta del caso (`columnas.umbral`) y t_final = K·Δ (`columnas.tiempo_final` en el archivo). Dado (η, λ_b) la curva es determinista: por cada muestra de η se sacan 32 de λ_b y p_b es la fracción bajo la meta.
+- **Curva:** las mediciones, y el abanico de R_b(t) hasta t_final.
+- **Rangos del simulador:** los del grupo `Diseño del dataset`. Tensores con relleno hasta 16 × 12 y máscara.
+- **MCMC de referencia:** NUTS sobre η y los 2B locales. Se espera rápido por dataset; si lo es, se dice, y la comparación que se cuenta es una que sea cierta y diga qué se comparó (por ejemplo, rehacerlo con cada lectura nueva en todas las líneas).
 - **Método rápido de siempre:** ajustar una sola exponencial a cada línea por separado, sin rango.
 
 ### 11.4 `desgaste` (flota de camiones)
 
-Datos: M camiones (15 a 60). Por camión, J_i mediciones (4 a 12) de un indicador de desgaste y_ij (por ejemplo, hierro en el aceite), normalizado para que la falla sea 1,0, a horas de operación t_ij (en miles de horas); una covariable x_i de exigencia de su ruta, estandarizada; y h_i, las horas que faltan para su próxima mantención programada.
+Datos: M camiones (8 a 120). Por camión, J_i mediciones (3 a 20, a intervalos irregulares) de un indicador de desgaste y_ij (por ejemplo, hierro en el aceite), normalizado para que la falla sea 1,0, a horas de operación t_ij (en miles de horas); una covariable x_i de exigencia de su ruta, estandarizada; y h_i, las horas que faltan para su próxima mantención programada.
 
 ```
+Diseño del dataset:
+  M ~ LogUniforme(8, 120), entero                           cuántos camiones trae el archivo
+  J_i ~ UniformeEntera(3, 20)                               cuántas muestras tiene el camión i
+  t_i,ahora ~ Uniforme(0.5, 3)                              miles de horas de operación del camión i desde su última mantención
+  t_ij ~ Uniforme(0, t_i,ahora), ordenados                  cuándo se tomó cada muestra: intervalos irregulares
+  x_i ~ Normal(0, 1);  h_i ~ Uniforme(0.05, 0.5)            exigencia de la ruta; miles de horas hasta la próxima mantención
 Globales η (5):
   μ_ν ~ Normal(log 0.5, 0.5),  σ_ν ~ HalfNormal(0.5)      ritmo de desgaste por mil horas, en log
   β ~ Normal(0.3, 0.3)                                      cuánto acelera el desgaste una ruta exigente
@@ -570,16 +603,21 @@ Falla:        cuando X_i cruza 1
 
 - **Los camiones del archivo siguen en servicio:** el simulador descarta la trayectoria que ya cruzó el límite (X_i(t_ahora) < 0,92) y sortea otra. La red y el MCMC tienen que condicionar en lo mismo.
 - **Local λ_i:** (log ν_i, log X_i(t_ahora)).
+- **Rangos del simulador:** los del grupo `Diseño del dataset`. Tensores con relleno hasta 120 × 20 y máscara. Los rangos de t_i,ahora y de h_i se ajustan con el predictivo a priori contra `datos/demo/flota.csv` y quedan en `config.json`.
 - **Lo que se decide:** p_i = P(X_i(t_ahora + h_i) ≥ 1 | datos). Dado (η, λ_i), el incremento hasta la mantención es Gamma(ν_i·h_i / c², c²): se estima con 64 sorteos de NumPy por muestra.
 - **Curva:** las mediciones, y el abanico de X_i(t) hasta la próxima mantención, con la línea de falla en 1.
-- **MCMC de referencia:** NUTS con los incrementos latentes de cada tramo (cientos de variables positivas, sin conjugación con la medición gaussiana). Lento: esa es la historia.
+- **MCMC de referencia:** NUTS con los incrementos latentes de cada tramo (cientos de variables positivas, sin conjugación con la medición gaussiana). Se espera lento; se informa lo que se mida.
 - **Método rápido de siempre:** una recta por camión, extrapolada, sin rango.
 
 ### 11.5 `sismico` (sismicidad inducida)
 
-Datos: S sectores (4 a 12). Por sector, los sismos registrados en las T horas siguientes a la tronadura (hasta 300): hora t_i y magnitud m_i ≥ m_0, la mínima que la red sísmica registra completa.
+Datos: S sectores (2 a 16). Por sector, los sismos registrados en las T horas siguientes a la tronadura (T de 2 a 24; hasta 300 sismos): hora t_i y magnitud m_i ≥ m_0, la mínima que la red sísmica registra completa.
 
 ```
+Diseño del dataset:
+  S ~ UniformeEntera(2, 16)                                 cuántos sectores trae el archivo
+  T ~ LogUniforme(2, 24)                                    horas observadas desde la tronadura
+  N_s: lo genera el proceso, con tope de 300                cuántos sismos tiene el sector s (no se sortea aparte)
 Globales η (6):
   μ_μ ~ Normal(log 0.5, 0.7),  σ_μ ~ HalfNormal(0.6)      tasa de fondo por hora, en log
   n ~ Beta(3, 4)                                            cuántos sismos nuevos gatilla, en promedio, cada sismo (menor que 1)
@@ -593,20 +631,43 @@ Magnitudes:   m_i − m_0 ~ Exponencial(b·ln 10),  con α < b·ln 10
 ```
 
 - **Simulador:** por ramificación (inmigrantes de fondo, hijos de la tronadura, hijos de cada sismo), vectorizado por generaciones. Se trunca en 300 sismos por sector.
+- **Rangos del simulador:** los del grupo `Diseño del dataset`. El número de sismos por sector no se sortea: sale del proceso, y un sector sin sismos es un dato válido. Tensores con relleno hasta 16 × 300 y máscara; T entra como dato explícito.
 - **Local λ_s:** (log μ_s, log A_s).
 - **Lo que se decide:** p_s = P(al menos un sismo de magnitud ≥ M_c en las próximas H horas | historia). Con núcleo exponencial la intensidad esperada tiene forma cerrada: E[λ(T + u)] = μ/(1 − n) + (λ(T) − μ/(1 − n))·e^(−ω(1 − n)u). Se integra en [0, H], se multiplica por 10^(−b·(M_c − m_0)) y p_s = 1 − exp(−N). Es una aproximación de Poisson y va escrita en `limitaciones`; una prueba la compara con simular hacia adelante.
 - **Curva:** el número acumulado de sismos y el abanico del acumulado esperado en las próximas H horas.
 - **Codificador:** cada sismo entra con (t/T, log del tiempo desde el anterior, m − m_0); la serie se ordena por tiempo.
-- **MCMC de referencia:** NUTS con la verosimilitud recursiva del núcleo exponencial. Hay que rehacerlo con cada sismo nuevo: esa es la cifra de amortización.
+- **MCMC de referencia:** NUTS con la verosimilitud recursiva del núcleo exponencial. En la operación habría que rehacerlo con cada sismo nuevo: esa es la comparación candidata, que se cuenta solo con sus tiempos medidos.
 - **Método rápido de siempre:** contar sismos por hora y esperar a que baje de un número fijo.
 
 ### 11.6 `espacial` (leyes y arsénico) y lo común
 
-**`espacial` no cambia.** Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición; 7 parámetros; red convolucional sobre una grilla de 32 × 32 con cabeza de mapa y cabeza de flujo; kriging dado θ como paso local; «¿Dónde perforo?» rehace el análisis para cada lugar candidato y cada resultado posible en un solo lote. Sello: PASA (sáb 09:39). El caso `leyes` no usa la tendencia (20% de las simulaciones de entrenamiento no la tenían). Detalle en `motor/README.md`.
+**`espacial` no cambia.** Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición; 7 parámetros; red convolucional sobre una grilla de 32 × 32 con cabeza de mapa y cabeza de flujo; kriging dado θ como paso local; «¿Dónde perforo?» rehace el análisis para cada lugar candidato y cada resultado posible en un solo lote. Sello: PASA (sáb 09:39). El caso `leyes` no usa la tendencia (20% de las simulaciones de entrenamiento no la tenían). Detalle en `motor/README.md`. Ya tiene su nivel de diseño del dataset: no se reentrena, solo se documenta.
+
+```
+En unidades estandarizadas de los datos y con distancias en bloques de la grilla de 32 × 32 (normales truncadas a ±2.3 desviaciones):
+Diseño del dataset:
+  n ~ LogUniforme(30, 400), entero                cuántas muestras trae el archivo
+  s_1..n ~ uno de tres diseños, al azar           dónde se midió: uniforme, agrupado en tres centros, o en una franja junto al río
+  con probabilidad 0.2, sin tendencia             el archivo no trae la covariable (distancia al río)
+Globales θ (7):
+  log a ~ Normal(log 4.5, 0.55)                   alcance medio: hasta qué distancia se parece la roca vecina, en bloques
+  e_1, e_2 ~ Normal(0, 0.5)                       anisotropía: e = log r·(cos 2φ, sin 2φ), con r la razón y φ la dirección
+  log σ ~ Normal(0, 0.4)                          cuánto varía el campo
+  log τ ~ Normal(log 0.35, 0.7)                   error de cada medición, relativo a σ
+  β_0 ~ Normal(0, 1),  β_1 ~ Normal(0, 4)         nivel medio y efecto de la tendencia
+Campo:          y(s) = β_0 + β_1·√dist(s) + w(s),   w ~ PG(0, σ²·exp(−h)),  h la distancia anisotrópica
+Medición:       z_i = y(s_i) + ε_i,   ε_i ~ Normal(0, τ²)
+Local:          y en cada bloque de la grilla | θ, z       (kriging: gaussiano, en forma cerrada)
+```
+
+- **Lo que se decide:** por bloque, P(y(bloque) > límite | datos), con el límite del caso (`columnas.umbral`).
+- **Rangos del simulador:** 30 a 400 muestras (`n_min`, `n_max` de su `config.json`).
 
 **El andamio de series (`motor/comun/series.py`, `nucleo/series.py`).** Una implementación para los cuatro motores nuevos; cada motor aporta su simulador, su lista de parámetros y su función «lo que se decide».
 
-- **Entrada.** Tensores con relleno y máscara: (unidades, lecturas, canales). Canales: tiempo normalizado, valor estandarizado, diferencia con la lectura anterior y las covariables de la unidad. Tamaños máximos fijos por motor, para que ONNX no necesite ejes dinámicos.
+- **Entrada.** Tensores con relleno y máscara: (unidades, lecturas, canales). Canales: tiempo normalizado, valor estandarizado, diferencia con la lectura anterior y las covariables de la unidad. El tamaño real cambia en cada dataset (grupo `Diseño del dataset` de cada modelo); el máximo es fijo por motor, para que ONNX no necesite ejes dinámicos.
+- **El tamaño entra como dato explícito.** El pooling normalizado no ve cuántos elementos promedió. Por eso cada s_j recibe además el log del número de lecturas de su unidad, y s(D) recibe el log del número de unidades (y lo propio del motor: la ventana T en `sismico`).
+- **Lotes de un mismo tamaño.** Al entrenar, cada lote puede compartir un diseño (mismo número de unidades y mismo largo máximo), para no gastar cómputo en relleno; el tamaño cambia de un lote a otro y cubre todo el rango.
 - **Codificador por unidad.** Convoluciones 1D con máscara y pooling (promedio y máximo) → s_j de 64. Si no exporta o no aprende, una GRU chica.
 - **Agregación.** DeepSets con atención sobre las unidades (`motor/comun/codificador.py`, ya existe) → s(D) de 128.
 - **Flujo global.** `FlujoCondicional` de `motor/comun/flujo.py` (acoplamiento afín, 8 capas) sobre η en espacio sin restricciones, condicionado en s(D).
@@ -618,23 +679,26 @@ Magnitudes:   m_i − m_0 ~ Exponencial(b·ln 10),  con α < b·ln 10
 ### 11.7 Entrenamiento
 
 - PyTorch en `float32`; procesador o GPU del Mac según `medir-rendimiento`, por motor. Datasets simulados al vuelo; se cuenta cada uno. Puntos de guardado cada 10 minutos. Python 3.12 con `uv`.
-- **Lo mínimo para lanzar:** simulador, red del andamio, pérdida, puntos de guardado y una prueba de humo con un SBC chico (200 datasets).
+- **Lo mínimo para lanzar:** simulador con su diseño del dataset, predictivo a priori contra el archivo del demo (que cae bien adentro, en tamaño y en valores), red del andamio, pérdida, puntos de guardado y una prueba de humo con un SBC chico (200 datasets). **El MCMC no es requisito para lanzar ni para validar (D-38).**
 - Dos rondas de 100 a 105 minutos, un entrenamiento por computador. Calendario: sección 6.3.
 
 ### 11.8 Validación: un sello por motor
 
-1. **Calibración en simulaciones nuevas.** SBC y cobertura del 90% para η, y también para los λ_j (SBC local) y para lo que se decide (p_j contra el valor exacto con el η y el λ_j verdaderos).
-2. **Comparación con el MCMC de referencia.** NumPyro con NUTS, solo dentro de `motor/`. De 3 a 5 datasets simulados más el del demo, con su tiempo: esa es la cifra de amortización. Nunca encima de un entrenamiento. Si NUTS no converge (r̂ sobre 1,05) en 10 minutos por dataset, se anota «el método lento no convergió en 10 minutos» y el sello se apoya en el SBC; esa tarjeta no tiene plan B.
-3. **Examen con la verdad escondida.** Cada archivo del demo trae aparte lo que pasó de verdad con cada unidad.
-4. **Semáforo.** Un archivo con muy pocas lecturas da `rojo_datos`; uno que cae lejos de las simulaciones en el espacio de resúmenes, `rojo_modelo`.
+El orden es el de D-38: los chequeos 1 a 3 no dependen del MCMC y deciden el «pasa»; el 4 se corre al final y se agrega al sello.
 
-Un motor **pasa** si: SBC sin sesgo visible (criterios de D-32), cobertura de 90% entre 85% y 95% para η y para lo que se decide (y sobre 80% en el peor grupo, como en el sello de `espacial`), diferencia con el MCMC bajo 0,3 desviaciones estándar en las medias de η (si el MCMC convergió), y un análisis en menos de 1 segundo.
+1. **Calibración en simulaciones nuevas, por tramos de tamaño.** SBC y cobertura del 90% para η, y también para los λ_j (SBC local) y para lo que se decide (p_j contra el valor exacto con el η y el λ_j verdaderos). Todo se informa además por tramos del diseño del dataset (pocas, medias y muchas unidades; series cortas y largas), y **el peor tramo va al sello** (`peor_grupo`, `cobertura_90_peor_grupo`).
+2. **Examen con la verdad escondida.** Cada archivo del demo trae aparte lo que pasó de verdad con cada unidad. Se informa por tramos de la probabilidad que se dio.
+3. **Semáforo.** Un archivo fuera de los rangos de tamaño del motor, o con muy pocas lecturas, da `rojo_datos` con su motivo; uno que cae lejos de las simulaciones en el espacio de resúmenes, `rojo_modelo`.
+4. **Comparación con el MCMC de referencia, al final (A-36).** NumPyro con NUTS, solo dentro de `motor/`. De 3 a 5 datasets simulados más el del demo. Nunca encima de un entrenamiento. Se informa lo que salga, tal cual: tiempo por dataset, r̂ y diferencia con la red. Si NUTS no converge (r̂ sobre 1,05) en 10 minutos por dataset, se anota «el método lento no convergió en 10 minutos» y se sigue. **No se elige ni se degrada un método de referencia para que la red se vea mejor.** Si el MCMC resulta rápido en un modelo chico, se dice; la comparación que se cuente tiene que ser cierta y decir exactamente qué se comparó (`amortizacion.que_se_compara`: un análisis, rehacer cientos de análisis, o rehacerlo con cada dato nuevo). Qué se cuenta en el pitch lo decide el equipo con los números medidos.
+
+Un motor **pasa** si: SBC sin sesgo visible (criterios de D-32); cobertura de 90% entre 85% y 95% para η y para lo que se decide, y sobre 80% en el peor tramo de tamaño (como en el sello de `espacial`); el examen con la verdad escondida no contradice a la red de forma gruesa (el criterio exacto lo fija el `validar` de cada motor y queda en `criterios` del sello); y un análisis en menos de 1 segundo. **El sello se escribe sin MCMC:** los campos `mcmc_*` y `amortizacion` van en `null` hasta que la comparación exista. Cuando exista se agrega; si la diferencia con el MCMC convergido supera 0,3 desviaciones estándar en las medias de η, se informa en el sello y el equipo revisa el veredicto.
 
 ### 11.9 Decisión y servicio
 
 - **Decisión.** `contratos/CONTRATO.md`, sección 3. La regla de lista (`muestras_p`) vale para los cuatro motores nuevos; la espacial, para `leyes`.
 - **Servicio.** El codificador corre con `onnxruntime`; los flujos y lo local, en NumPy. `nucleo/` y `servicio/` no importan `torch`, `zuko`, `jax` ni `numpyro`.
-- **Plan B por motor.** Implementación `mcmc`: las muestras del MCMC precalculado para el archivo del demo (η y los λ_j), pasadas por la misma función «lo que se decide». Sale rotulado «precalculado».
+- **Tamaño del archivo.** Antes de responder se compara el archivo con los rangos del `config.json` del motor. Bajo el mínimo: `rojo_datos` con su motivo, que nombra lo que hay y lo que el motor conoce («hay 3 camiones y practiqué con flotas de 8 a 120»). Sobre el máximo: se toma una submuestra con semilla fija (de unidades, o de lecturas dentro de cada unidad) y la respuesta lleva el aviso (`amarillo`). `papeles()` publica los mismos rangos.
+- **Respaldo por motor.** Implementación `mcmc`: las muestras del MCMC precalculado para el archivo del demo (η y los λ_j), pasadas por la misma función «lo que se decide». Sale rotulado «precalculado». Existe cuando se corre el MCMC de ese motor: al final (A-36), o antes si su red no pasó el sello (D-38).
 
 ## 12. Fuentes
 

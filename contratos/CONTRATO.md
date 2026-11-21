@@ -32,16 +32,19 @@ Separador coma, punto decimal, primera fila con encabezados.
 
 | Motor | `tiempo` | `valor` | Además | Rangos que el motor conoce |
 |---|---|---|---|---|
-| `deformacion` | horas (o días) desde que parte la ventana | desplazamiento acumulado | `horizonte` del caso, en las unidades de `tiempo` | 12 a 60 sectores; 48 a 144 lecturas por sector |
-| `cinetica` | minutos en la línea al salir de cada celda | recuperación acumulada, de 0 a 1 | `umbral` (la meta) y `tiempo_final` del caso | 4 a 12 líneas; 3 a 10 celdas medidas por línea |
-| `desgaste` | horas de operación | indicador de desgaste (1,0 = falla) | `covariables` (una columna de exigencia) y `horizonte_por_unidad` (horas hasta la mantención), repetidas en las filas de cada camión | 15 a 60 camiones; 4 a 12 mediciones por camión |
-| `sismico` | horas desde la tronadura | magnitud | `umbral` (magnitud fuerte), `magnitud_minima` y `horizonte` del caso | 4 a 12 sectores; hasta 300 sismos por sector |
+| `deformacion` | horas (o días) desde que parte la ventana | desplazamiento acumulado | `horizonte` del caso, en las unidades de `tiempo` | 6 a 80 sectores; 24 a 200 lecturas por sector, con hasta 15% faltantes |
+| `cinetica` | minutos en la línea al salir de cada celda | recuperación acumulada, de 0 a 1 | `umbral` (la meta) y `tiempo_final` del caso | 2 a 16 líneas de 5 a 12 celdas; de 3 celdas medidas por línea al total |
+| `desgaste` | horas de operación | indicador de desgaste (1,0 = falla) | `covariables` (una columna de exigencia) y `horizonte_por_unidad` (horas hasta la mantención), repetidas en las filas de cada camión | 8 a 120 camiones; 3 a 20 mediciones por camión, a intervalos irregulares |
+| `sismico` | horas desde la tronadura | magnitud | `umbral` (magnitud fuerte), `magnitud_minima` y `horizonte` del caso | 2 a 16 sectores; ventana observada de 2 a 24 horas; hasta 300 sismos por sector (un sector sin sismos vale) |
+| `espacial` | — | lo medido en cada lugar (`x`, `y`) | `umbral` del caso | 30 a 400 muestras |
+
+**De dónde salen los rangos (D-38).** Cada modelo sortea el tamaño del dataset como un nivel más (`WORKPLAN.md`, sección 11, grupo `Diseño del dataset`). Los rangos de esta tabla son los del `config.json` de cada motor (clave `diseno`), que es la fuente: si una validación los achica, cambian ahí y aquí. `papeles(motor_id)` los publica en `rangos`.
 
 **Qué unidades se deciden:** todas. Ya no se vacía una parte de las respuestas: lo que se decide es algo que todavía no pasa (¿cede en las próximas 12 horas?).
 
 **La verdad escondida.** Cada archivo simulado tiene al lado `datos/demo/<caso>_verdad.csv`, con una fila por unidad y lo que pasó de verdad (la columna la nombra `verdad_columna` del caso). **Ese archivo no entra al motor**: sirve solo para el examen (sección 3). En `leyes` es `leyes_verdad.csv`, con la ley verdadera de cada bloque.
 
-Fuera de los rangos de la tabla, o con series demasiado cortas, la respuesta es `rojo_datos` con su motivo.
+Bajo el mínimo de la tabla, o con series demasiado cortas, la respuesta es `rojo_datos` con un motivo que nombra lo que hay y lo que el motor conoce («hay 3 camiones y practiqué con flotas de 8 a 120»). Sobre el máximo, el motor toma una submuestra con semilla fija (de unidades, o de lecturas dentro de cada unidad) y responde en `amarillo`, con el aviso en `semaforo.motivo`.
 
 ## 2. Lo que `amortizacion` le entrega a `producto` (`nucleo/api.py`)
 
@@ -73,10 +76,14 @@ def analizar_archivo(motor_id: str, tabla: "pandas.DataFrame | bytes", columnas:
              {"papel": "valor", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "numero",
               "texto": "Desgaste medido", "texto_largo": "El indicador de desgaste de esa muestra; 1,0 es la falla"},
              {"papel": "covariables", "cantidad": 1, "minimo": 0, "maximo": 1, "tipo": "numero",
-              "texto": "Exigencia de la ruta", "texto_largo": "Qué tan exigente es la ruta del camión: pendiente y carga"}]}
+              "texto": "Exigencia de la ruta", "texto_largo": "Qué tan exigente es la ruta del camión: pendiente y carga"}],
+ "rangos": {"unidades": {"minimo": 8, "maximo": 120}, "lecturas_por_unidad": {"minimo": 3, "maximo": 20},
+            "frase": "Practiqué con flotas de 8 a 120 camiones, con 3 a 20 muestras por camión."}}
 ```
 
 Un papel con `minimo: 0` es opcional: la red practicó también sin él.
+
+`rangos` (D-38, campo nuevo y opcional: la web puede ignorarlo) trae los tamaños de dataset con que practicó la red, leídos del `config.json` del motor: los mismos de la tabla «Rangos que el motor conoce» de la sección 1. `frase` está lista para mostrarse. En `sismico` trae además `ventana_horas`; en `espacial`, solo `muestras`.
 
 **`analizar_archivo(...)`.** Misma forma que `analizar()`. Arma un caso en memoria con el caso base del motor, `columnas` en lugar de las del YAML y la tabla subida. `columnas` acepta papel → nombre de columna, o la forma con transformación:
 
@@ -310,7 +317,7 @@ Solo para los motores que la entreguen (hoy, ninguno de los cinco la tiene para 
 
 Respuesta (`ejemplos/sello.json`): el contenido de `motor/artefactos/<motor_id>/sello.json` más `frases`, una lista de oraciones sin jerga.
 
-**Un sello por motor.** Campos de `sello.json`: `motor_id`, `implementacion`, `pasa`, `criterios`, `simulaciones_entrenamiento`, `entrenamiento_min`, `casos_validacion`, `cobertura_90`, `cobertura_90_parametros`, `cobertura_90_locales` (motores de series), `cobertura_90_peor_grupo`, `peor_grupo`, `sbc_pasa`, `cobertura_90_metodo_rapido`, `latencia_ms`, `mcmc_datasets_comparados`, `mcmc_s_por_dataset`, `mcmc_diferencia_media`, `mcmc_convergio`, `amortizacion` (`que_se_compara`, `mcmc_s`, `red_s`), `fecha`, `maquina`, `limitaciones`. Un campo sin medir va en `null` y la interfaz lo omite. El tablero en vivo lee este archivo directamente del repositorio.
+**Un sello por motor.** Campos de `sello.json`: `motor_id`, `implementacion`, `pasa`, `criterios`, `simulaciones_entrenamiento`, `entrenamiento_min`, `casos_validacion`, `cobertura_90`, `cobertura_90_parametros`, `cobertura_90_locales` (motores de series), `cobertura_90_peor_grupo`, `peor_grupo`, `sbc_pasa`, `cobertura_90_metodo_rapido`, `latencia_ms`, `mcmc_datasets_comparados`, `mcmc_s_por_dataset`, `mcmc_diferencia_media`, `mcmc_convergio`, `amortizacion` (`que_se_compara`, `mcmc_s`, `red_s`), `fecha`, `maquina`, `limitaciones`. Un campo sin medir va en `null` y la interfaz lo omite. **Los campos `mcmc_*` y `amortizacion` parten en `null`** (D-38): el método lento de cada motor se corre al final y `pasa` se decide sin él; `peor_grupo` y `cobertura_90_peor_grupo` son el peor tramo de tamaño del dataset. El tablero en vivo lee este archivo directamente del repositorio.
 
 ### `POST /api/analizar_archivo`, `POST /api/interpretar` y `POST /api/calce`
 
