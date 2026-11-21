@@ -66,6 +66,27 @@ def analizar_archivo(motor_id: str, tabla: "pandas.DataFrame | bytes", columnas:
 
 **`analizar_archivo(...)` (D-34).** Misma forma que `analizar()`. Arma un caso en memoria con el caso base del motor, `columnas` (papel → nombre de columna) en lugar de las del YAML y la tabla subida, y llama al `analizar` del motor. Si el archivo no calza (faltan papeles, cantidades distintas o valores fuera de rango) devuelve `semaforo.estado = "rojo_datos"` o `"rojo_modelo"` con su motivo; nunca lanza un error al usuario. Los dos detectores de la nube corren también sobre el archivo subido.
 
+**Desde D-35 (sáb 07:40): papeles opcionales y transformaciones.** Cada papel suma `minimo`, `maximo` y `texto_largo` (lo que lee el modelo de lenguaje para proponer el calce). `cantidad` queda como el máximo, por compatibilidad. Un papel con `minimo: 0` es opcional: la red practicó con un número variable de esas columnas y una máscara de presencia.
+
+```json
+{"motor_id": "supervivencia", "caso_base": "rotacion",
+ "papeles": [{"papel": "tiempo", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "numero",
+              "texto": "Años en la empresa",
+              "texto_largo": "Cuánto lleva o llevó la persona en la empresa, en años; si se fue, hasta que se fue"},
+             {"papel": "efectos", "cantidad": 3, "minimo": 0, "maximo": 3, "tipo": "numero",
+              "texto": "Factores", "texto_largo": "Datos de la persona que pueden mover el riesgo de irse"}]}
+```
+
+`columnas` en `analizar_archivo` acepta las dos formas: la de D-34 (papel → nombre o lista de nombres) y la de D-35, con transformación:
+
+```json
+{"tiempo":  {"columnas": ["antiguedad_meses"], "transformacion": {"nombre": "dividir", "por": 12}},
+ "evento":  {"columnas": ["renuncio"], "transformacion": {"nombre": "si_no_a_binario"}},
+ "efectos": {"columnas": ["horas_extra", "km_a_la_oficina"]}}
+```
+
+Transformaciones de la lista cerrada, en `nucleo/preproceso.py`: `dividir` (`por`), `anios_desde_fecha` (`hasta`), `dias_entre` (`desde`, otra columna), `si_no_a_binario`, `reescalar_ordinal` (`de`, `a`), `log` y `categoria_a_codigo`. Una transformación fuera de la lista da `rojo_datos` con su motivo.
+
 - `mediciones` es una lista de `{x, y, valor}` que se agregan a los datos del caso antes de responder. Así se simula «medí aquí y salió esto».
 - Todas llevan semilla fija: misma entrada, misma salida.
 
@@ -156,7 +177,9 @@ Reglas: `cifra` es el id de una fila de `pitch/CIFRAS.md`. `min` y `max` son los
 
 ## 5. Capa de lenguaje
 
-**Desde D-34 (sáb 07:12), el modelo de lenguaje solo interpreta.** `servicio/` lo llama con el JSON de una respuesta (`POST /api/interpretar`) y devuelve un texto corto. No elige el motor, no calcula y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON; si alguno no está, o si no hay clave (`ANTHROPIC_API_KEY`, variable de entorno de Render, nunca en el repositorio) o no hay internet, devuelve la plantilla. `titular` y `en_palabras` siguen saliendo de las plantillas de `casos/textos.yaml`, escritas por `seguimiento` y llenadas con los números del JSON: son el respaldo y lo que se ve primero. Para los cuatro archivos del demo la interpretación se precalcula en `web/public/estatico/` y va rotulada. `columnas.elegidas_por` es `equipo` en los casos del demo y `usuario` en un archivo subido.
+**Desde D-35 (sáb 07:40), además propone el calce.** `servicio/` le manda los papeles del motor (`papeles(motor_id)`, con `texto_largo`) y un resumen de cada columna del archivo: nombre, tipo, valores distintos, rango, porcentaje vacío y tres valores de ejemplo. Nunca filas completas. Devuelve, por papel, `columnas`, `transformacion` (de la lista cerrada), `motivo` y `confianza`, más `no_usadas`. El servicio valida que cada columna exista y cada transformación esté en la lista; el usuario ve el calce y lo confirma antes de `analizar_archivo`. Sin clave o sin internet, el calce sale de una regla por tipo de columna (`origen: "regla"`).
+
+**Desde D-34 (sáb 07:12), el modelo de lenguaje interpreta.** `servicio/` lo llama con el JSON de una respuesta (`POST /api/interpretar`) y devuelve un texto corto. No elige el motor, no calcula y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON; si alguno no está, o si no hay clave (`ANTHROPIC_API_KEY`, variable de entorno de Render, nunca en el repositorio) o no hay internet, devuelve la plantilla. `titular` y `en_palabras` siguen saliendo de las plantillas de `casos/textos.yaml`, escritas por `seguimiento` y llenadas con los números del JSON: son el respaldo y lo que se ve primero. Para los cuatro archivos del demo la interpretación se precalcula en `web/public/estatico/` y va rotulada. `columnas.elegidas_por` es `equipo` en los casos del demo y `usuario` en un archivo subido.
 
 *Antes (D-26): no había capa de lenguaje y «Sube tus datos» estaba cortado.*
 
@@ -177,6 +200,7 @@ Base `/api`. Errores: `{"error": "frase en español", "codigo": "..."}` con esta
 | `GET /api/papeles/{motor_id}` (D-34) | Chat | `papeles/<motor_id>.json` | — |
 | `POST /api/analizar_archivo` (D-34) | Chat, archivo propio | — (exige la API; si no responde, el chat lo dice) | misma forma que `analizar_tabla.json` |
 | `POST /api/interpretar` (D-34) | Chat | `interpretar/<clave>.json` para los archivos del demo, rotulado | — |
+| `POST /api/calce` (D-35) | Chat, antes de analizar | `calce/<caso>.json` para los archivos del demo, rotulado | — |
 
 `<clave>` = nombre del caso, más `__` y cada transformación o medición en orden (`rotacion_malo__quitar_factor-fecha_salida`, `terreno__A-alto`). `exportar_estatico` escribe todas las claves que el recorrido del demo puede pedir: cada caso, el arco rojo → verde, y para el caso espacial las tres mejores candidatas con sus tres resultados posibles.
 
@@ -299,6 +323,7 @@ Respuesta (`ejemplos/sello.json`): el contenido de `motor/artefactos/<motor_id>/
 
 - `POST /api/analizar_archivo`: multipart con `archivo`, `motor_id`, `columnas` (JSON, papel → columna), `costos` (JSON, opcional). Responde como `POST /api/analizar`.
 - `POST /api/interpretar`: el JSON de una respuesta → `{"texto": str, "origen": "modelo" | "plantilla"}`. Los números de la respuesta se muestran antes; el texto llega después y no los bloquea.
+- `POST /api/calce` (D-35): multipart con `archivo` y `motor_id` → `{"calce": {papel: {"columnas": [...], "transformacion": {...} | null, "motivo": str, "confianza": "alta" | "media" | "baja"}}, "no_usadas": [...], "origen": "modelo" | "regla"}`. El resumen de columnas lo arma el servicio; al modelo de lenguaje no van filas.
 
 ## 7. Artefactos de un motor
 

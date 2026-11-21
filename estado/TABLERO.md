@@ -21,12 +21,13 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora **P-12 (a)**, tope 10:30: chat con los cuatro archivos del demo, selector de papeles y respuesta dentro del chat, también en modo estático. Después **P-12 (b)**, tope 14:30: desplegar la API en Render (no existe todavía), `analizar_archivo` e `interpretar` (SDK `anthropic` solo en `servicio/`, clave en Render que pone una persona). **Empuja lo que tengas antes de empezar.** Arreglos chicos pendientes: en rojo, el pie no dice «Respondió la red»; ejes de la nube más grandes.
-- **PC 2 · amortizacion:** sesión B: ahora **A-19** (D-34), tope 10:30: `papeles` y `analizar_archivo`, con rojo y motivo si el archivo no calza y la nube sobre el archivo subido; confirmar los papeles de los cuatro motores y el tamaño de `codificador.onnx`. Sesión A: `espacial` a las 07:10, A-M3 a las 07:30, A-08 a las 08:30; sello de `supervivencia` en PC 2 (D-33). Pedido: recuperación por parámetro en cada `sello.json` (M-35).
+- **PC 2 · amortizacion:** **urgente D-35, antes de las 08:30:** papeles opcionales (máscara de presencia) en el simulador de `jerarquico`, o avisar a PC 3 que su lanzamiento espera. Sesión B: ahora **A-19** (D-34 y D-35), tope 10:30: `papeles` y `analizar_archivo`, con rojo y motivo si el archivo no calza y la nube sobre el archivo subido; confirmar los papeles de los cuatro motores y el tamaño de `codificador.onnx`. Sesión A: `espacial` a las 07:10, A-M3 a las 07:30, A-08 a las 08:30; sello de `supervivencia` en PC 2 (D-33). Pedido: recuperación por parámetro en cada `sello.json` (M-35).
 - **PC 3 · seguimiento:** 08:15 S-06; 08:30 S-06b (`git pull`, exportar y subir `supervivencia`, lanzar `jerarquico`). **Hecho:** archivos de prueba para la subida, `datos/demo/subida_rotacion_{ventas,investigacion,rrhh}.csv` (asignación de papeles en `estado/seguimiento.md`; RR. HH. tiene que dar «faltan datos»).
 
 ## Qué cambió respecto del plan
 
-- **D-34 (07:12):** chat, subida propia y modelo de lenguaje que solo interpreta. Revierte lo que D-26 cortó de «Sube tus datos» y la capa de lenguaje. **Orden de corte a las 16:00:** primero la interpretación, después la subida propia; el chat con los archivos del demo no se corta.
+- **D-35 (07:40):** el modelo de lenguaje propone el calce de columnas (sin filas) y el usuario lo confirma; papeles opcionales en `jerarquico` y `estados`, y en `supervivencia` si cabe. Registrada por PC 1, conversada en el grupo.
+- **D-34 (07:12):** chat, subida propia y modelo de lenguaje que interpreta. Revierte lo que D-26 cortó de «Sube tus datos» y la capa de lenguaje. **Orden de corte a las 16:00:** primero la interpretación, después la subida propia; el chat con los archivos del demo no se corta.
 - **D-29:** las horas son topes, no horas de inicio. **D-30 a D-33:** `estados` 33 parámetros, `jerarquico` 20, `etiquetas` en los casos, `unidad` en `analizar`, criterios del sello, `supervivencia` se valida en PC 2.
 - Guion: 3 minutos (J-04) y no cabía (176 s de habla). Si se muestra la subida en el escenario, sale la cartera.
 

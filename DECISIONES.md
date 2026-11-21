@@ -167,6 +167,29 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Aprobación:** la persona de PC 3, a las 07:12, con los seis puntos de lo que no calza a la vista (`estado/seguimiento.md`, «Propuesta de PC 1: chat»). Avisado a PC 1 y PC 2 en el tablero.
 · Propuesta de PC 1, decisión del equipo.
 
+**D-35 · sáb 21-nov 07:40 · El modelo de lenguaje propone el calce de columnas, el usuario lo confirma y las redes aceptan papeles opcionales.** Enmienda D-34. Krylov son cuatro modelos para cuatro preguntas (¿a quién conviene retener?, ¿qué citas conviene confirmar?, ¿a quién le apruebo el crédito?, ¿dónde limpio y dónde mido?) que responden el archivo de **cualquier negocio** con esa pregunta.
+- **Qué cambia.**
+  - **El calce lo propone un modelo de lenguaje.** Las columnas de un negocio casi nunca se llaman ni vienen como las del entrenamiento. `servicio/` arma un resumen por columna (nombre, tipo, valores distintos, rango, porcentaje vacío y tres valores de ejemplo) y se lo pasa al modelo de lenguaje junto con `papeles(motor_id)`. **Nunca manda filas completas.** El modelo devuelve, por papel, qué columnas van, qué transformación aplicar, por qué y qué tan seguro está, más las columnas que no usa.
+  - **El usuario ve el calce y lo confirma.** El chat muestra «Tiempo en la empresa ← `antiguedad_meses` (÷ 12) · porque…» y un clic cambia una asignación. Después el código valida tipos, cantidades y rangos, y la nube dice si el archivo calzado se parece a lo que la red practicó.
+  - **Transformaciones de una lista cerrada**, ejecutadas solo en `nucleo/preproceso.py` (regla 3): `dividir` (meses a años), `anios_desde_fecha`, `dias_entre` (dos fechas), `si_no_a_binario`, `reescalar_ordinal` (por ejemplo, de 1–5 a 1–4), `log` y `categoria_a_codigo`. El modelo de lenguaje solo las nombra; nunca toca los datos.
+  - **Papeles opcionales.** Cada papel lleva `minimo` y `maximo`. El simulador sortea en cada dataset cuántas columnas de cada papel están presentes; el codificador recibe una máscara de presencia por columna y la columna ausente va en cero. Si sobran columnas, el calce elige hasta `maximo` y el resto queda «no usadas», a la vista. Si un papel queda bajo su `minimo`, la respuesta es `rojo_datos` con el motivo («falta el tiempo en la empresa»).
+    - `jerarquico` y `estados`: se lanzan con papeles opcionales (todavía no entrenan).
+    - `supervivencia`: su corrida termina a las 08:30 con esquema fijo; PC 2 evalúa un ajuste corto desde ese punto de guardado con la máscara. Si no cabe, sigue con esquema fijo y `rojo_modelo` con su motivo.
+    - `espacial`: x, y y valor son obligatorios; PC 2 dice si la tendencia puede ser opcional.
+    - Validación: el posterior de un efecto ausente tiene que salir igual al prior; el SBC se mide por cantidad de papeles presentes.
+  - **Examen.** Un archivo propio no trae respuestas escondidas: en su lugar va el sello del motor («lo comprobamos en casos simulados nuevos»).
+  - **Sin clave o sin internet**, el calce lo propone la regla por tipo de D-34 y el usuario lo ajusta. Los archivos del demo pasan por el mismo calce, precalculado en `web/public/estatico/calce/<caso>.json` y rotulado.
+- **Por qué.** Con esquema fijo y selector por tipo, casi ningún archivo propio calzaba (riesgo escrito en D-34). El producto es «cuatro preguntas para cualquier negocio», y eso exige leer columnas que no se llaman como en el entrenamiento y aceptar menos columnas de las que se simularon.
+- **Contrato** (cambio con aviso; detalle en `contratos/CONTRATO.md`): `papeles()` suma `minimo`, `maximo` y `texto_largo`; `analizar_archivo(..., columnas)` acepta además `{papel: {"columnas": [...], "transformacion": {...}}}`; ruta nueva `POST /api/calce`.
+- **Personas.** «¿Mis datos salen de la empresa?»: al modelo de lenguaje solo van los nombres y un resumen de las columnas, nunca filas.
+- **Riesgos.**
+  - Carga para PC 2 el día del camino crítico. `jerarquico` se lanza a las 08:30 en PC 3: los papeles opcionales tienen que estar antes en su simulador, o el lanzamiento espera. Lo deciden PC 2 y PC 3.
+  - Con papeles opcionales, la red aprende un problema más difícil con el mismo presupuesto. Si el sello no pasa, el motor vuelve al esquema fijo.
+  - El modelo de lenguaje puede equivocarse en el calce: lo atajan la validación, la confirmación del usuario y la nube.
+- **Orden de corte**, antes que lo de D-34: 1) el calce por modelo de lenguaje (queda la regla por tipo); 2) los papeles opcionales de `supervivencia` (queda el esquema fijo); 3) los de `jerarquico` y `estados`, si su sello no pasa.
+- **Aprobación:** el equipo, conversado en el grupo. Lo registra PC 1 a pedido de su persona, sin pasar por PC 3. Aviso a PC 2 por Discord.
+· Decisión del equipo.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
