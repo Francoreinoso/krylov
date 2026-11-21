@@ -62,7 +62,8 @@ Reglas:
 - Cada papel lleva entre `minimo` y `maximo` columnas. Un papel con mínimo 0 es opcional: déjalo vacío si ninguna columna sirve.
 - Una columna va en un solo papel. Las que no uses van en `no_usadas`.
 - Una columna que solo tiene dato cuando la respuesta ya se sabe (por ejemplo, una fecha de salida) delata la respuesta: no la uses como factor.
-- Usa una transformación solo si hace falta para que la columna diga lo que pide el papel (meses a años: `dividir` por 12; una fecha a años: `anios_desde_fecha`). Si no hace falta, `ninguna`. Los parámetros que no usa la transformación van en null.
+- La transformación de un papel se aplica a todas sus columnas: si una columna no la necesita, no pongas transformación en ese papel.
+- Usa una transformación solo para llevar la columna a las unidades que pide el papel (meses a años: `dividir` por 12; una fecha a años: `anios_desde_fecha`), nunca para mejorar el modelo: el modelo ya considera efectos no lineales. Si la columna ya está en esas unidades, `ninguna`. Los parámetros que no usa la transformación van en null.
 - `motivo`: una frase corta, sin jerga, que diga por qué esa columna cumple el papel.
 - `confianza`: alta si el nombre y los valores calzan sin duda, media si es probable, baja si es una adivinanza."""
 
@@ -163,9 +164,21 @@ def _transformacion_valida(t: dict | None, nombres: set[str]) -> dict | None:
     return t
 
 
-def validar(propuesto: dict, papeles: list[dict], nombres: list[str]) -> dict | None:
-    """El calce del modelo, revisado por el código: columnas que existen, sin repetir, dentro de mínimo y máximo."""
-    existentes, usadas, calce = set(nombres), set(), {}
+def _se_puede_aplicar(t: dict, columnas: list[str], tabla: dict[str, list[str]]) -> bool:
+    """La transformación corre sobre cada columna del papel (la misma prueba que hará `analizar_archivo`)."""
+    parametros = {k: v for k, v in t.items() if k != "nombre"}
+    try:
+        for nombre in columnas:
+            preproceso.TRANSFORMACIONES[t["nombre"]](tabla[nombre], tabla, **parametros)
+    except (ValueError, TypeError, KeyError, ZeroDivisionError, OverflowError):
+        return False
+    return True
+
+
+def validar(propuesto: dict, papeles: list[dict], tabla: dict[str, list[str]]) -> dict | None:
+    """El calce del modelo, revisado por el código: columnas que existen, sin repetir, dentro de mínimo y máximo,
+    y transformaciones que corren sobre sus columnas (la que no corre se descarta)."""
+    existentes, usadas, calce = set(tabla), set(), {}
     for p in papeles:
         entrada = propuesto.get(p["papel"])
         if not isinstance(entrada, dict):
@@ -177,12 +190,14 @@ def validar(propuesto: dict, papeles: list[dict], nombres: list[str]) -> dict | 
             return None
         usadas |= set(columnas)
         confianza = entrada.get("confianza") if entrada.get("confianza") in ("alta", "media", "baja") else "baja"
-        calce[p["papel"]] = _entrada(columnas, str(entrada.get("motivo") or ""), confianza,
-                                     _transformacion_valida(entrada.get("transformacion"), existentes))
+        transformacion = _transformacion_valida(entrada.get("transformacion"), existentes)
+        if transformacion and not _se_puede_aplicar(transformacion, columnas, tabla):
+            transformacion = None
+        calce[p["papel"]] = _entrada(columnas, str(entrada.get("motivo") or ""), confianza, transformacion)
     return calce
 
 
-def _calce_por_modelo(papeles: list[dict], resumen: list[dict]) -> tuple[dict, str] | None:
+def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str, list[str]]) -> tuple[dict, str] | None:
     nombres = [c["nombre"] for c in resumen]
     pedido = {"papeles": [{k: p[k] for k in ("papel", "minimo", "maximo", "tipo", "texto_largo")} for p in papeles],
               "columnas": resumen}
@@ -193,7 +208,7 @@ def _calce_por_modelo(papeles: list[dict], resumen: list[dict]) -> tuple[dict, s
         propuesto = json.loads(escrito[0])
     except json.JSONDecodeError:
         return None
-    calce = validar(propuesto, papeles, nombres) if isinstance(propuesto, dict) else None
+    calce = validar(propuesto, papeles, tabla) if isinstance(propuesto, dict) else None
     return (calce, escrito[1]) if calce else None
 
 
@@ -207,7 +222,7 @@ def proponer_calce(motor_id: str, contenido: bytes) -> dict:
     except ArchivoNoCalza as e:
         raise PeticionInvalida(e.motivo, "archivo_ilegible") from None
     resumen = resumen_columnas(columnas)
-    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen)
+    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen, columnas)
     if del_modelo:
         (calce, proveedor), origen = del_modelo, "modelo"
     else:

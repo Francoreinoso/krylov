@@ -56,12 +56,20 @@ def _pedir_claude(sistema: str, usuario: str, esquema: dict | None) -> str | Non
     return next((b.text for b in respuesta.content if b.type == "text"), None)
 
 
+def _sin_listas_largas(esquema):
+    """El esquema sin los `enum` largos (los nombres de columna ya van en el mensaje): el plan gratuito de Groq cuenta tokens."""
+    if isinstance(esquema, dict):
+        return {k: _sin_listas_largas(v) for k, v in esquema.items() if not (k == "enum" and len(v) > 10)}
+    return [_sin_listas_largas(v) for v in esquema] if isinstance(esquema, list) else esquema
+
+
 def _pedir_groq(sistema: str, usuario: str, esquema: dict | None) -> str | None:
     """Solo pruebas locales: en Render y en el demo responde Claude. API compatible con la de OpenAI, sin SDK."""
     if esquema:
-        sistema += "\n\nResponde solo con un objeto JSON que cumpla este esquema:\n" + json.dumps(esquema, ensure_ascii=False)
+        sistema += "\n\nResponde solo con un objeto JSON que cumpla este esquema:\n" + json.dumps(
+            _sin_listas_largas(esquema), ensure_ascii=False, separators=(",", ":"))
     cuerpo = {
-        "model": os.environ.get("KRYLOV_MODELO_GROQ", "llama-3.3-70b-versatile"),
+        "model": os.environ.get("KRYLOV_MODELO_GROQ", "openai/gpt-oss-120b"),
         "messages": [{"role": "system", "content": sistema}, {"role": "user", "content": usuario}],
         "max_tokens": MAX_TOKENS,
     }
