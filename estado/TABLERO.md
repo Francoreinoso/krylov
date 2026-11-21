@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 16:36 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 17:25 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
 
@@ -46,4 +46,4 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 
 - **Ahora, una persona,** de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
 - **Ahora, PC 2 y una persona, por `taludes`:** su red no pasó (solo el SBC por unidad; coberturas en 0,90). Opciones: revisar el criterio, seguir entrenando después de la ronda 2, o adelantar su método lento para salir «precalculada». Hasta entonces la tarjeta sigue de ejemplo.
-- **17:30, una persona, por `flota` y por `sismicidad`:** detener su entrenamiento para adelantar el método lento de su archivo (sale «precalculada» a las 18:00), o dejarla fuera del inicio y sumarla si su red pasa antes de las 20:30. PC 3 lleva la pregunta a las 17:15 con el avance de cada red.
+- **Decidido (17:25, persona de PC 3):** `sismicidad` sigue entrenando, sin método lento; fuera del inicio a las 18:00 y entra si su red pasa antes de las 20:30. **Falta `flota`:** lo decide la persona de PC 2. **17:40, PC 1 y PC 3 (S-31):** qué tarjetas quedan en `casos/INICIO`; hoy solo `leyes` responde con su motor.
