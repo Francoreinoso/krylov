@@ -32,7 +32,7 @@ motor/banco/
 # Las respuestas precalculadas SÍ se versionan: web/public/estatico/
 
 # Archivos de datos cuya licencia no permite publicarlos (se anotan aquí uno por uno)
-# datos/demo/inasistencias.csv
+datos/demo/inasistencias.csv
 
 # Sistema y editores
 .DS_Store

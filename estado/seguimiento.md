@@ -17,7 +17,9 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 ## En curso
 
 - sáb 03:23 · S-02: el texto para la organización está listo en `pitch/MENSAJES.md`, sección 1. Falta que lo envíe una persona.
-- sáb 03:23 · H0 a las 03:45 (skill `punto-de-control h0`).
+- sáb 03:50 · H0 abierto: el tag `h0` se pone en la ronda de las 04:15 si PC 1 ya empujó P-01.
+- sáb 03:49 · Crudo de inasistencias en `datos/crudo/inasistencias/KaggleV2-May-2016.csv` (copia pública del archivo de Kaggle, verificada contra D-03). Listo para S-N1. No se sube (licencia no comercial).
+- sáb 03:47 · Grupo `entrenar` instalado y probado: listo para S-05b a las 04:55.
 
 ## Bloqueos
 
@@ -32,7 +34,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 
 | Hora | Qué verifiqué corriendo | Qué cambié en el plan o en el guion |
 |---|---|---|
-| | | |
+| sáb 03:50 · H0 | `uv sync --group entrenar` y `uv run pytest nucleo motor -q`: 33 pasan (40 s). Los dos repositorios en el mismo commit. Espejo público (API de GitHub). PC 1 sin commits, sin `web/` | D-27: H0 pasa en parte, `h0` espera a P-01. Tablero con la siguiente tarea de cada rol |
 
 ## Números medidos
 

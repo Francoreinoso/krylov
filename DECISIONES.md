@@ -80,11 +80,19 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Archivos todavía sin actualizar** (se corrigen en las rondas después de H0; hasta entonces manda esta entrada): `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md` y las skills, `RESUMEN.md`, `PC1_PRODUCTO.md`, `PC3_SEGUIMIENTO.md`, `pitch/`, `estado/TABLERO.md` y el resto de `WORKPLAN.md`.
 · Decisión del equipo.
 
+**D-27 · sáb 21-nov 03:50 · H0: pasa en parte; el tag `h0` espera a la web.**
+- **Pasa:** PC 2 y PC 3 empujan a los dos repositorios (los dos en el mismo commit). El contrato queda **congelado desde las 03:45**: `contratos/` no cambió desde el plan (1b740ac); cambiarlo exige una entrada aquí y aviso a los otros dos roles. PC 2 tiene dos sesiones de Claude Code trabajando (commits de las sesiones A y B), y PC 3 es el segundo computador de entrenamiento: el grupo `entrenar` está instalado y las 33 pruebas de `nucleo/` y `motor/` pasan aquí (03:47, `uv run pytest nucleo motor -q`).
+- **No pasa:** PC 1 no tiene commits y la web no existe. Está arrancando (lo confirmó la persona de PC 3). Camino: PC 2 y PC 3 siguen, porque repositorio y contrato están; PC 1 sigue con P-01 y empuja apenas la web pinte un ejemplo fijo. El tag `h0` se pone en esa ronda. Si el primer despliegue (P-02) no sale antes de las 05:15, se deja para las 08:30.
+- **Espejo público:** `Silent-math/krylov` ya es público (verificado por la API de GitHub a las 03:47). Vercel puede desplegar los commits de los tres.
+- **Quién presenta:** se decide después. Pendiente para H1 a más tardar.
+- **Datos crudos:** no hace falta copiar `datos_crudos/`. Rotación, terreno y crédito se bajaron de sus fuentes (S-03 a S-05). El archivo de inasistencias se bajó de una copia pública en GitHub del mismo archivo de Kaggle: 10.739.535 bytes, SHA-256 `9132d3e7…a27d`, 110.527 citas, 20,2% no llegó, 81 barrios (coincide con D-03). Queda en `datos/crudo/`, fuera del repositorio, por su licencia no comercial.
+· Hito H0, con las respuestas de la persona de PC 3.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
-- H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta.
-- H0: quién toma cada computador y quién presenta.
+- H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
+- H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
 - S-10 (10:00): lista real de sponsors en el lugar; si AgendaPro no auspicia, su tarjeta pierde el nombre.
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
 - H2 por motor (12:15, 13:00, 14:00; tope 16:00): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta.
-- 03:15: confirmar que hay dos sesiones de Claude Code en PC 2 y que PC 3 es el segundo computador de entrenamiento (D-26 lo asume).
+- 03:15: confirmar que hay dos sesiones de Claude Code en PC 2 y que PC 3 es el segundo computador de entrenamiento (D-26 lo asume). → Confirmado en D-27.
 -->
