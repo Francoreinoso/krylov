@@ -126,6 +126,47 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - Si con la red entrenada el segundo detector deja el archivo real de rotación fuera, la primera tarjeta del demo saldría en rojo. Salida ya escrita: `KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso` la deja en amarillo con el motivo. **Lo decide una persona** al ver el sello.
 · PC 2 (propuesta) y PC 3 (confirmación).
 
+**D-34 · sáb 21-nov 07:12 · Krylov responde en un chat: el usuario elige el modelo, sube un archivo, la red amortizada lo resuelve y un modelo de lenguaje cuenta el resultado en palabras.** Reemplaza lo que D-26 corta sobre «Sube tus datos», la capa de lenguaje y Anthropic.
+
+- **Qué cambia.**
+  - El inicio es un chat.
+  - El usuario elige uno de los cuatro modelos según lo que quiere preguntar: `supervivencia` (¿cuánto dura y quién se va?), `jerarquico` (¿quién falta?, con tendencia propia por persona y por grupo), `estados` (¿quién cae en problemas?, mes a mes) y `espacial` (¿qué manda en el terreno y dónde mido?).
+  - Adjunta un archivo: uno de los cuatro del demo o uno propio.
+  - Asigna cada columna a su papel en el modelo, con un selector que la app rellena según el tipo de columna.
+  - La red del motor responde en milisegundos con la misma forma que `analizar`. La respuesta (titular, número grande, tres colores, deslizadores, qué pesa, examen, semáforo) se pinta dentro del chat.
+  - Un modelo de lenguaje escribe la interpretación de ese JSON.
+- **Por qué.** El valor de amortizar está en que **cualquier archivo de la misma familia** se responde al instante, no solo el del demo. Con un solo archivo por motor, eso no se veía en pantalla. Las redes que entrenan desde la madrugada ya son el motor de modelado del data scientist artificial; el chat solo lo deja a la vista.
+- **El motor no depende del caso, pero sí del esquema.** Cada red se entrenó con papeles fijos. `supervivencia`: id, evento, tiempo, grupo, exactamente 3 efectos, 1 efecto suave y 4 encuestas ordinales de 1 a 4 (`nucleo/supervivencia.py`, `N_EFECTOS`, `N_ENCUESTAS`). Los papeles de los otros tres motores los confirma PC 2. Un archivo con otro número de columnas por papel nunca lo vio la red al practicar: el semáforo responde `rojo_modelo` y dice qué falta. **Los entrenamientos en curso no cambian.**
+- **El modelo de lenguaje solo interpreta.**
+  - No elige el motor, no calcula y no inventa cifras.
+  - Recibe el JSON de la respuesta y devuelve un texto corto.
+  - El servicio revisa que cada número del texto esté en el JSON. Si alguno no está, o si no hay clave o no hay internet, se muestra la plantilla de `casos/textos.yaml`.
+  - La clave vive en una variable de entorno de Render y nunca entra al repositorio.
+- **Dónde viven las redes.**
+  - `validar-motor` las exporta a `motor/artefactos/<motor_id>/` (`codificador.onnx`, un solo archivo desde las 05:11, `flujo.npz`, `config.json`, `sello.json`, `nube.npz`), y esa carpeta se versiona.
+  - `nucleo/` las carga con `onnxruntime` y NumPy, sin `torch`.
+  - La API de Render se construye desde el espejo y trae esos archivos. Un archivo subido va a `POST /api/analizar_archivo` en Render.
+  - Vercel solo sirve la web y las respuestas precalculadas de los archivos del demo.
+  - Ninguna red corre en el navegador.
+- **Modo estático.** Los cuatro archivos del demo tienen su respuesta y su interpretación precalculadas en `web/public/estatico/`, y la interpretación va rotulada. El QR y el escenario hacen el recorrido completo sin servidor. La subida de un archivo propio funciona solo cuando la API responde; si no responde, el chat lo dice.
+- **Contrato** (cambio con aviso a los tres roles; detalle en la sección 4):
+  - `nucleo/api.py` suma `papeles(motor_id)` y `analizar_archivo(motor_id, tabla, columnas, costos)`.
+  - `servicio/` suma `POST /api/analizar_archivo` y `POST /api/interpretar`.
+  - Lo que ya existe no cambia de forma.
+- **Qué no cambia:** los cuatro motores y sus modelos generativos, los entrenamientos y sus horas, el MCMC como referencia y plan B (rotulado «precalculado»), los tres colores como decisiones, los deslizadores en el navegador (`decision.ts`), el semáforo, la nube, «¿Dónde mido?», la cartera, la regla de cifras registradas y el cierre a las 18:00.
+- **Riesgos.**
+  - Render gratis tiene 0,1 de procesador y 512 MB, y se duerme. Se mide la red con un archivo de 2.000 filas en Render; si pasa de 2 s, el plan B es Funciones de Python en Vercel (`STACK.md`, 2.6).
+  - GitHub no acepta archivos de más de 100 MB. PC 2 confirma el tamaño de `codificador.onnx` (desde las 05:11 lleva los pesos dentro).
+  - **La API de Render todavía no existe** (a las 07:11, `estado/producto.md` dice «sin desplegar»): la subida de un archivo propio y la interpretación en vivo dependen de desplegarla primero.
+  - **El esquema es fijo** (3 efectos, 1 suave y 4 encuestas en `supervivencia`): casi ningún archivo propio calza. Para el escenario se prepara un archivo del mismo esquema que no sea el del demo, y se dice que es de prueba.
+  - **El guion de 3 minutos ya no cabía** (176 s de habla): si se muestra la subida en el escenario, sale primero la cartera.
+  - El modelo de lenguaje tarda unos segundos: los números salen primero y el texto llega después, sin bloquear.
+  - Los archivos subidos caen fuera de lo que la red conoce mucho más que los del demo, así que los dos detectores de la nube tienen que correr también sobre ellos.
+- **Orden de corte**, si a las 16:00 no está: primero la interpretación del modelo de lenguaje (queda la plantilla), después la subida de un archivo propio (quedan los cuatro del demo dentro del chat). El chat con los archivos del demo no se corta.
+- **Lo que se gana, dicho:** el jurado ve que la misma red responde un archivo que no es el del demo, y Anthropic pasa a estar integrado de verdad, si funciona a las 18:00.
+- **Aprobación:** la persona de PC 3, a las 07:12, con los seis puntos de lo que no calza a la vista (`estado/seguimiento.md`, «Propuesta de PC 1: chat»). Avisado a PC 1 y PC 2 en el tablero.
+· Propuesta de PC 1, decisión del equipo.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
@@ -133,6 +174,7 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
 - H2 por motor (12:15, 13:00, 14:00; tope 16:00): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta.
 - Al validar `estados` y `jerarquico` (D-32): ¿la nube se conecta al semáforo? Depende de si el archivo real cae dentro de las simulaciones.
+- D-34: la clave de Anthropic (`ANTHROPIC_API_KEY` en Render) la pone una persona; el despliegue de Render lo hace PC 1 con `desplegar`.
 - Al validar `supervivencia` (D-33): si el archivo real de rotación cae fuera por el segundo detector, ¿`KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso`?
 - 03:15: confirmar que hay dos sesiones de Claude Code en PC 2 y que PC 3 es el segundo computador de entrenamiento (D-26 lo asume). → Confirmado en D-27.
 -->
