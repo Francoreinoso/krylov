@@ -36,11 +36,11 @@ Consecuencia: el negocio (precio, tamaño de mercado) ocupa una frase y una lám
 
 **Tiempo estimado, no cronometrado (sáb 05:23, contando palabras a 150 por minuto):** momento 1, 27 s (presupuesto 25); **momento 2, 49 s (presupuesto 35)**; momento 3, 22 s (25); momento 4, 46 s (60, con clics); momento 5, 12 s (15); cierre, 22 s (20). Total de habla: 176 s, sin contar clics ni pausas: **no cabe**. Recorte propuesto para el momento 2, que decide quien presenta en el primer ensayo: (1) «Estos colores no son pronósticos, son decisiones: conviene retener, no hace falta, y no sabemos si conviene» → «Los colores son decisiones, no pronósticos» (los rótulos ya están en pantalla); (2) sacar «porque ya practicó con [N] millones de empresas simuladas», que el cierre repite. Ahorra cerca de 20 palabras (8 s). El cronómetro de verdad es S-11.
 
-**Momento 1 · El nombre y el problema (0:00 a 0:25).** Pantalla: vista de inicio, cuatro tarjetas.
+**Momento 1 · El nombre y el problema (0:00 a 0:25).** Pantalla: el chat de inicio con los cuatro modelos (D-34).
 
 > «A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía. El capitán ya no calculaba en medio del desastre: miraba una tabla y decidía en segundos. Hoy las empresas deciden a ciegas, porque el que sabe hacer ese cálculo es un data scientist y casi ninguna tiene uno. Nosotros hicimos el cálculo antes. Se llama Krylov.»
 
-**Momento 2 · La respuesta (0:25 a 1:00).** Pantalla: vista de respuesta, caso tipo Buk. *(clic en la tarjeta)*
+**Momento 2 · La respuesta (0:25 a 1:00).** Pantalla: la respuesta dentro del chat, caso tipo Buk. *(elige «¿A quién conviene retener?»; el archivo del demo ya está adjunto y sus columnas asignadas)*
 
 > «Una empresa de 1.470 personas. ¿A quién conviene retener? Un segundo. Estos colores no son pronósticos, son decisiones: conviene retener, no hace falta, y no sabemos si conviene. Si reemplazar a alguien te cuesta más…» *(mueve el deslizador)* «…la respuesta cambia en vivo. Y este número es el que nadie más te da: lo que te cuesta no saber, [plata]. ¿Qué pesa? [Factor A]: seguro. [Factor B]: con estos datos no se puede saber. Para esto, el método lento de siempre tarda [X] minutos por empresa. Krylov, [Y] milisegundos, porque ya practicó con [N] millones de empresas simuladas. Y no nos crean a nosotros: escondimos la respuesta de 294 personas del archivo, y de las que Krylov dijo [30]% de riesgo, se fue el [N]%.»
 
@@ -63,6 +63,13 @@ En el terreno la comparación es siempre la de los [N] análisis rehechos. Un so
 > «¿Cómo lo hace? Anoche, en dos notebooks, Krylov practicó con [N] millones de empresas y terrenos simulados, donde la respuesta correcta se conoce. Por eso hoy responde al instante. Lo construimos con Claude Code. Está en línea: escaneen y muevan los costos ustedes. Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.»
 
 «Al instante» se dice solo si responden así las tarjetas que se mostraron. Ver la sección siguiente.
+
+## Con el chat (D-34, sáb 07:14)
+
+- **«¿No es un chat con un CSV?»** «El chat es la puerta. La respuesta la da una red que practicó con [N] millones de casos simulados, y el texto de abajo solo cuenta esos números en palabras: no pone ninguno. Si se cae la conexión, sigue respondiendo igual.»
+- **Variante, solo si el ensayo muestra que cabe:** después del momento 2, adjuntar un archivo con el mismo esquema que no es el del demo: «Otra empresa, otro archivo: la misma red responde al instante.» Suma unos 15 s: **si se usa, sale la cartera** (momento 5), que es lo primero que se corta. El archivo se dice como lo que es (de prueba, con datos públicos) y tiene que estar en `pitch/CIFRAS.md` antes de decir cuántas filas tiene.
+- **De Anthropic** se dice que un modelo de Claude escribe la interpretación **solo si funciona a las 18:00**; si no, solo que el producto se construyó con Claude Code.
+- La interpretación nunca se lee en voz alta como si fuera un resultado: los números que se dicen son los del motor, registrados en `pitch/CIFRAS.md`.
 
 ## Si una tarjeta salió precalculada (plan B, decisión D-26)
 

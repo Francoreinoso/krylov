@@ -104,7 +104,7 @@ En cada ronda:
 | La prueba del asistente genérico no muestra diferencias | Nada | Ese argumento no se usa; la respuesta a «¿por qué no un chat?» se apoya en el mapa y en «¿Dónde mido?» |
 | Los extraños no entienden una palabra | Si es de la pantalla, pedido a PC 1 | Sale del guion |
 | La organización dice que el pitch dura otra cosa | Nada | Se elige la versión de 90 segundos, tres o cinco minutos |
-| Preguntan «¿quién eligió las columnas?» | Nada: «Sube tus datos» ya está cortado (D-26) | «Nosotros, y los costos los pones tú». De Anthropic solo se dice que el producto se construyó con Claude Code |
+| Preguntan «¿quién eligió las columnas?» | Nada (D-34: el usuario asigna los papeles en el chat) | «En el demo, nosotros; en tu archivo, tú, con el selector. Los costos los pones tú». De Anthropic: la interpretación, solo si funciona a las 18:00; si no, solo que se construyó con Claude Code |
 
 ## Tus tareas, en orden
 
