@@ -24,6 +24,15 @@
   K.registrar = function (id, escena) { K.escenas[id] = escena; };
   K.miles = function (n) { return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
   K.coma = function (x, d) { return x.toFixed(d == null ? 2 : d).replace('.', ','); };
+  // Una cifra de plata dicha por su orden de magnitud: sale de costos supuestos, y más precisión que esa sería falsa.
+  K.orden = function (v) {
+    if (v >= 2e6) return 'US$ ' + Math.floor(v / 1e6) + ' millones';
+    if (v >= 1e6) return 'Más de US$ 1 millón';
+    if (v >= 1e5) return 'Cientos de miles de dólares';
+    if (v >= 1e4) return 'Decenas de miles de dólares';
+    if (v >= 1e3) return 'Miles de dólares';
+    return 'Cientos de dólares';
+  };
   K.acotar = function (x, a, b) { return Math.max(a, Math.min(b, x)); };
   K.suave = function (t) { t = K.acotar(t, 0, 1); return t * t * (3 - 2 * t); };
   K.fuera = function (t) { t = K.acotar(t, 0, 1); return 1 - Math.pow(1 - t, 3); };
@@ -80,6 +89,22 @@
     return salida;
   };
 
+  // Una lámina de decisión entra al recorrido solo si el motor de su caso ya responde (la misma regla del inicio de la app).
+  // La que todavía no tiene red queda fuera del recorrido, después del cierre, y se abre con su tecla. Cuando su red
+  // exista y se regenere datos.js, vuelve sola a su lugar.
+  (function () {
+    const series = (K.datos && K.datos.series) || {}, cierre = document.getElementById('l-cierre');
+    let ultima = cierre;
+    Array.prototype.forEach.call(document.querySelectorAll('.lamina.sobre-serie'), function (L) {
+      const S = series[L.dataset.id];
+      if (!S || S.respuesta || !cierre) return;
+      L.dataset.respaldo = '1';
+      L.dataset.tecla = { flota: 'c', sismicidad: 't', flotacion: 'b', taludes: 'r' }[L.dataset.id] || '';
+      ultima.parentNode.insertBefore(L, ultima.nextSibling);
+      ultima = L;
+    });
+  })();
+
   // ---------- escenario y lienzo ----------
   const escenario = document.getElementById('escenario');
   const lienzo = document.getElementById('gl');
@@ -99,6 +124,8 @@
   } catch (error) {
     console.warn('Sin WebGL: las láminas con 3D muestran su respaldo estático.', error);
     document.documentElement.classList.add('sin-gl');
+    // la imagen de respaldo de cada lámina es la de su posición: respaldo/01.jpg, 02.jpg…
+    laminas.forEach(function (L, i) { if (L.dataset.gl) L.style.backgroundImage = 'url(respaldo/' + (i < 9 ? '0' : '') + (i + 1) + '.jpg)'; });
   }
 
   function escenaDe(i) { return K.escenas[laminas[i].dataset.id] || null; }
@@ -294,6 +321,7 @@
     Object.keys(d.series || {}).forEach(function (c) { d.series[c].n_unidades = d.series[c].unidades.length; });
     const formatos = {
       miles: K.miles,
+      entero: function (v) { return Math.round(v); },
       coma1: function (v) { return K.coma(v, 1); },
       coma2: function (v) { return K.coma(v, 2); },
       coma3: function (v) { return K.coma(v, 3); },

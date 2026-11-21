@@ -115,14 +115,6 @@ html, body {
 /* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
 .sin-gl .lamina[data-gl] { background: center / cover no-repeat; }
 .sin-gl .lamina[data-gl] > :not(aside) { visibility: hidden; }
-.sin-gl #l-valor { background-image: url(respaldo/01.jpg); }
-.sin-gl #l-mundos { background-image: url(respaldo/04.jpg); }
-.sin-gl #l-vision { background-image: url(respaldo/06.jpg); }
-.sin-gl #l-leyes { background-image: url(respaldo/07.jpg); }
-.sin-gl #l-taludes { background-image: url(respaldo/08.jpg); }
-.sin-gl #l-flotacion { background-image: url(respaldo/09.jpg); }
-.sin-gl #l-flota { background-image: url(respaldo/10.jpg); }
-.sin-gl #l-sismicidad { background-image: url(respaldo/11.jpg); }
 
 /* ---------- Tipografía ---------- */
 
@@ -151,24 +143,24 @@ html, body {
 .zona > * { grid-area: 1 / 1; }
 
 /* Lo que Krylov entrega para una decisión: cuántas unidades hay en cada color, y el valor. */
-.salida { display: grid; gap: 12px; }
-.salida .colores { display: flex; flex-wrap: wrap; gap: 8px 30px; }
-.salida .item { display: flex; align-items: center; gap: 12px; font-size: 25px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
+.salida { display: grid; gap: 8px; }
+.salida .colores { display: flex; flex-wrap: wrap; gap: 4px 26px; }
+.salida .item { display: flex; align-items: center; gap: 10px; font-size: 23px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
 .salida .item .muestra { flex: none; width: 30px; height: 20px; }
-.salida .item .num { font-size: 44px; line-height: 1; }
-.salida .valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 20px; font-size: 27px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 12px; }
-.salida .valor .num { font-size: 74px; line-height: .95; color: var(--cobre); }
+.salida .item .num { font-size: 38px; line-height: 1; }
+.salida .valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 18px; font-size: 25px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 8px; }
+.salida .valor .num { font-size: 46px; line-height: 1.05; color: var(--cobre); }
 .p.entrega b { color: var(--cobre); font-weight: 650; }
 
 /* El gráfico de intervalos de credibilidad (js/intervalos.js): una fila por unidad. La barra es el intervalo de 90%;
    la marca clara, la estimación; el anillo, lo que pasó de verdad (cuando se muestra); la línea vertical, el límite. */
-.intervalos { --nom: 168px; --val: 168px; --alto: 36px; display: grid; }
+.intervalos { --nom: 160px; --val: 150px; --alto: 30px; display: grid; }
 .intervalos.sin-nombres { --nom: 0px; --alto: 17px; }
 .intervalos.sin-valores { --val: 0px; }
-.intervalos .fila, .intervalos .eje { display: grid; grid-template-columns: var(--nom) 1fr var(--val); align-items: center; }
+.intervalos .fila, .intervalos .eje, .intervalos .cabeza-eje { display: grid; grid-template-columns: var(--nom) 1fr var(--val); align-items: center; }
 .intervalos .fila { height: var(--alto); }
-.intervalos .nom { font-size: 25px; font-weight: 520; color: var(--tinta); white-space: nowrap; }
-.intervalos .val { font-family: var(--mono); font-size: 21px; color: var(--suave); text-align: right; white-space: nowrap; }
+.intervalos .nom { font-size: 23px; font-weight: 520; color: var(--tinta); white-space: nowrap; }
+.intervalos .val { font-family: var(--mono); font-size: 19px; color: var(--suave); text-align: right; white-space: nowrap; }
 .intervalos .riel { position: relative; height: 100%; }
 .intervalos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -1px; background: var(--linea); }
 .intervalos .fila .riel::after { content: ""; position: absolute; left: var(--limite); top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #f4efe6; }
@@ -184,10 +176,15 @@ html, body {
 .intervalos .real { position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3.5px solid #fff; background: var(--fondo); opacity: 0; transition: opacity .5s ease 1.4s; }
 .visto .intervalos .real, .intervalos.visto .real { opacity: 1; }
 .quieto .intervalos .real { transition: none; }
-.intervalos .eje { height: 30px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
+.intervalos .eje { height: 26px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
 .intervalos .eje .izq { position: absolute; left: 0; top: 6px; }
 .intervalos .eje .der { position: absolute; right: 0; top: 6px; }
-.intervalos .eje .lim { position: absolute; left: var(--limite); top: 6px; transform: translateX(-50%); color: var(--tinta); white-space: nowrap; background: var(--fondo); padding: 0 8px; }
+/* el nombre de la línea blanca, arriba de ella y bien visible; y debajo del gráfico, una frase que dice de dónde sale */
+.intervalos .cabeza-eje { height: 34px; }
+.intervalos .cabeza-eje .lim { position: absolute; left: var(--limite); bottom: 4px; transform: translateX(-50%); white-space: nowrap; font-size: 22px; font-weight: 650; color: #fff; }
+.intervalos .cabeza-eje .lim::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 2px; height: 8px; margin-left: -1px; background: #f4efe6; }
+.intervalos .nota-linea { font-size: 22px; line-height: 1.22; color: var(--suave); margin-top: 4px; display: flex; gap: 12px; align-items: baseline; }
+.intervalos .nota-linea i { flex: none; width: 2px; height: 20px; background: #f4efe6; transform: translateY(3px); }
 
 .pie-dato { position: absolute; left: 110px; bottom: 92px; }
 
@@ -376,10 +373,10 @@ html, body {
 
 #l-leyes .lateral { top: 452px; }
 #l-leyes .lateral .partes { font-size: 30px; color: var(--tinta); margin-bottom: 14px; }
-#l-leyes .columna { left: 110px; top: 88px; width: 800px; display: flex; flex-direction: column; gap: 16px; }
-#l-leyes .columna .t2 { font-size: 78px; }
-#l-leyes .uno { display: grid; gap: 16px; align-content: start; }
-#l-leyes .uno .p.entrega { font-size: 31px; }
+#l-leyes .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 13px; }
+#l-leyes .columna .t2 { font-size: 68px; }
+#l-leyes .uno { display: grid; gap: 13px; align-content: start; }
+#l-leyes .uno .p.entrega { font-size: 29px; }
 #l-leyes .perforo .t3 { font-size: 92px; }
 #l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
 #l-leyes .perforo .p b { color: var(--tinta); }
@@ -410,9 +407,9 @@ html, body {
 /* cuando la red respondió, el gráfico de la pared va arriba a la derecha: un sector que conviene cerrar y cuánto le falta */
 #l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 640px; height: 290px; }
 #l-taludes.con-respuesta .reloj { display: none; }
-.sobre-serie .columna { left: 110px; top: 88px; width: 800px; display: flex; flex-direction: column; gap: 16px; }
-.sobre-serie .columna .t2 { font-size: 78px; }
-.sobre-serie .columna > .p { font-size: 31px; width: 780px; }
+.sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 13px; }
+.sobre-serie .columna .t2 { font-size: 68px; }
+.sobre-serie .columna > .p { font-size: 29px; width: 790px; }
 /* el reloj del recorrido: chico, al pie de la columna (lo que se ve es el archivo pasando en el tiempo) */
 .sobre-serie .reloj { display: flex; align-items: baseline; gap: 14px; margin-top: 6px; }
 .sobre-serie .reloj .num { font-size: 36px; color: var(--tenue); }
@@ -477,12 +474,22 @@ html, body {
    ===================================================================== */
 
 #l-confianza canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#l-confianza .columna { left: 110px; top: 92px; width: 840px; display: flex; flex-direction: column; gap: 34px; }
-#l-confianza .columna .t2 { font-size: 88px; }
-#l-confianza .medida { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 34px; border-top: 1.5px solid var(--linea); padding-top: 30px; }
-#l-confianza .medida .num { font-size: 190px; color: var(--cobre); }
-#l-confianza .medida .t3 { font-size: 46px; }
-#l-confianza .medida .p { font-size: 29px; margin-top: 10px; }
+/* una fila por modelo: su nombre, la barra de 0 a 1, el número y de cuántas decisiones sale */
+#l-confianza .hoja { left: 110px; right: 110px; top: 92px; bottom: 110px; display: flex; flex-direction: column; gap: 34px; }
+#l-confianza .cabeza .t2 { font-size: 88px; }
+#l-confianza .cabeza .p { font-size: 38px; margin-top: 14px; }
+#l-confianza .modelos { display: grid; }
+#l-confianza .modelos .fila { display: grid; grid-template-columns: 330px 1fr 190px 330px; align-items: center; column-gap: 34px; border-top: 1.5px solid var(--linea); padding: 14px 0 10px; }
+#l-confianza .modelos .t3 { font-size: 58px; }
+#l-confianza .modelos .riel { position: relative; height: 22px; background: var(--linea); }
+#l-confianza .modelos .riel i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--cobre); transform: scaleX(0); transform-origin: 0 50%; transition: transform .9s cubic-bezier(.2, .8, .2, 1) var(--d, 0s); }
+#l-confianza .visto .riel i { transform: none; }
+.quieto #l-confianza .riel i { transition: none; }
+#l-confianza .modelos .num { font-size: 96px; color: var(--cobre); text-align: right; }
+#l-confianza .modelos .p { font-size: 29px; }
+#l-confianza .modelos .sin-red .t3 { color: var(--tenue); }
+#l-confianza .modelos .sin-red .riel { background: none; border-top: 2px dashed var(--linea); height: 0; }
+#l-confianza .modelos .sin-red .p { color: var(--tenue); }
 
 /* =====================================================================
    Las láminas de preguntas (fuera del recorrido): Q, A, L, M

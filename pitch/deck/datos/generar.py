@@ -243,7 +243,9 @@ def serie(nombre: str) -> dict:
             "examen": r.get("examen"), "titular": r.get("titular"),
             "sello_pasa": bool(sello and sello.get("pasa")),
             "sello": {k: sello.get(k) for k in ("simulaciones_entrenamiento", "entrenamiento_min", "cobertura_90", "latencia_ms", "criterios")} if sello else None,
-            "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "curva": u.get("curva")} for u in r["unidades"]},
+            "punto_de_corte": r.get("punto_de_corte"),
+            # de cada unidad: su decisión, el riesgo que estima la red y su intervalo de credibilidad de 90%, y su curva
+            "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "rango": [u.get("rango_bajo"), u.get("rango_alto")], "curva": u.get("curva")} for u in r["unidades"]},
         }
         # El examen de las decisiones: de las unidades donde decidió (actuar o no actuar), en cuántas acertó según la
         # verdad escondida del archivo simulado. Las que dejó «en duda» no cuentan: ahí dijo que no sabía.

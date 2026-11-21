@@ -36,7 +36,7 @@
       <div><h4>Qué se dice · <span data-tiempo="valor"></span></h4>
         <p class="dice">«En una mina, las decisiones no esperan. Krylov es el Artificial Data Scientist de la minería: las responde al instante, con los modelos que hoy exigen horas de cálculo y un especialista.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Portada sin cifras: el nombre, qué es y una frase. <b>El camión es una ilustración</b> (el modelo de puntos de la lámina de la flota, más denso); la franja de luz que lo recorre no representa ninguna medición. Las cifras que sostienen «al instante» y «horas» vienen en las láminas 3 y 5: 2 minutos por análisis con el método lento (M-25) contra 10 milisegundos (sello del motor).</p></div>
+        <p class="fuente">Portada sin cifras: el nombre, qué es y una frase. <b>El rajo es una ilustración</b>: una maqueta topográfica hecha con una fórmula (bancos, rampa y terreno de alrededor), no es ninguna mina ni representa datos. La onda que sale del fondo es solo luz.</p></div>
     </div></aside>
   </section>
 
@@ -64,9 +64,9 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flujo"></span></h4>
-        <p class="dice">«En el pasado, cada dataset era empezar de cero: elegir el modelo, entrenarlo, inferir. Dos minutos cada uno.» <b>[→]</b> «Hoy la red se pre-entrena una sola vez, con datasets simulados. Después, cada respuesta son diez milisegundos.»</p></div>
+        <p class="dice">«En el pasado, cada dataset era empezar de cero: elegir el modelo, entrenarlo, inferir.» <b>[→]</b> «Hoy la red se pre-entrena una sola vez, con datasets simulados. Después, cada respuesta es un instante.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Dos pasos, para mirar una cosa a la vez.</b> Primero «En el pasado»: los tres pasos se repiten con cada dataset; con el método lento son 117 s por dataset (M-25: «2 minutos cada uno»). Al avanzar, «Hoy»: los tres primeros pasos se hacen una sola vez y después inferir es un forward pass de 10 ms (<code>latencia_ms</code> del sello). <b>Los contadores cuentan lo que la animación muestra</b> (una vuelta, un dataset; un pulso, un dataset): dan la forma del trabajo, no son una medición. Lo que no está en pantalla y hay que saber: «una sola vez» fueron 280 minutos de pre-entrenamiento (M-02), que hace Krylov y no la mina; desde unos 144 datasets ya conviene (M-36, pendiente en CIFRAS: no se dice como cifra).</p></div>
+        <p class="fuente"><b>Dos pasos, para mirar una cosa a la vez, y sin tiempos en pantalla.</b> Primero «En el pasado»: los tres pasos se repiten con cada dataset. Al avanzar, «Hoy»: los tres primeros se hacen una sola vez y después inferir es un forward pass. <b>Los contadores cuentan lo que la animación muestra</b> (una vuelta, un dataset; un pulso, un dataset): dan la forma del trabajo, no son una medición. Los tiempos medidos, si los piden: 117 segundos por dataset con el método lento (MCMC) contra 10 milisegundos con la red, en el modelo del terreno (sello del motor espacial, M-25); y «una sola vez» fueron 280 minutos de pre-entrenamiento (M-02).</p></div>
     </div></aside>
   </section>
 
@@ -105,7 +105,7 @@
         <div class="lado">
           <div class="num" id="rafaga-lento">0</div>
           <div class="p">con el método de siempre</div>
-          <div class="dato"><span class="nb">2 minutos</span> cada uno</div>
+          <div class="dato"><span class="nb"><span data-dato="sello.mcmc_s_por_dataset" data-formato="entero">117</span> segundos</span> cada uno</div>
           <div class="riel"><i id="rafaga-riel"></i></div>
         </div>
       </div>
@@ -160,7 +160,7 @@
               <span class="item"><i class="muestra en-duda"></i><b class="num" data-dato="terreno.colores.en_duda">309</b><span data-dato="terreno.rotulos.en_duda">No sabemos: conviene muestrear</span></span>
               <span class="item"><i class="muestra no-actuar"></i><b class="num" data-dato="terreno.colores.no_actuar">568</b><span data-dato="terreno.rotulos.no_actuar">Puede ir a la planta</span></span>
             </div>
-            <div class="valor"><b class="num">US$&nbsp;<span data-dato="terreno.costo_de_no_saber" data-formato="miles">1.577.707</span></b><span>lo que vale despejar esa duda</span></div>
+            <div class="valor"><b class="num" id="valor-leyes">Más de US$ 1 millón</b><span>vale despejar esa duda</span></div>
           </div>
         </div>
         <div class="perforo" data-paso="1">
@@ -173,9 +173,9 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="leyes"></span></h4>
-        <p class="dice">«¿Qué roca conviene procesar? Krylov entrega, para cada parte del terreno, cuánto arsénico hay, con su intervalo de credibilidad. De ahí sale la decisión, y lo que vale despejar la duda: un millón y medio de dólares.» <b>[→]</b> «Y dice dónde perforar: una muestra más en A vale cerca de nueve mil dólares.»</p></div>
+        <p class="dice">«¿Qué roca conviene procesar? Krylov entrega, para cada parte del terreno, cuánto arsénico hay, con su intervalo de credibilidad. De ahí sale la decisión, y lo que vale despejar la duda: más de un millón de dólares.» <b>[→]</b> «Y dice dónde perforar: una muestra más en A vale unos nueve mil dólares.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Responde la red validada del motor espacial</b>. El gráfico de la izquierda es su salida: 13 de las 1.024 partes del terreno, de la que menos arsénico tiene a la que más, cada una con su estimación y su <b>intervalo de credibilidad de 90%</b> (los cuantiles 5% y 95% de la posteriori), contra el límite de 500 ppm (K-21). El color de cada barra es la decisión. Debajo, cuántas partes hay de cada color (M-40) y el valor (caso <code>leyes</code>). <b>El banco es simulado</b> (340 pozos; no son datos de una mina): la lámina ya no lo dice, así que si preguntan, se dice. Con datos reales públicos, el mismo motor dejó 24 de 31 mediciones escondidas dentro de su rango (M-13, 77%). M-40 (147, 309 y 568 bloques: en pantalla se dice «partes del terreno»), M-41 (US$ 1.577.707, con los costos supuestos K-22 y K-23: es «lo que te cuesta no saber», que aquí se dice como valor: lo que se ahorraría, en promedio, si la duda se despejara antes de decidir), K-24 (US$ 1.500), M-43 (480 análisis), M-46 (US$ 8.943, 8.376 y 7.966). Los 480 análisis tardan 1,3 s (M-44, medido sin nada entrenando); no está en pantalla. Arrastrar con el mouse gira el banco.</p></div>
+        <p class="fuente"><b>Responde la red validada del motor espacial</b>. El gráfico de la izquierda es su salida: 13 de las 1.024 partes del terreno, de la que menos arsénico tiene a la que más, cada una con su estimación y su <b>intervalo de credibilidad de 90%</b> (los cuantiles 5% y 95% de la posteriori), contra el máximo de arsénico con que la roca puede ir a la planta. <b>Ese máximo es un supuesto del caso de demo: 500 ppm (K-21, «supuesto, no una norma»)</b>; por eso en pantalla va sin número. El color de cada barra es la decisión. Debajo, cuántas partes hay de cada color (M-40) y el valor (caso <code>leyes</code>). <b>El banco es simulado</b> (340 pozos; no son datos de una mina): la lámina ya no lo dice, así que si preguntan, se dice. Con datos reales públicos, el mismo motor dejó 24 de 31 mediciones escondidas dentro de su rango (M-13, 77%). M-40 (147, 309 y 568 bloques: en pantalla se dice «partes del terreno»), <b>La plata va por su orden de magnitud</b> («más de US$ 1 millón», «US$ 9 mil»), porque sale de costos supuestos: el motor da US$ 1.577.707 (M-41, con K-22 y K-23: es «lo que te cuesta no saber», que aquí se dice como valor: lo que se ahorraría, en promedio, si la duda se despejara antes de decidir), K-24 (US$ 1.500), M-43 (480 análisis), M-46 (US$ 8.943, 8.376 y 7.966). Los 480 análisis tardan 1,3 s (M-44, medido sin nada entrenando); no está en pantalla. Arrastrar con el mouse gira el banco.</p></div>
     </div></aside>
   </section>
 
@@ -189,13 +189,12 @@
       <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada sector que se acelera, cuántas horas le faltan, con su intervalo de credibilidad:</div>
       <div class="grafico" data-paso="0" style="--d:.5s"></div>
       <div class="salida" data-paso="0" style="--d:.9s"></div>
-      <div class="reloj" data-paso="0" style="--d:.9s"><span class="num"></span><span class="dato">de 48 horas de radar</span></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="taludes"></span></h4>
         <p class="dice">«La pared de la mina se mueve. Krylov entrega cuántas horas le faltan a cada sector, con su intervalo: a este, entre dos y siete. Y el que más se movió no es ninguno de los que conviene cerrar.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>deformacion</code></b> para el archivo de demo (36 sectores, 48 horas de radar; <b>simulado</b>). El gráfico de la izquierda: para los sectores que se aceleran, cuántas horas faltan para que cedan, con su <b>intervalo de credibilidad de 90%</b>; la línea blanca son las próximas 12 horas, que es sobre lo que se decide. 5 «conviene cerrar», 2 «no sabemos», 29 «puede seguir abierto»; el valor, US$ 78.574, con los costos supuestos K-31 y K-32. Arriba a la derecha, la curva del Sector 10. <b>Esa red pasó su sello el sábado a las 17:36</b> (1.684.160 muros simulados, 146 minutos de pre-entrenamiento), con el criterio de D-39 para la calibración sector por sector: a las 16:10, con el criterio anterior, no pasaba. Todavía no está comparada con el método lento. Contra la verdad escondida de este archivo: de 34 decisiones, 34 correctas; y el sector que más se movió (Sector 25, 24 mm) no cede: iba a velocidad constante. El movimiento de la pared está <b>muy exagerado</b>. Regla 22: Krylov apoya la decisión de un especialista; no promete seguridad.</p></div>
+        <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>deformacion</code></b> para el archivo de demo (36 sectores, 48 horas de radar; <b>simulado</b>). El gráfico de la izquierda: para los sectores que se aceleran, cuántas horas faltan para que cedan, con su <b>intervalo de credibilidad de 90%</b>; la línea blanca son las próximas 12 horas, que es sobre lo que se decide. 5 «conviene cerrar», 2 «no sabemos», 29 «puede seguir abierto». El valor va por su orden de magnitud («decenas de miles de dólares»): el motor da US$ 78.574 con los costos supuestos K-31 y K-32. Arriba a la derecha, la curva del Sector 10. <b>Esa red pasó su sello el sábado a las 17:36</b> (1.684.160 muros simulados, 146 minutos de pre-entrenamiento), con el criterio de D-39 para la calibración sector por sector: a las 16:10, con el criterio anterior, no pasaba. Todavía no está comparada con el método lento. Contra la verdad escondida de este archivo: de 34 decisiones, 34 correctas; y el sector que más se movió (Sector 25, 24 mm) no cede: iba a velocidad constante. El movimiento de la pared está <b>muy exagerado</b>. Regla 22: Krylov apoya la decisión de un especialista; no promete seguridad.</p></div>
     </div></aside>
   </section>
 
@@ -208,13 +207,12 @@
       <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada línea, el cobre que va a recuperar al final, con su intervalo de credibilidad:</div>
       <div class="grafico" data-paso="0" style="--d:.5s"></div>
       <div class="salida" data-paso="0" style="--d:.9s"></div>
-      <div class="reloj" data-paso="0" style="--d:.9s"><span class="num"></span><span class="dato">desde que la roca entró a la línea</span></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flotacion"></span></h4>
         <p class="dice">«¿Se está perdiendo cobre en la planta? Mirando los primeros estanques, entrega cuánto va a recuperar cada línea, con su intervalo: dos conviene ajustarlas ya.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>cinetica</code>, que pasó su sello hoy a las 17:09</b> (43 millones de datasets simulados, 153 minutos de pre-entrenamiento), para el archivo de demo de <code>flotacion</code> (8 líneas; <b>simulado</b>). El gráfico de la izquierda: el cobre que cada línea va a recuperar al final, con su <b>intervalo de credibilidad de 90%</b>, contra la meta de 84% (K-41, supuesto del demo). 2 «conviene ajustar», 3 «no sabemos», 3 «va bien»; el valor, US$ 8.809, con los costos supuestos del caso. Contra la verdad escondida: de 5 decisiones, 5 correctas; y 7 de las 8 recuperaciones reales cayeron dentro de su intervalo. En la escena, la espuma de cada estanque brilla según el cobre que flotó ahí; la columna del final de cada línea es lo recuperado hasta donde se midió, en el color de su decisión.</p></div>
+        <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>cinetica</code>, que pasó su sello hoy a las 17:09</b> (43 millones de datasets simulados, 153 minutos de pre-entrenamiento), para el archivo de demo de <code>flotacion</code> (8 líneas; <b>simulado</b>). El gráfico de la izquierda: el cobre que cada línea va a recuperar al final, con su <b>intervalo de credibilidad de 90%</b>, contra la meta de 84% (K-41, supuesto del demo). 2 «conviene ajustar», 3 «no sabemos», 3 «va bien». El valor va por su orden de magnitud («miles de dólares»): el motor da US$ 8.809 con los costos supuestos del caso. Contra la verdad escondida: de 5 decisiones, 5 correctas; y 7 de las 8 recuperaciones reales cayeron dentro de su intervalo. En la escena, la espuma de cada estanque brilla según el cobre que flotó ahí; la columna del final de cada línea es lo recuperado hasta donde se midió, en el color de su decisión.</p></div>
     </div></aside>
   </section>
 
@@ -224,16 +222,15 @@
     <div class="capa-etq"></div>
     <div class="bloque columna">
       <div class="t2" data-paso="0">¿Qué camión paro antes de que falle?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada camión, el desgaste con que llega a su mantención, con su intervalo de credibilidad:</div>
+      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada camión, el riesgo de que falle antes de su mantención, con su intervalo de credibilidad:</div>
       <div class="grafico" data-paso="0" style="--d:.5s"></div>
       <div class="salida" data-paso="0" style="--d:.9s"></div>
-      <div class="reloj" data-paso="0" style="--d:.9s"><span class="num"></span><span class="dato">de operación</span></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flota"></span></h4>
-        <p class="dice">«¿Qué camión paro? Con el aceite de toda la flota, entrega el desgaste con que llega cada uno a su mantención.»</p></div>
+        <p class="dice">Fuera del recorrido mientras su red no exista. Si preguntan por los camiones: «Es la quinta decisión: con el aceite de toda la flota, el riesgo de que cada camión falle antes de su mantención. Su red todavía está entrenando.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Los 40 camiones son el archivo de demo del caso <code>flota</code> (<b>simulado</b>): el color de cada uno es su desgaste según sus muestras de aceite, de verde a rojo, y parpadea el que pasa el 85% del límite. La rampa es una ilustración. <b>Su motor (<code>desgaste</code>) todavía no tiene red</b>: la columna dice qué entrega Krylov, sin gráfico ni cifras. Cuando exista, se vuelve a correr <code>generar.py</code> y aparecen los intervalos, como en la pared y en la planta. Es el primero en el orden de corte de D-37.</p></div>
+        <p class="fuente"><b>Esta lámina está fuera del recorrido</b> (tecla C) mientras su motor (<code>desgaste</code>) no tenga red: sin ella no hay intervalo que mostrar, y no se inventa. Los 40 camiones son el archivo de demo del caso <code>flota</code> (<b>simulado</b>): el color de cada uno es su desgaste según sus muestras de aceite. Cuando la red exista, se vuelve a correr <code>generar.py</code>: la lámina vuelve sola a su lugar, con el riesgo de cada camión, su intervalo y el color de su decisión. Es el primero en el orden de corte de D-37.</p></div>
     </div></aside>
   </section>
 
@@ -242,39 +239,33 @@
     <div class="velo"></div>
     <div class="capa-etq"></div>
     <div class="bloque columna">
-      <div class="t2" data-paso="0">Tras una explosión bajo tierra, la roca sigue crujiendo. ¿Puede volver a entrar la gente?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada sector, cuántos temblores fuertes vienen, con su intervalo de credibilidad:</div>
+      <div class="t2" data-paso="0">Tras una explosión bajo tierra, ¿puede volver a entrar la gente?</div>
+      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, por sector, el riesgo de un temblor fuerte en las próximas 6 horas, con su intervalo de credibilidad:</div>
       <div class="grafico" data-paso="0" style="--d:.5s"></div>
       <div class="salida" data-paso="0" style="--d:.9s"></div>
-      <div class="reloj" data-paso="0" style="--d:.9s"><span class="num"></span><span class="dato">después de la explosión</span></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="sismicidad"></span></h4>
-        <p class="dice">«Después de una explosión bajo tierra, la roca sigue crujiendo. Krylov entrega cuántos temblores fuertes vienen en cada sector, para decidir cuándo volver a entrar.»</p></div>
+        <p class="dice">«Después de una explosión bajo tierra, ¿puede volver a entrar la gente? Krylov entrega el riesgo de un temblor fuerte en cada sector, con su intervalo: en cuatro se puede, y en cuatro todavía no se sabe.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Cada destello es un temblor del archivo de demo del caso <code>sismicidad</code> (<b>simulado</b>), a su hora y con su tamaño según la magnitud; en rojo, el de magnitud 1,0 o más (K-61, supuesto del demo). Dónde cae cada destello dentro de su sector es una ilustración. <b>Su motor (<code>sismico</code>) todavía está entrenando</b>: la columna dice qué entrega Krylov, sin gráfico ni cifras; entra si su red pasa antes de las 20:30. Regla 22: no se promete seguridad ni se usa un accidente como gancho.</p></div>
+        <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>sismico</code>, que pasó su sello el sábado a las 18:15</b> (3,7 millones de datasets simulados, 120 minutos de pre-entrenamiento), para el archivo de demo de <code>sismicidad</code> (8 sectores, 6 horas desde la tronadura; <b>simulado</b>). El gráfico: para cada sector, el riesgo de un temblor fuerte (magnitud 1,0 o más: K-61, supuesto) en las próximas 6 horas, con su <b>intervalo de credibilidad de 90%</b>; la línea blanca es el punto de corte, 9% de riesgo, que sale de los dos costos supuestos del caso. Ningún sector queda en «mantener cerrado»: 4 «no sabemos» y 4 «se puede reingresar». Contra la verdad escondida: los 4 que dejó reingresar no tuvieron temblor fuerte; de los 4 en duda, 2 sí. Dónde cae cada destello dentro de su sector es una ilustración. Regla 22: Krylov apoya la decisión del especialista sobre el reingreso; no la reemplaza ni promete seguridad.</p></div>
     </div></aside>
   </section>
 
   <!-- ============================== 12 · ¿Y cómo sé que acierta? ============================== -->
   <section class="lamina" id="l-confianza" data-id="confianza" data-pasos="1">
-    <canvas></canvas>
-    <div class="bloque columna">
-      <div class="t2" data-paso="0">¿Y cómo sé que acierta?</div>
-      <div class="medida" data-paso="0" style="--d:.3s">
-        <div class="num" id="conf-decisiones">0,98</div>
-        <div><div class="t3">Accuracy de las decisiones</div><div class="p" id="conf-decisiones-texto"></div></div>
+    <div class="bloque hoja">
+      <div class="cabeza" data-paso="0">
+        <div class="t2">¿Y cómo sé que acierta?</div>
+        <div class="p">Accuracy de cada modelo: de las decisiones que tomó, cuántas acertó.</div>
       </div>
-      <div class="medida" data-paso="0" style="--d:.8s">
-        <div class="num" id="conf-intervalos">0,90</div>
-        <div><div class="t3">Accuracy de los intervalos</div><div class="p" id="conf-intervalos-texto"></div></div>
-      </div>
+      <div class="modelos" id="conf-modelos" data-paso="0" style="--d:.4s"></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="confianza"></span></h4>
-        <p class="dice">«¿Y cómo sabemos que acierta? Cuando decidió, acertó en el noventa y ocho por ciento. Y nueve de cada diez valores reales cayeron dentro de su intervalo.»</p></div>
+        <p class="dice">«¿Y cómo sabemos que acierta? Lo comparamos con la respuesta escondida de cada archivo: de las decisiones que tomó, acertó casi todas.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Dos números de 0 a 1.</b> El primero es el que entiende cualquiera: <b>cuando Krylov decidió, ¿acertó?</b> Es el examen del terreno de <code>leyes</code> contra su verdad escondida (M-54): de 147 partes «conviene apartar», 138 estaban sobre el límite; de 568 «puede ir a la planta», 562 estaban bajo. 700 de 715. Las 309 «no sabemos» no cuentan: ahí dijo que no sabía (y de esas, 139 estaban sobre el límite: tenía razón en dudar). <b>El terreno es simulado</b>; por eso hay verdad con que comparar. El segundo: de 68 valores escondidos del mismo archivo, 61 cayeron dentro de su intervalo de credibilidad de 90%; <b>lo ideal ahí es 0,90, no 1</b> (un intervalo que acierta siempre es demasiado ancho), y es lo que el sello midió en 2.000 casos nuevos. Con datos reales públicos (río Mosa): 138 de 155 escondiendo de a un quinto; en la partición que muestra la app, 24 de 31 (M-13).</p></div>
+        <p class="fuente"><b>Una sola medida, la misma para todos: cuando Krylov decidió, ¿acertó?</b> Se compara con la verdad escondida del archivo de demo de cada caso (todos <b>simulados</b>; por eso hay verdad con que comparar). Las unidades que dejó «en duda» no cuentan: ahí dijo que no sabía. La roca: 700 de 715 (M-54). La pared: 34 de 34. La planta: 5 de 5. Los túneles: 4 de 4. <b>Ojo con los tres últimos: son pocos casos, de un solo archivo.</b> La validación robusta de cada red está en su sello: en 2.000 casos nuevos, 9 de cada 10 valores reales cayeron dentro de su intervalo de 90% (0,90 la roca, la pared y la planta; 0,89 los túneles). Los camiones no llevan número: su red todavía no existe.</p></div>
     </div></aside>
   </section>
 

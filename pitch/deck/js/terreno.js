@@ -426,7 +426,7 @@
       D.donde.candidatas.forEach(function (c) {
         const fila = document.createElement('div');
         fila.className = 'fila ' + c.etiqueta.toLowerCase();
-        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$&nbsp;' + K.miles(c.valor_de_medir) + '</span>';
+        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$&nbsp;' + Math.round(c.valor_de_medir / 1000) + '&nbsp;mil</span>';
         ranking.appendChild(fila);
         yo.filas[c.etiqueta] = fila;
       });

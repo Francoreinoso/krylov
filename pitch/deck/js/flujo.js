@@ -1,10 +1,10 @@
 /* 3 · En el pasado vs. hoy: el flujo de trabajo de un data scientist contra el de Bayesian Amortized Inference.
    Dos pasos, para que se mire una cosa a la vez:
    - Paso 0, «En el pasado»: tres pasos que se repiten con cada dataset (elegir el modelo, entrenar con ese dataset,
-     inferir). Cada vuelta responde un dataset. Con el método lento son 117 s por dataset (M-25): «2 minutos cada uno».
+     inferir). Cada vuelta responde un dataset.
    - Paso 1, «Hoy»: los tres primeros pasos se hacen una sola vez (elegir el modelo, simular datasets, pre-entrenar la
-     red) y después inferir es un forward pass de 10 ms (latencia_ms del sello) por dataset.
-   Los dos tiempos por dataset son mediciones del sello del motor espacial. Los contadores cuentan lo que la animación
+     red) y después inferir es un forward pass por dataset.
+   La lámina no lleva tiempos: muestra la forma del trabajo. Los contadores cuentan lo que la animación
    muestra (una vuelta, un dataset; un pulso, un dataset): dan la forma del trabajo, no son una medición.
    El ancho de cada caja es el de su texto, así ningún texto se sale de su caja. */
 (function () {
@@ -67,7 +67,7 @@
       x = this.caja(ctx, x, y + 34, ENTRENAR, 'Entrenar con ese dataset', f - 1);
       x = this.caja(ctx, x, y + 34, INFERIR, 'Inferir', f - 2);
       ctx.fillStyle = '#b9b0a1'; ctx.font = '500 34px ' + TEXTO; ctx.fillText('↻  con cada dataset', x + 16, y + 34 + ALTO / 2 + 12);
-      this.cuenta(ctx, X0, y + 250, vuelta, '#b9b0a1', 'datasets respondidos · ' + this.minutos + ' minutos cada uno');
+      this.cuenta(ctx, X0, y + 250, vuelta, '#b9b0a1', vuelta === 1 ? 'dataset respondido' : 'datasets respondidos');
       ctx.globalAlpha = 1;
       if (!hoy) return;
 
@@ -85,7 +85,7 @@
       ctx.fillText(nota, xi, y + 34 + ALTO / 2 + 12);
       const pulsos = listo ? Math.floor((v - 2.9) / PULSO) : 0, late = listo ? 0.55 + 0.45 * Math.abs(Math.sin(v * 31)) : 0;
       this.caja(ctx, xi + ctx.measureText(nota).width + 40, y + 34, INFERIR, 'Inferir: un forward pass', late);
-      this.cuenta(ctx, X0, y + 250, pulsos, '#e2854a', 'datasets respondidos · ' + this.ms + ' milisegundos cada uno');
+      this.cuenta(ctx, X0, y + 250, pulsos, '#e2854a', 'datasets respondidos');
       ctx.globalAlpha = 1;
     },
   });

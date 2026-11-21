@@ -135,7 +135,7 @@
     const item = function (clase, n, texto) { return '<span class="item"><i class="muestra ' + clase + '"></i>' + (n == null ? '' : '<b class="num">' + n + '</b>') + '<span>' + texto + '</span></span>'; };
     L.querySelector('.salida').innerHTML =
       '<div class="colores">' + item('actuar', R ? R.colores.actuar : null, rot.actuar) + item('en-duda', R ? R.colores.en_duda : null, rot.en_duda) + item('no-actuar', R ? R.colores.no_actuar : null, rot.no_actuar) + '</div>' +
-      (R && R.costo_de_no_saber != null ? '<div class="valor"><b class="num">US$&nbsp;' + K.miles(R.costo_de_no_saber) + '</b><span>lo que vale despejar esa duda</span></div>' : '');
+      (R && R.costo_de_no_saber != null ? '<div class="valor"><b class="num">' + K.orden(R.costo_de_no_saber) + '</b><span>vale despejar esa duda</span></div>' : '');
     L.classList.toggle('con-respuesta', !!R);
   }
   function tinteDe(S, id, sinRespuesta) {
@@ -162,7 +162,7 @@
   }
   // En pantalla, el nombre de cada unidad se dice completo: «Sector 25», no «S-25».
   function nombre(id) { return id.replace(/^S-0?/, 'Sector ').replace(/^L-0?/, 'Línea ').replace(/^CAEX-/, 'Camión '); }
-  function reloj(el, texto) { if (el._h !== texto) { el.textContent = texto; el._h = texto; } }
+  function reloj(el, texto) { if (el && el._h !== texto) { el.textContent = texto; el._h = texto; } }
 
   // Un camión minero hecho de puntos sobre su carrocería (x hacia adelante). P son posiciones; Q es (tipo, brillo, ángulo, radio).
   // Tipo 1: rueda, que gira. Tipo 2: foco. Lo usan la lámina de la flota y la portada.
@@ -225,7 +225,6 @@
       this.reloj = L.querySelector('.reloj .num');
       this.horas = 0; this.maximo = 0;
       S.unidades.forEach(function (un) { un.puntos.forEach(function (q) { this.horas = Math.max(this.horas, q[0]); this.maximo = Math.max(this.maximo, q[1]); }, this); }, this);
-      L.querySelector('.reloj .dato').textContent = 'de ' + Math.round(this.horas) + ' horas de radar';
       // los dos sectores que más se movieron, que no estén pegados; y el que menos, para la curva
       const finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (x, y) { return y[0] - x[0]; });
       this.marcados = [finales[0][1]];
