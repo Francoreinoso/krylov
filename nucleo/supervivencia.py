@@ -235,6 +235,7 @@ def leer_tabla(ruta, columnas: dict) -> dict:
 CARGOS_MAX = 12            # los mismos que ve el codificador; los cargos de más se juntan en el último
 NODOS_CARGO, NODOS_PERSONA = 8, 12
 _NODOS_AL_UBICAR = 6                    # nodos de persona mientras se busca dónde está el posterior de cada cargo
+_NODOS_AL_UBICAR_RAPIDO, _TOLERANCIA_RAPIDA, _PASOS_RAPIDO = 7, 0.3, 4     # en el modo de la cartera: nodos de persona al ubicar, cuánto puede moverse un centro (en anchos) para darlo por ubicado, y tope de pasos
 _ELEMENTOS_POR_TANDA = 600_000          # tope de (muestras × personas × nodos²) por tanda: acota la memoria del servidor
 _LOG_2PI_MEDIO = 0.9189385332046727
 _erfc = np.frompyfunc(__import__("math").erfc, 1, 1)
@@ -260,64 +261,78 @@ def _logistica(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 
-def _integrar(th: dict, d: dict, nodos: int, nodos_persona: int, pasos: int) -> np.ndarray:
+def _integrar(th: dict, d: dict, nodos: int, nodos_persona: int, pasos: int, rapido: bool = False) -> np.ndarray:
     """El paso local con un eje delantero E en θ y en los datos. Devuelve P(δ = 1 | lo observado, θ), (E, n).
 
     th: θ con restricciones, cada parámetro con eje delantero E. d: `x` (E, n, 3), `w`, `tiempo`, `evento`, `grupo` (E, n)
     y `encuestas` (E, n, 4). Con una empresa y E muestras de θ, los datos se repiten; en la cartera, E empresas distintas.
+    Si d trae `base_w` (la base B-spline de w, que no depende de θ), no se recalcula.
+
+    rapido=True es el modo de la cartera, para θ compatibles con los datos (una red entrenada sobre empresas del simulador):
+    el posterior de cada cargo se aproxima por la gaussiana que deja Newton (Laplace: centro en el máximo, ancho por la
+    curvatura), buscada con los nodos del prior de z; y la cuadratura final, con nodos adaptados a cada persona, corre
+    solo sobre las personas por decidir. Las demás devuelven NaN.
     """
     E, n = d["tiempo"].shape
     k, lam, sigma = th["k"][:, None], th["lambda"][:, None], th["sigma_u"][:, None]
-    base = th["beta0"][:, None] + np.einsum("enj,ej->en", d["x"], th["beta"]) + np.einsum("enm,em->en", base_spline(d["w"]), th["gamma"])
-    t, evento, grupo = d["tiempo"], d["evento"], d["grupo"][..., None]
-    renuncio, sigue = evento == 1, evento == 0
-    tk_0, tk_medio, tk_1 = ((t + mas) ** k for mas in (0.0, 0.5, 1.0))                  # t^k, (t+½)^k, (t+1)^k
-    salto = tk_1 - tk_0
-    # La censura solo depende de los años, que son enteros: se tabula por valor distinto de t.
+    t, evento = d["tiempo"], d["evento"]
+    # Las potencias de los años y la censura solo dependen de los años, que son enteros: se tabulan por valor distinto de t.
     anos, cual = np.unique(t, return_inverse=True)
+    cual = cual.reshape(E, n)
+    tk_0, tk_medio, tk_1 = (np.take_along_axis((anos[None, :] + mas) ** k, cual, axis=1) for mas in (0.0, 0.5, 1.0))    # t^k, (t+½)^k, (t+1)^k
     def s_c(mas):
-        return np.take_along_axis(supervivencia_censura(anos[None, :] + mas, th["mu_c"][:, None], th["s_c"][:, None]), cual.reshape(E, n), axis=1)
+        return np.take_along_axis(supervivencia_censura(anos[None, :] + mas, th["mu_c"][:, None], th["s_c"][:, None]), cual, axis=1)
     log_a1, log_a0 = np.log(np.maximum(s_c(0.5), 1e-300)), np.log(np.maximum(s_c(0.0) - s_c(1.0), 1e-300))
-    pertenece = (grupo == np.arange(CARGOS_MAX)).astype(np.float64)                   # (E, n, G)
     # Los dos cortes que encierran la respuesta de cada persona a cada encuesta: P(y) = logistic(c_alto − a z) − logistic(c_bajo − a z).
     # Con e = exp(a z) esa resta es (1 − ρ)·e / [(1 + κ e)(e + ν)], con κ = exp(−c_alto), ν = exp(c_bajo) y ρ = κ ν:
     # una exponencial por encuesta, sin restar números parecidos, y con los cortes ±∞ de los extremos dando κ = 0 o ν = 0.
     infinito = np.full((E, N_ENCUESTAS, 1), np.inf)
     cortes = np.concatenate([-infinito, th["cortes"], infinito], axis=2)[:, None]      # (E, 1, 4, 5)
     y = d["encuestas"][..., None] - 1                                                  # (E, n, 4, 1)
-    kappa, nu = np.exp(-np.take_along_axis(cortes, y + 1, axis=3)), np.exp(np.take_along_axis(cortes, y, axis=3))    # (E, n, 4, 1)
-    uno_menos_rho = 1.0 - kappa * nu
+    kappa, nu = np.take_along_axis(np.exp(-cortes), y + 1, axis=3), np.take_along_axis(np.exp(cortes), y, axis=3)    # (E, n, 4, 1)
     a_item = th["a"][:, None, :, None]                                                  # (E, 1, 4, 1)
-    a1, a0 = np.exp(log_a1), np.exp(log_a0)
+    # Lo que se sabe de cada persona, (E, n, ...): los cierres de abajo lo reciben entero o solo de las personas por decidir.
+    todas = {
+        "base": th["beta0"][:, None] + np.einsum("enj,ej->en", d["x"], th["beta"])
+                + np.einsum("enm,em->en", d["base_w"] if "base_w" in d else base_spline(d["w"]), th["gamma"]),
+        "grupo": d["grupo"], "renuncio": evento == 1, "sigue": evento == 0, "tk_0": tk_0, "tk_medio": tk_medio, "tk_1": tk_1, "salto": tk_1 - tk_0,
+        "log_a1": log_a1, "log_a0": log_a0, "a1": np.exp(log_a1), "a0": np.exp(log_a0), "kappa": kappa, "nu": nu, "uno_menos_rho": 1.0 - kappa * nu,
+    }
+    cargo_plano = (d["grupo"] + CARGOS_MAX * np.arange(E)[:, None]).ravel()            # el cargo de cada persona, numerado a través de las E empresas
 
-    def log_persona(z):
+    def por_cargo(v):
+        """Suma sobre las personas de cada cargo: (E, n) → (E, G)."""
+        return np.bincount(cargo_plano, weights=v.ravel(), minlength=E * CARGOS_MAX).reshape(E, CARGOS_MAX)
+
+    def log_persona(p, z):
         """log[φ(z) · p(las cuatro encuestas | z)] en los nodos z de cada persona: (E, n, K)."""
         e = np.exp(np.clip(a_item * z[:, :, None, :], -300.0, 300.0))                   # (E, n, 4, K)
-        p = (uno_menos_rho * e / ((1.0 + kappa * e) * (e + nu))).prod(axis=2)
-        return -0.5 * z ** 2 - _LOG_2PI_MEDIO + np.log(np.maximum(p, 1e-300))
+        ver = (p["uno_menos_rho"] * e / ((1.0 + p["kappa"] * e) * (e + p["nu"]))).prod(axis=2)
+        return -0.5 * z ** 2 - _LOG_2PI_MEDIO + np.log(np.maximum(ver, 1e-300))
 
-    def ubicar_z(centro_u, m, vueltas):
+    def ubicar_z(p, centro_u, m, vueltas):
         """Dónde vive el integrando en z de cada persona, con u en el centro de su cargo: máximo y ancho, (E, n).
 
         Newton sobre F(z) = log φ(z) + Σ log P(encuesta | z) + log p(años y evento | u, z). Con v = log h = cte − λ z,
         las derivadas del último término respecto de v son: si sigue, −h(t+½)^k las dos; si renunció,
         −h t^k + q y −h t^k + q(1 − x − q), con x = h·[(t+1)^k − t^k] y q = x / (e^x − 1); si falta, la mezcla de las dos.
         """
-        log_h_u = base + np.take_along_axis(centro_u, grupo[..., 0], axis=1)
+        log_h_u = p["base"] + np.take_along_axis(centro_u, p["grupo"], axis=1)
+        kappa_, nu_, a_ = p["kappa"][..., 0], p["nu"][..., 0], a_item[..., 0]
         for _ in range(vueltas):
-            e = np.exp(np.clip(a_item[..., 0] * m[..., None], -300.0, 300.0))            # (E, n, 4)
-            alto, bajo = 1.0 / (1.0 + kappa[..., 0] * e), nu[..., 0] / (e + nu[..., 0])  # las dos logísticas
+            e = np.exp(np.clip(a_ * m[..., None], -300.0, 300.0))                       # (E, n, 4)
+            alto, bajo = 1.0 / (1.0 + kappa_ * e), nu_ / (e + nu_)                      # las dos logísticas
             d_bajo, d_alto = bajo * (1 - bajo), alto * (1 - alto)
-            p = np.maximum(uno_menos_rho[..., 0] * e * alto / (e + nu[..., 0]), 1e-300)
-            g_encuestas = -a_item[..., 0] * (d_alto - d_bajo) / p
-            h_encuestas = a_item[..., 0] ** 2 * (d_alto * (1 - 2 * alto) - d_bajo * (1 - 2 * bajo)) / p - g_encuestas ** 2
+            ver = np.maximum(p["uno_menos_rho"][..., 0] * e * alto / (e + nu_), 1e-300)
+            g_encuestas = -a_ * (d_alto - d_bajo) / ver
+            h_encuestas = a_ ** 2 * (d_alto * (1 - 2 * alto) - d_bajo * (1 - 2 * bajo)) / ver - g_encuestas ** 2
             h = np.exp(np.clip(log_h_u - lam * m, -700.0, 46.0))
-            x = np.maximum(h * salto, 1e-12)
+            x = np.maximum(h * p["salto"], 1e-12)
             q = x / np.expm1(x)
-            g1, g0 = -h * tk_0 + q, -h * tk_medio
-            h1 = -h * tk_0 + q * (1 - x - q)
-            log_1 = log_a1 - h * tk_0 + np.log(np.maximum(-np.expm1(-x), 1e-300))
-            r1 = np.where(renuncio, 1.0, np.where(sigue, 0.0, _logistica(np.clip(log_1 - (log_a0 - h * tk_medio), -700.0, 700.0))))
+            g1, g0 = -h * p["tk_0"] + q, -h * p["tk_medio"]
+            h1 = -h * p["tk_0"] + q * (1 - x - q)
+            log_1 = p["log_a1"] - h * p["tk_0"] + np.log(np.maximum(-np.expm1(-x), 1e-300))
+            r1 = np.where(p["renuncio"], 1.0, np.where(p["sigue"], 0.0, _logistica(np.clip(log_1 - (p["log_a0"] - h * p["tk_medio"]), -700.0, 700.0))))
             g_v = r1 * g1 + (1 - r1) * g0
             h_v = r1 * (h1 + g1 ** 2) + (1 - r1) * (g0 + g0 ** 2) - g_v ** 2
             primera = -m + g_encuestas.sum(axis=2) - lam * g_v
@@ -326,80 +341,135 @@ def _integrar(th: dict, d: dict, nodos: int, nodos_persona: int, pasos: int) -> 
             m = m + np.clip(-primera / segunda, -1.5, 1.5)
         return m, np.clip(1.0 / np.sqrt(-segunda), 0.02, 1.0)
 
-    def newton_u(centro, e_z, w):
+    def nodos_de_persona(p, m, s, nodos_z):
+        """Gauss-Hermite centrada en (m, s) de cada persona: exp(−λ z) en sus nodos y el peso de cada nodo, (E, n, Kz) los dos."""
+        puntos, pesos = np.polynomial.hermite.hermgauss(nodos_z)
+        z = m[..., None] + np.sqrt(2.0) * s[..., None] * puntos
+        log_w = log_persona(p, z) + np.log(pesos) + puntos ** 2
+        # El peso va dividido por su máximo: la constante de cada persona no depende de u y se cancela.
+        return np.exp(np.clip(-lam[..., None] * z, -300.0, 300.0)), np.exp(log_w - log_w.max(axis=2, keepdims=True))
+
+    def nodos_del_prior(nodos_z):
+        """Gauss-Hermite con los nodos del prior de z, los mismos para todas las personas: exp(−λ z) (E, Kz) y pesos (E, n, Kz).
+
+        Es lo más barato: p(encuesta | z) se tabula por nivel de respuesta y cada persona solo busca los suyos. Alcanza para
+        ubicar el posterior de un cargo (una suma sobre muchas personas), no para la probabilidad de una persona.
+        """
+        puntos, pesos = np.polynomial.hermite.hermgauss(nodos_z)
+        z = np.sqrt(2.0) * puntos
+        acumulada = 1.0 / (1.0 + np.exp(np.clip(th["a"][:, :, None, None] * z - th["cortes"][:, :, :, None], -300.0, 300.0)))   # (E, 4 ítems, 3 cortes, Kz)
+        borde = np.ones_like(acumulada[:, :, :1])
+        por_respuesta = np.concatenate([acumulada, borde], axis=2) - np.concatenate([0 * borde, acumulada], axis=2)                # (E, 4, 4 niveles, Kz)
+        w = np.take_along_axis(por_respuesta[:, None], y[..., None], axis=3)[:, :, :, 0, :].prod(axis=2) * pesos                   # (E, n, Kz)
+        return np.exp(np.clip(-lam * z, -300.0, 300.0)), w / w.max(axis=2, keepdims=True)
+
+    def newton_u_con_el_prior(p, centro, e_z, w):
+        """El mismo paso de Newton que `newton_u`, cuando los nodos de z son los del prior y todas las personas los comparten: e_z es (E, Kz).
+
+        Con h = e^{base+u}·e_z, las sumas Σ_k h^j·e^{−hτ}·w que piden las derivadas son e^{j(base+u)} por un producto de matrices
+        con las potencias de e_z: tres exponenciales y tres productos por paso, en vez de una veintena de pasadas por los nodos.
+        """
+        e_u = np.minimum(np.exp(np.minimum(p["base"] + np.take_along_axis(centro, p["grupo"], axis=1), 300.0)), 1e20 / e_z.max(axis=1, keepdims=True))
+        sobre_el_minimo = e_u[..., None] * (e_z - e_z.min(axis=1, keepdims=True))[:, None, :]      # (E, n, Kz)
+        h = e_u[..., None] * e_z[:, None, :]
+        en_t = np.exp(-sobre_el_minimo * p["tk_0"][..., None]) * w
+        potencias = np.stack([np.ones_like(e_z), e_z, e_z ** 2], axis=2)                 # (E, Kz, 3)
+        de_t = en_t @ potencias                                                         # Σ_k e_z^j · e^{−h t^k} · w, j = 0, 1, 2: (E, n, 3)
+        de_t1 = (en_t * np.exp(-h * p["salto"][..., None])) @ potencias
+        de_medio = (np.exp(-sobre_el_minimo * p["tk_0"][..., None] - h * (p["tk_medio"] - p["tk_0"])[..., None]) * w) @ potencias
+        con_1, con_0 = p["a1"] * ~p["sigue"], p["a0"] * ~p["renuncio"]
+        h0, h1, hm = e_u * p["tk_0"], e_u * p["tk_1"], e_u * p["tk_medio"]
+        ver = np.maximum(con_1 * (de_t[..., 0] - de_t1[..., 0]) + con_0 * de_medio[..., 0], 1e-300)
+        primera = con_1 * (h1 * de_t1[..., 1] - h0 * de_t[..., 1]) - con_0 * hm * de_medio[..., 1]
+        segunda = (con_1 * (h0 ** 2 * de_t[..., 2] - h0 * de_t[..., 1] - h1 ** 2 * de_t1[..., 2] + h1 * de_t1[..., 1])
+                   + con_0 * (hm ** 2 * de_medio[..., 2] - hm * de_medio[..., 1]))
+        g = primera / ver
+        pendiente = por_cargo(g) - centro / sigma ** 2
+        curvatura = por_cargo(segunda / ver - g ** 2) - 1.0 / sigma ** 2
+        curvatura = np.where(curvatura < -1e-9, curvatura, -1.0 / sigma ** 2)
+        return centro + np.clip(-pendiente / curvatura, -3.0, 3.0), np.minimum(1.0 / np.sqrt(-curvatura), sigma)
+
+    def newton_u(p, centro, e_z, w):
         """Un paso de Newton hacia el máximo de log p(u | datos del cargo), con las integrales en z ya en sus nodos: nuevo centro y ancho, (E, G).
 
         Como h ∝ e^u, derivar respecto de u es derivar respecto de log h: de cada término e^{−hτ} salen −hτ·e^{−hτ} y (h²τ² − hτ)·e^{−hτ}.
         """
-        e_u = np.exp(np.minimum(base + np.take_along_axis(centro, grupo[..., 0], axis=1), 300.0))[..., None]
+        e_u = np.exp(np.minimum(p["base"] + np.take_along_axis(centro, p["grupo"], axis=1), 300.0))[..., None]
         h = np.minimum(e_u * e_z, 1e20)                                                 # (E, n, Kz)
         sobre_el_minimo = h - h.min(axis=2, keepdims=True)
-        x = h * salto[..., None]
-        en_t = np.exp(-sobre_el_minimo * tk_0[..., None]) * w                           # e^{−h t^k}, sin el factor común de la persona
+        x = h * p["salto"][..., None]
+        en_t = np.exp(-sobre_el_minimo * p["tk_0"][..., None]) * w                      # e^{−h t^k}, sin el factor común de la persona
         en_t1 = en_t * np.exp(-x)
-        en_medio = np.exp(-sobre_el_minimo * tk_0[..., None] - h * (tk_medio - tk_0)[..., None]) * w
-        h0, h1, hm = h * tk_0[..., None], h * tk_1[..., None], h * tk_medio[..., None]
-        con_1, con_0 = a1 * ~sigue, a0 * ~renuncio                                      # quien está por decidir lleva los dos términos
+        en_medio = np.exp(-sobre_el_minimo * p["tk_0"][..., None] - h * (p["tk_medio"] - p["tk_0"])[..., None]) * w
+        h0, h1, hm = h * p["tk_0"][..., None], h * p["tk_1"][..., None], h * p["tk_medio"][..., None]
+        con_1, con_0 = p["a1"] * ~p["sigue"], p["a0"] * ~p["renuncio"]                  # quien está por decidir lleva los dos términos
         ver = con_1 * (en_t * -np.expm1(-x)).sum(axis=2) + con_0 * en_medio.sum(axis=2)
         primera = con_1 * (h1 * en_t1 - h0 * en_t).sum(axis=2) - con_0 * (hm * en_medio).sum(axis=2)
         segunda = con_1 * ((h0 ** 2 - h0) * en_t - (h1 ** 2 - h1) * en_t1).sum(axis=2) + con_0 * ((hm ** 2 - hm) * en_medio).sum(axis=2)
         ver = np.maximum(ver, 1e-300)
         g = primera / ver
-        pendiente = np.einsum("eng,en->eg", pertenece, g) - centro / sigma ** 2
-        curvatura = np.einsum("eng,en->eg", pertenece, segunda / ver - g ** 2) - 1.0 / sigma ** 2
+        pendiente = por_cargo(g) - centro / sigma ** 2
+        curvatura = por_cargo(segunda / ver - g ** 2) - 1.0 / sigma ** 2
         curvatura = np.where(curvatura < -1e-9, curvatura, -1.0 / sigma ** 2)
         return centro + np.clip(-pendiente / curvatura, -3.0, 3.0), np.minimum(1.0 / np.sqrt(-curvatura), sigma)
 
-    def nodos_de_persona(m, s, nodos_z):
-        """Gauss-Hermite centrada en (m, s) de cada persona: exp(−λ z) en sus nodos y el peso de cada nodo, (E, n, Kz) los dos."""
-        puntos, pesos = np.polynomial.hermite.hermgauss(nodos_z)
-        z = m[..., None] + np.sqrt(2.0) * s[..., None] * puntos
-        log_w = log_persona(z) + np.log(pesos) + puntos ** 2
-        # El peso va dividido por su máximo: la constante de cada persona no depende de u y se cancela.
-        return np.exp(np.clip(-lam[..., None] * z, -300.0, 300.0)), np.exp(log_w - log_w.max(axis=2, keepdims=True))
-
-    def por_nivel(u, e_z, w):
-        """En los nodos u (E, G, Ku) de cada cargo: log p(u | datos del cargo) + cte (E, G, Ku) y P(δ = 1 | t, encuestas, u) (E, n, Ku).
+    def por_nivel(p, u, e_z, w):
+        """En los nodos u (E, G, Ku) de cada cargo: log L_i(u) + cte de la persona y P(δ = 1 | t, encuestas, u), (E, n, Ku) los dos.
 
         Para no desbordar, de cada exponente se saca su máximo sobre los nodos de z (el del menor riesgo h) y se repone en el logaritmo.
         """
-        e_u = np.exp(np.minimum(base[..., None] + np.take_along_axis(u, grupo, axis=1), 300.0))    # (E, n, Ku)
+        e_u = np.exp(np.minimum(p["base"][..., None] + np.take_along_axis(u, p["grupo"][..., None], axis=1), 300.0))    # (E, n, Ku)
         e_z_minimo = e_z.min(axis=2, keepdims=True)
         h_minimo = e_u * e_z_minimo                                                     # (E, n, Ku)
         h = e_u[..., None] * e_z[:, :, None, :]                                         # (E, n, Ku, Kz)
         sobre_el_minimo = e_u[..., None] * (e_z - e_z_minimo)[:, :, None, :]
-        s1 = np.einsum("enuk,enk->enu", np.exp(-sobre_el_minimo * tk_0[..., None, None]) * -np.expm1(-h * salto[..., None, None]), w)
-        s0 = np.einsum("enuk,enk->enu", np.exp(-sobre_el_minimo * tk_medio[..., None, None]), w)
-        log_m1 = log_a1[..., None] - h_minimo * tk_0[..., None] + np.log(np.maximum(s1, 1e-300))
-        log_m0 = log_a0[..., None] - h_minimo * tk_medio[..., None] + np.log(np.maximum(s0, 1e-300))
-        log_ver = np.where(renuncio[..., None], log_m1, np.where(sigue[..., None], log_m0, np.logaddexp(log_m1, log_m0)))
-        log_post = np.einsum("eng,enu->egu", pertenece, log_ver) - 0.5 * (u / sigma[..., None]) ** 2
-        return log_post, 1.0 / (1.0 + np.exp(np.minimum(log_m0 - log_m1, 700.0)))
+        s1 = np.einsum("enuk,enk->enu", np.exp(-sobre_el_minimo * p["tk_0"][..., None, None]) * -np.expm1(-h * p["salto"][..., None, None]), w)
+        s0 = np.einsum("enuk,enk->enu", np.exp(-sobre_el_minimo * p["tk_medio"][..., None, None]), w)
+        log_m1 = p["log_a1"][..., None] - h_minimo * p["tk_0"][..., None] + np.log(np.maximum(s1, 1e-300))
+        log_m0 = p["log_a0"][..., None] - h_minimo * p["tk_medio"][..., None] + np.log(np.maximum(s0, 1e-300))
+        log_ver = np.where(p["renuncio"][..., None], log_m1, np.where(p["sigue"][..., None], log_m0, np.logaddexp(log_m1, log_m0)))
+        return log_ver, 1.0 / (1.0 + np.exp(np.minimum(log_m0 - log_m1, 700.0)))
 
     with np.errstate(over="ignore", under="ignore", invalid="ignore", divide="ignore"):
         # 1. Ubicar el posterior de u en cada cargo con pasos de Newton, hasta que ningún centro se mueva. Con un θ compatible
         #    con los datos son dos o tres pasos; con uno absurdo el posterior queda lejos del prior y son más.
         centro = np.zeros((E, CARGOS_MAX))
-        m, s = ubicar_z(centro, np.zeros((E, n)), 3)
-        en_z = nodos_de_persona(m, s, _NODOS_AL_UBICAR)
-        for _ in range(pasos):
+        if rapido:
+            en_z = nodos_del_prior(_NODOS_AL_UBICAR_RAPIDO)
+        else:
+            m, s = ubicar_z(todas, centro, np.zeros((E, n)), 3)
+            en_z = nodos_de_persona(todas, m, s, _NODOS_AL_UBICAR)
+        for _ in range(_PASOS_RAPIDO if rapido else pasos):
             anterior = centro
-            centro, ancho = newton_u(centro, *en_z)
+            centro, ancho = (newton_u_con_el_prior if rapido else newton_u)(todas, centro, *en_z)
             movimiento = np.abs(centro - anterior)
-            if (movimiento < 0.1 * ancho).all():
+            if (movimiento < (_TOLERANCIA_RAPIDA if rapido else 0.1) * ancho).all():
                 break
-            if movimiento.max() > 1.0:                                                  # el cargo se movió: los nodos de persona también
-                m, s = ubicar_z(centro, m, 2)
-                en_z = nodos_de_persona(m, s, _NODOS_AL_UBICAR)
-        # 2. Cuadratura de Gauss-Hermite centrada y escalada en ese posterior, con todos los nodos de persona.
-        m, s = ubicar_z(centro, m, 1)
+            if not rapido and movimiento.max() > 1.0:                                   # el cargo se movió: los nodos de persona también
+                m, s = ubicar_z(todas, centro, m, 2)
+                en_z = nodos_de_persona(todas, m, s, _NODOS_AL_UBICAR)
         puntos_u, pesos_u = np.polynomial.hermite.hermgauss(nodos)
-        u = centro[..., None] + np.sqrt(2.0) * ancho[..., None] * puntos_u
-        log_post, dado_u = por_nivel(u, *nodos_de_persona(m, s, nodos_persona))
+        u = centro[..., None] + np.sqrt(2.0) * ancho[..., None] * puntos_u               # (E, G, Ku)
+        por_decidir = np.isnan(evento)
+        cuantas = por_decidir.sum(axis=1)
+        if rapido and (cuantas == cuantas[0]).all():
+            # 2 (cartera). Laplace en el cargo: p(u | datos) ≈ Normal(centro, ancho), así que los pesos son los de Gauss-Hermite.
+            #    La integral se hace solo para las personas por decidir (las mismas por empresa: el 20%).
+            cuales = np.argsort(~por_decidir, axis=1, kind="stable")[:, :cuantas[0]]     # (E, m)
+            def de(v):
+                return np.take_along_axis(v, cuales.reshape(cuales.shape + (1,) * (v.ndim - 2)), axis=1)
+            ellas = {c: de(v) for c, v in todas.items()}
+            _, dado_u = por_nivel(ellas, u, *nodos_de_persona(ellas, *ubicar_z(ellas, centro, np.zeros(cuales.shape), 3), nodos_persona))
+            p = np.full((E, n), np.nan)
+            np.put_along_axis(p, cuales, np.clip(dado_u @ (pesos_u / pesos_u.sum()), 0.0, 1.0), axis=1)
+            return p
+        # 2. Cuadratura de Gauss-Hermite centrada y escalada en ese posterior, con todos los nodos de persona.
+        log_ver, dado_u = por_nivel(todas, u, *nodos_de_persona(todas, *ubicar_z(todas, centro, m, 1), nodos_persona))
+        log_post = np.stack([por_cargo(log_ver[..., j]) for j in range(nodos)], axis=2) - 0.5 * (u / sigma[..., None]) ** 2
         log_peso = log_post + np.log(pesos_u) + puntos_u ** 2
         peso = np.exp(log_peso - log_peso.max(axis=2, keepdims=True))
         peso /= peso.sum(axis=2, keepdims=True)                                         # p(u_j | datos del cargo), (E, G, Ku)
-        return np.clip((dado_u * np.take_along_axis(peso, grupo, axis=1)).sum(axis=2), 0.0, 1.0)
+        return np.clip((dado_u * np.take_along_axis(peso, d["grupo"][..., None], axis=1)).sum(axis=2), 0.0, 1.0)
 
 
 _DATOS = ("x", "w", "encuestas", "tiempo", "evento", "grupo")
@@ -424,13 +494,19 @@ def paso_local(libre, datos: dict, nodos: int = NODOS_CARGO, nodos_persona: int 
     return np.concatenate(salida, axis=0).T
 
 
-def paso_local_por_empresa(libre, datos: dict, nodos: int = NODOS_CARGO, nodos_persona: int = NODOS_PERSONA, pasos: int = 20) -> np.ndarray:
-    """Lo mismo para E empresas distintas de n personas, cada una con su θ: libre (E, 32), datos (E, n, ...) → (E, n)."""
+def paso_local_por_empresa(libre, datos: dict, nodos: int = NODOS_CARGO, nodos_persona: int = NODOS_PERSONA, pasos: int = 20,
+                           rapido: bool = False, elementos_por_tanda: int | None = None) -> np.ndarray:
+    """Lo mismo para E empresas distintas de n personas, cada una con su θ: libre (E, 32), datos (E, n, ...) → (E, n).
+
+    `datos` puede traer `base_w` ya calculada (sirve para todas las muestras de θ de las mismas empresas).
+    rapido=True es el modo de la cartera (ver `_integrar`): devuelve NaN en las personas que no están por decidir.
+    """
     libre = np.asarray(libre, dtype=np.float64)
     E, n = np.shape(datos["tiempo"])
-    tanda = max(1, _ELEMENTOS_POR_TANDA // (n * nodos * nodos_persona))
-    return np.concatenate([_integrar(a_restringido(libre[i:i + tanda]), {c: np.asarray(datos[c])[i:i + tanda] for c in _DATOS},
-                                     nodos, nodos_persona, pasos) for i in range(0, E, tanda)], axis=0)
+    tanda = max(1, (elementos_por_tanda or _ELEMENTOS_POR_TANDA) // (n * nodos * nodos_persona))
+    columnas = _DATOS + (("base_w",) if "base_w" in datos else ())
+    return np.concatenate([_integrar(a_restringido(libre[i:i + tanda]), {c: np.asarray(datos[c])[i:i + tanda] for c in columnas},
+                                     nodos, nodos_persona, pasos, rapido) for i in range(0, E, tanda)], axis=0)
 
 
 # =========================================================================================
@@ -445,6 +521,9 @@ from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # no
 from nucleo.casos import ErrorKrylov, implementacion           # noqa: E402
 
 NODOS_CARTERA = (4, 6)       # nodos de cargo y de persona en la cartera (WORKPLAN.md 11.6: menos nodos y 8 muestras)
+# Tandas más grandes que en `analizar`: con arreglos grandes NumPy suelta el candado de Python por más tiempo y los hilos rinden
+# (medido: 6,4 s de paso local con 1,5 millones contra 9,2 s con 300 mil). Son unos 25 MB por hilo en los lotes de 2.000 personas.
+_ELEMENTOS_POR_TANDA_CARTERA = 1_500_000
 
 
 def leer_caso(caso: dict) -> dict:
@@ -613,7 +692,8 @@ def cartera(caso: dict) -> dict:
 
     Cada lote de 50 empresas comparte tamaño y pasa de una vez por el codificador y por el flujo. El paso local
     necesita a todas las personas de cada cargo (las que ya tienen respuesta ubican el efecto del cargo), pero solo
-    se devuelven las probabilidades de las personas por decidir. Las muestras de θ van en paralelo, una por hilo.
+    se devuelven las probabilidades de las personas por decidir. Cada muestra de θ de cada lote es una tarea de un
+    grupo de hilos, y el hilo principal sigue simulando y resumiendo los lotes siguientes mientras tanto.
     """
     import importlib
     from concurrent.futures import ThreadPoolExecutor
@@ -626,14 +706,18 @@ def cartera(caso: dict) -> dict:
         config = simular.cargar_config()
         rng = np.random.default_rng(2026)                                    # semilla fija: la cartera del demo es siempre la misma
         ruido = flujo_numpy.ruido(0, muestras, DIM_THETA)
-        with ThreadPoolExecutor(max_workers=min(muestras, os.cpu_count() or 1)) as hilos:
-            for i, b in enumerate(comun.tamanos_de_lote(n_empresas)):
+        with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 1)) as hilos:
+            pendientes = []
+            for b in comun.tamanos_de_lote(n_empresas):
                 lote = simular.simular(rng, b, simular.muestrear_n(rng, config), config)       # covariables del generador paramétrico
                 resumen = sesion.run(None, {"filas": lote["filas"], "grupo": lote["grupo"]})[0]
                 theta = flujo_numpy.muestrear(pesos, resumen[None], np.broadcast_to(ruido[:, None, :], (muestras, b, DIM_THETA))).astype(np.float64)
                 variables = variables_del_modelo(lote)
-                p = np.stack(list(hilos.map(lambda th: paso_local_por_empresa(th, variables, *NODOS_CARTERA), theta)), axis=-1)   # (b, n, muestras)
-                falta = np.isnan(lote["evento"])
-                yield i, [p[e][falta[e]] for e in range(b)]
+                variables["base_w"] = base_spline(variables["w"])            # no depende de θ: una vez por lote
+                tareas = [hilos.submit(paso_local_por_empresa, th, variables, *NODOS_CARTERA, rapido=True, elementos_por_tanda=_ELEMENTOS_POR_TANDA_CARTERA) for th in theta]
+                pendientes.append((np.isnan(lote["evento"]), tareas))
+            for i, (falta, tareas) in enumerate(pendientes):
+                p = np.stack([t.result() for t in tareas], axis=-1)          # (b, n, muestras)
+                yield i, [p[e][falta[e]] for e in range(len(falta))]
 
     return comun.responder(caso, analizar_lotes)

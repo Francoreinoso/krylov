@@ -84,3 +84,19 @@ def test_con_el_theta_verdadero_las_probabilidades_calibran():
     una = {k: np.asarray(v)[7] for k, v in sv.variables_del_modelo(lote).items()}
     np.testing.assert_allclose(sv.paso_local(lote["theta"][7:8].astype(np.float64), una)[:, 0],
                                sv.paso_local_por_empresa(lote["theta"].astype(np.float64), sv.variables_del_modelo(lote))[7], atol=1e-5)
+
+
+def test_el_modo_de_la_cartera_da_lo_mismo_que_el_exacto():
+    """rapido=True (Laplace en el cargo y cuadratura solo para las personas por decidir) contra el paso local completo.
+
+    Con θ compatibles con los datos (aquí, el verdadero de cada empresa simulada) la diferencia típica es de milésimas.
+    """
+    lote = simular.simular(np.random.default_rng(11), 30, 600, CONFIG)
+    variables, theta = sv.variables_del_modelo(lote), lote["theta"].astype(np.float64)
+    por_decidir = np.isnan(lote["evento"])
+    exacto = sv.paso_local_por_empresa(theta, variables, nodos=16, nodos_persona=30)
+    rapido = sv.paso_local_por_empresa(theta, {**variables, "base_w": sv.base_spline(variables["w"])}, *sv.NODOS_CARTERA, rapido=True)
+    assert np.isnan(rapido[~por_decidir]).all() and np.isfinite(rapido[por_decidir]).all()
+    diferencia = np.abs(rapido - exacto)[por_decidir]
+    # Medido: promedio 0,0009, percentil 99 0,011, máximo 0,041 (en una empresa con θ en la cola del prior).
+    assert diferencia.max() < 0.06 and np.quantile(diferencia, 0.99) < 0.02 and diferencia.mean() < 2e-3, (diferencia.max(), diferencia.mean())
