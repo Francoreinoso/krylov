@@ -142,6 +142,6 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 ## Pedidos a otros
 
 - **A `amortizacion` (PC 2):** avisar cuando `deformacion`, `cinetica`, `desgaste` o `sismico` respondan en `api.analizar`, para regenerar `datos.js` y el respaldo.
-- **A `seguimiento`:** `GUION.md` y `LAMINAS.md` describen otro pitch (abre con el barco, entra a la app, siete láminas). Hay que dejar uno solo. Y hay cifras nuevas en pantalla que conviene que una persona firme en `CIFRAS.md` (además de la prueba con el LLM y el 138 de 155 del sello, que hoy no tienen fila): «7 horas» y «0,69 segundos» como apertura (M-09, M-10), «4 h 40 min» de entrenamiento (M-02) y, sobre todo, el «casi un millón» de la lámina 3, que es una cuenta. M-36 (el punto de equilibrio) sigue pendiente.
+- **A `seguimiento`:** `GUION.md` y `LAMINAS.md` describen otro pitch (abre con el barco, entra a la app, siete láminas). Hay que dejar uno solo. Y hay cifras en pantalla sin fila en `CIFRAS.md`, que conviene que una persona firme o saque: las respuestas de la pared (5, 2 y 29 sectores; US$ 78.574; las horas que faltan) y de la planta (2, 3 y 3 líneas; US$ 8.809; la recuperación de cada línea), la accuracy de las decisiones (0,98: es M-54 dicho de otra forma), los 68 valores escondidos de `leyes` (61 adentro) y la prueba con el LLM (152 y 177 s).
 - **A `producto` (PC 1):** si cambia la dirección del producto, avisar para `config.js`.
 - **A una persona del equipo:** confirmar los nombres del cierre; abrir el deck en Safari y con el proyector antes del ensayo.
