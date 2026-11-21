@@ -27,6 +27,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 ## En curso
 
 - sáb 13:32 · A-26: ronda 1 lista para lanzar cuando Rodrigo dé la partida. PC 3: `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 128 --guardar-cada-min 10` (medido aquí: 670 a 770 datasets/s en la GPU del Mac, 3,5 GB; en CPU con lote 64, 130/s). PC 2: `cinetica` con `--dispositivo mps --lote 512`. Sigue A-28 (`sismico`) y A-27 (`desgaste`), sin lanzar.
+- sáb 13:39 · A-26: ronda 1 lanzada en PC 2 con la partida de Rodrigo. `cinetica` en la GPU del Mac, lote 512, cerca de 8.700 datasets por segundo en el primer minuto. Se detiene sola a las 16:10.
 
 ## Bloqueos
 
@@ -44,9 +45,11 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor |
 |---|---|
-| Motor | (ninguno; `estados` se detiene con el pivote) |
-| Comando exacto | — |
-| Hora de inicio | — |
+| Motor | `cinetica` (ronda 1, PC 2) |
+| Comando exacto | `caffeinate -dims uv run python -m motor.cinetica.entrenar --nuevo --hasta 16:10 --dispositivo mps --lote 512 --guardar-cada-min 10` |
+| Hora de inicio | sáb 13:38 |
+| Puntos de guardado | `motor/checkpoints/cinetica/ultimo.pt`; registro en `motor/checkpoints/cinetica/salida.log` |
+| Para retomar | el mismo comando sin `--nuevo` |
 
 ## Números medidos
 
