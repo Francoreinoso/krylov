@@ -10,7 +10,9 @@ Todo sale del repositorio, con la red del motor `espacial` (validada, sello de l
                 El rango creíble por bloque (5% a 95%) no viene en la respuesta de la API: se calcula
                 aquí con las mismas funciones de `nucleo/espacial.py` (media y desviación de la cabeza
                 de mapa), y se comprueba que la media coincide con la de la API.
-- `donde`       api.donde_medir("terreno"): los tres lugares donde medir vale más.
+- `donde`       api.donde_medir("terreno"): los tres lugares donde medir vale más. Además, `lugares`: todos los
+                lugares candidatos con su valor, repitiendo el cálculo de `nucleo/espacial.donde_medir` (se comprueba
+                que los tres mejores coinciden con los de la API).
 - `mediciones`  api.analizar("terreno", mediciones=[...]) para cada pin y cada resultado posible
                 (bajo, medio, alto): el mapa rehecho por la red. En el deck se anima este resultado.
 - `nube`        api.nube("rotacion_malo") y la misma con la corrección `quitar_factor:fecha_salida`.
@@ -84,6 +86,51 @@ def capa(c: dict) -> dict:
     return {k: c[k] for k in ("media", "bajo", "alto", "p", "estado", "colores", "costo_de_no_saber")}
 
 
+def lugares_con_valor(candidatas: list[dict]) -> list[dict]:
+    """Todos los lugares candidatos de «¿Dónde mido?» con lo que vale medir en cada uno.
+
+    La API entrega solo los tres mejores. Aquí se repite el cálculo de `nucleo/espacial.donde_medir`
+    con sus mismas funciones, y se comprueba que los tres mejores coinciden con los de la API.
+    """
+    caso = casos.cargar_caso("terreno")
+    costos = casos.costos_numericos(caso, None)
+    terreno = espacial.leer_terreno(caso, [])
+    dentro, suma, cuenta = terreno["dentro"], terreno["suma"], terreno["cuenta"]
+    clave = espacial._clave(caso, False)
+    lado = espacial.LADO
+
+    def total_de_duda(sumas, cuentas):
+        canales, media, escala = espacial.canales_de(sumas, cuentas, terreno["raiz_dist"])
+        r = espacial.inferir(canales, cuentas, "red", clave, espacial.MUESTRAS_POSTERIOR)
+        p = espacial.probabilidad_de_superar(r["media"], r["desviacion"], espacial._umbral_estandarizado(terreno, media, escala))
+        d = decision.decidir_espacial(p, costos["falso_si"], costos["falso_no"])
+        return (d["duda"] * dentro).sum(axis=(1, 2)), d, r, media, escala
+
+    total, d, r, media, escala = total_de_duda(suma[None], cuenta[None])
+    lugares = espacial._lugares_candidatos(d["estado"][0], d["duda"][0], cuenta, dentro)
+    tau2 = float(np.exp(2 * r["theta"].reshape(-1, len(espacial.NOMBRES_THETA))[:, 4]).mean())
+    f, c = np.divmod(lugares, lado)
+    k = espacial.RESULTADOS_POR_LUGAR
+    desv = np.sqrt(r["desviacion"][0][f, c] ** 2 + tau2)
+    cuantil = np.array([espacial._cuantil_normal(q) for q in (np.arange(k) + 0.5) / k])
+    resultado = (r["media"][0][f, c][:, None] + desv[:, None] * cuantil[None, :]) * float(escala[0]) + float(media[0])
+    n = len(lugares)
+    sumas = np.broadcast_to(suma, (n, k, lado, lado)).copy()
+    cuentas = np.broadcast_to(cuenta, (n, k, lado, lado)).copy()
+    sumas[np.arange(n), :, f, c] += resultado
+    cuentas[np.arange(n), :, f, c] += 1
+    totales = total_de_duda(sumas.reshape(-1, lado, lado), cuentas.reshape(-1, lado, lado))[0].reshape(n, k)
+    valor = float(total[0]) - totales.mean(axis=1)
+
+    geo = terreno["geometria"]
+    salida = [{"x": round(geo["x0"] + (c[i] + 0.5) * geo["lado"]), "y": round(geo["y0"] + (f[i] + 0.5) * geo["lado"]),
+               "valor_de_medir": round(float(valor[i]))} for i in np.argsort(-valor, kind="stable")]
+    for mia, suya in zip(salida, candidatas):
+        assert (mia["x"], mia["y"]) == (suya["x"], suya["y"]) and abs(mia["valor_de_medir"] - suya["valor_de_medir"]) <= 1, \
+            f"los lugares no coinciden con los de la API: {mia} / {suya}"
+    return salida
+
+
 def orilla_del_rio() -> list[list[float]]:
     """Celdas de la grilla fina pegadas al río (distancia 0): se dibujan como la orilla."""
     with open(RAIZ / "datos/demo/terreno_grilla.csv") as f:
@@ -131,11 +178,13 @@ def main() -> None:
             "puntos": [[p["x"], p["y"], p["valor"]] for p in m["puntos"]],
             "orilla": orilla_del_rio(),
             "costos": {k: v["valor"] for k, v in r["costos"].items()},
-            "rotulos": r["rotulos"], "examen": r["examen"]["tramos"][0], "origen_datos": r["origen_datos"],
+            "rotulos": r["rotulos"], "unidad": r["unidad"], "examen": r["examen"]["tramos"][0], "origen_datos": r["origen_datos"],
+            "umbral_de_duda": decision.UMBRAL_DE_DUDA,
             "implementacion": r["implementacion"], "precalculado": r["precalculado"],
         },
         "donde": {
             "candidatas": donde["candidatas"], "analisis_rehechos": donde["analisis_rehechos"],
+            "lugares": lugares_con_valor(donde["candidatas"]), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
             "implementacion": donde["implementacion"], "precalculado": donde["precalculado"],
         },
         "mediciones": mediciones,
@@ -154,6 +203,8 @@ def main() -> None:
     print("colores", base["colores"], "· cuesta no saber", base["costo_de_no_saber"])
     for c in donde["candidatas"]:
         print(c["etiqueta"], c["valor_de_medir"], {k: (v["colores"], v["costo_de_no_saber"]) for k, v in mediciones[c["etiqueta"]].items()})
+    print("lugares candidatos:", len(datos["donde"]["lugares"]), "×", datos["donde"]["resultados_por_lugar"], "resultados =",
+          len(datos["donde"]["lugares"]) * datos["donde"]["resultados_por_lugar"], "análisis · API:", donde["analisis_rehechos"])
     print("nube", malo["archivo"], "→", corregido["archivo"], "·", datos["nube"]["motivo"])
 
 
