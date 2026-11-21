@@ -2,7 +2,7 @@
 // Pide a la API; si no hay API configurada, si no responde en 1,5 s o si la URL trae
 // ?estatico=1, lee la copia precalculada de /estatico/<archivo>.json.
 
-import type { Analisis, Calce, CalcePapel, Casos, DondeMedir, Interpretacion, MedicionNueva, Nube, Papeles } from './tipos'
+import type { Analisis, Calce, CalcePapel, Casos, DondeMedir, Interpretacion, MedicionNueva, Nube, Papeles, Textos } from './tipos'
 
 const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8010' : '')
@@ -137,6 +137,7 @@ async function dondeMedir(caso: string): Promise<Respuesta<DondeMedir>> {
 
 export const api = {
   casos: () => pedir<Casos>('casos', 'casos'),
+  textos: () => pedir<Textos>('textos', 'textos'),
   analizar: (caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []) =>
     pedir<Analisis>('analizar', `analizar/${clave(caso, transformaciones, mediciones)}`, {
       caso,

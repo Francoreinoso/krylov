@@ -6,7 +6,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { FONDO, ORDEN } from './colores'
-import Curva from './Curva'
+import { CurvaDeUnidad, useUnidadElegida, type TextosCurva } from './Curva'
 import Deslizadores from './Deslizadores'
 import Examen from './Examen'
 import Interpretacion from './Interpretacion'
@@ -36,6 +36,7 @@ export interface DatosRespuesta {
   nuevas: MedicionNueva[] // las muestras simuladas que ya entraron a este análisis
   perforacion: Perforacion | null // la muestra que se acaba de simular
   antes: number | null // lo que costaba no saber antes de esa muestra
+  textos: TextosCurva | null // los rótulos de la curva (casos/textos.yaml)
 }
 
 const UNIDADES_EN_CHAT = 12
@@ -184,16 +185,13 @@ interface Cuerpo {
 
 // Los paneles de una respuesta. `grande` es para la mesa y la lámina.
 export function CuerpoRespuesta({ datos, d, grande = false, alPerforar, ocupado = false }: Cuerpo) {
-  const { intencion, analisis, nube, donde, completa, nuevas, perforacion, antes } = datos
+  const { intencion, analisis, nube, donde, completa, nuevas, perforacion, antes, textos } = datos
   const { semaforo, costo_de_no_saber, unidades, mapa, factores, examen } = analisis
   const rojo = semaforo.estado === 'rojo_datos' || semaforo.estado === 'rojo_modelo'
   const moneda = costo_de_no_saber?.moneda ?? 'USD'
   const hechas = useMemo(() => new Set(nuevas.map((n) => n.etiqueta)), [nuevas])
 
-  // La unidad elegida: al abrir, la de más duda con curva.
-  const conCurva = unidades?.filter((u) => u.curva) ?? []
-  const masDuda = conCurva.length ? conCurva.reduce((a, b) => (b.duda > a.duda ? b : a)).id : null
-  const [elegida, setElegida] = useState<string | null>(masDuda)
+  const [elegida, setElegida] = useUnidadElegida(unidades)
   const unidadElegida = unidades?.find((u) => u.id === elegida) ?? null
   const decisionElegida = unidades && d.unidades && unidadElegida ? d.unidades[unidades.indexOf(unidadElegida)] : null
 
@@ -224,24 +222,22 @@ export function CuerpoRespuesta({ datos, d, grande = false, alPerforar, ocupado 
   )
 
   const laCurva = unidadElegida?.curva && (
-    <div>
-      <p className="mb-1 flex flex-wrap items-baseline gap-x-3">
-        <span className="titular text-2xl">{unidadElegida.etiqueta}</span>
-        {decisionElegida && (
-          <span className="flex items-center gap-2 text-sm text-tinta-suave">
-            <span className={`h-2.5 w-4 ${FONDO[decisionElegida.estado]}`} />
-            {analisis.rotulos[decisionElegida.estado]}
-          </span>
-        )}
-      </p>
-      <Curva curva={unidadElegida.curva} />
-    </div>
+    <CurvaDeUnidad
+      unidad={unidadElegida}
+      estado={decisionElegida?.estado ?? null}
+      rotulo={decisionElegida ? analisis.rotulos[decisionElegida.estado] : null}
+      textos={textos}
+      escalones={analisis.motor_id === 'sismico'} // temblores acumulados: lo sabe el motor, no el componente
+    />
   )
 
   const laLista = (filas: number | null) => {
     if (!unidades || !d.unidades) return null
     const pares = unidades.map((u, i) => ({ u, decision: d.unidades![i] }))
     const vista = filas ? [...pares].sort((a, b) => b.u.p - a.u.p).slice(0, filas) : pares
+    // La unidad de la curva siempre está en la lista: si quedó fuera, toma la última fila.
+    const laElegida = pares.find((f) => f.u.id === elegida)
+    if (filas && laElegida && !vista.includes(laElegida)) vista[vista.length - 1] = laElegida
     return (
       <div className={`flex flex-col ${filas ? 'max-h-96' : grande ? 'h-[22rem]' : 'h-72'}`}>
         <ListaUnidades unidades={vista.map((f) => f.u)} decisiones={vista.map((f) => f.decision)} corte={d.corte} elegida={elegida} alElegir={setElegida} />
@@ -277,10 +273,14 @@ export function CuerpoRespuesta({ datos, d, grande = false, alPerforar, ocupado 
             {deslizadores}
           </div>
         </div>
-        <div className="grid gap-8 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <div className="min-w-0">{laCurva}</div>
-          <div className="min-w-0">{laLista(null)}</div>
-        </div>
+        {laCurva ? (
+          <div className="grid gap-8 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <div className="min-w-0">{laCurva}</div>
+            <div className="min-w-0">{laLista(null)}</div>
+          </div>
+        ) : (
+          laLista(null)
+        )}
         {(quePesa || elExamen) && (
           <div className={`grid gap-4 ${quePesa && elExamen ? 'sm:grid-cols-2' : ''}`}>
             {quePesa}

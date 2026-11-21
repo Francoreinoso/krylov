@@ -23,7 +23,7 @@ import RespuestaEnChat, { type DatosRespuesta } from './RespuestaEnChat'
 import SelectorDiseno from './SelectorDiseno'
 import TarjetaArchivo from './TarjetaArchivo'
 import { lineaDelCaso, rotuloQuien } from './textos'
-import type { Calce, Candidata, Caso, MedicionNueva, Papel } from './tipos'
+import type { Calce, Candidata, Caso, MedicionNueva, Papel, Textos } from './tipos'
 import Topografia from './Topografia'
 
 type Contenido =
@@ -44,7 +44,7 @@ interface Conversacion {
   mensajes: Mensaje[]
 }
 
-type Nueva = Omit<DatosRespuesta, 'completa' | 'nuevas' | 'perforacion' | 'antes'> & Partial<Pick<DatosRespuesta, 'nuevas' | 'perforacion' | 'antes'>>
+type Nueva = Omit<DatosRespuesta, 'completa' | 'nuevas' | 'perforacion' | 'antes' | 'textos'> & Partial<Pick<DatosRespuesta, 'nuevas' | 'perforacion' | 'antes'>>
 
 const FRASE = 'Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide.'
 const SIN_SERVIDOR =
@@ -101,6 +101,7 @@ export default function Chat() {
   const [origen, setOrigen] = useState<Origen | null>(null)
   const [abierta, setLateral] = useState(false)
   const [enPanel, setEnPanel] = useState<number | null>(null) // Mesa: la respuesta que muestra el lienzo
+  const textos = useRef<Textos | null>(null) // los rótulos de la curva; sin ellos, la curva va sin rótulos
   const ultimaPregunta = useRef<HTMLLIElement>(null)
   const selectorArchivo = useRef<HTMLInputElement>(null)
 
@@ -110,6 +111,10 @@ export default function Chat() {
 
   useEffect(() => {
     despertarApi()
+    api
+      .textos()
+      .then((r) => (textos.current = r.datos))
+      .catch(() => {})
     api
       .casos()
       .then((r) => {
@@ -153,7 +158,7 @@ export default function Chat() {
     const mensaje = siguienteId++
     modificar(id, (c) => {
       const completa = !c.mensajes.some((m) => m.de === 'krylov' && m.tipo === 'respuesta')
-      const todo: DatosRespuesta = { nuevas: [], perforacion: null, antes: null, ...datos, completa }
+      const todo: DatosRespuesta = { nuevas: [], perforacion: null, antes: null, ...datos, completa, textos: textos.current?.curva ?? null }
       return { ...c, mensajes: [...c.mensajes, { de: 'krylov', tipo: 'respuesta', datos: todo, id: mensaje, creado: Date.now() }] }
     })
     setEnPanel(mensaje)
@@ -398,7 +403,7 @@ export default function Chat() {
           {conv.caso && <p className="text-tinta-suave">{lineaDelCaso(conv.caso)}</p>}
         </header>
         <main className="flex min-h-0 flex-1 flex-col pb-10 lg:pb-0">
-          <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} />
+          <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} textos={completa.textos} />
         </main>
         <SelectorDiseno />
       </div>

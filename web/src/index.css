@@ -68,13 +68,14 @@
 }
 
 /* Tokens que no generan utilidades. --color-trama: las rayas de la duda (lo lee también el canvas).
-   --color-curva: las curvas de nivel del fondo. --abanico: el relleno del abanico de cada curva. */
+   --color-curva: las curvas de nivel del fondo. --abanico: el abanico de cada curva, en un azul que no se
+   confunde con los tres colores de decisión ni con el cobre de lo que cuesta no saber. */
 :root {
   --radio-caja: 2px;
   --sombra: none;
   --color-trama: #0b0a09b3;
   --color-curva: #f4efe60f;
-  --abanico: #e2854a;
+  --abanico: #6fa8ff;
   color-scheme: dark;
 }
 
@@ -105,7 +106,7 @@
   --color-sobre-acento: #04110f;
   --color-trama: #070d0cb3;
   --color-curva: #36c2ae10;
-  --abanico: #36c2ae;
+  --abanico: #6fa8ff;
 }
 
 html {

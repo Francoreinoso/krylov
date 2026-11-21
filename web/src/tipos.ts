@@ -53,6 +53,11 @@ export interface Curva {
   marca?: { texto: string; bajo: number; medio: number; alto: number } | null
 }
 
+// Los textos de pantalla que la web dibuja por su cuenta (casos/textos.yaml, GET /api/textos).
+export interface Textos {
+  curva: Record<'titulo' | 'medido' | 'ahora' | 'abanico' | 'limite' | 'falta' | 'sin_curva', string>
+}
+
 export interface Factor {
   nombre: string
   etiqueta: string

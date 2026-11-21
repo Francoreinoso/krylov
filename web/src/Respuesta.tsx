@@ -1,8 +1,10 @@
 // Vista 2 · la respuesta de un caso, en una sola pantalla de proyector:
 // izquierda, lo que cuesta no saber, los tres colores y los costos; centro, las unidades (lista o
-// mapa) o la nube si el archivo no se parece a nada conocido; derecha, qué pesa y el examen.
+// mapa, con la curva de la unidad elegida arriba de la lista) o la nube si el archivo no se parece
+// a nada conocido; derecha, qué pesa y el examen.
 
 import { FONDO, ORDEN } from './colores'
+import { CurvaDeUnidad, useUnidadElegida, type TextosCurva } from './Curva'
 import Deslizadores from './Deslizadores'
 import Examen from './Examen'
 import ListaUnidades from './ListaUnidades'
@@ -17,12 +19,16 @@ import { useDecision } from './useDecision'
 interface Props {
   analisis: Analisis
   nube: DatosNube | null
+  textos?: TextosCurva | null
 }
 
-export default function Respuesta({ analisis, nube }: Props) {
+export default function Respuesta({ analisis, nube, textos = null }: Props) {
   const d = useDecision(analisis)
   const { semaforo, rotulos, costo_de_no_saber, unidades, mapa, factores, examen } = analisis
   const rojo = semaforo.estado === 'rojo_datos' || semaforo.estado === 'rojo_modelo'
+  const [elegida, setElegida] = useUnidadElegida(unidades)
+  const i = unidades?.findIndex((u) => u.id === elegida) ?? -1
+  const decision = i >= 0 && d.unidades ? d.unidades[i] : null
 
   return (
     <section className="flex min-h-0 flex-1 flex-col">
@@ -77,11 +83,27 @@ export default function Respuesta({ analisis, nube }: Props) {
         </div>
 
         {/* Centro */}
-        <div className={`flex min-h-[22rem] flex-col md:min-h-0 ${semaforo.estado === 'rojo_modelo' ? 'xl:col-span-2' : ''}`}>
+        <div className={`desliza-lista flex min-h-[22rem] flex-col md:min-h-0 md:overflow-y-auto ${semaforo.estado === 'rojo_modelo' ? 'xl:col-span-2' : ''}`}>
           {semaforo.estado === 'rojo_modelo' && nube ? (
             <Nube nube={nube} />
           ) : unidades && d.unidades ? (
-            <ListaUnidades unidades={unidades} decisiones={d.unidades} corte={d.corte} />
+            <div className="flex flex-1 flex-col gap-6">
+              {/* Un ancho tope según la altura de la pantalla: así la lista sigue a la vista. */}
+              {unidades[i]?.curva && (
+                <div className="w-full max-w-[75vh]">
+                  <CurvaDeUnidad
+                    unidad={unidades[i] ?? null}
+                    estado={decision?.estado ?? null}
+                    rotulo={decision ? rotulos[decision.estado] : null}
+                    textos={textos}
+                    escalones={analisis.motor_id === 'sismico'} // temblores acumulados: lo sabe el motor, no el componente
+                  />
+                </div>
+              )}
+              <div className="flex min-h-[18rem] flex-1 flex-col">
+                <ListaUnidades unidades={unidades} decisiones={d.unidades} corte={d.corte} elegida={elegida} alElegir={setElegida} />
+              </div>
+            </div>
           ) : (
             mapa && d.bloques && <Mapa mapa={mapa} bloques={d.bloques} />
           )}
