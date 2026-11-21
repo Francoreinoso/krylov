@@ -128,6 +128,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 |---|---|---|---|
 | Tamaño del dataset | M | Cuántos camiones trae el archivo | log-uniforme de 8 a 120 |
 | Tamaño del dataset | J_i | Cuántas muestras tiene cada camión (distinto en cada uno, a intervalos irregulares) | de 3 a 20 |
+| Tamaño del dataset | t_hoy, h_i | Horas de operación del camión en su última muestra y horas que faltan para su mantención | 500 a 3.000 horas; 50 a 1.000 horas |
 | Parámetros de la faena | μ_ν, σ_ν | Ritmo de desgaste de la flota y cuánto cambia entre camiones | Normal(log 0,5; 0,5) y HalfNormal(0,5), en log |
 | Parámetros de la faena | β | Cuánto acelera el desgaste una ruta exigente | Normal(0,3; 0,3) |
 | Parámetros de la faena | c | Qué tan a saltos avanza el desgaste | LogNormal(log 0,3; 0,4) |
@@ -140,10 +141,10 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 ### Estado
 
 - [x] Ecuaciones escritas: `WORKPLAN.md` 11.4
-- [ ] A priori de tamaño
-- [ ] Simulador
-- [ ] Predictivo a priori contra el archivo del demo
-- [ ] Red
+- [x] A priori de tamaño: 8 a 120 camiones, 3 a 20 muestras, 500 a 3.000 horas de operación (`nucleo/desgaste.py`, `DISENO`)
+- [x] Simulador: `motor/desgaste/simular.py`; los camiones que ya fallaron se sortean de nuevo
+- [x] Predictivo a priori contra el archivo del demo: ningún camión fuera del rango 0,1% a 99,9% y a lo más 2 de 40 fuera del 2% a 98% (`motor/desgaste/prueba_desgaste.py`)
+- [x] Red: el andamio de series, sin entrenar; exporta y responde `analizar("flota")` con la forma del contrato
 - [ ] Prueba de humo
 - [ ] Entrenamiento
 - [ ] SBC global
@@ -153,7 +154,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** su simulador con el a priori de tamaño, sobre el andamio que ya existe (A-27, ronda 2).
+**Falta ahora:** su prueba de humo de 3 minutos (en la ventana de las 16:10, sin nada entrenando) y lanzarlo en la ronda 2 (A-31).
 
 ## `sismico` · caso `sismicidad`
 

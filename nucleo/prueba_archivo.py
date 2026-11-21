@@ -34,7 +34,7 @@ def _del_demo(caso: str, motor_id: str) -> tuple[dict, dict]:
 
 def test_papeles_de_los_cuatro_motores():
     # Los motores que ya publican `PAPELES`. Los de series se suman aquí al registrar su módulo en `nucleo/`.
-    for motor_id in ("espacial", "cinetica", "deformacion", "supervivencia", "jerarquico", "estados"):
+    for motor_id in ("espacial", "cinetica", "deformacion", "desgaste", "supervivencia", "jerarquico", "estados"):
         r = api.papeles(motor_id)
         assert r["motor_id"] == motor_id and cargar_caso(r["caso_base"])["motor"] == motor_id
         for p in r["papeles"]:
