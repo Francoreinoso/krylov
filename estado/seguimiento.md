@@ -36,6 +36,8 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 07:14 · **D-34 registrada y aplicada** (chat, papeles de columna, subida propia, interpretación con un modelo de lenguaje). Cambiados: `DECISIONES.md`, `AGENTS.md` (qué es, qué se construye, contratos, sponsors, reglas 7, 8 y 11), `GLOSARIO.md` (chat, papel de una columna, interpretación), `contratos/CONTRATO.md` (`papeles`, `analizar_archivo`, `/api/interpretar`, sección 5), `STACK.md` (2.8 y variables), `WORKPLAN.md` (vista 1, recorrido, P-12, A-19, preguntas), `PC1_PRODUCTO.md`, `PC3_SEGUIMIENTO.md`, `pitch/GUION.md` y `pitch/CIFRAS.md` (M-37). Aviso a PC 1 y PC 2 en el tablero.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
+- sáb 07:15 · Ronda nocturna S-N4: `supervivencia` viva, 9.136.000 datasets, punto de guardado 07:05, sin errores; pérdida media móvil −16. **El computador quedó a batería** (98%, descargando, unas 3,5 h): alcanza hasta las 08:30, pero hay que enchufarlo. `git pull --rebase` falló una vez por dos *fetch* a la vez desde dos sesiones en este clon (`FETCH_HEAD` duplicado); `git fetch` y `git rebase origin/main` lo resolvieron.
+
 ## En curso
 
 - sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».

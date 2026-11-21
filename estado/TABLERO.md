@@ -4,6 +4,8 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 **Actualizado:** sáb 21-nov 07:15 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
+**⚠️ PC 3 sin cargador (07:15):** `supervivencia` sigue viva (9,1 millones de datasets, punto de guardado 07:05), pero el computador está a batería (98%, descargando). Enchufarlo antes de las 08:30.
+
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
 **📣 A PC 1 y PC 2: D-34 aprobada (07:12). Krylov responde en un chat.** El usuario elige el modelo, adjunta un archivo (el del demo o uno propio), asigna cada columna a su papel; la red responde y un modelo de lenguaje solo interpreta el JSON (regla 11 nueva). **Cambia el contrato:** `api.papeles`, `api.analizar_archivo`, `GET /api/papeles/{motor_id}`, `POST /api/analizar_archivo`, `POST /api/interpretar` (`contratos/CONTRATO.md`, secciones 2, 5 y 6). Lo que ya existía no cambia de forma. Riesgos y orden de corte en `DECISIONES.md`, D-34.
