@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 18:18 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 18:36 · **Producto terminado (H6, 18:00): sin tag `congelado` todavía** · Tope de redes: 20:30
 
-**URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
+**URL pública:** https://krylov-tan.vercel.app/ · **sigue con las tarjetas de antes del pivote: Vercel limitó los despliegues por 24 horas (17:58).** El código y el estático están en `main`. Lo decide una persona: otra cuenta o proyecto de Vercel. Sin eso, el QR lleva a la app antigua.
 
-**D-38:** el método lento va al final (A-36). **D-39 (17:10):** el SBC por unidad se decide por el tamaño de la desviación; con eso **`cinetica` y `deformacion` pasan su sello.** Ronda 2: `sismico` entrena en PC 3 hasta las 18:15 y `desgaste` en PC 2. Detalle por motor: `estado/MODELOS.md`.
+**Cuatro de cinco tarjetas tienen su red validada** (`leyes`, `taludes`, `flotacion`, `sismicidad`); falta `flota`. D-38: el método lento va al final (A-36). D-39: el SBC por unidad se decide por el tamaño de la desviación. Detalle por motor: `estado/MODELOS.md`.
 
 ## Los cinco casos
 
@@ -14,27 +14,27 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 
 | Caso | Motor | Datos | Simulador | Red | Sello | En la app | Método lento | Responde |
 |---|---|---|---|---|---|---|---|---|
-| leyes | espacial | listo | listo | listo | listo | pendiente | pendiente | red |
-| taludes | deformacion | listo | listo | listo | listo | en curso | pendiente | red |
+| leyes | espacial | listo | listo | listo | listo | listo | pendiente | red |
+| taludes | deformacion | listo | listo | listo | listo | listo | pendiente | red |
 | flotacion | cinetica | listo | listo | listo | listo | listo | pendiente | red |
 | flota | desgaste | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
-| sismicidad | sismico | listo | listo | listo | listo | pendiente | pendiente | red |
+| sismicidad | sismico | listo | listo | listo | listo | en curso | pendiente | red |
 
-Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus pruebas pasan (`pytest motor/cinetica motor/desgaste motor/sismico motor/deformacion`); `leyes` responde verde con la red y ya tiene su examen por color (A-22; M-54: de 147 bloques «conviene apartar», 138 estaban sobre el límite). Las cuatro tarjetas nuevas responden `no_disponible` hasta que su red valide, y la web pinta su ejemplo.
+Verificado en PC 3 a las 18:35, corriendo: `pytest nucleo motor servicio`, 98 pasan; con sus variables en `red`, `leyes` (147, 568 y 309 bloques), `taludes` (5, 29 y 2 sectores), `flotacion` (2, 3 y 3 líneas) y `sismicidad` (0, 4 y 4 sectores) responden verde. «En la app» es en local y en el estático de `main`, no en la URL pública.
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟡 al cierre | P-21 a P-26 hechas entre 16:40 y 17:32; `flotacion` responde con su red. Falta activar `taludes` con la red y el despliegue |
-| amortizacion (PC 2) | 🟢 | `cinetica` PASA (43,2 millones de plantas). `desgaste` entrenando. D-39 escrita |
-| seguimiento (PC 3) | 🟢 | `sismico` PASA (18:15; 3.723.712 datasets) y `deformacion` PASA (17:36). Nada entrenando. Batería del Mac en 8% |
+| producto (PC 1) | 🔴 sin URL | P-21 a P-28 hechas y en `main`, pero Vercel no despliega por 24 horas. Falta `sismicidad` con su red (P-30) y cerrar P-29 |
+| amortizacion (PC 2) | 🟡 | `cinetica` PASA. Falta el veredicto de `desgaste` (validaba a las 18:15) y después A-35 y A-36 |
+| seguimiento (PC 3) | 🟢 | `deformacion` y `sismico` PASAN; nada entrenando. Cifras de los sellos registradas (M-48 a M-52) |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
-- **PC 1 · producto:** ahora **P-21** (cinco tarjetas mineras, cuatro con su ejemplo rotulado): subirla con lo que haya. Después **P-22**, tope 13:50: `leyes` real con la red y «¿Dónde perforo?» en la URL pública; es lo único que H4 exige de PC 1. Después **P-23** (`Curva`). Nuevo y opcional: `papeles()` trae `rangos` con una frase lista (D-38).
-- **PC 2 · amortizacion:** `cinetica` entrena hasta las 16:10. Ahora las pruebas de humo de `desgaste` (A-27) y, si se puede sin estorbar al entrenamiento, nada más pesado. A las 16:10 **A-30** (validar `cinetica` sin método lento) y **A-31** (lanzar `desgaste`). Pendiente de PC 2: `ventana` en `sismicidad` (ver pedidos de PC 3).
-- **PC 3 · seguimiento:** ahora **S-22** (una persona confirma las decisiones de abajo). **S-24 terminada** (13:27): `datos/demo/subida_<caso>.csv` para los cinco casos; el de `leyes` ya responde verde. Después **S-26** (guion en voz alta) y **S-25** (firmar cifras). A las 16:10, **S-28**: detener `deformacion`, validar sin método lento, exportar y subir.
+- **PC 1 · producto:** ahora **P-30**: exportar el estático con las cuatro redes (`sismicidad` incluida, y la frase del sello corregida) y cerrar **P-29**. El despliegue espera a que una persona resuelva Vercel.
+- **PC 2 · amortizacion:** ahora **A-34** (veredicto de `desgaste`) y avisar a PC 1 si pasa. Después **A-35** (README técnico) y **A-36** (método lento de `espacial`, `cinetica` y `desgaste`, sin nada entrenando).
+- **PC 3 · seguimiento:** ahora el recorrido de H6 en local y el tag `congelado` cuando salga dos veces. Después ensayo (18:30), prueba con extraños (19:00, una persona) y **A-36** aquí para `deformacion` y `sismico` cuando PC 2 suba su `mcmc.py`.
 
 ## Qué cambió respecto del plan
 
@@ -45,5 +45,5 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 ## Próxima decisión
 
 - **Ahora, una persona,** de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
-- **Ahora, PC 1:** `KRYLOV_MOTOR_DEFORMACION=red`, volver a exportar `taludes` y desplegar. A las 18:00, tres tarjetas con su red: `leyes`, `flotacion` y `taludes`.
+- **Ahora, una persona:** Vercel (otra cuenta o proyecto), o el QR del pitch lleva a la app antigua. Y `flota`: entra al inicio solo si `desgaste` pasa antes de las 20:30.
 - **Decidido (17:25, persona de PC 3):** `sismicidad` sigue entrenando, sin método lento; fuera del inicio a las 18:00 y entra si su red pasa antes de las 20:30. **Falta `flota`:** lo decide la persona de PC 2. **17:40, PC 1 y PC 3 (S-31):** qué tarjetas quedan en `casos/INICIO`; hoy solo `leyes` responde con su motor.
