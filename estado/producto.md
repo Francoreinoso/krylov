@@ -33,7 +33,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Bloqueos
 
-- (ninguno)
+- sáb 17:58 · P-28, redespliegue: Vercel rechaza el commit `f2e4f96` con «Deployment rate limited — retry in 24 hours» (estado del commit en `Silent-math/krylov`). La URL pública sigue con las tarjetas de antes del pivote. El código y el estático están en `main` y en los dos repositorios. Lo decide una persona: otra cuenta o proyecto de Vercel sobre el espejo, o un `vercel deploy --prod` desde la CLI con otra cuenta. En el escenario el demo corre en local, así que no bloquea el demo; sí el QR.
 
 ## Pedidos a otros
 
