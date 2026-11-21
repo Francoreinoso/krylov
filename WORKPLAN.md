@@ -361,11 +361,11 @@ Su trabajo tiene dos partes. Una es la lista de abajo. La otra, que va primero c
 | S-25 | 13:30 | 30 | *Una persona.* Abrir cada fuente de las cifras de minería (`pitch/CIFRAS.md`, I-01 en adelante) y firmar. Lo que no se pueda abrir sale del guion | Columna «Verificó» | Ninguna cifra del guion queda sin persona |
 | S-26 | 14:00 | 30 | Guion minero v1 en voz alta y cronometrado. Textos de pantalla de las cinco tarjetas a PC 1 | `pitch/GUION.md` | Cabe en 3 minutos; ninguna palabra minera sin explicar |
 | S-27 | 14:40 | 80 | Deck minero, lámina por lámina según `pitch/LAMINAS.md`: datos de `leyes` regenerados (`pitch/deck/datos/generar.py`), lámina nueva «cinco decisiones», textos, respaldo en PNG y PDF | `pitch/deck/` | Las láminas corren sin internet; cada número tiene su id |
-| S-28 | 16:10 | 20 | Detener `deformacion` aquí y correr `validar-motor deformacion`. A las 16:30, lanzar `sismico` (ronda 2) | Sello y proceso | Veredicto en el estado; primer punto de guardado de `sismico` |
+| S-28 | 16:10 | 20 | Detener `deformacion` aquí, correr `validar-motor deformacion` (sin MCMC, D-38) y subir su exportación (`motor/artefactos/deformacion/`). Solo si no pasa, adelantar el método lento de su archivo del demo. A las 16:30, lanzar `sismico` (ronda 2) | Sello y proceso | Veredicto en el estado; primer punto de guardado de `sismico` |
 | S-29 | 16:40 | 30 | *Una persona.* Prueba con tres extraños que no sepan de minería: ¿repiten la idea?, ¿qué palabra no entendieron? | `pitch/VALIDACION.md` | Tabla llena; cada palabra que no se entendió sale del guion |
-| S-30 | 17:10 | 30 | Entrega, primer borrador (skill `preparar-entrega`): README, descripción y archivo de proyecto, con lo que de verdad responde | Archivos de entrega | Una persona los leyó |
+| S-30 | 17:10 | 30 | Entrega, primer borrador (skill `preparar-entrega`): README, descripción y archivo de proyecto, con lo que de verdad responde. **17:30:** llevar a una persona la decisión abierta de D-38 sobre `flota` y `sismicidad` (`DECISIONES.md`) | Archivos de entrega | Una persona los leyó |
 | S-31 | 17:40 | 20 | Con PC 1: sacar lo que no funcione. **18:00: tag `congelado`** | Tag | El recorrido sale dos veces |
-| S-32 | 18:15 | 20 | Detener `sismico` aquí y correr `validar-motor sismico` | Sello | Veredicto en el estado antes de las 19:00 |
+| S-32 | 18:15 | 20 | Detener `sismico` aquí, correr `validar-motor sismico` (sin MCMC) y subir su exportación. El método lento de `deformacion` y `sismico` se corre aquí al final (A-36) | Sello | Veredicto en el estado antes de las 19:00 |
 
 Qué recibe: de PC 2, los números; de PC 1, la URL. Qué entrega: casos, datos, textos, la siguiente tarea de cada rol en cada ronda, las decisiones de cada hito y el pitch al día.
 

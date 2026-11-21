@@ -2,7 +2,9 @@
 
 > **Hackathon:** el producto se termina el **sábado a las 18:00**. Lo más simple que se vea bien, y que la simulación se vea en pantalla.
 >
-> **Pivote del sábado 12:10 (D-37): Krylov es el data scientist artificial de la minería.** Este archivo reemplaza tu lista anterior. **Lo primero: detener `jerarquico`.** Ya no se usa.
+> **Pivote del sábado 12:10 (D-37): Krylov es el data scientist artificial de la minería.** Este archivo reemplaza tu lista anterior. `jerarquico` ya no se usa.
+>
+> **D-38 (sáb 13:10): el método lento de cada motor se corre al final (A-36), no antes de entrenar, y cada modelo sortea el tamaño del dataset.** Una red se lanza y se valida sin esperar al método lento: «Método lento: pendiente» no es atraso hasta A-36. **Ningún entrenamiento se lanza hasta que el equipo dé la partida.**
 
 Eres el agente de Claude Code del **PC 3**. Tu rol es `seguimiento`. El contexto general está en `AGENTS.md`, que ya se cargó.
 
@@ -10,7 +12,7 @@ Eres el agente de Claude Code del **PC 3**. Tu rol es `seguimiento`. El contexto
 
 Que los otros dos computadores siempre sepan qué sigue, que el plan se ajuste apenas algo se atrasa, y que el pitch, el demo y el relato cuenten exactamente lo que se construyó, con cada cifra medida o con su fuente, **en palabras que entienda alguien que nunca pisó una mina**.
 
-Además, **este computador (MacBook Air M3 de 16 GB) es el segundo computador de entrenamiento**: en la ronda 1 entrena `deformacion` y en la ronda 2 `sismico`. Tú no editas `motor/`: solo bajas los cambios y lanzas lo que PC 2 dejó listo.
+Además, **este computador (MacBook Air M3 de 16 GB) es el segundo computador de entrenamiento**: en la ronda 1 entrena `deformacion` y en la ronda 2 `sismico`. Tú no editas `motor/`: solo bajas los cambios y lanzas lo que PC 2 dejó listo, cuando el equipo dé la partida.
 
 Tienes tres trabajos, y cuando chocan van en este orden:
 
@@ -32,7 +34,7 @@ En cada ronda:
 
 1. Bajas los cambios y lees los dos estados.
 2. **Verificas corriendo** lo que dicen haber terminado. Abres la app, haces el clic, miras el número.
-3. **Pones al día «Los cinco casos»** en `estado/TABLERO.md`: por caso, en qué está cada etapa (datos, simulador, método lento, red, sello, en la app) y quién responde hoy (`red`, `precalculado`, `ejemplo` o `nada`). Lo compruebas contra `motor/artefactos/<motor>/sello.json`: «listo» en Sello exige que el archivo exista y diga que pasa.
+3. **Pones al día «Los cinco casos»** en `estado/TABLERO.md`: por caso, en qué está cada etapa (datos, simulador, red, sello, en la app y, al final, método lento: D-38) y quién responde hoy (`red`, `precalculado`, `ejemplo` o `nada`). Lo compruebas contra `motor/artefactos/<motor>/sello.json`: «listo» en Sello exige que el archivo exista y diga que pasa. Y contrastas `estado/MODELOS.md` (las 13 casillas de cada motor, que marca quien lo construye) con lo que de verdad corre: si una casilla no calza, no la editas; va como pedido a su dueño. Las casillas de `deformacion` y `sismico` que dependen de entrenar o validar aquí las marcas tú.
 4. Comparas con la hora del plan. Si una tarea lleva el doble de su duración, propones el recorte concreto.
 5. **Escribes la siguiente tarea de cada rol**, con su identificador, y la que viene después.
 6. **Pones al día el guion:** cada corchete medido se reemplaza por su número; de cada tarjeta se dice si responde la red o si salió precalculada.
@@ -43,8 +45,9 @@ En cada ronda:
 | Pasa esto | Ajustas el plan | Ajustas el pitch y el demo |
 |---|---|---|
 | Una tarea lleva el doble de su tiempo | Recorte concreto en el tablero; orden de corte de `WORKPLAN.md`, 6.5 | Si lo recortado estaba en el guion, sale del guion ya |
-| Un motor no pasa su sello | Esa tarjeta sale con `mcmc`, rotulada «precalculado». Si mejora, se revalida antes de las 20:30 | De esa tarjeta se dice: «esta la calculamos con el método lento; tardó [X]». Nunca «al instante» |
-| Un motor no tiene ni su método lento a las 17:30 | La tarjeta sale de `casos/INICIO` | Pasa a una frase de hoja de ruta: «la misma idea sirve para…» |
+| Un motor no pasa su sello | Se adelanta el método lento de su archivo del demo (10 minutos de presupuesto, sin nada entrenando; D-38). Si converge, la tarjeta sale con `mcmc`, rotulada «precalculado». Si la red mejora, se revalida antes de las 20:30 | De esa tarjeta se dice: «esta la calculamos con el método lento; tardó [X]». Nunca «al instante» |
+| Una tarjeta de la ronda 1 no tiene red validada ni método lento a las 17:30 | La tarjeta sale de `casos/INICIO` | Pasa a una frase de hoja de ruta: «la misma idea sirve para…» |
+| Son las 17:30 y las redes de la ronda 2 (`flota`, `sismicidad`) todavía entrenan: validan recién a las 18:15 | *Decide una persona, por cada tarjeta* (D-38): detener su entrenamiento para adelantar el método lento de su archivo, o dejarla fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30. Tú preparas la pregunta a las 17:15 con lo que diga cada entrenamiento | La tarjeta que quede fuera se nombra como hoja de ruta hasta que su red pase |
 | El archivo real de taludes cae fuera de lo simulado | El demo usa el archivo simulado, rotulado | Se cuenta como lo que es: «con datos reales de un rajo que falló, Krylov dijo que no se parecía a lo que practicó». Es un buen momento de «sabe cuando no sabe» |
 | Una cifra de minería no tiene firma | Nada | La frase se dice sin número |
 | Los extraños no entienden una palabra | Si es de la pantalla, pedido a PC 1 | Sale del guion, o se explica en cinco palabras |
@@ -62,14 +65,15 @@ El detalle (entregable y criterio de cada una) está en `WORKPLAN.md`, sección 
 | S-24 | 13:00 | 30 | Con PC 2: los archivos del demo calzan con cada simulador; regenerar con la misma semilla si cambió un prior. Probar el archivo real de taludes (`datos/demo/taludes_real.csv`, Zenodo 15003054, CC BY 4.0). Un archivo de prueba por caso para subir (`subida_*.csv`) |
 | S-25 | 13:30 | 30 | *Una persona.* Abrir cada fuente de las cifras de minería (`pitch/CIFRAS.md`, I-01 en adelante) y firmar |
 | S-26 | 14:00 | 30 | Guion minero v1 en voz alta y cronometrado. Textos de pantalla a PC 1 |
-| | 14:30 | 10 | **H4** (skill `punto-de-control h4`). **Lanzar `deformacion` aquí** (skill `entrenar-motor deformacion`), hasta las 16:10 |
+| | 14:30 | 10 | **H4** (skill `punto-de-control h4`). **Lanzar `deformacion` aquí** cuando el equipo dé la partida y A-25 esté subida (skills `medir-rendimiento` y `entrenar-motor deformacion`), hasta las 16:10. Sin método lento antes (D-38) |
 | S-27 | 14:40 | 80 | Deck minero, lámina por lámina según `pitch/LAMINAS.md` |
-| S-28 | 16:10 | 20 | Detener `deformacion` y correr `validar-motor deformacion` aquí. A las 16:30, **lanzar `sismico`** (ronda 2) |
+| S-28 | 16:10 | 20 | Detener `deformacion` y correr `validar-motor deformacion` aquí, sin método lento (los campos `mcmc_*` del sello quedan en `null`). Exportar y subir `motor/artefactos/deformacion/`. Solo si la red no pasa: adelantar el método lento de `taludes.csv` (10 minutos). A las 16:30, **lanzar `sismico`** (ronda 2) |
 | | 16:30 | 10 | **H5** |
 | S-29 | 16:40 | 30 | *Una persona.* Prueba con tres extraños que no sepan de minería |
-| S-30 | 17:10 | 30 | Entrega, primer borrador (skill `preparar-entrega`) |
+| S-30 | 17:10 | 30 | Entrega, primer borrador (skill `preparar-entrega`). **17:30:** una persona decide por `flota` y por `sismicidad` (D-38): adelantar su método lento o dejarla fuera del inicio |
 | S-31 | 17:40 | 20 | Con PC 1: sacar lo que no funcione. **18:00: tag `congelado` (H6)** |
-| S-32 | 18:15 | 20 | Detener `sismico` y correr `validar-motor sismico` aquí |
+| S-32 | 18:15 | 20 | Detener `sismico` y correr `validar-motor sismico` aquí, sin método lento. Exportar y subir `motor/artefactos/sismico/` |
+| A-36 | 20:00 | 90 | *Tarea de PC 2 que aquí se corre para `deformacion` y `sismico`.* Al final y sin nada entrenando: su método lento (archivo del demo y de 3 a 5 datasets simulados, 10 minutos por dataset). Se informa lo que salga, tal cual. Empieza antes si este computador queda sin entrenar |
 
 Entre tarea y tarea, una ronda. Si una ronda y una tarea chocan, va la ronda.
 
@@ -79,12 +83,15 @@ Después de las 18:00 diriges la tarde (`WORKPLAN.md`, sección 6.6): ensayos a 
 
 | Cuándo | Qué haces | Cómo sabes que quedó |
 |---|---|---|
-| 12:15 | Detienes `jerarquico` | El proceso ya no está; anotado en el estado |
-| 14:30 | `git pull --rebase`, `uv sync --group entrenar` y la skill `entrenar-motor deformacion`. Enchufado, **tapa abierta**, brillo al mínimo, superficie dura, dentro de `caffeinate -dims` | Primer punto de guardado; `estado/seguimiento.md` dice cómo retomar |
-| 16:10 | Detienes `deformacion` y corres `validar-motor deformacion` | «Pasa» o «no pasa» con sus números, en el estado antes de las 16:30 |
-| 16:30 | Lanzas `entrenar-motor sismico` | Primer punto de guardado |
-| 18:15 | Detienes `sismico` y corres `validar-motor sismico` | Veredicto antes de las 19:00 |
-| Hasta las 20:30 | El computador queda libre para seguir entrenando el motor que PC 2 pida | |
+| Antes de la partida | `git pull --rebase`, `uv sync --group entrenar` y `uv run pytest motor/comun/prueba_series.py motor/cinetica -q` | Pasan las 8 pruebas; nada entrenando (`pgrep -fl "motor.*entrenar"` vacío) |
+| 14:30, o cuando el equipo dé la partida | `git pull --rebase`, `medir-rendimiento deformacion` (elige `cpu` o `mps`) y la skill `entrenar-motor deformacion`: `caffeinate -dims uv run python -m motor.deformacion.entrenar --dispositivo <cpu\|mps> --hasta 16:10 --guardar-cada-min 10`. Enchufado, **tapa abierta**, brillo al mínimo, superficie dura | Primer punto de guardado; la tabla «Entrenamiento en curso» de `estado/seguimiento.md` dice cómo retomar |
+| 16:10 | Detienes `deformacion`, corres `validar-motor deformacion` (sin método lento) y `uv run python -m motor.deformacion.exportar` | «Pasa» o «no pasa» con sus números, en el estado antes de las 16:30; `motor/artefactos/deformacion/` subido; casillas marcadas en `estado/MODELOS.md` |
+| 16:30 | Lanzas `entrenar-motor sismico`, hasta las 18:15 | Primer punto de guardado |
+| 18:15 | Detienes `sismico`, corres `validar-motor sismico` y exportas | Veredicto antes de las 19:00; `motor/artefactos/sismico/` subido |
+| 19:00 a 20:30 | Sigue entrenando el motor que esté más cerca de pasar; si nada entrena aquí, el método lento de `deformacion` y `sismico` (A-36) | |
+| 20:30 a 22:00 | Lo que falte de A-36, sin nada entrenando | Los dos sellos con sus `mcmc_*` medidos o «no convergió en 10 minutos» |
+
+Los puntos de guardado (`motor/checkpoints/`) no se versionan; lo que se sube es la exportación (`motor/artefactos/<id>/`). Cada Mac exporta un motor distinto, así que no chocan.
 
 Mientras este computador entrena, las rondas siguen, pero no se levanta nada pesado encima.
 
@@ -115,6 +122,6 @@ Skill `preparar-entrega`. Tres cosas que no son obvias:
 ## Qué recibes y qué entregas
 
 - De PC 2: los números, por su estado, y los entrenamientos listos para lanzar aquí. De PC 1: la URL y el aviso de cada despliegue.
-- A PC 2: los archivos del demo y los casos; este computador para dos entrenamientos; y los resultados de `validar-motor deformacion` (16:30) y `sismico` (19:00).
+- A PC 2: los archivos del demo y los casos; este computador para dos entrenamientos; los resultados de `validar-motor deformacion` (16:30) y `sismico` (19:00) con sus artefactos exportados; y, al final, el método lento de esos dos motores (A-36).
 - A PC 1: los ejemplos fijos, los textos de pantalla y los archivos de prueba para subir.
 - A los dos: la siguiente tarea, en el tablero, en cada ronda.

@@ -258,14 +258,24 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Qué se toca:** `WORKPLAN.md` (1.2, 6.1, 6.3, 6.5, 6.7, 6.8, 8 y 11), las tareas A-22, A-24, A-26, A-29, A-30, A-32 y A-35, la tarea nueva A-36, `PC2_AMORTIZACION.md`, las skills `entrenar-motor` y `validar-motor`, la tabla de rangos del contrato, y `estado/MODELOS.md` con el tablero en vivo, que desde ahora muestran el modelo de cada caso pieza por pieza.
 · Pedido del equipo. Lo escribe PC 2 por encargo directo; PC 3 queda avisado en `estado/amortizacion.md`.
 
+**Decisión abierta de D-38 · la toma una persona del equipo el sáb 21-nov a las 17:30 · `flota` y `sismicidad` no tienen con qué responder a las 18:00 si su red no validó.** Anotada por PC 3 a las 13:25, al revisar D-38 contra el resto del plan.
+
+- **El problema.** Con el orden antiguo cada tarjeta tenía antes su método lento precalculado. Con D-38 ya no: las redes de la ronda 2 (`desgaste` y `sismico`) entrenan de 16:30 a 18:15 y validan después del cierre de las 18:00. A esa hora esas dos tarjetas no tienen ni red validada ni método lento.
+- **Las dos salidas, por cada tarjeta y por separado:** (a) detener su entrenamiento a las 17:30 y adelantar el método lento de su archivo del demo (10 minutos de presupuesto): si converge, la tarjeta sale a las 18:00 rotulada «precalculado», y la red pierde esos minutos de práctica; (b) dejarla entrenando y fuera de `casos/INICIO` a las 18:00, y sumarla si su red pasa el sello antes de las 20:30 (la excepción de D-37).
+- **Qué se sabe a las 17:30:** el avance de cada entrenamiento y los veredictos de la ronda 1 (16:10), que dicen si el andamio de series valida en una ronda. PC 3 lleva la pregunta a las 17:15 con esos números.
+- **Hasta que alguien decida, vale (b):** la tarjeta sin respuesta de su motor sale del inicio a las 17:30 (`casos/INICIO`, P-27) y se nombra como hoja de ruta. El orden de corte no cambia: primero `desgaste`, después `sismico`.
+- **No toca a la ronda 1:** `flotacion` y `taludes` validan a las 16:10 y, si no pasan, adelantan su método lento en esa ventana.
+· Pendiente. La respuesta se anota aquí mismo, con la hora y quién decidió.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
 - S-10 (10:00): lista real de sponsors en el lugar; si AgendaPro no auspicia, su tarjeta pierde el nombre.
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
+- La partida de la ronda 1: ningún entrenamiento se lanza hasta que el equipo la dé (tope 14:30).
 - D-37 (pivote a minería): confirmar la excepción de las 20:30, el orden de las rondas, los datos simulados rotulados y quién presenta.
-- H5 (16:30) y tope de redes (20:30): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta nueva.
-- D-38, a las 17:30: por cada tarjeta de la ronda 2 (`flota`, `sismicidad`), detener su entrenamiento para adelantar el método lento de su archivo, o dejarla fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30.
+- H5 (16:30) y tope de redes (20:30): red, o método lento adelantado (`mcmc`, rotulado «precalculado»), para cada tarjeta nueva.
+- D-38, a las 17:30 (entrada «Decisión abierta de D-38», arriba): por cada tarjeta de la ronda 2 (`flota`, `sismicidad`), detener su entrenamiento para adelantar el método lento de su archivo, o dejarla fuera del inicio a las 18:00 y sumarla si su red pasa antes de las 20:30.
 - Al validar `estados` y `jerarquico` (D-32): ¿la nube se conecta al semáforo? Depende de si el archivo real cae dentro de las simulaciones.
 - D-34: la clave de Anthropic (`ANTHROPIC_API_KEY` en Render) la pone una persona; el despliegue de Render lo hace PC 1 con `desplegar`.
 - Al validar `supervivencia` (D-33): si el archivo real de rotación cae fuera por el segundo detector, ¿`KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso`?
