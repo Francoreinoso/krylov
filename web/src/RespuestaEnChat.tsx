@@ -113,7 +113,7 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
         <p className="mb-3 inline-block rounded-full bg-en-duda/15 px-3 py-1 text-xs">Respondí con el archivo de ejemplo del caso: todavía no analizo archivos propios.</p>
       )}
 
-      <p className="text-xl leading-snug font-semibold text-balance">
+      <p className="condensado text-xl leading-snug font-semibold text-balance">
         <Aparece texto={d.titular} animar={animar} />
         {analisis.precalculado && (
           <span className="ml-2 inline-block rounded-full border border-linea px-2 py-0.5 align-middle text-xs font-normal text-tinta-suave">Precalculado</span>

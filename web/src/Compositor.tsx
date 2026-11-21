@@ -37,7 +37,7 @@ export default function Compositor(p: Props) {
 
   return (
     <form
-      className="compositor rounded-[28px] border border-linea bg-fondo shadow-(--sombra) transition-colors focus-within:border-tinta-suave/50"
+      className="compositor rounded-(--radio-caja) border border-linea bg-fondo shadow-(--sombra) transition-colors focus-within:border-tinta-suave/50"
       onSubmit={(e) => {
         e.preventDefault()
         p.alEnviar()

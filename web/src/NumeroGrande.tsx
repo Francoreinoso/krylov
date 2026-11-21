@@ -31,7 +31,13 @@ export default function NumeroGrande({ valor, moneda }: { valor: number; moneda:
   }, [valor])
 
   const texto = plata(mostrado, moneda)
-  // Las cifras largas (millones) se achican para caber en su columna.
-  const tamano = texto.length > 10 ? 'text-5xl' : 'text-6xl sm:text-7xl'
-  return <p className={`condensado leading-none font-extrabold ${tamano}`}>{texto}</p>
+  // La cifra se achica para caber en su columna, sea cual sea el ancho de la letra del diseño.
+  const tope = texto.length > 10 ? 3 : 4.5
+  return (
+    <div className="@container">
+      <p className="condensado leading-none font-extrabold" style={{ fontSize: `min(${tope}rem, ${(100 / (texto.length * 0.66)).toFixed(1)}cqi)` }}>
+        {texto}
+      </p>
+    </div>
+  )
 }

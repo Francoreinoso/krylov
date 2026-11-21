@@ -12,10 +12,15 @@ export interface Diseno {
 
 export const DISENOS: Diseno[] = [
   { id: 'estudio', nombre: 'Estudio', descripcion: 'Claro, de asistente', muestra: ['#ffffff', '#1a1b25', '#5b5bd6'] },
+  { id: 'arcilla', nombre: 'Arcilla', descripcion: 'Papel tibio, terracota, serifa', muestra: ['#faf8f3', '#24201b', '#c2562f'] },
+  { id: 'marea', nombre: 'Marea', descripcion: 'Blanco roto, celeste y verde mar', muestra: ['#f7f6f2', '#17212b', '#174a5b'] },
+  { id: 'tinta', nombre: 'Tinta', descripcion: 'Blanco y negro; color solo en los datos', muestra: ['#ffffff', '#0a0a0a', '#e5484d'] },
+  { id: 'tablas', nombre: 'Tablas de Krylov', descripcion: 'Papel impreso, todo con serifa', muestra: ['#f4efe4', '#1d1a16', '#b8322a'] },
   { id: 'estudio-noche', nombre: 'Estudio noche', descripcion: 'Oscuro, de asistente', muestra: ['#1e1f24', '#ececf1', '#9191f8'] },
+  { id: 'orbita', nombre: 'Órbita', descripcion: 'Casi negro y azul eléctrico', muestra: ['#090b10', '#eef2fa', '#5b8cff'] },
+  { id: 'wasabi', nombre: 'Wasabi', descripcion: 'Grafito, celeste y lima', muestra: ['#0b0d10', '#f4f5f7', '#e9f056'] },
+  { id: 'ciruela', nombre: 'Ciruela', descripcion: 'Ciruela oscura y durazno, serifa', muestra: ['#1a1216', '#f6ece8', '#f0b48a'] },
   { id: 'puente', nombre: 'Puente', descripcion: 'Oscuro, de proyector', muestra: ['#0d1f2b', '#e9eff2', '#f0b429'] },
-  { id: 'tablas', nombre: 'Tablas de Krylov', descripcion: 'Papel impreso, serif', muestra: ['#f4efe4', '#1d1a16', '#b8322a'] },
-  { id: 'sonar', nombre: 'Sonar', descripcion: 'Terminal de fósforo', muestra: ['#070b09', '#b8f5c8', '#39d98a'] },
 ]
 
 const CLAVE = 'krylov.diseno'

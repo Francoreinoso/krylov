@@ -288,7 +288,7 @@ export default function Chat() {
           <main className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pb-16">
             <div className="my-auto flex w-full max-w-3xl flex-col items-center py-6">
               <Marca grande />
-              <h1 className="texto-degradado mt-5 pb-1 text-center text-4xl font-semibold tracking-tight sm:text-5xl">¿Qué quieres saber?</h1>
+              <h1 className="condensado texto-degradado mt-5 pb-1 text-center text-4xl font-semibold tracking-tight sm:text-5xl">¿Qué quieres saber?</h1>
               <p className="mt-2 text-center text-tinta-suave">
                 {conv.caso ? `${MOTOR_EN_PALABRAS[conv.caso.motor] ?? conv.caso.motor} · ${lineaDelCaso(conv.caso)}` : FRASE}
               </p>
