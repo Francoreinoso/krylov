@@ -8,8 +8,3 @@ taludes
 flotacion
 flota
 sismicidad
-# Retirados por D-37. Siguen en esta lista, marcados `oculto: true` (no se ven en el inicio), solo para que
-# `nucleo/api.py` encuentre el caso base de sus motores hasta que PC 2 los retire (tarea A-32). Ahí se borran estas líneas.
-rotacion
-inasistencias
-credito

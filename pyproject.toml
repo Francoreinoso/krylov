@@ -1,7 +1,7 @@
 [project]
 name = "krylov"
 version = "0.1.0"
-description = "Krylov: inferencia basada en simulación amortizada, caso por caso (cuatro motores NPE con su MCMC de referencia)."
+description = "Krylov: inferencia basada en simulación amortizada, caso por caso (cinco motores NPE con su MCMC de referencia)."
 requires-python = "==3.12.*"
 # Base: lo que usan los tres computadores y el servidor (512 MB). Nada de torch, zuko, jax ni numpyro aquí.
 dependencies = [

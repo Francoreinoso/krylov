@@ -32,11 +32,11 @@ def test_implementacion_por_variable_de_entorno(monkeypatch):
 
 
 def test_costos_del_caso_y_del_usuario():
-    caso = cargar_caso("rotacion")
-    assert costos_numericos(caso, None) == {"falso_si": 1500.0, "falso_no": 6000.0}
-    movidos = costos_numericos(caso, {"falso_si": 500, "falso_no": {"valor": 9000}})
-    assert movidos == {"falso_si": 500.0, "falso_no": 9000.0}
-    assert bloque_costos(caso, movidos)["falso_si"] == {"valor": 500, "min": 200, "max": 5000, "etiqueta": "Costo de un plan de retención"}
+    caso = cargar_caso("flota")
+    assert costos_numericos(caso, None) == {"falso_si": 12000.0, "falso_no": 90000.0}
+    movidos = costos_numericos(caso, {"falso_si": 5000, "falso_no": {"valor": 100000}})
+    assert movidos == {"falso_si": 5000.0, "falso_no": 100000.0}
+    assert bloque_costos(caso, movidos)["falso_si"] == {"valor": 5000, "min": 2000, "max": 60000, "etiqueta": caso["costos"]["falso_si"]["etiqueta"]}
     assert "18 mil" in textos.plata(18400) and "2,7 millones" in textos.plata(2656390) and "850" in textos.plata(850)
     assert textos.plata(0.2) == textos.frase("formato_plata.cero")
 
@@ -44,35 +44,35 @@ def test_costos_del_caso_y_del_usuario():
 def test_errores_en_espanol_y_sin_traza():
     assert api.analizar("no_existe")["codigo"] == "caso_desconocido"
     assert api.analizar("../secreto")["codigo"] == "caso_desconocido"
-    assert api.donde_medir("rotacion")["codigo"] == "sin_mapa"
+    assert api.donde_medir("flota")["codigo"] == "sin_mapa"
     assert api.sello("no_es_un_motor")["codigo"] == "sin_sello"
-    assert api.analizar("rotacion", costos={"falso_si": 0})["codigo"] == "costos_invalidos"
+    assert api.analizar("flota", costos={"falso_si": 0})["codigo"] == "costos_invalidos"
 
 
 @pytest.fixture
 def motor_de_juguete(monkeypatch):
-    """Un motor `estados` falso, para probar lo que agrega `api.analizar` sin depender de ningún motor real."""
-    modulo = types.ModuleType("nucleo.estados")
+    """Un motor `desgaste` falso, para probar lo que agrega `api.analizar` sin depender de ningún motor real."""
+    modulo = types.ModuleType("nucleo.desgaste")
     def analizar(caso, transformaciones, costos):
         from nucleo import decision
         r = decision.decidir_tabla([[0.1] * 32, [0.05] * 16 + [0.6] * 16, [0.9] * 32], costos["falso_si"], costos["falso_no"])
         unidades = [{"id": str(i), "etiqueta": str(i), "p": float(r["p"][i]), "muestras_p": [], "estado": str(r["estado"][i]),
                      "duda": float(r["duda"][i])} for i in range(3)]
-        return {"unidades": unidades, "factores": [], "implementacion": "mcmc", "registro": ["3 clientes"]}
+        return {"unidades": unidades, "factores": [], "implementacion": "mcmc", "registro": ["3 camiones"]}
     modulo.analizar = analizar
-    monkeypatch.setitem(sys.modules, "nucleo.estados", modulo)
+    monkeypatch.setitem(sys.modules, "nucleo.desgaste", modulo)
 
 
 def test_analizar_agrega_lo_comun(motor_de_juguete):
-    r = api.analizar("credito")
+    r = api.analizar("flota")
     ejemplo = json.loads((EJEMPLOS / "analizar_tabla.json").read_text(encoding="utf-8"))
     assert set(ejemplo) - {"_aviso"} <= set(r), set(ejemplo) - set(r)
-    assert r["motor_id"] == "estados" and r["implementacion"] == "mcmc" and r["precalculado"] is True
-    assert r["unidad"] == {"singular": "cliente", "plural": "clientes"}                # pedido de PC 1 (campo nuevo, aprobado por Rodrigo)
+    assert r["motor_id"] == "desgaste" and r["implementacion"] == "mcmc" and r["precalculado"] is True
+    assert r["unidad"] == {"singular": "camión", "plural": "camiones"}                # pedido de PC 1 (campo nuevo, aprobado por Rodrigo)
     assert r["resumen_colores"] == {"actuar": 1, "no_actuar": 1, "en_duda": 1}
     assert r["costo_de_no_saber"]["valor"] == round(sum(u["duda"] for u in r["unidades"])) > 0
-    assert r["titular"] and "1 cliente" in r["titular"]
-    assert len(r["en_palabras"]) == 2 and all("client" in f for f in r["en_palabras"])     # una frase por color presente
+    assert r["titular"] and "1 camión" in r["titular"]
+    assert len(r["en_palabras"]) == 2 and all("camión" in f for f in r["en_palabras"])     # una frase por color presente
     assert 0 < r["punto_de_corte"] < 1 and "costo_total" not in r and isinstance(r["tiempo_ms"], int)
     json.dumps(r)                                                 # listo para JSON
 
@@ -94,10 +94,10 @@ def test_sello_con_frases(tmp_path, monkeypatch):
 
 def test_textos_sin_numero_no_hay_frase():
     assert textos.frase("examen.espacial", n=31, k=None) is None and textos.frase("no.existe") is None
-    caso = cargar_caso("rotacion")
+    caso = cargar_caso("flota")
     bloque = {"tipo": "datos_reales_reservados", "n": 294, "tramos": [{"dijimos": 0.05, "paso": 0.04, "n": 110}, {"dijimos": 0.3, "paso": 0.28, "n": 158}]}
     del_examen = textos.examen(caso, bloque)                     # el texto es de PC 3 (casos/textos.yaml); aquí importan los números
-    assert "30%" in del_examen and "28%" in del_examen and "se fue" in del_examen
+    assert "30%" in del_examen and "28%" in del_examen and "falló" in del_examen
     assert textos.examen(caso, None) is None
     assert textos.titular(caso, {"estado": "rojo_datos"}, None, None) == textos.frase("titular.rojo_datos")
     sin_duda = textos.titular(caso, {"estado": "verde"}, {"actuar": 3, "no_actuar": 9, "en_duda": 0}, 0.0)
@@ -105,8 +105,8 @@ def test_textos_sin_numero_no_hay_frase():
 
 
 def test_en_palabras_usa_la_variante_en_singular():
-    caso = cargar_caso("credito")
+    caso = cargar_caso("flota")
     varias = textos.en_palabras(caso, {"actuar": 3, "no_actuar": 5, "en_duda": 2}, [])
     una = textos.en_palabras(caso, {"actuar": 1, "no_actuar": 5, "en_duda": 1}, [])
-    assert len(varias) == len(una) == 2 and all(" 1 cliente" in f and "clientes" not in f for f in una)
-    assert "3 clientes" in varias[0] and "2 clientes" in varias[1]
+    assert len(varias) == len(una) == 2 and all(" 1 camión" in f and "camiones" not in f for f in una)
+    assert "3 camiones" in varias[0] and "2 camiones" in varias[1]

@@ -21,6 +21,7 @@ from nucleo.desgaste import CANALES, DIM_COV, DIM_TAM, DISENO, EN_SERVICIO_BAJO,
 __all__ = ["MOTOR_ID", "NOMBRES_ETA", "NOMBRES_LAM", "CANALES", "DIM_COV", "DIM_TAM", "DISENO", "PRIOR", "simular", "cantidad_de"]
 
 MAX_INTENTOS = 2000
+MAX_FLOTAS = 20                        # veces que se vuelve a sortear el η de una flota que no puede estar en servicio
 
 
 def prior_eta(gen: np.random.Generator, lote: int) -> np.ndarray:
@@ -65,13 +66,26 @@ def simular(gen: np.random.Generator, lote: int) -> dict:
     eta = prior_eta(gen, lote)
     eta_c = np.repeat(eta, camiones, axis=0)                                           # (B·M, d): el η de cada camión
     c = _camiones(gen, eta_c, muestras, K)
-    for _ in range(MAX_INTENTOS):                                                       # los que ya fallaron se sortean de nuevo
-        fuera = np.flatnonzero(c["X_hoy"] >= EN_SERVICIO_BAJO)
-        if len(fuera) == 0:
-            break
-        nuevo = _camiones(gen, eta_c[fuera], muestras[fuera], K)
-        for k in c:
-            c[k][fuera] = nuevo[k]
+    for _ in range(MAX_FLOTAS):
+        for _ in range(MAX_INTENTOS):                                                   # los que ya fallaron se sortean de nuevo
+            fuera = np.flatnonzero(c["X_hoy"] >= EN_SERVICIO_BAJO)
+            if len(fuera) == 0:
+                break
+            nuevo = _camiones(gen, eta_c[fuera], muestras[fuera], K)
+            for k in c:
+                c[k][fuera] = nuevo[k]
+        else:
+            # Un η de la cola del prior (desgaste tan rápido que casi ningún camión seguiría en servicio: menos de
+            # 1 en MAX_INTENTOS) no produce un archivo posible. Esa flota se sortea entera, con otro η.
+            flotas = np.unique(fuera // camiones)
+            eta[flotas] = prior_eta(gen, len(flotas))
+            de_la_flota = (flotas[:, None] * camiones + np.arange(camiones)).ravel()
+            eta_c[de_la_flota] = np.repeat(eta[flotas], camiones, axis=0)
+            nuevo = _camiones(gen, eta_c[de_la_flota], muestras[de_la_flota], K)
+            for k in c:
+                c[k][de_la_flota] = nuevo[k]
+            continue
+        break
     else:
         raise RuntimeError("desgaste: quedaron camiones sin trayectoria en servicio")
     forma = (lote, camiones)

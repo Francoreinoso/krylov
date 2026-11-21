@@ -48,6 +48,16 @@ def _con_errores(f):
     return envuelta
 
 
+def _sello_resumen(motor_id: str, impl: str) -> dict:
+    """El pie de una respuesta: con cuánto practicó la red y su cobertura, del sello del motor. Solo si respondió la red y el sello pasa."""
+    ruta = _casos.ARTEFACTOS / str(motor_id) / "sello.json"
+    if impl != "red" or not ruta.exists():
+        return {"frase": "", "medido": False}
+    ficha = json.loads(ruta.read_text(encoding="utf-8"))
+    frases = textos.sello(ficha)[:2] if ficha.get("pasa") is True else []      # «practicó con…» y la cobertura del 90%
+    return {"frase": " ".join(frases), "medido": bool(frases)}
+
+
 @_con_errores
 def casos() -> dict:
     """Las tarjetas del inicio, en el orden de `casos/INICIO`."""
@@ -105,18 +115,11 @@ def analizar(caso: str, transformaciones: list[str] = (), costos: dict | None = 
         respuesta["en_palabras"] = textos.en_palabras(c, respuesta["resumen_colores"], respuesta["factores"])
     if respuesta["examen"] and not respuesta["examen"].get("frase"):
         respuesta["examen"]["frase"] = textos.examen(c, respuesta["examen"]) or ""
+    if not respuesta["sello_resumen"]["frase"]:
+        respuesta["sello_resumen"] = _sello_resumen(motor_id, impl)
     respuesta.pop("costo_total", None)
     respuesta["tiempo_ms"] = round((time.perf_counter() - inicio) * 1000)
     return respuesta
-
-
-@_con_errores
-def cartera(caso: str) -> dict:
-    """Todas las empresas de una cartera, analizadas de una vez y ordenadas por lo que les cuesta no saber."""
-    c = cargar_caso(caso)
-    if "cartera" not in c:
-        raise ErrorKrylov(f"El caso «{caso}» no tiene cartera.", "sin_cartera")
-    return _motor(c["motor"], "cartera")(c)
 
 
 @_con_errores
@@ -158,6 +161,8 @@ def sello(motor_id: str) -> dict:
 
 _AJENO_AL_ARCHIVO = ("dataset", "verdad", "grilla")              # del caso base, lo que habla del archivo del demo
 _SIN_TRANSFORMAR = (None, "", "ninguna")
+_SOLO_DEL_DEMO = ("ventana",)                                    # de `columnas` del caso base, lo que describe al archivo del demo y no se hereda:
+                                                                 # `sismico` toma la ventana del calce o, si no viene, de la hora del último sismo
 
 
 def _caso_base(motor_id: str) -> dict:
@@ -252,6 +257,9 @@ def _calzar(motor_id: str, base: dict, tabla: dict[str, list[str]], columnas: di
     # Lo que el caso base trae en `columnas` y no es un papel (en el terreno: umbral, unidad y transformación del valor) se conserva,
     # y el usuario puede cambiarlo. `tendencia` no pasa: un terreno subido no trae la distancia al río de cada bloque.
     col = {clave: columnas.get(clave, valor) for clave, valor in base["columnas"].items() if clave not in de_papel}
+    for clave in _SOLO_DEL_DEMO:                                 # p. ej. la ventana observada: la del archivo subido es la suya, no la del demo
+        if clave in col and clave not in columnas:
+            del col[clave]
     for p in lista:
         pedido, transformacion = columnas.get(p["papel"]), None
         if isinstance(pedido, dict):
@@ -339,6 +347,8 @@ def _respuesta(c: dict, nombre: str, numeros: dict, propio: dict, inicio: float)
         respuesta["en_palabras"] = textos.en_palabras(c, respuesta["resumen_colores"], respuesta["factores"])
     if respuesta["examen"] and not respuesta["examen"].get("frase"):
         respuesta["examen"]["frase"] = textos.examen(c, respuesta["examen"]) or ""
+    if not respuesta["sello_resumen"]["frase"]:
+        respuesta["sello_resumen"] = _sello_resumen(motor_id, impl)
     respuesta.pop("costo_total", None)
     respuesta["tiempo_ms"] = round((time.perf_counter() - inicio) * 1000)
     return respuesta

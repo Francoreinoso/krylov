@@ -19,7 +19,7 @@ CARPETA_CASOS = RAIZ / "casos"
 # Los artefactos de cada motor. La variable sirve para probar con una exportación que no es la versionada.
 ARTEFACTOS = Path(os.environ.get("KRYLOV_ARTEFACTOS", RAIZ / "motor" / "artefactos"))
 # Los cinco de la minería (D-37) y, hasta que se retiren (A-32), los tres anteriores al pivote.
-MOTORES = ("espacial", "deformacion", "cinetica", "desgaste", "sismico", "supervivencia", "jerarquico", "estados")
+MOTORES = ("espacial", "deformacion", "cinetica", "desgaste", "sismico")
 
 
 class ErrorKrylov(Exception):
