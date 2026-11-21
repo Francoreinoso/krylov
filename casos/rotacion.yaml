@@ -1,3 +1,5 @@
+# RETIRADO por el pivote a minería (D-37, sáb 12:10). Ya no aparece en el inicio.
+# Este archivo se borra junto con su motor en la tarea A-32; hasta entonces lo leen las pruebas de `nucleo/`.
 # Caso de uso: una pregunta de negocio resuelta con un motor, un archivo de datos y sus costos.
 # Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Skill: `agregar-caso`.
 # Es el caso que abre el demo (tarea S-03).
@@ -7,7 +9,7 @@ tarjeta:
   titulo: "¿A quién conviene retener?"
   empresa_o_industria: "Caso tipo Buk"
   sponsor: Buk
-  oculto: false
+  oculto: true          # D-37: retirado del inicio; el archivo se borra en A-32
 pregunta: "¿A qué personas conviene ofrecerles un plan de retención, y cuánto cuesta no saberlo?"
 motor: supervivencia
 unidad: { singular: persona, plural: personas }

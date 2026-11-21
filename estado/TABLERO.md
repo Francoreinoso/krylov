@@ -1,43 +1,48 @@
 # Tablero · cómo vamos contra el plan
 
-Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
+Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 10:14 · **Hito vigente:** H1 cerrado (tag `h1`, D-36). Próximo: H2 de terreno y rotación, 12:15 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 12:40 · **Hito vigente:** pivote a minería (D-37). Próximo: H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
-**URL pública:** https://krylov-tan.vercel.app/ (P-02). Responde con 200 a las 09:23.
+**URL pública:** https://krylov-tan.vercel.app/ (todavía muestra las cuatro tarjetas anteriores; cambia con P-21 y P-22).
 
-**Atrasado a las 10:14:**
-- **PC 1 · P-05 (09:00) y P-06 (09:30):** la URL pública sigue con los ejemplos fijos (números inventados). Ya se pueden exportar de verdad el terreno (red, validada) y la rotación (MCMC precalculado, rotulado). **Vercel está en su límite diario de despliegues:** el dueño de `Silent-math` revisa el plan antes del H2 de las 12:15.
-- **PC 3 · S-09 (09:35) y S-10 (10:05):** necesitan una persona. S-09 está listo para correr (`pitch/VALIDACION.md`); S-10: firmar las fuentes de `pitch/CIFRAS.md` (tres a revisar) y confirmar los sponsors en el lugar. **S-07:** datos listos; falta ver la tarjeta respondiendo (cuando `jerarquico` tenga red o MCMC, 11:30).
-- **El equipo:** quién presenta (vencía en H1, 08:45). La clave de Anthropic para Render, antes de P-12 (b) (tope 14:30).
-- **PC 2:** al día. A-08 y el lanzamiento de `estados` salieron unos 60 y 40 min tarde (esperaban a Rodrigo); `estados` igual termina a las 12:00.
+**PIVOTE (D-37): Krylov es el data scientist artificial de la minería. Lo primero que hace cada computador:** `git pull`, leer D-37 en `DECISIONES.md` y su `PC*.md`. **Se detienen los entrenamientos de `estados` (PC 2) y `jerarquico` (PC 3): ya no se usan.** Las tareas nuevas parten en 21; lo anterior está en `estado/historia/`.
 
-**Para el H2 de las 12:15, decide Rodrigo (recomendación de PC 3 entre paréntesis):**
-1. **Rotación:** el sello de `supervivencia` NO PASA (sesgo en 3 de 32 parámetros; 0,43 contra el MCMC, el límite es 0,3). A las 12:15 sale con el MCMC precalculado, rotulado. (Recomiendo además seguir entrenándola en PC 3 de 11:50 a 15:15 desde su punto de guardado y revalidar antes de las 16:00; y precalcular ahí mismo la cartera con el MCMC a las 11:45, que es su plan B.)
-2. **Papeles opcionales en `supervivencia` (D-35):** la red de la noche no tolera una columna ausente. (Recomiendo cortarlos: punto 2 del orden de corte de D-35; queda el esquema fijo.)
-3. **Terreno, «qué manda»:** el sello pasa, pero en el archivo real la tendencia difiere del MCMC en 2,17 desviaciones. (Recomiendo `KRYLOV_ESPACIAL_THETA=mcmc`: mapa y «¿Dónde mido?» de la red; «qué manda» del MCMC, rotulado «precalculado», con el pie mixto.)
+## Los cinco casos
+
+Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. «Responde» dice quién contesta hoy esa tarjeta: `red`, `precalculado`, `ejemplo` (número inventado para maquetar) o `nada`.
+
+| Caso | Motor | Datos | Simulador | Método lento | Red | Sello | En la app | Responde |
+|---|---|---|---|---|---|---|---|---|
+| leyes | espacial | listo | listo | pendiente | listo | listo | pendiente | red |
+| taludes | deformacion | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| flotacion | cinetica | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| flota | desgaste | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| sismicidad | sismico | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
+
+`leyes` ya responde con la red validada (verificado en PC 2, sáb 12:05: verde; 147 bloques «conviene apartar», 568 «puede ir a la planta», 309 «no sabemos»; 61 de 68 muestras escondidas dentro del rango; «¿Dónde perforo?» rehace 480 análisis en cerca de 1 s, con otro entrenamiento corriendo). Falta su método lento para el archivo nuevo (A-22) y verla en la app (P-22).
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟡 P-05 y P-06 atrasadas | Chat y P-12 (a) en `main` (10:03); arreglos chicos hechos (10:04). Vercel en su límite diario |
-| amortizacion (PC 2) | 🟢 avanza | `espacial` validado (pasa, 09:39). A-19 hecha (09:41). Sello de `supervivencia`: no pasa (09:54). `estados` entrena desde las 09:55 hasta las 12:00 |
-| seguimiento (PC 3) | 🟢 al día | `jerarquico` entrena aquí hasta las 11:30 (422.000 datasets a las 10:02). Verificado en PC 3: el terreno con la red (0,17 s) y la subida con los tres archivos de prueba (verde, verde y «faltan datos») |
+| producto (PC 1) | 🟡 pivote | P-09 («¿Dónde mido?») sirve tal cual para `leyes`. Ahora P-21 |
+| amortizacion (PC 2) | 🟡 pivote | Detener `estados`. Ahora A-21, A-22 (sesión B) y A-23 (sesión A) |
+| seguimiento (PC 3) | 🟡 pivote | Detener `jerarquico`. Ahora S-22 |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
-- **PC 1 · producto:** ahora **P-12 (a)**, tope 10:30: el chat con los cuatro archivos y su respuesta dentro, también estático. **Ya puedes poner `KRYLOV_MOTOR_ESPACIAL=red`** y regenerar el estático del terreno (según la decisión 3, con o sin `KRYLOV_ESPACIAL_THETA=mcmc`). Después **P-12 (b)**, tope 14:30: Render, `analizar_archivo` (ya existe en `nucleo/api.py`), `calce` e `interpretar`. **Antes de P-12 (b): P-05 y P-06** (estático real del terreno y de la rotación).
-- **PC 2 · amortizacion:** `estados` hasta las 12:00 (en PC 2, nada más pesado hasta entonces). Después, su sello. Con Rodrigo: las tres decisiones de arriba. Pedido: recuperación por parámetro en cada `sello.json` (M-35).
-- **PC 3 · seguimiento:** 11:30, `jerarquico` termina solo → su sello en PC 3 (`uv run python -m motor.jerarquico.sello`), sin nada más corriendo → si Rodrigo lo aprueba, cartera de `supervivencia` con el MCMC y después seguir entrenando `supervivencia`. H2 de `jerarquico`: 13:00. Con una persona: S-09 y S-10.
+- **PC 1 · producto:** ahora **P-21**, tope 13:10: inicio con las cinco tarjetas mineras (cuatro contra su ejemplo fijo, rotulado «ejemplo»), fuera la cartera y lo antiguo. Después **P-22**, tope 13:50: `leyes` real con la red y «¿Dónde perforo?» en la URL pública. Después **P-23**: el componente `Curva`.
+- **PC 2 · amortizacion:** ahora **A-21** (la persona detiene `estados`; `MOTORES` y `prueba_api` con el `INICIO` nuevo). Sesión B: **A-22** (`leyes`: método lento del archivo y examen con la verdad escondida), después **A-24** (`cinetica`). Sesión A: **A-23** (el andamio de series; subirlo apenas pase su prueba), después **A-25** (`deformacion`). **Ronda 1 lanzada a las 14:30.**
+- **PC 3 · seguimiento:** ahora **S-22** (una persona avisa, detiene `jerarquico` y confirma las cuatro decisiones de D-37). Después **S-23** y **S-24** (datos reales abiertos de taludes y de cobre, si calzan) y **S-25** (firmar las cifras de minería).
 
 ## Qué cambió respecto del plan
 
-- **Guion, momento 4:** con las cifras medidas, «228 análisis, menos de un segundo; con el método lento, más de siete horas». Sale «el método rápido acierta [P]%»: en el terreno cubre 89% contra 90% de la red. El examen real del terreno: 24 de 31 dentro del rango (77%), se dice tal cual si preguntan.
-- **D-36 (H1), D-35, D-34:** chat, calce por modelo de lenguaje, subida propia, interpretación. Orden de corte a las 16:00 en D-34 y D-35.
-- **D-29 a D-33:** las horas son topes; `estados` 33 parámetros, `jerarquico` 20; `etiquetas`; `unidad`; criterios del sello; `supervivencia` se valida en PC 2.
+- **D-37 (12:10):** cinco decisiones de una mina; se parte del motor `espacial`. Cuatro motores nuevos y chicos con un andamio común; dos rondas de entrenamiento (14:30 y 16:30); tope de redes 20:30. Se cortan la cartera y rotación, inasistencias y crédito.
+- **Cifras del documento técnico que no se usan:** «menos de 2 horas» (leyes), «15 a 30 minutos» (reingreso), «US$ 15.000 a 40.000 por hora» (camión). Las que sí, con su fuente, en `pitch/CIFRAS.md`, sección «La minería».
+- **El contrato no cambió de forma.** Se agregó `curva` (opcional, por unidad) y el archivo largo de los motores de series (`unidad`, `tiempo`, `valor`).
 
 ## Próxima decisión
 
-- Rodrigo: las tres de arriba, antes de las 12:15. Una persona: la clave de Anthropic para Render. El equipo: quién presenta.
-- H2: `espacial` y `supervivencia` 12:15; `jerarquico` 13:00; `estados` 14:00; tope 16:00.
+- **Una persona del equipo, cuanto antes:** confirmar de D-37 (1) la excepción de las 20:30, (2) el orden de las rondas, (3) datos simulados rotulados, (4) quién presenta. Y la clave de Anthropic para Render.
+- **H4 · 14:30:** `leyes` en la URL pública; cinco tarjetas; ronda 1 entrenando.

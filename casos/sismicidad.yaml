@@ -1,0 +1,49 @@
+# Caso `sismicidad` (D-37). Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Motor `sismico` (WORKPLAN.md, 11.5).
+#
+# En simple: bajo tierra, después de cada tronadura la roca se reacomoda y produce temblores chicos. A veces la
+# roca, bajo presión, revienta de golpe: un estallido de roca. Por eso el sector se cierra unas horas y sensores
+# registran cada temblor. Cada temblor sube por un rato la probabilidad del siguiente. Krylov dice, sector por
+# sector, qué tan probable es un temblor fuerte en las próximas horas.
+#
+# Datos: 8 sectores SIMULADOS, 6 horas después de una tronadura (datos/preparar/sismicidad.py, semilla 2026).
+# La verdad escondida (si hubo un sismo fuerte en las 6 horas siguientes) va en sismicidad_verdad.csv.
+#
+# Seguridad (AGENTS.md, regla 22): es el caso más delicado. Krylov apoya la decisión de geomecánica; no decide el
+# reingreso ni promete evitar un accidente. Los costos hablan de producción y daños, no de personas.
+nombre: sismicidad
+tarjeta:
+  titulo: "¿Puede volver a entrar la gente?"
+  empresa_o_industria: "Sismicidad · mina subterránea"
+  sponsor: null
+  oculto: false
+pregunta: "Con los temblores registrados desde la tronadura: ¿qué sectores conviene mantener cerrados, en cuáles se puede reingresar y en cuáles no se sabe?"
+motor: sismico
+unidad: { singular: sector, plural: sectores }
+rotulos:
+  actuar: "Conviene mantener cerrado"
+  no_actuar: "Se puede reingresar"
+  en_duda: "No sabemos: esperar y seguir midiendo"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+columnas:
+  unidad: unidad               # el sector de la mina
+  tiempo: tiempo               # horas desde la tronadura
+  valor: valor                 # magnitud del temblor
+  umbral: 1.0                  # desde esta magnitud el temblor se considera fuerte (supuesto del demo, K-61)
+  magnitud_minima: -1.0        # la más chica que los sensores registran completa
+  horizonte: 6                 # se decide sobre las próximas 6 horas
+  unidad_tiempo: "horas"
+  unidad_valor: "magnitud"
+  eje_tiempo: "Horas desde la tronadura"
+  eje_valor: "Temblores acumulados"
+  extra: []
+  elegidas_por: equipo
+etiquetas: { fondo: "Cuánto tiembla la mina sin tronadura", contagio: "Cuántos temblores nuevos gatilla cada temblor", apagado: "Qué tan rápido se calma la roca", tamanos: "Cuántos temblores chicos hay por cada grande" }
+costos:
+  falso_si: { valor: 150000, min: 20000, max: 600000, etiqueta: "Costo de mantener cerrado un sector que estaba tranquilo (medio turno sin producir)", tipo: hipótesis, cifra: K-62 }
+  falso_no: { valor: 1500000, min: 300000, max: 8000000, etiqueta: "Costo de un temblor fuerte con el sector abierto (daños y detención)", tipo: hipótesis, cifra: K-63 }
+moneda: USD
+dataset: datos/demo/sismicidad.csv
+verdad: datos/demo/sismicidad_verdad.csv     # columnas: unidad, sismos_fuertes_en_el_horizonte, hubo_sismo_fuerte
+verdad_columna: hubo_sismo_fuerte
+origen_datos: "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina."
+sintetico: true

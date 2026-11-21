@@ -1,3 +1,5 @@
+# RETIRADO por el pivote a minería (D-37, sáb 12:10). Ya no aparece en el inicio.
+# Este archivo se borra junto con su motor en la tarea A-32; hasta entonces lo leen las pruebas de `nucleo/`.
 # El archivo malo del demo (tarea S-08): el caso de rotación con una columna extra que delata la respuesta.
 # No aparece en el inicio. En el demo se carga con la tecla M.
 # Sirve para el arco: rojo («no se parece a nada que haya visto») → propone quitar la columna → verde.

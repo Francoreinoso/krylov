@@ -1,0 +1,49 @@
+# Caso `taludes` (D-37). Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Motor `deformacion` (WORKPLAN.md, 11.2).
+#
+# En simple: un radar mide, cada pocos minutos, cuántos milímetros se movió cada parte de la pared del rajo
+# (o del muro de un tranque de relaves). Casi todo lo que se ve es ruido. Pero antes de ceder, un muro se mueve
+# cada vez más rápido, y la forma de esa aceleración dice cuánto falta.
+#
+# Datos: 36 sectores SIMULADOS, 48 horas, una lectura cada 30 minutos (datos/preparar/taludes.py, semilla 2026).
+# La verdad escondida (qué sectores ceden dentro de 12 horas) va en taludes_verdad.csv y no entra al motor.
+# Datos reales abiertos: datos/demo/taludes_real.csv (prismas de un rajo que falló, Zenodo 15003054, CC BY 4.0);
+# si responden verde con el motor, pasan a ser el archivo principal (S-24).
+#
+# Seguridad (AGENTS.md, regla 22): los costos hablan de producción y equipos. Krylov apoya la decisión de
+# geomecánica; no la reemplaza.
+nombre: taludes
+tarjeta:
+  titulo: "¿Es ruido o el muro va a ceder?"
+  empresa_o_industria: "Taludes y relaves · radar"
+  sponsor: null
+  oculto: false
+pregunta: "Con lo que el radar midió en las últimas 48 horas: ¿qué sectores del muro conviene cerrar, cuáles pueden seguir abiertos y en cuáles no se sabe? ¿Cuánto falta?"
+motor: deformacion
+unidad: { singular: sector, plural: sectores }
+rotulos:
+  actuar: "Conviene cerrar"
+  no_actuar: "Puede seguir abierto"
+  en_duda: "No sabemos: seguir midiendo"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+# Motores de series: una fila por lectura. `horizonte` va en las unidades de `tiempo`.
+columnas:
+  unidad: unidad               # el sector del muro
+  tiempo: tiempo               # horas desde que parte la ventana
+  valor: valor                 # milímetros que se ha movido
+  horizonte: 12                # se decide sobre las próximas 12 horas
+  unidad_tiempo: "horas"
+  unidad_valor: "mm"
+  eje_tiempo: "Horas"
+  eje_valor: "Milímetros que se ha movido"
+  extra: []
+  elegidas_por: equipo
+etiquetas: { fraccion_acelerando: "Cuánta parte del muro se está acelerando", velocidad_fondo: "Qué tan rápido se mueve el muro en general", ruido: "Error de cada lectura del radar" }
+costos:
+  falso_si: { valor: 120000, min: 20000, max: 500000, etiqueta: "Costo de cerrar un sector que estaba estable (un turno sin producir ahí)", tipo: hipótesis, cifra: K-31 }
+  falso_no: { valor: 2500000, min: 500000, max: 10000000, etiqueta: "Costo de un derrumbe con el sector abierto (equipos y producción)", tipo: hipótesis, cifra: K-32 }
+moneda: USD
+dataset: datos/demo/taludes.csv
+verdad: datos/demo/taludes_verdad.csv        # columnas: unidad, acelerando, horas_hasta_ceder, cede_en_el_horizonte
+verdad_columna: cede_en_el_horizonte
+origen_datos: "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina."
+sintetico: true

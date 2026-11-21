@@ -1,0 +1,28 @@
+# El archivo que no alcanza (tecla `M` del demo, D-37): el mismo banco de `leyes` con solo 12 pozos.
+# Tiene que dar `rojo_datos` con su motivo: «No respondo todavía: con estos datos no alcanza».
+# No aparece en el inicio (`oculto: true`). Dueño: seguimiento.
+nombre: leyes_pocos
+tarjeta:
+  titulo: "¿Este bloque va a la planta o se aparta?"
+  empresa_o_industria: "Leyes y arsénico · un banco con muy pocas muestras"
+  sponsor: null
+  oculto: true
+pregunta: "El mismo banco, con solo 12 pozos muestreados: ¿alcanza para decidir?"
+motor: espacial
+unidad: { singular: bloque, plural: bloques }
+rotulos:
+  actuar: "Conviene apartar"
+  no_actuar: "Puede ir a la planta"
+  en_duda: "No sabemos: conviene muestrear"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+  donde_medir: "¿Dónde perforo?"
+columnas: { x: x, y: y, valor: as_ppm, umbral: 500, unidad_valor: "ppm de arsénico", transformacion: log }
+etiquetas: { tendencia: "Tendencia general del banco", continuidad: "Lo que pasa en los bloques vecinos", ruido: "Error de cada muestra" }
+costos:
+  falso_si: { valor: 9000, min: 2000, max: 40000, etiqueta: "Costo de apartar un bloque que podía ir a la planta", tipo: hipótesis, cifra: K-22 }
+  falso_no: { valor: 30000, min: 5000, max: 150000, etiqueta: "Costo de mandar a la planta un bloque con demasiado arsénico", tipo: hipótesis, cifra: K-23 }
+  medicion: { valor: 1500, etiqueta: "Costo de una muestra más (perforar y analizar)", tipo: hipótesis, cifra: K-24 }
+moneda: USD
+dataset: datos/demo/leyes_pocos.csv
+origen_datos: "Banco de tronadura simulado, con solo 12 de sus 340 pozos. No son datos de ninguna mina."
+sintetico: true

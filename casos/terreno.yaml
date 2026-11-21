@@ -1,3 +1,5 @@
+# D-37 (pivote a minería): este caso ya no aparece en el inicio. Se conserva como el examen con DATOS REALES del
+# motor `espacial` (24 de 31 mediciones escondidas dentro del rango, M-13) y lo usa el deck. El caso minero es `leyes`.
 # Caso de uso espacial: datos con ubicación. Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4.
 # Es el caso del momento estrella del show: «¿Dónde mido?». Tarea S-04: tiene que estar listo antes de dormir,
 # porque `amortizacion` lo necesita a primera hora.
@@ -23,7 +25,7 @@ rotulos:
   costo_de_no_saber: "Lo que te cuesta no saber"
 columnas: { x: x, y: y, valor: zinc, tendencia: dist, umbral: 720, unidad_valor: "mg/kg", transformacion: log }   # umbral: valor de intervención holandés para zinc, cifra K-11
 # Nombre en pantalla de cada factor de «qué manda en el terreno» (lo lee nucleo/ si quiere; hoy están en nucleo/espacial.py con el mismo texto).
-etiquetas: { tendencia: "Cercanía al río", continuidad: "Lo que pasa en los bloques vecinos", ruido: "Error de cada medición" }
+etiquetas: { tendencia: "La cercanía al río", continuidad: "Lo que pasa en los bloques vecinos", ruido: "Error de cada medición" }
 costos:
   falso_si: { valor: 20000, min: 5000, max: 60000, etiqueta: "Costo de limpiar un bloque", tipo: hipótesis, cifra: K-12 }
   falso_no: { valor: 50000, min: 10000, max: 200000, etiqueta: "Costo de dejar un bloque contaminado", tipo: hipótesis, cifra: K-13 }

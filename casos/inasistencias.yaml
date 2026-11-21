@@ -1,3 +1,5 @@
+# RETIRADO por el pivote a minería (D-37, sáb 12:10). Ya no aparece en el inicio.
+# Este archivo se borra junto con su motor en la tarea A-32; hasta entonces lo leen las pruebas de `nucleo/`.
 # Caso de uso. Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Skill: `agregar-caso`.
 # Tarea S-07. La licencia del archivo es CC BY-NC-SA 4.0 (no comercial): el CSV NO se sube al repositorio.
 # Se agrega a .gitignore y el caso vive en local y en las respuestas precalculadas, con la atribución en `origen_datos`.
@@ -16,7 +18,7 @@ tarjeta:
   titulo: "¿Qué citas conviene confirmar?"
   empresa_o_industria: "Caso tipo AgendaPro"
   sponsor: AgendaPro
-  oculto: false
+  oculto: true          # D-37: retirado del inicio; el archivo se borra en A-32
 pregunta: "¿Qué reservas tienen riesgo de no llegar y en cuáles conviene gastar una confirmación?"
 motor: jerarquico
 unidad: { singular: cita, plural: citas }

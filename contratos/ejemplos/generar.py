@@ -1,4 +1,7 @@
-"""Genera los ejemplos fijos de contratos/ejemplos/.
+"""Genera los ejemplos fijos de contratos/ejemplos/ que definen la FORMA de las respuestas.
+
+Son de antes del pivote a minería (D-37): sus textos hablan de personas y empresas, pero la forma es la vigente.
+Los ejemplos con contenido minero los genera `generar_mineria.py`.
 
 Todos los números son INVENTADOS: sirven para maquetar la web antes de que existan
 los motores. No se muestran en el demo ni en el pitch.
@@ -50,16 +53,8 @@ COSTOS_ROT = {"falso_si": {"valor": 1500, "min": 200, "max": 5000, "etiqueta": "
               "falso_no": {"valor": 6000, "min": 1000, "max": 20000, "etiqueta": "Costo de reemplazar a alguien"}}
 
 # --- casos.json ---
-escribir("casos.json", {"casos": [
-    {"nombre": "rotacion", "titulo": "¿A quién conviene retener?", "empresa_o_industria": "Caso tipo Buk", "sponsor": "Buk",
-     "motor": "supervivencia", "sintetico": False, "origen_datos": "Datos públicos de ejemplo, ficticios. No son datos de Buk.", "tiene_cartera": True},
-    {"nombre": "inasistencias", "titulo": "¿Qué citas conviene confirmar?", "empresa_o_industria": "Caso tipo AgendaPro", "sponsor": "AgendaPro",
-     "motor": "jerarquico", "sintetico": False, "origen_datos": "Datos públicos reales de citas médicas. No son datos de AgendaPro.", "tiene_cartera": False},
-    {"nombre": "credito", "titulo": "¿A quién le apruebo el crédito?", "empresa_o_industria": "Crédito", "sponsor": None,
-     "motor": "estados", "sintetico": False, "origen_datos": "Datos públicos reales de tarjetas de crédito.", "tiene_cartera": False},
-    {"nombre": "terreno", "titulo": "¿Dónde limpio y dónde mido?", "empresa_o_industria": "Terreno", "sponsor": None,
-     "motor": "espacial", "sintetico": False, "origen_datos": "Datos públicos reales de metales en un suelo.", "tiene_cartera": False},
-]})
+# Desde el pivote a minería (D-37) lo escribe `generar_mineria.py`, junto con analizar_<caso>.json de los cuatro
+# casos de lista. Este archivo sigue generando los ejemplos de forma (analizar_tabla, analizar_espacial, nube, sellos).
 
 # --- analizar_tabla.json (motores de tabla: supervivencia, jerarquico, estados) ---
 unidades = []

@@ -1,7 +1,8 @@
-# Textos de pantalla v1 (S-11, adelantado por D-29). Dueño: seguimiento.
+# Textos de pantalla, versión minera (D-37, sáb 12:30). Dueño: seguimiento.
 # Son las plantillas de `contratos/CONTRATO.md`, sección 5: `nucleo/` las llena con los números del JSON del motor.
 # Ningún texto de industria va en el código: lo propio de cada caso (unidad, rótulos, costos) sale de casos/<nombre>.yaml.
-# Sin jerga (GLOSARIO.md). Los colores son decisiones, no pronósticos: nunca «se va», siempre «conviene retener».
+# Sin jerga, ni estadística ni minera (GLOSARIO.md, «Minería en simple»). Los colores son decisiones, no pronósticos:
+# nunca «este camión falla», siempre «conviene adelantar la mantención».
 #
 # Variables (formato de Python, str.format):
 #   {n_actuar} {n_no_actuar} {n_en_duda} {n_unidades}   conteos por color y total de unidades por decidir
@@ -39,25 +40,27 @@ en_palabras:
   hay_en_duda_una: "En 1 {unidad_singular} los datos no alcanzan para decidir: {en_duda_min}."      # cuando n_en_duda == 1
   factor_seguro: "Lo que más pesa es {factor_min}."
   factor_no_se_sabe: "{factor}: con estos datos no se puede saber si sube o baja el riesgo."
-  # Terreno (motor espacial): reemplazan a las anteriores. Caben tres: «no hace falta limpiar» no lleva frase
-  # (el mapa ya lo muestra), para que salga «qué manda», que es la historia del terreno.
+  # Motor espacial (`leyes`, y `terreno`): reemplazan a las anteriores. Son genéricas: lo propio de cada caso sale
+  # de sus rótulos. Caben tres: el color «no hace falta» no lleva frase (el mapa ya lo muestra), para que salga «qué manda».
   espacial:
-    hay_actuar: "Hay {n_actuar} bloques que hay que limpiar con seguridad."
-    hay_actuar_una: "Hay 1 bloque que hay que limpiar con seguridad."                               # cuando n_actuar == 1
-    hay_en_duda: "En {n_en_duda} bloques no se sabe: ahí conviene medir antes de gastar."
-    hay_en_duda_una: "En 1 bloque no se sabe: ahí conviene medir antes de gastar."                  # cuando n_en_duda == 1
-    manda: "En este terreno manda {factor_min}."
+    hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y una muestra más no cambiaría la decisión."
+    hay_actuar_una: "En 1 {unidad_singular}, {actuar_min}, y una muestra más no cambiaría la decisión."   # cuando n_actuar == 1
+    hay_en_duda: "En {n_en_duda} {unidad_plural} no se sabe: ahí conviene medir antes de decidir."
+    hay_en_duda_una: "En 1 {unidad_singular} no se sabe: ahí conviene medir antes de decidir."            # cuando n_en_duda == 1
+    manda: "Aquí manda {factor_min}."
 
 semaforo:
   amarillo:
     pocos_por_grupo: "Respondo, con un aviso: hay grupos con muy pocas {unidad_plural} y ahí el rango es ancho."
     cerca_del_borde: "Respondo, con un aviso: el archivo se parece a lo que practiqué, pero está cerca del borde."
   rojo_datos:
-    pocas_filas: "Hay {n} {unidad_plural} con respuesta. Necesito al menos 200 para responder."
-    casi_ningun_si: "Solo {k} de {n} {unidad_plural} tienen un «sí». Con tan pocos casos no se puede separar el riesgo."
+    pocas_filas: "Hay {n} {unidad_plural} con datos suficientes. Con tan pocas no alcanza para responder."   # la llena nucleo/tabla.py con {n}
+    casi_ningun_si: "Solo {k} de {n} {unidad_plural} tienen un «sí». Con tan pocos casos no se puede separar el riesgo."   # motores antiguos; se borra en A-32
+    pocas_muestras: "Hay {n} muestras y hacen falta al menos {k}."                 # leyes: muy pocos pozos
+    serie_corta: "Hay {n} {unidad_plural} con menos de {k} mediciones: con tan poca historia no se puede decir hacia dónde van."   # motores de series
   rojo_modelo:
     columna_delata: "La columna «{columna}» adivina sola la respuesta: solo tiene dato cuando la respuesta ya se sabe. Con ella cualquier análisis parece perfecto y no sirve para decidir."
-    no_se_parece: "Este archivo no se parece a ninguna de las simulaciones con que practiqué. Prefiero no responder antes que responder mal."
+    no_se_parece: "Este archivo no se parece a ninguna de las minas simuladas con que practiqué. Prefiero no responder antes que responder mal."
   propuesta:
     quitar_columna: "Propongo sacar la columna «{columna}» y responder con las demás."
     boton: "Sacarla y responder"
@@ -65,15 +68,18 @@ semaforo:
 
 examen:
   # La frase la arma el servicio con `tramos` (CONTRATO.md 3): nunca a mano.
-  # Sin artículo ni unidad, para que sirva en los tres casos (las personas, los clientes, las citas). Como en GLOSARIO.md.
+  # Sin artículo ni unidad, para que sirva en los cuatro casos de lista. Con datos simulados, la pantalla agrega
+  # «con datos simulados» (el caso trae `sintetico: true`): la respuesta escondida es la del archivo `<caso>_verdad.csv`.
   tabla: "Cuando dijimos cerca de {dijimos}% de riesgo, {paso_verbo} el {paso}%."
-  verbo_por_caso: { rotacion: "se fue", inasistencias: "no llegó", credito: "no pagó" }
-  espacial: "Escondimos {n} mediciones reales y las adivinamos: {k} cayeron dentro del rango que dimos."
+  verbo_por_caso: { taludes: "cedió", flotacion: "quedó bajo la meta", flota: "falló antes de su mantención", sismicidad: "tuvo un temblor fuerte",
+                    rotacion: "se fue", inasistencias: "no llegó", credito: "no pagó" }   # la segunda línea es de los casos retirados; se borra en A-32
+  espacial: "Escondimos {n} muestras y las adivinamos: {k} cayeron dentro del rango que dimos."
+  con_datos_simulados: "Con datos simulados: la respuesta correcta estaba escondida y Krylov no la vio."
   sin_medir: "Exactitud en medición."
 
 sello:
   practico: "Practicó con {millones} millones de {casos_simulados} simulados."
-  casos_simulados_por_motor: { supervivencia: "empresas", jerarquico: "carteras de pacientes", estados: "carteras de clientes", espacial: "terrenos" }
+  casos_simulados_por_motor: { espacial: "terrenos", deformacion: "muros", cinetica: "plantas", desgaste: "flotas", sismico: "minas" }
   cobertura: "Cuando da un rango de 90%, acierta {cobertura}%."
   peor_grupo: "En el caso más difícil ({peor_grupo}) acierta {cobertura_peor}%."
   contra_lento: "Da lo mismo que el método lento de siempre, que tarda {minutos_lento} minutos; Krylov tarda {ms} milisegundos."
@@ -83,10 +89,12 @@ sello:
 precalculado:
   rotulo: "precalculado"
   explicacion: "Esta respuesta la calculamos antes con el método lento de siempre. Los deslizadores sí funcionan en vivo."
-  # Terreno con KRYLOV_ESPACIAL_THETA=mcmc: el mapa y «¿Dónde mido?» salen de la red; «qué manda» sale del MCMC
-  # precalculado (orden de corte n.º 4 de WORKPLAN.md 6.5). Nunca se dice que «qué manda» lo respondió la red.
+  # Motor espacial con KRYLOV_ESPACIAL_THETA=mcmc: el mapa y «¿Dónde perforo?» salen de la red; «qué manda» sale del
+  # método lento precalculado. Nunca se dice que «qué manda» lo respondió la red.
   que_manda_rotulo: "precalculado"
-  pie_espacial_mixto: "El mapa lo respondió la red que practicó con terrenos simulados. «Qué manda en el terreno» lo calculamos antes con el método lento de siempre."
+  pie_espacial_mixto: "El mapa lo respondió la red que practicó con terrenos simulados. «Qué manda» lo calculamos antes con el método lento de siempre."
+  ejemplo_rotulo: "ejemplo"                                     # D-37: tarjeta nueva que todavía pinta su ejemplo fijo
+  ejemplo_explicacion: "Números de ejemplo para mostrar la pantalla. El motor de esta decisión se está entrenando hoy."
 
 deslizadores:
   # Pregunta sobre cada deslizador; la etiqueta de cada costo sale del YAML del caso.
@@ -98,32 +106,50 @@ que_pesa:
   titulo: "Qué pesa"
   certeza: { seguro: "Seguro", probable: "Probable", no_se_sabe: "No se puede saber con estos datos" }
   direccion: { sube: "sube el riesgo", baja: "baja el riesgo" }
-  titulo_espacial: "Qué manda en el terreno"
-  factores_espacial: { rio: "la cercanía al río", vecinos: "los bloques vecinos", medicion: "el error de medición" }
+  titulo_espacial: "Qué manda aquí"
+  factores_espacial: { rio: "la tendencia general", vecinos: "los bloques vecinos", medicion: "el error de cada muestra" }
 
 donde_medir:
-  boton: "¿Dónde mido?"
+  boton: "¿Dónde mido?"                # texto por omisión; cada caso puede traer el suyo en `rotulos.donde_medir` (leyes: «¿Dónde perforo?»)
   calculando: "Imaginando resultados posibles y rehaciendo el análisis…"
   hecho: "Imaginé {n_resultados} resultados posibles en {n_lugares} lugares y rehíce el análisis {n_analisis} veces, en {segundos} segundos."
-  pin: "Medir aquí vale {valor}."
-  simular: { pregunta: "¿Qué sale si mides aquí?", alto: "Sale alto", bajo: "Sale bajo" }
-  despues: "Con esa medición, lo que te cuesta no saber baja a {costo_de_no_saber}."
+  pin: "Una muestra aquí vale {valor}."
+  simular: { pregunta: "¿Qué sale si tomas una muestra aquí?", alto: "Sale alto", medio: "Sale medio", bajo: "Sale bajo" }
+  despues: "Con esa muestra, lo que te cuesta no saber queda en {costo_de_no_saber}."
+
+curva:
+  # Casos de lista (D-37): el dibujo de una unidad. Los nombres de los ejes salen del caso (`eje_tiempo`, `eje_valor`).
+  titulo: "Lo medido y lo que Krylov cree que viene"
+  medido: "Medido"
+  ahora: "Ahora"
+  abanico: "Rango creíble de lo que viene (9 de cada 10 futuros simulados caen aquí)"
+  limite: "Límite"
+  falta: "Faltan entre {bajo} y {alto} {unidad_tiempo}."            # taludes: `curva.marca`
+  sin_curva: "Esta unidad no tiene curva."
 
 nube:
-  titulo: "Las simulaciones con que practicó Krylov"
+  # Se muestra solo en los motores que la entreguen (D-37). Los nombres de los ejes salen de la respuesta de `nube`.
+  titulo: "Las minas simuladas con que practicó Krylov"
   ejes: { x: "Qué tan bien adivina la respuesta el mejor factor, solo", y: "Proporción de «sí»" }
   leyenda_puntos: "Cada punto es un caso simulado"
   leyenda_archivo: "Tu archivo"
   dentro: "Tu archivo cae dentro de lo que Krylov practicó."
   fuera: "Tu archivo cae fuera de todo lo que Krylov practicó."
 
-cartera:
-  titulo: "Todos a la vez"
-  titular: "{n_empresas} empresas analizadas en {segundos} segundos, ordenadas por lo que les cuesta no saber."
-  precalculadas: "{n_empresas} empresas precalculadas, ordenadas por lo que les cuesta no saber."
-  origen: "Empresas simuladas, cada una distinta."
+inicio:
+  # Vista 1 (D-37).
+  pregunta: "¿Qué decisión tienes que tomar?"
+  bajada: "Cinco decisiones de una mina. Elige una, adjunta tus datos y Krylov te dice qué conviene hacer, cuánto te cuesta no saber y dónde conviene medir más."
+  aviso_datos: "Datos simulados con la misma física. No son datos de ninguna mina."
+  reloj_por_caso:
+    leyes: "Hay que decidir antes de que la pala cargue el bloque."
+    taludes: "El radar mide cada pocos minutos."
+    flotacion: "El mineral pasa por la línea en cerca de media hora."
+    flota: "Se revisa en cada turno."
+    sismicidad: "El sector está cerrado y cada temblor nuevo cambia la respuesta."
 
 pie:
-  datos_publicos: "Datos públicos de ejemplo"
-  sponsor: "{empresa_o_industria} · datos públicos de ejemplo"
+  datos_publicos: "Datos públicos reales"
+  datos_simulados: "Datos simulados"
+  sponsor: "{empresa_o_industria}"
   estatico: "Modo estático"

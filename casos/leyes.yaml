@@ -1,0 +1,38 @@
+# Caso base del pivote a minería (D-37). Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4.
+# Es el caso que abre el demo y el del momento estrella: «¿Dónde perforo?» (en el contrato, `donde_medir`).
+# Lo responde el motor `espacial`, que ya pasó su sello (sáb 09:39): no se reentrena nada para este caso.
+#
+# En simple: después de cada tronadura (la explosión que rompe la roca) hay que decidir, bloque por bloque,
+# si esa roca va a la planta o se aparta. Si entra a la planta roca con demasiado arsénico, el concentrado
+# (el polvo rico en cobre que la mina vende) sale castigado en precio o lo rechazan.
+#
+# Datos: un banco SIMULADO, rotulado así en pantalla (datos/preparar/leyes.py, semilla 2026). El motor está
+# probado además con datos reales públicos en el caso `terreno` (24 de 31 mediciones escondidas dentro del rango, M-13).
+# Si S-23 encuentra pozos reales con licencia abierta, se cambia `dataset` y `origen_datos`; nada más.
+nombre: leyes
+tarjeta:
+  titulo: "¿Este bloque va a la planta o se aparta?"
+  empresa_o_industria: "Leyes y arsénico · rajo abierto"
+  sponsor: null
+  oculto: false
+pregunta: "Con las muestras de los pozos de tronadura: ¿qué bloques pueden ir a la planta, cuáles traen demasiado arsénico, en cuáles no se sabe y dónde conviene tomar una muestra más?"
+motor: espacial
+unidad: { singular: bloque, plural: bloques }
+rotulos:
+  actuar: "Conviene apartar"
+  no_actuar: "Puede ir a la planta"
+  en_duda: "No sabemos: conviene muestrear"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+  donde_medir: "¿Dónde perforo?"          # el texto del botón (D-37); la ruta sigue siendo /api/donde-medir
+# Sin `tendencia`: en un banco no hay río. La red practicó también con terrenos sin tendencia (20% de sus simulaciones).
+columnas: { x: x, y: y, valor: as_ppm, umbral: 500, unidad_valor: "ppm de arsénico", transformacion: log }   # umbral: supuesto del demo, cifra K-21
+etiquetas: { tendencia: "Tendencia general del banco", continuidad: "Lo que pasa en los bloques vecinos", ruido: "Error de cada muestra" }
+costos:
+  falso_si: { valor: 9000, min: 2000, max: 40000, etiqueta: "Costo de apartar un bloque que podía ir a la planta", tipo: hipótesis, cifra: K-22 }
+  falso_no: { valor: 30000, min: 5000, max: 150000, etiqueta: "Costo de mandar a la planta un bloque con demasiado arsénico", tipo: hipótesis, cifra: K-23 }
+  medicion: { valor: 1500, etiqueta: "Costo de una muestra más (perforar y analizar)", tipo: hipótesis, cifra: K-24 }
+moneda: USD
+dataset: datos/demo/leyes.csv
+verdad_bloques: datos/demo/leyes_verdad.csv   # la ley verdadera de cada bloque; no entra al motor (examen de A-22)
+origen_datos: "Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina."
+sintetico: true

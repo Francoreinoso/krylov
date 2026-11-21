@@ -1,0 +1,46 @@
+# Caso `flota` (D-37). Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Motor `desgaste` (WORKPLAN.md, 11.4).
+#
+# En simple: un camión minero carga unas 300 toneladas. Si falla en plena rampa (el camino por donde sube la roca),
+# además de la reparación de emergencia deja de mover roca y puede tapar el paso. Cada camión acumula un desgaste
+# que no se ve; lo que se mide (por ejemplo, el hierro en una muestra de aceite) es su huella, con error.
+# Krylov dice qué camiones no van a llegar a su próxima mantención programada.
+#
+# Datos: 40 camiones SIMULADOS con 4 a 10 muestras cada uno (datos/preparar/flota.py, semilla 2026).
+# El indicador está normalizado: 1,0 es la falla. La verdad escondida va en flota_verdad.csv.
+nombre: flota
+tarjeta:
+  titulo: "¿Qué camión paro antes de que falle?"
+  empresa_o_industria: "Flota de camiones · mantención"
+  sponsor: null
+  oculto: false
+pregunta: "Con las muestras de aceite de toda la flota: ¿a qué camiones conviene adelantarles la mantención, cuáles llegan bien y en cuáles no se sabe?"
+motor: desgaste
+unidad: { singular: camión, plural: camiones }
+rotulos:
+  actuar: "Conviene adelantar la mantención"
+  no_actuar: "Llega a su mantención"
+  en_duda: "No sabemos: tomar otra muestra"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+columnas:
+  unidad: unidad                       # el camión
+  tiempo: tiempo                       # horas de operación al tomar la muestra
+  valor: valor                         # indicador de desgaste; 1,0 es la falla
+  covariables: [exigencia]             # qué tan exigente es la ruta del camión (estandarizada)
+  horizonte_por_unidad: horas_a_mantencion   # horas que faltan para su próxima mantención programada
+  umbral: 1.0                          # el límite: con este desgaste el camión falla
+  unidad_tiempo: "horas de operación"
+  unidad_valor: "desgaste (1 = falla)"
+  eje_tiempo: "Horas de operación"
+  eje_valor: "Desgaste"
+  extra: []
+  elegidas_por: equipo
+etiquetas: { ritmo: "Qué tan rápido se desgasta la flota", exigencia: "Ruta exigente", saltos: "Qué tan a saltos avanza el desgaste", ruido: "Error de cada muestra" }
+costos:
+  falso_si: { valor: 12000, min: 2000, max: 60000, etiqueta: "Costo de adelantar una mantención que no hacía falta", tipo: hipótesis, cifra: K-51 }
+  falso_no: { valor: 90000, min: 20000, max: 400000, etiqueta: "Costo de una falla en plena rampa (reparación de emergencia y horas sin el camión)", tipo: hipótesis, cifra: K-52 }
+moneda: USD
+dataset: datos/demo/flota.csv
+verdad: datos/demo/flota_verdad.csv          # columnas: unidad, desgaste_hoy, falla_antes_de_la_mantencion
+verdad_columna: falla_antes_de_la_mantencion
+origen_datos: "Flota simulada: 40 camiones con sus muestras de aceite. No son datos de ninguna mina."
+sintetico: true

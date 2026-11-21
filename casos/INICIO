@@ -1,7 +1,15 @@
-# Tarjetas de la pantalla de inicio, en orden. La primera abre el demo.
-# Una tarjeta que no funcione a las 18:00 del sábado se borra de esta lista.
-# rotacion_malo no va aquí: es el archivo malo del demo (tecla M) y está marcado `oculto`.
+# Tarjetas de la pantalla de inicio, en orden. La primera abre el demo. Pivote a minería: D-37.
+# Una tarjeta que a las 17:30 del sábado no tenga respuesta de su motor se borra (o se comenta) de esta lista.
+# No van aquí: `leyes_pocos` (el archivo que no alcanza, tecla M, marcado `oculto`) ni `terreno` (el examen con datos reales del motor espacial).
+leyes
+# Las cuatro de abajo se descomentan cuando PC 2 registre su motor en `nucleo/casos.py` (tarea A-21);
+# hasta entonces la web las pinta desde `contratos/ejemplos/casos.json`, rotuladas «ejemplo».
+# taludes
+# flotacion
+# flota
+# sismicidad
+# Retirados por D-37. Siguen en esta lista, marcados `oculto: true` (no se ven en el inicio), solo para que
+# `nucleo/api.py` encuentre el caso base de sus motores hasta que PC 2 los retire (tarea A-32). Ahí se borran estas líneas.
 rotacion
-terreno
 inasistencias
 credito

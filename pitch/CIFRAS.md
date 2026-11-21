@@ -8,6 +8,8 @@
 
 La columna «Verificó» lleva el nombre de la persona que abrió la fuente o repitió la medición. «Agente, 21-nov» significa que un agente de investigación leyó la página ese día: sirve para trabajar, pero **antes de ir a una lámina la abre una persona** (tarea S-10). Los enlaces están en `WORKPLAN.md`, sección 12.
 
+> **Pivote a minería (D-37, sáb 12:10).** Las cifras nuevas están en tres secciones: «La minería» (I-xx, con fuente), «Supuestos de los casos mineros» (K-21 en adelante) y «Medidas del pivote» (M-40 en adelante). Las filas de rotación, crédito, inasistencias, Buk, AgendaPro y la cartera quedan como historia: **no se dicen**. Siguen vigentes N-01, J-01 a J-05, D-04, K-11 a K-17 (caso `terreno`) y las medidas del motor espacial (M-01, M-02, M-08 a M-11, M-13, M-25, M-28).
+
 ## El nombre
 
 | Id | Cifra | Valor | Tipo | Origen | Verificó |
@@ -25,6 +27,37 @@ La columna «Verificó» lleva el nombre de la persona que abrió la fuente o re
 | J-04 | Duración del pitch | **3 minutos, en las generales y en las finales, por ahora.** No dijeron si hay preguntas del jurado. (Antes: tres minutos en 2024; los tramos grabados de otras sedes de 2026 duran cerca de seis con preguntas) | fuente | Respuesta de la organización a la consulta S-02, anotada en `pitch/VALIDACION.md` a las 03:55. Se vuelve a confirmar en la charla del sábado a las 20:00 | |
 | J-05 | Equipos en el track Simulaciones | 12 de 48 | fuente | Conteo de los README públicos de los equipos | Agente, 21-nov |
 
+## La minería (D-37)
+
+Las abrió un agente de investigación el sábado 21-nov entre las 11:50 y las 12:30, leyendo cada página. **Ninguna tiene todavía la firma de una persona (tarea S-25): hasta entonces no van a una lámina.** «Derivada» significa que el número sale de una cuenta nuestra sobre datos con fuente: se dice «estimación nuestra».
+
+| Id | Cifra | Valor | Tipo | Origen | Verificó |
+|---|---|---|---|---|---|
+| I-01 | Chile en el cobre mundial | 23% de la producción mundial de cobre de mina, el mayor productor; cerca de 5,4 millones de toneladas en 2025. Se dice «casi una de cada cuatro toneladas» | fuente | Consejo Minero, cifras actualizadas a marzo de 2026, p. 4: https://consejominero.cl/wp-content/uploads/2026/04/20260420-CAM-marzo-2.pdf | Agente, 21-nov |
+| I-02 | Peso de la minería en Chile | 13,1% del PIB y 59% de las exportaciones en 2025 | fuente | El mismo documento, pp. 56 y 59 | Agente, 21-nov |
+| I-03 | Precio del cobre | US$ 5,55 la libra (US$ 12.230 la tonelada), semana cerrada el 20-nov-2026; había caído 10% en esa semana. **Siempre con fecha** | fuente | Cochilco, informe semanal: https://www.cochilco.cl/web/informe-del-mercado-internacional-del-cobre-semana-del-16-al-20-de-noviembre-de-2026/ | Agente, 21-nov |
+| I-04 | Castigo por arsénico en el concentrado | Desde 0,2% de arsénico el comprador descuenta (valores típicos: US$ 2 a 3 por tonelada de concentrado por cada 0,1% hasta 0,5%; más sobre eso). No es un contrato: son valores «típicos» de un estudio de mercado | fuente | Estudio de comercialización de Troilus, junio 2024, p. 9: https://iaac-aeic.gc.ca/050/documents/p83658/162165F.pdf | Agente, 21-nov |
+| I-05 | Rechazo por arsénico | China no deja entrar concentrado con más de 0,5% de arsénico (norma de 2006) | fuente | https://news.metal.com/newscontent/100959019-china-mulls-lower-impurity-thresholds-on-copper-concentrate-imports | Agente, 21-nov |
+| I-06 | Arsénico en concentrados chilenos | Ministro Hales: 4% de arsénico promedio en el concentrado antes de tostarlo (2015). Chuquicamata, 0,5 a 2% (2018). **Nombres propios: solo en la lámina de respaldo, con la fuente al lado** | fuente | Reuters, 2015: https://es-us.finanzas.yahoo.com/noticias/chilena-codelco-estudia-segundo-tostador-en-ministro-hales-125027179--finance.html · EcoMetales, 2018: https://www.jogmec.go.jp/content/300358434.pdf | Agente, 21-nov |
+| I-07 | Plazo para decidir el destino de un bloque | 24 a 48 horas es el plazo típico de un modelo de control de leyes en un rajo. **El «menos de 2 horas» del documento técnico no tiene fuente: no se usa** | fuente (de un proveedor) | https://www.geosysint.com/services/grade-control/ | Agente, 21-nov |
+| I-08 | Lo que cuesta clasificar mal la roca | Un estudio clásico chileno: US$ 156 millones de ingreso perdido muestreando pozos de tronadura contra US$ 22 millones con mejores muestras. No dice en cuántos años: **solo si preguntan** | fuente débil (resumen editorial) | Carrasco et al., 2004, vía https://www.spectroscopyworld.com/sampling/classic-publication-sampling-and-analysis-costs-full-scale-mining%E2%80%94editor%E2%80%99s-summary | Agente, 21-nov |
+| I-09 | Un deslizamiento que el radar anticipó | Bingham Canyon (Estados Unidos), 10-abr-2013: 165 millones de toneladas, el mayor deslizamiento minero registrado; la zona se evacuó unas 7 horas antes y no hubo heridos; el costo inicial se estimó cerca de US$ 1.000 millones. El radar medía cada 4 minutos y veía movimiento desde febrero | fuente | Geological Society of America, 2014: https://www.geosociety.org/gsa-today/january-2014/massive-landslide-at-utah-copper-mine-generates-wealth-of-geophysical-data · https://im-mining.com/2013/09/02/modern-open-pits/ | Agente, 21-nov |
+| I-10 | Cada cuánto mide un radar de taludes | Cada 2 a 4 minutos | fuente | https://www.knightpiesold.com/sites/en/assets/File/SS%202024%20-%20Operational%20Slope%20Stability%20Risk%20Management.pdf | Agente, 21-nov |
+| I-11 | Tranques de relaves en Chile | 795 depósitos; 128 activos, 601 inactivos y 53 abandonados (catastro difundido en enero de 2025). Otras ediciones dan 828 a 839: decir «cerca de 800» | fuente (vía prensa) | https://www.redimin.cl/chile-registra-654-depositos-de-relaves-inactivos-o-abandonados | Agente, 21-nov |
+| I-12 | Norma de relaves vigente | Decreto Supremo 248 (2007). El reglamento que lo reemplazaría no estaba promulgado a agosto de 2026. **No se dice que hay norma nueva** | fuente (ONG) | https://www.terram.cl/relaves-en-chile-el-riesgo-ante-una-fiscalizacion-insuficiente-y-el-automonitoreo-de-las-mineras/ | Agente, 21-nov |
+| I-13 | Fallas de tranques, como referencia | Brumadinho (Brasil, 2019): 270 muertos. El Cobre (Chile, 1965): más de 200. **Solo en respaldo, sobrio, y nunca como gancho (regla 22)** | fuente | https://en.wikipedia.org/wiki/Brumadinho_dam_disaster · https://en.wikipedia.org/wiki/1965_Valpara%C3%ADso_earthquake_and_the_El_Cobre_dam_failures | Agente, 21-nov |
+| I-14 | Lo que vale un punto de recuperación | En la mayor mina de cobre del mundo, un punto más de recuperación en la planta son cerca de 14.000 toneladas de cobre al año, unos US$ 170 millones al precio de I-03. **Derivada:** 137.160 kt molidas × 1,02% de cobre × 1% (datos de BHP, año fiscal 2025) | fuente + cuenta nuestra | https://www.sec.gov/Archives/edgar/data/811809/000119312525160800/d938594d6k.htm | Agente, 21-nov |
+| I-15 | Cuánto tarda el mineral en una línea de flotación | Cerca de media hora (29 minutos medidos en una planta chilena). **Los «15 a 25 minutos» del documento técnico no se usan** | fuente (tesis que cita a Yianatos, 2005) | https://www.911metallurgist.com/wp-content/uploads/2014/02/Up-scaling_of_froth_flotation_equipment.pdf | Agente, 21-nov |
+| I-16 | Cada cuánto llega una medición en la planta | El analizador en línea entrega un dato cada 10 a 25 minutos | fuente (fabricante) | https://www.metso.com/insights/blog/mining-and-metals/improving-flotation-control-with-rapid-slurry-measurement/ | Agente, 21-nov |
+| I-17 | Cuánto varía la recuperación | En una planta chilena nueva: 82,0% en un trimestre contra 84,6% en el mismo trimestre del año anterior | fuente | Teck, informe del cuarto trimestre de 2025, p. 35: https://www.teck.com/media/Teck-2025-Q4-Financial-Report.pdf | Agente, 21-nov |
+| I-18 | Lo que cuesta un camión detenido | Entre US$ 3.000 por hora (dato de un proveedor) y unos US$ 11.000 por hora (**derivada**, cota superior: solo si el transporte es el cuello de botella). **Los «US$ 15.000 a 40.000 por hora» del documento técnico no se usan** | fuente débil + cuenta nuestra | https://www.graco.com/content/dam/graco/com_documents/353/353259/353259ENEU-A.pdf | Agente, 21-nov |
+| I-19 | Tamaño de una flota | La mayor mina de cobre del mundo tiene más de 160 camiones (2022). Un neumático cuesta entre US$ 30.000 y 42.000 (2025) | fuente | https://www.reporteminero.cl/noticia/noticias/2022/08/cat-electric-drive-trucks-reemplazara-flota-camiones-escondida · https://www.redimin.cl/cuanto-cuesta-un-neumatico-de-un-camion-minero | Agente, 21-nov |
+| I-20 | Cierre de un sector después de un sismo | Las exclusiones documentadas son de horas (de 2 a 12 según la mina y la magnitud), no de minutos. Lo que llega en minutos es el dato de cada sismo (2 minutos en una mina chilena, 2024). **Los «15 a 30 minutos» del documento técnico no se usan** | fuente | St-Onge, 2024: https://papers.acg.uwa.edu.au/d/2465_11_St-Onge/11_St-Onge.pdf · https://www.codelco.com/unidad-sismica-de-el-teniente-mejora-sistemas-y-optimiza-tiempos-de | Agente, 21-nov |
+| I-21 | El accidente de El Teniente de 2025 | 31-jul-2025: un sismo de magnitud 4,2; seis trabajadores muertos. **No se usa como gancho ni se dice en el pitch (regla 22).** Si un jurado lo menciona, se responde con sobriedad: «por eso este caso lo tratamos con cuidado; Krylov apoya la decisión, no la toma» | fuente | https://www.t13.cl/amp/noticia/nacional/maximo-pacheco-sobre-tragedia-teniente-causa-mas-probable-del-estallido-11-10-2025 | Agente, 21-nov |
+| I-22 | Una hora de la mayor mina de cobre | Cerca de 149 toneladas de cobre, unos US$ 1,8 millones al precio de I-03. **Derivada** (producción anual de BHP ÷ 8.760 horas). Decir «estimación nuestra» | fuente + cuenta nuestra | El mismo informe de I-14 | Agente, 21-nov |
+
+**Del documento técnico del equipo, lo que NO se dice** (sin fuente o contradicho por una): «menos de 2 horas» para decidir un bloque; «15 a 30 minutos» para evacuar; «US$ 15.000 a 40.000 por hora» por camión; «15 a 25 minutos» de flotación; que hay un reglamento nuevo de relaves; cuántos sismos por día registra una mina; cualquier cifra de una faena que no esté en esta tabla.
+
 ## Datos de los casos
 
 | Id | Cifra | Valor | Tipo | Origen | Verificó |
@@ -39,6 +72,14 @@ La columna «Verificó» lleva el nombre de la persona que abrió la fuente o re
 | D-06 | Archivos de prueba para la subida (D-34) | Subconjuntos reales del mismo archivo público de IBM, por área, presentados «como si fueran otra empresa» (no lo son): ventas, 446 personas y 3 cargos; investigación, 961 y 6; personas (RR. HH.), 63 y 2, que a propósito queda bajo el mínimo de 200. Columnas en español y en otro orden; 20% de respuestas vacías al azar (semilla 2027) | medido | PC 3, sáb 07:26, `python3 datos/preparar/prueba_subida.py` | |
 | D-04 | Archivo del terreno | 155 mediciones; 33 superan los 720 mg/kg de zinc | fuente | Paquete `sp` de R, calculado de una copia. Recalculado en PC 3 con `sp` 2.1.4, sáb 03:22, `Rscript datos/preparar/terreno.R` | Agente, 21-nov |
 | D-04b | Grilla del terreno | 3.103 celdas de 40 m con su distancia al río (`meuse.grid`) | fuente | Paquete `sp` 2.1.4, `Rscript datos/preparar/terreno.R` | |
+
+| D-10 | Archivo de `leyes` | Banco **simulado** de 240 m por 240 m: 340 pozos de tronadura con arsénico (25 a 2.844 ppm, mediana 324) y cobre; 98 pozos sobre 500 ppm (29%). La verdad por bloque: 284 de 1.024 sobre el límite | medido | `uv run python datos/preparar/leyes.py`, semilla 2026, PC 2, sáb 12:03 | |
+| D-11 | Archivo de `taludes` | Muro **simulado**: 36 sectores, 3.295 lecturas (48 horas, cada 30 minutos); 7 sectores se aceleran y 5 ceden dentro de 12 horas | medido | `datos/preparar/taludes.py`, semilla 2026, sáb 12:21 | |
+| D-12 | Archivo de `flotacion` | Planta **simulada**: 8 líneas, 30 mediciones en las primeras 3 a 6 celdas; 2 líneas terminan bajo la meta de 84% | medido | `datos/preparar/flotacion.py`, semilla 2026, sáb 12:21 | |
+| D-13 | Archivo de `flota` | Flota **simulada**: 40 camiones, 296 muestras; 7 fallan antes de su mantención | medido | `datos/preparar/flota.py`, semilla 2026, sáb 12:21 | |
+| D-14 | Archivo de `sismicidad` | Mina **simulada**: 8 sectores, 174 temblores en 6 horas; en 2 sectores hubo un temblor fuerte en las 6 horas siguientes | medido | `datos/preparar/sismicidad.py`, semilla 2026, sáb 12:20 | |
+| D-15 | Datos reales abiertos para `taludes` | 52 prismas topográficos de la pared de un rajo que falló, 4.800 lecturas en 25 días (20-ene a 14-feb-2014), una cada 4 horas. CC BY 4.0. **Son prismas, no radar; el registro no nombra la mina; la aceleración la gatilló una lluvia del 16-feb, después de esta ventana** (S-24 elige una ventana que termine entre el 18 y el 21 de febrero y la prueba con el motor) | fuente + medido | de Wit, T. (2025), Zenodo, https://doi.org/10.5281/zenodo.15003054 · `datos/preparar/taludes_real.py` | Agente, 21-nov |
+| D-16 | Datos reales abiertos de cobre | 91 sondajes reales de exploración con su ley de cobre (0,01% a 3,06%, mediana 0,51%), en una franja de 30 m de alto. CC BY 4.0. **Son sondajes de exploración, separados por cientos de metros: no es un banco de tronadura** | fuente + medido | Hoffimann et al. (2022), «GeoMet dataset», Zenodo, https://doi.org/10.5281/zenodo.7051975 · `datos/preparar/leyes_cobre_real.py` | Agente, 21-nov |
 
 ## Supuestos de cada caso (van en pantalla como deslizadores)
 
@@ -56,6 +97,27 @@ Ninguno tiene fuente, salvo K-11. Definen la plata que se ve, así que en voz al
 | K-12 | terreno | Costo de limpiar un bloque | US$ 20.000 | 29% |
 | K-13 | terreno | Costo de dejar un bloque contaminado | US$ 50.000 | |
 | K-17 | terreno | Costo de una medición | US$ 3.000 | |
+
+### Supuestos de los casos mineros (D-37)
+
+Ninguno tiene fuente: son supuestos del demo, se ven como deslizadores y en voz alta se dice «con estos costos, que puedes cambiar». En `taludes` y `sismicidad` hablan de producción y equipos; no se le pone precio a una vida (regla 22).
+
+| Id | Caso | Supuesto | Valor | Punto de corte que resulta |
+|---|---|---|---|---|
+| K-21 | leyes | Arsénico en la roca desde el cual el bloque no debería ir directo a la planta | 500 ppm. **Supuesto, no una norma:** el castigo comercial se aplica al concentrado (I-04, I-05) | |
+| K-22 | leyes | Costo de apartar un bloque que podía ir a la planta | US$ 9.000 | 23% |
+| K-23 | leyes | Costo de mandar a la planta un bloque con demasiado arsénico | US$ 30.000 | |
+| K-24 | leyes | Costo de una muestra más (perforar y analizar) | US$ 1.500 | |
+| K-31 | taludes | Costo de cerrar un sector que estaba estable (un turno sin producir ahí) | US$ 120.000 | 4,6% |
+| K-32 | taludes | Costo de un derrumbe con el sector abierto (equipos y producción) | US$ 2.500.000 | |
+| K-41 | flotacion | Meta de recuperación al final de la línea | 84% (cerca de lo que informan plantas chilenas, I-17) | |
+| K-42 | flotacion | Costo de ajustar una línea que iba bien | US$ 10.000 | 29% |
+| K-43 | flotacion | Cobre que se va al relave en un turno si la línea queda bajo la meta | US$ 25.000 | |
+| K-51 | flota | Costo de adelantar una mantención que no hacía falta | US$ 12.000 | 12% |
+| K-52 | flota | Costo de una falla en plena rampa (reparación de emergencia y horas sin el camión) | US$ 90.000 | |
+| K-61 | sismicidad | Magnitud desde la cual un temblor se considera fuerte | 1,0 | |
+| K-62 | sismicidad | Costo de mantener cerrado un sector que estaba tranquilo (medio turno sin producir) | US$ 150.000 | 9% |
+| K-63 | sismicidad | Costo de un temblor fuerte con el sector abierto (daños y detención) | US$ 1.500.000 | |
 
 ## Medidas nuestras
 
@@ -83,6 +145,25 @@ Todas pendientes. Cada una se registra con máquina, hora y comando. Las mide PC
 | M-18 | Tiempo de una tarjeta en la URL pública, desde un teléfono | pendiente | P-08 | |
 | M-19 | Horas desde la primera línea del motor espacial hasta el mapa en la app | pendiente | H2 | |
 | M-20 | Simular un conjunto de 300 puntos sueltos | 1,15 ms. MacBook M4 16 GB, 21-nov 00:24. Medido para el plan anterior; no va al guion | ya medido | |
+
+### Medidas del pivote (D-37)
+
+| Id | Cifra | Valor | Cuándo se mide | Verificó |
+|---|---|---|---|---|
+| M-40 | `leyes`: bloques en cada color, con los costos por defecto | **147 conviene apartar, 568 puede ir a la planta, 309 no sabemos** (1.024 bloques) | medido (PC 2, sáb 12:05, `api.analizar("leyes")` con `KRYLOV_MOTOR_ESPACIAL=red`) | |
+| M-41 | `leyes`: lo que cuesta no saber | **US$ 1.577.707**, con los supuestos K-22 y K-23 | medido (lo mismo) | |
+| M-42 | `leyes`: examen | **61 de 68 muestras escondidas** cayeron dentro del rango de 90% (90%). **Con datos simulados** | medido (lo mismo) | |
+| M-43 | `leyes`: análisis rehechos por «¿Dónde perforo?» | **480 análisis completos** | medido (PC 2, sáb 12:05, `api.donde_medir("leyes")`) | |
+| M-44 | `leyes`: segundos de «¿Dónde perforo?» | Cerca de 1,0 s **con otro entrenamiento corriendo en ese computador: no va al guion**. Se mide de nuevo sin nada entrenando | [pendiente] A-22 | |
+| M-45 | `leyes`: los mismos 480 análisis con el método lento | [pendiente]. Con los 117 s por análisis medidos en el terreno (M-25) serían 480 × 117 s, unas 15 horas y media: **es una cuenta, y con el tiempo de otro archivo**. A-22 mide el método lento en este archivo | A-22 | |
+| M-46 | `leyes`: lo que vale la mejor muestra | **US$ 8.943** en el pin A (neto de su costo: US$ 7.443); B, 8.376; C, 7.967 | medido (PC 2, sáb 12:05) | |
+| M-47 | Sondajes reales de cobre (D-16) con el motor espacial | Verde; **16 de 18 leyes reales escondidas** dentro del rango; 950 de 1.024 bloques «no sabemos» con el corte en la mediana. Sirve para decir «con datos reales de exploración, Krylov dice que casi todo está en duda: faltan muestras» | medido por un agente (PC 2, sáb 12:40, `api.analizar_archivo`). Repetir antes de decirlo | |
+| M-48 | Por motor nuevo: simulaciones con que practicó y minutos | [pendiente] ×4 | sellos: 16:10 y 18:15 | |
+| M-49 | Por motor nuevo: acierto del rango de 90% en simulaciones nuevas (globales, por unidad y de lo que se decide). Lámina técnica | [pendiente] ×4 | sellos | |
+| M-50 | Por motor nuevo: segundos del método lento por archivo contra milisegundos de Krylov | [pendiente] ×4 | sellos y A-33 | |
+| M-51 | Por tarjeta nueva: unidades en cada color, lo que cuesta no saber y examen con la verdad escondida | [pendiente] ×4. **No escribir ningún resultado antes de correr el motor** | A-29, A-32 | |
+| M-52 | Qué tarjetas responden con su red y cuáles salieron precalculadas | [pendiente: se fija a las 20:30] | A-34 | |
+| M-53 | Extraños que no son mineros y repiten la idea | [pendiente: de 3], dos veces | S-29 y sáb 19:00 | |
 
 ### Por motor (decisión D-26)
 

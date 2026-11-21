@@ -1,0 +1,45 @@
+# Caso `flotacion` (D-37). Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Motor `cinetica` (WORKPLAN.md, 11.3).
+#
+# En simple: la planta separa el cobre con burbujas, en filas de estanques (líneas). El mineral tarda cerca de
+# media hora en recorrer una línea. Lo que no se alcanza a rescatar se va al relave, el barro que sobra.
+# El mineral cambia sin avisar; si la línea no se ajusta a tiempo, se pierde cobre. Krylov mira lo medido en
+# las primeras celdas y dice cómo va a terminar la línea, con su rango.
+#
+# Datos: 8 líneas SIMULADAS, cada una medida en sus primeras 3 a 6 celdas (datos/preparar/flotacion.py, semilla 2026).
+# La verdad escondida (la recuperación real al final de cada línea) va en flotacion_verdad.csv.
+nombre: flotacion
+tarjeta:
+  titulo: "¿Se me está yendo cobre al relave?"
+  empresa_o_industria: "Flotación · planta"
+  sponsor: null
+  oculto: false
+pregunta: "Con lo medido en las primeras celdas: ¿qué líneas van a terminar bajo la meta de recuperación, cuáles van bien y en cuáles no se sabe todavía?"
+motor: cinetica
+unidad: { singular: línea, plural: líneas }
+rotulos:
+  actuar: "Conviene ajustar"
+  no_actuar: "Va bien"
+  en_duda: "No sabemos: esperar otra medición"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+columnas:
+  unidad: unidad               # la línea
+  tiempo: tiempo               # minutos que lleva la pulpa en la línea al salir de cada celda
+  valor: valor                 # parte del cobre ya recuperada, de 0 a 1
+  umbral: 0.84                 # la meta: recuperación mínima al final de la línea (supuesto del demo, K-41)
+  tiempo_final: 28             # minutos al final de la línea (8 celdas de 3,5 minutos)
+  unidad_tiempo: "minutos"
+  unidad_valor: "del cobre recuperado"
+  eje_tiempo: "Minutos en la línea"
+  eje_valor: "Cobre recuperado"
+  extra: []
+  elegidas_por: equipo
+etiquetas: { velocidad: "Qué tan rápido flota el cobre en esta planta", tope: "Cuánto cobre se puede recuperar como máximo", fraccion_rapida: "Qué parte del cobre flota rápido", ruido: "Error de cada medición" }
+costos:
+  falso_si: { valor: 10000, min: 1000, max: 40000, etiqueta: "Costo de ajustar una línea que iba bien (reactivos y menos toneladas por hora)", tipo: hipótesis, cifra: K-42 }
+  falso_no: { valor: 25000, min: 5000, max: 150000, etiqueta: "Cobre que se va al relave en un turno si la línea queda bajo la meta", tipo: hipótesis, cifra: K-43 }
+moneda: USD
+dataset: datos/demo/flotacion.csv
+verdad: datos/demo/flotacion_verdad.csv      # columnas: unidad, recuperacion_final, bajo_la_meta
+verdad_columna: bajo_la_meta
+origen_datos: "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina."
+sintetico: true
