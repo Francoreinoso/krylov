@@ -18,6 +18,9 @@ def test_spline_y_matriz_de_diseno():
     assert z.shape == (3, jq.DIM_COEF) and jq.DIM_THETA == 20 and jq.DIM_FILA == 19
     assert (z[0, 1:6] == 0).all() and z[0, 6] == 1 and (z[0, 7:11] == 0).all()   # mismo día, lunes
     assert z[1, 8] == 1 and z[1, 11] == 1 and abs(z[1, 12] - (np.log(6) - 2.5)) < 1e-12 and abs(z[1, 13] - 1.0) < 1e-12
+    esperas = np.arange(0, 181.0)                                            # la tabla por día es la base evaluada directo
+    np.testing.assert_allclose(jq.matriz_de_diseno(esperas, 0 * esperas, 0 * esperas, 0 * esperas, np.zeros((181, 4)))[:, 1:6],
+                               jq.base_spline(np.log1p(esperas))[:, 1:], rtol=0, atol=1e-15)
     th = jq.a_restringido(np.arange(20.0) / 10)
     np.testing.assert_allclose(th["coef"][1:6], np.cumsum(np.arange(1, 6) / 10))
     filas = jq.armar_filas(z, [1.0, np.nan, 0.0])

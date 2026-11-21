@@ -54,6 +54,9 @@ def base_spline(t) -> np.ndarray:
     return base
 
 
+_SPLINE_POR_DIA = base_spline(np.log1p(np.arange(181.0)))        # la espera viene en días enteros: la base se tabula una vez
+
+
 def matriz_de_diseno(espera, dia, sms, edad, binarias) -> np.ndarray:
     """La matriz de diseño Z de cada cita, (..., 18): η = Z·coef. El único preprocesamiento de `jerarquico`.
 
@@ -65,8 +68,10 @@ def matriz_de_diseno(espera, dia, sms, edad, binarias) -> np.ndarray:
     espera = np.clip(np.asarray(espera, dtype=np.float64), 0.0, 180.0)
     t = np.log1p(espera)
     sms = np.asarray(sms, dtype=np.float64)
+    dias = espera.astype(int)
+    base = _SPLINE_POR_DIA[dias] if (dias == espera).all() else base_spline(t)
     return np.concatenate([
-        np.ones_like(t)[..., None], base_spline(t)[..., 1:], (espera == 0).astype(np.float64)[..., None],
+        np.ones_like(t)[..., None], base[..., 1:], (espera == 0).astype(np.float64)[..., None],
         (np.asarray(dia)[..., None] == np.arange(1, 5)).astype(np.float64),
         sms[..., None], (sms * (t - T_CENTRO))[..., None],
         ((np.asarray(edad, dtype=np.float64) - EDAD_CENTRO) / EDAD_ESCALA)[..., None], np.asarray(binarias, dtype=np.float64),

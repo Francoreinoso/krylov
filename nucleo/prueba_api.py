@@ -71,3 +71,17 @@ def test_analizar_agrega_lo_comun(motor_de_juguete):
     assert r["titular"].startswith("1 cliente está en duda. No saber te cuesta cerca de ")
     assert 0 < r["punto_de_corte"] < 1 and "costo_total" not in r and isinstance(r["tiempo_ms"], int)
     json.dumps(r)                                                 # listo para JSON
+
+
+def test_sello_con_frases(tmp_path, monkeypatch):
+    from nucleo import casos
+    (tmp_path / "espacial").mkdir()
+    ejemplo = json.loads((EJEMPLOS / "sello.json").read_text(encoding="utf-8"))
+    ejemplo.pop("frases")
+    ejemplo["cobertura_90_peor_grupo"] = None                               # un campo sin medir no genera frase
+    (tmp_path / "espacial" / "sello.json").write_text(json.dumps(ejemplo), encoding="utf-8")
+    monkeypatch.setattr(api, "ARTEFACTOS", tmp_path)
+    ficha = api.sello("espacial")
+    assert ficha["frases"] == ["Practicó con 12,0 millones de casos simulados.",
+                               "Cuando da un rango de 90%, acierta 90,3% en casos simulados nuevos. El método rápido de siempre acierta 74,0%.",
+                               "Para rehacer 480 análisis completos para «¿Dónde mido?», el método lento de siempre tarda 360 minutos; Krylov, 0,9 segundos."]
