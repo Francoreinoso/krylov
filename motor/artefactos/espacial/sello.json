@@ -1,0 +1,67 @@
+{
+ "motor_id": "espacial",
+ "implementacion": "red",
+ "pasa": true,
+ "pasa_la_cabeza_de_mapa": true,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "cobertura_theta_entre_85_y_95": true,
+  "cobertura_mapa_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "mcmc_bajo_0_3": true,
+  "analisis_bajo_1_s": true,
+  "lote_500_bajo_2_s": true
+ },
+ "simulaciones_entrenamiento": 7750592,
+ "entrenamiento_min": 280,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.9,
+ "cobertura_90_parametros": 0.898,
+ "cobertura_90_peor_grupo": 0.831,
+ "peor_grupo": "alcance largo",
+ "peor_grupo_de": "parámetros",
+ "sbc_pasa": true,
+ "recuperacion": {
+  "media": 0.745,
+  "minima": 0.629,
+  "parametro_de_la_minima": "log_alcance",
+  "por_parametro": {
+   "log_alcance": 0.629,
+   "anis_1": 0.691,
+   "anis_2": 0.696,
+   "log_sigma": 0.788,
+   "log_tau": 0.718,
+   "beta0": 0.927,
+   "beta1": 0.766
+  }
+ },
+ "cobertura_90_metodo_rapido": 0.89,
+ "latencia_ms": 10,
+ "latencia_lote_500_ms": 1423,
+ "mcmc_datasets_comparados": 6,
+ "mcmc_s_por_dataset": 117.1,
+ "mcmc_diferencia_media": 0.263,
+ "amortizacion": {
+  "que_se_compara": "rehacer 228 análisis completos para «¿Dónde mido?»",
+  "mcmc_s": 26698.8,
+  "red_s": 0.69
+ },
+ "examen_5_particiones": {
+  "particiones": 5,
+  "mediciones_escondidas": 155,
+  "dentro_del_rango_de_90": 138,
+  "cobertura": 0.89
+ },
+ "nube_malo_cae_fuera": null,
+ "minutos_de_punta_a_punta": null,
+ "fecha": "2026-11-21",
+ "maquina": "MacBook Air M4 16 GB",
+ "ensayo": false,
+ "limitaciones": [
+  "Terrenos en dos dimensiones, llevados a una grilla de 32 por 32 bloques",
+  "Entre 30 y 400 mediciones",
+  "Una sola tendencia: la raíz de la distancia a un río",
+  "Covarianza exponencial con anisotropía geométrica",
+  "Dos mediciones en el mismo bloque se promedian"
+ ]
+}

@@ -179,7 +179,9 @@ def main() -> None:
         "motor_id": "espacial", "implementacion": "red", "pasa": all(criterios.values()), "pasa_la_cabeza_de_mapa": mapa_pasa, "criterios": criterios,
         "simulaciones_entrenamiento": estado["datasets_simulados"], "entrenamiento_min": round(estado["segundos"] / 60),
         "casos_validacion": a.sbc, "cobertura_90": cobertura_mapa, "cobertura_90_parametros": cobertura_theta,
-        "cobertura_90_peor_grupo": coberturas[peor], "peor_grupo": peor, "sbc_pasa": sbc_pasa,
+        # `peor_grupo` se muestra en pantalla: sin símbolos. De qué cabeza es va aparte.
+        "cobertura_90_peor_grupo": coberturas[peor], "peor_grupo": peor.split(" · ", 1)[1].split(" (")[0],
+        "peor_grupo_de": "parámetros" if peor.startswith("θ") else "mapa", "sbc_pasa": sbc_pasa,
         "recuperacion": recuperacion(theta),
         "cobertura_90_metodo_rapido": informe["metodo_rapido_cobertura_90"], "latencia_ms": lat["analizar_ms"], "latencia_lote_500_ms": lat["lote_500_ms"],
         "mcmc_datasets_comparados": informe["mcmc"]["datasets"], "mcmc_s_por_dataset": informe["mcmc"]["s_por_dataset"],

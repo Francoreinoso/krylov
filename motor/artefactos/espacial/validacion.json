@@ -1,0 +1,371 @@
+{
+ "exportacion": {
+  "onnx_vs_torch_lote_1": 9.238719940185547e-07,
+  "onnx_vs_torch_lote_480": 7.62939453125e-06,
+  "flujo_numpy_vs_torch": 4.76837158203125e-06
+ },
+ "sbc": {
+  "terrenos": 2000,
+  "muestras_por_terreno": 99,
+  "theta": {
+   "log_alcance": {
+    "rango_medio": 0.5,
+    "chi2_uniformidad": 5.7,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.902,
+    "z_media": 0.01,
+    "z_desv": 0.99,
+    "contraccion": 0.372,
+    "recuperacion": 0.629
+   },
+   "anis_1": {
+    "rango_medio": 0.498,
+    "chi2_uniformidad": 3.8,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.907,
+    "z_media": 0.01,
+    "z_desv": 1.01,
+    "contraccion": 0.48,
+    "recuperacion": 0.691
+   },
+   "anis_2": {
+    "rango_medio": 0.507,
+    "chi2_uniformidad": 4.3,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.902,
+    "z_media": -0.03,
+    "z_desv": 1.02,
+    "contraccion": 0.486,
+    "recuperacion": 0.696
+   },
+   "log_sigma": {
+    "rango_medio": 0.505,
+    "chi2_uniformidad": 14.3,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.908,
+    "z_media": -0.01,
+    "z_desv": 1.0,
+    "contraccion": 0.617,
+    "recuperacion": 0.788
+   },
+   "log_tau": {
+    "rango_medio": 0.503,
+    "chi2_uniformidad": 14.4,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.89,
+    "z_media": 0.01,
+    "z_desv": 1.06,
+    "contraccion": 0.543,
+    "recuperacion": 0.718
+   },
+   "beta0": {
+    "rango_medio": 0.499,
+    "chi2_uniformidad": 6.9,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.886,
+    "z_media": 0.01,
+    "z_desv": 1.07,
+    "contraccion": 0.869,
+    "recuperacion": 0.927
+   },
+   "beta1": {
+    "rango_medio": 0.502,
+    "chi2_uniformidad": 6.8,
+    "uniforme_al_99": true,
+    "cobertura_90": 0.891,
+    "z_media": -0.01,
+    "z_desv": 1.06,
+    "contraccion": 0.592,
+    "recuperacion": 0.766
+   }
+  },
+  "mapa": {
+   "todos": {
+    "terrenos": 2000,
+    "recm": 0.671,
+    "cobertura_90": 0.9,
+    "log_verosimilitud": -0.922
+   },
+   "n_menor_100": {
+    "terrenos": 912,
+    "recm": 0.724,
+    "cobertura_90": 0.903,
+    "log_verosimilitud": -1.018
+   },
+   "n_100_o_mas": {
+    "terrenos": 1088,
+    "recm": 0.613,
+    "cobertura_90": 0.898,
+    "log_verosimilitud": -0.825
+   },
+   "con_tendencia": {
+    "terrenos": 1607,
+    "recm": 0.655,
+    "cobertura_90": 0.9,
+    "log_verosimilitud": -0.889
+   },
+   "sin_tendencia": {
+    "terrenos": 393,
+    "recm": 0.731,
+    "cobertura_90": 0.901,
+    "log_verosimilitud": -1.056
+   },
+   "muy pocas mediciones (menos de 60)": {
+    "terrenos": 523,
+    "recm": 0.75,
+    "cobertura_90": 0.904,
+    "log_verosimilitud": -1.061
+   },
+   "mucho ruido (más que la variación del campo)": {
+    "terrenos": 192,
+    "recm": 0.506,
+    "cobertura_90": 0.949,
+    "log_verosimilitud": -0.736
+   },
+   "alcance largo (más de 9 bloques)": {
+    "terrenos": 189,
+    "recm": 0.577,
+    "cobertura_90": 0.924,
+    "log_verosimilitud": -0.717
+   },
+   "referencia_recm_sin_red": 1.011
+  },
+  "theta_por_grupo": {
+   "todos": {
+    "terrenos": 2000,
+    "cobertura_90": 0.898
+   },
+   "n_menor_100": {
+    "terrenos": 912,
+    "cobertura_90": 0.904
+   },
+   "n_100_o_mas": {
+    "terrenos": 1088,
+    "cobertura_90": 0.893
+   },
+   "con_tendencia": {
+    "terrenos": 1607,
+    "cobertura_90": 0.897
+   },
+   "sin_tendencia": {
+    "terrenos": 393,
+    "cobertura_90": 0.901
+   },
+   "muy pocas mediciones (menos de 60)": {
+    "terrenos": 523,
+    "cobertura_90": 0.902
+   },
+   "mucho ruido (más que la variación del campo)": {
+    "terrenos": 192,
+    "cobertura_90": 0.856
+   },
+   "alcance largo (más de 9 bloques)": {
+    "terrenos": 189,
+    "cobertura_90": 0.831
+   }
+  },
+  "cobertura_90_theta_media": 0.898
+ },
+ "mcmc": {
+  "datasets": 6,
+  "s_por_dataset": 117.1,
+  "diferencia_media": 0.263,
+  "diferencia_maxima": 2.167,
+  "diferencia_en_el_real": 0.642,
+  "r_hat_max": 1.01,
+  "por_dataset": [
+   {
+    "clave": "simulado_00",
+    "segundos": 12.3,
+    "r_hat_max": 1.003,
+    "diferencia_de_medias": [
+     0.04,
+     0.05,
+     0.03,
+     0.2,
+     0.21,
+     0.17,
+     0.17
+    ],
+    "razon_de_anchos": [
+     1.18,
+     1.01,
+     1.06,
+     1.24,
+     1.05,
+     0.96,
+     1.0
+    ]
+   },
+   {
+    "clave": "simulado_01",
+    "segundos": 9.2,
+    "r_hat_max": 1.006,
+    "diferencia_de_medias": [
+     0.08,
+     0.01,
+     0.16,
+     0.11,
+     0.19,
+     0.07,
+     0.15
+    ],
+    "razon_de_anchos": [
+     1.03,
+     1.07,
+     0.84,
+     0.97,
+     1.06,
+     0.98,
+     1.03
+    ]
+   },
+   {
+    "clave": "simulado_02",
+    "segundos": 33.8,
+    "r_hat_max": 1.01,
+    "diferencia_de_medias": [
+     0.14,
+     0.02,
+     0.19,
+     0.08,
+     0.23,
+     0.07,
+     0.02
+    ],
+    "razon_de_anchos": [
+     1.03,
+     1.07,
+     1.05,
+     0.98,
+     1.06,
+     1.08,
+     1.06
+    ]
+   },
+   {
+    "clave": "simulado_03",
+    "segundos": 35.5,
+    "r_hat_max": 1.003,
+    "diferencia_de_medias": [
+     0.34,
+     0.56,
+     0.32,
+     0.14,
+     0.0,
+     0.39,
+     0.55
+    ],
+    "razon_de_anchos": [
+     1.08,
+     1.05,
+     1.02,
+     1.01,
+     0.93,
+     1.04,
+     1.08
+    ]
+   },
+   {
+    "clave": "simulado_04",
+    "segundos": 493.4,
+    "r_hat_max": 1.002,
+    "diferencia_de_medias": [
+     0.09,
+     0.78,
+     0.76,
+     0.01,
+     0.2,
+     0.0,
+     0.02
+    ],
+    "razon_de_anchos": [
+     1.17,
+     1.16,
+     1.14,
+     1.05,
+     1.76,
+     1.16,
+     1.29
+    ]
+   },
+   {
+    "clave": "terreno",
+    "segundos": 118.3,
+    "r_hat_max": 1.003,
+    "diferencia_de_medias": [
+     0.17,
+     0.29,
+     0.25,
+     0.18,
+     0.2,
+     2.17,
+     1.23
+    ],
+    "razon_de_anchos": [
+     1.16,
+     1.09,
+     1.12,
+     1.06,
+     0.96,
+     1.23,
+     1.14
+    ]
+   }
+  ]
+ },
+ "metodo_rapido_cobertura_90": 0.89,
+ "examen": {
+  "particiones": 5,
+  "mediciones_escondidas": 155,
+  "dentro_del_rango_de_90": 138,
+  "cobertura": 0.89
+ },
+ "latencia": {
+  "analizar_ms": 10,
+  "lote_500_ms": 1423,
+  "donde_medir_ms": 686,
+  "analisis_rehechos": 228,
+  "examen": {
+   "tipo": "puntos_reales_escondidos",
+   "n": 31,
+   "frase": "Escondimos 31 mediciones reales y las adivinamos: 24 cayeron dentro del rango que dimos.",
+   "tramos": [
+    {
+     "dijimos": 0.9,
+     "paso": 0.774,
+     "n": 31
+    }
+   ]
+  },
+  "factores": [
+   {
+    "nombre": "tendencia",
+    "etiqueta": "Cercanía al río",
+    "direccion": "sube",
+    "efecto": 0.672,
+    "rango_bajo": 0.536,
+    "rango_alto": 0.764,
+    "certeza": "seguro"
+   },
+   {
+    "nombre": "continuidad",
+    "etiqueta": "Lo que pasa en los bloques vecinos",
+    "direccion": "sube",
+    "efecto": 0.241,
+    "rango_bajo": 0.139,
+    "rango_alto": 0.387,
+    "certeza": "seguro"
+   },
+   {
+    "nombre": "ruido",
+    "etiqueta": "Error de cada medición",
+    "direccion": "sube",
+    "efecto": 0.087,
+    "rango_bajo": 0.011,
+    "rango_alto": 0.172,
+    "certeza": "probable"
+   }
+  ]
+ }
+}

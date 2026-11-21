@@ -1,0 +1,43 @@
+{
+  "motor_id": "espacial",
+  "preproceso": "espacial-1",
+  "lado": 32,
+  "canales_entrada": 3,
+  "anchos": [
+    32,
+    64,
+    128
+  ],
+  "nombres_theta": [
+    "log_alcance",
+    "anis_1",
+    "anis_2",
+    "log_sigma",
+    "log_tau",
+    "beta0",
+    "beta1"
+  ],
+  "prior": {
+    "log_alcance_media": 1.5040773967762742,
+    "log_alcance_desv": 0.55,
+    "anis_desv": 0.5,
+    "log_sigma_desv": 0.4,
+    "log_tau_media": -1.0498221244986778,
+    "log_tau_desv": 0.7,
+    "beta0_desv": 1.0,
+    "beta1_desv": 4.0,
+    "prob_sin_tendencia": 0.2,
+    "n_min": 30,
+    "n_max": 400,
+    "corte": 2.3
+  },
+  "arquitectura": "codificador convolucional con saltos en tres escalas + cabeza de mapa + NPE con flujo de acoplamiento afín (8 capas) sobre un resumen de 128, con el gradiente cortado",
+  "lote": 64,
+  "dispositivo": "mps",
+  "tasa": 0.0005,
+  "semilla": 0,
+  "entrenada": true,
+  "pasos": 121103,
+  "datasets_simulados": 7750592,
+  "minutos_entrenamiento": 279.6
+}
