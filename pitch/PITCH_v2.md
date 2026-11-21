@@ -109,8 +109,6 @@ Para un jurado técnico: «Es Simulation-based Inference.» Si preguntan cuánto
 
 > «La pared de la mina se mueve. Krylov entrega cuántas horas le faltan a cada sector, con su intervalo: a este, entre dos y siete. Y el que más se movió no es ninguno de los que conviene cerrar.»
 
-**Antes de decir esta lámina en presente, leer «Lo que es cierto hoy»**: la red de la pared todavía no pasó su sello.
-
 ### 9 · El cobre en la planta (1:53 a 2:04)
 
 `[→]` *(los estanques se encienden; a la izquierda, lo que va a recuperar cada línea, con su intervalo, contra la meta)*
@@ -160,10 +158,10 @@ Cada una tiene su lámina, fuera del recorrido. Se abre con su tecla desde cualq
 
 El deck habla de las cinco decisiones como producto, y el guion también. **Lo que se diga en voz alta tiene que ser cierto en el momento de presentar.** Antes de subir al escenario se mira la tabla «Los cinco casos» de `estado/TABLERO.md`.
 
-| Lámina | Qué había al escribir esto (sáb 21-nov, 18:15) | Qué se dice |
+| Lámina | Qué había al escribir esto (sáb 21-nov, 18:05) | Qué se dice |
 |---|---|---|
 | 7 · Qué roca procesar | Responde la red validada. Terreno simulado | Tal cual |
-| 8 · La pared | **Responde la red, pero no pasó su sello** (5 de 6 criterios; falla la calibración sector por sector; sin comparar con el método lento) | En presente, si el equipo lo acepta. Si preguntan: «esa red terminó de entrenar hoy y le falta un criterio de validación». Si el equipo prefiere no mostrarla, se regenera sin ella (README) |
+| 8 · La pared | **Responde la red validada** (pasó su sello a las 17:36, con el criterio de D-39; a las 16:10, con el anterior, no pasaba). Pared simulada | Tal cual. Si preguntan por la validación: «pasó hoy; todavía falta compararla con el método lento» |
 | 9 · El cobre | **Responde la red validada** (pasó su sello a las 17:09). Planta simulada | Tal cual |
 | 10 · Los camiones | El motor no tiene red. La lámina dice qué entrega Krylov, sin gráfico ni cifras | «Entrega el desgaste…» describe el producto; si preguntan, «esa red todavía no está» |
 | 11 · Los túneles | La red está entrenando. Igual que los camiones | Igual; entra si pasa antes de las 20:30 |
@@ -197,7 +195,7 @@ En pantalla, además:
 - **Lámina 5:** 10 milisegundos y 2 minutos por análisis; 228 análisis en 0,69 s.
 - **Lámina 7:** 147, 309 y 568 partes del terreno, de 1.024 (M-40), US$ 1.577.707 (M-41), US$ 1.500 (K-24), 480 análisis (M-43).
 - **Lámina 7:** además, los intervalos de credibilidad de 90% de 13 partes del terreno (sin cifras escritas: son barras).
-- **Lámina 8:** 5, 2 y 29 sectores; US$ 78.574 (costos supuestos K-31 y K-32); las horas que faltan para seis sectores, con su intervalo (por ejemplo, «2,4 a 7,4 h»). Respuesta de la red de `deformacion`, sin sello todavía.
+- **Lámina 8:** 5, 2 y 29 sectores; US$ 78.574 (costos supuestos K-31 y K-32); las horas que faltan para seis sectores, con su intervalo (por ejemplo, «2,4 a 7,4 h»). Respuesta de la red de `deformacion`, con sello (17:36).
 - **Lámina 9:** 2, 3 y 3 líneas; US$ 8.809; la recuperación final de cada línea con su intervalo (por ejemplo, «78 a 82%»), contra la meta de 84% (K-41). Respuesta de la red de `cinetica`, con sello.
 - **Las cifras de las láminas 8 y 9 no tienen fila en `CIFRAS.md`** (M-51 las tenía pendientes; los motores ya corrieron): hay que registrarlas.
 - **Láminas 10 y 11:** la magnitud del temblor más fuerte del archivo (1,2).
