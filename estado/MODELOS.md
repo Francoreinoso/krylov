@@ -70,15 +70,15 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/deformacion/prueba_deformacion.py`)
 - [x] Red: el andamio de series con estado discreto por sector, sin entrenar; exporta y responde `analizar("taludes")` con la forma del contrato
 - [x] Prueba de humo: 129.536 datasets en 3 min (GPU del Mac, lote 128); la pérdida bajó de 10,2 a 4,9; el SBC de 200 corre
-- [x] Entrenamiento: 1.684.160 muros simulados en 146 min, en PC 3 (GPU del Mac; lote 128 hasta las 14:40 y lote 64 después, porque el ritmo cayó a menos de la mitad)
+- [x] Entrenamiento: 1.684.160 muros simulados en 146 min, en PC 3 (GPU del Mac). Se siguió entrenando hasta 2.148.608 y quedó peor (ver «Falta ahora»): vale la red de las 16:10
 - [x] SBC global: pasa; cobertura del 90% de los parámetros, 0,902 (2.000 datasets nuevos)
-- [ ] SBC por unidad: **no pasa** la prueba de uniformidad en los tres locales (log v, lo que falta, log A; 50.800 sectores), aunque su cobertura del 90% es 0,906. Es el único criterio que falla
+- [x] SBC por unidad: pasa con el criterio de D-39; tamaño de la desviación 0,064 (log v), 0,049 (lo que falta) y 0,037 (log A), límite 0,1; cobertura del 90%, 0,906
 - [x] Cobertura de lo que se decide, por tamaño: 0,905; peor tramo 0,905 (sectores con muchas lecturas)
 - [x] Examen con la verdad escondida: de 30 sectores con cerca de 0% de riesgo no cedió ninguno; de 6 con cerca de 80%, cedieron 5 (datos simulados)
-- [ ] Exportación y app: exportada a `motor/artefactos/deformacion/` (un análisis en 181 ms); la tarjeta no responde con la red porque el sello dice «no pasa»
+- [ ] Exportación y app: exportada a `motor/artefactos/deformacion/` (un análisis en 199 ms, con otro entrenamiento corriendo); falta que PC 1 la active con `KRYLOV_MOTOR_DEFORMACION=red`
 - [ ] Método lento
 
-**Falta ahora:** volver a correr `uv run python -m motor.deformacion.validar` en PC 3 con el criterio de D-39 (sáb 17:10) y el punto de guardado que se quiera sellar. Con los números del sello de las 16:10 el SBC por unidad pasaría (desviaciones 0,064, 0,049 y 0,037; límite 0,1). El sesgo en los sectores que se aceleran sigue ahí y va en las limitaciones; por eso la red sigue entrenando hasta las 18:15. Hasta revalidar, vale el sello de las 16:10 (no pasa).
+**Falta ahora:** que PC 1 la active (`KRYLOV_MOTOR_DEFORMACION=red`) y vuelva a exportar `taludes`. Sello PASA (sáb 17:36, D-39) con la red de las 16:10. La red que siguió entrenando hasta las 17:34 no pasa (el error de lectura quedó mal calibrado: cobertura 0,868) y se descartó. Limitación que va en el sello: en los sectores que se aceleran la velocidad de fondo sale algo alta.
 
 ## `cinetica` · caso `flotacion`
 

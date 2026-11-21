@@ -4,6 +4,7 @@
  "globales": {
   "logit_pi": {
    "chi2_uniformidad": 10.35,
+   "desviacion_w": 0.0719,
    "rango_medio": 0.5153,
    "cobertura_90": 0.8995,
    "recuperacion": 0.707,
@@ -11,6 +12,7 @@
   },
   "mu_v": {
    "chi2_uniformidad": 6.37,
+   "desviacion_w": 0.0564,
    "rango_medio": 0.4999,
    "cobertura_90": 0.907,
    "recuperacion": 0.896,
@@ -18,6 +20,7 @@
   },
   "log_sigma_v": {
    "chi2_uniformidad": 9.97,
+   "desviacion_w": 0.0706,
    "rango_medio": 0.4857,
    "cobertura_90": 0.9025,
    "recuperacion": 0.913,
@@ -25,6 +28,7 @@
   },
   "mu_f": {
    "chi2_uniformidad": 19.39,
+   "desviacion_w": 0.0985,
    "rango_medio": 0.5013,
    "cobertura_90": 0.9045,
    "recuperacion": 0.664,
@@ -32,6 +36,7 @@
   },
   "log_sigma_f": {
    "chi2_uniformidad": 5.92,
+   "desviacion_w": 0.0544,
    "rango_medio": 0.5045,
    "cobertura_90": 0.907,
    "recuperacion": 0.224,
@@ -39,6 +44,7 @@
   },
   "mu_A": {
    "chi2_uniformidad": 7.47,
+   "desviacion_w": 0.0611,
    "rango_medio": 0.5011,
    "cobertura_90": 0.899,
    "recuperacion": 0.84,
@@ -46,6 +52,7 @@
   },
   "log_sigma_e": {
    "chi2_uniformidad": 12.65,
+   "desviacion_w": 0.0795,
    "rango_medio": 0.4811,
    "cobertura_90": 0.895,
    "recuperacion": 0.995,
@@ -55,6 +62,7 @@
  "locales": {
   "log_v": {
    "chi2_uniformidad": 208.87,
+   "desviacion_w": 0.0641,
    "rango_medio": 0.498,
    "cobertura_90": 0.9039,
    "recuperacion": 0.921,
@@ -62,6 +70,7 @@
   },
   "log_falta": {
    "chi2_uniformidad": 123.71,
+   "desviacion_w": 0.0493,
    "rango_medio": 0.5052,
    "cobertura_90": 0.9038,
    "recuperacion": 0.608,
@@ -69,6 +78,7 @@
   },
   "log_A": {
    "chi2_uniformidad": 71.1,
+   "desviacion_w": 0.0374,
    "rango_medio": 0.4965,
    "cobertura_90": 0.9099,
    "recuperacion": 0.782,
@@ -77,12 +87,8 @@
  },
  "sbc_global_pasa": true,
  "sbc_global_fallan": [],
- "sbc_local_pasa": false,
- "sbc_local_fallan": [
-  "log_v",
-  "log_falta",
-  "log_A"
- ],
+ "sbc_local_pasa": true,
+ "sbc_local_fallan": [],
  "cobertura_90_parametros": 0.9021,
  "cobertura_90_locales": 0.9059,
  "cobertura_90_decision": 0.9049,
