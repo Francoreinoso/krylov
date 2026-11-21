@@ -6,10 +6,10 @@
 
 | Pregunta | Respuesta | Hora |
 |---|---|---|
-| Minutos de pitch, generales y finales. ¿Hay preguntas? | | |
-| ¿Los escenarios de las generales son por track? | | |
-| Computador, conexión del proyector, audio | | |
-| ¿Hay premios de sponsors? | | |
+| Minutos de pitch, generales y finales. ¿Hay preguntas? | 3 minutos siempre, por ahora. Lo de las preguntas del jurado no quedó respondido. | |
+| ¿Los escenarios de las generales son por track? | No importa para nosotros. | |
+| Computador, conexión del proyector, audio | Se presenta desde nuestro computador; video y audio listos. | |
+| ¿Hay premios de sponsors? | No importa para nosotros. | |
 | Lo que dijeron en la charla de las 20:00 sobre el demo | | |
 
 ## Gente de Buk o mentores
