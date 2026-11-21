@@ -1,25 +1,28 @@
 /* 6 · Sabe cuando no sabe: todo lo que Krylov practicó, y un archivo que cae lejos.
-   Puntos y posiciones: api.nube("rotacion_malo") y la misma con la corrección (datos.js → nube). */
+   Cada punto es un terreno del simulador del motor, puesto según cuántas muestras tenía (datos.js → practica).
+   El archivo que no alcanza es el caso `leyes_pocos`; el motivo en pantalla es el que entrega api.analizar.
+   La altura de cada punto no significa nada: solo los separa para que se vean. */
 (function () {
   'use strict';
   const K = window.K;
-  const X0 = 990, X1 = 1800, Y0 = 250, Y1 = 850;
-  const LIMITE_X = 0.912;       // M-29: hasta ahí llegan las 5.000 simulaciones (nucleo/nube.py, x_maximo)
+  const X0 = 990, X1 = 1810, YC = 560, ALTO = 250, YEJE = 850;
+  const N0 = 7, N1 = 620;                  // extremos del eje, en muestras (escala logarítmica)
   const F = '"Instrument Sans", sans-serif', MONO = '"JetBrains Mono", monospace';
+  const ROJO = [228, 96, 60], VERDE = [31, 168, 122];
 
   K.registrar('nube', {
     tQuieto: 10,
     crear: function (L) {
-      const N = (this.N = K.datos.nube), azar = K.azar(29);
+      const P = (this.P = K.datos.practica), azar = K.azar(29), yo = this;
       this.cv = L.querySelector('#lienzo-nube');
       this.ctx = this.cv.getContext('2d');
-      let maxY = 0;
-      this.pts = N.puntos.map(function (p) {
-        maxY = Math.max(maxY, p[1]);
-        const ang = azar() * 6.2832, r = 160 + azar() * 520;
-        return { x: p[0], y: p[1], d: azar() * 1.9, dx: Math.cos(ang) * r, dy: Math.sin(ang) * r };
+      this.pocas = K.datos.pocos.muestras;                 // 12
+      this.todas = K.datos.terreno.puntos.length;          // 340
+      this.pts = P.muestras.map(function (n) {
+        // dos uniformes sumadas: una nube más densa al centro, sin forma de campana exagerada
+        const v = (azar() + azar() - 1) * ALTO, ang = azar() * 6.2832, r = 160 + azar() * 520;
+        return { x: yo.px(n + azar()), y: YC + v, d: azar() * 1.9, dx: Math.cos(ang) * r, dy: Math.sin(ang) * r };
       });
-      this.topeY = Math.min(1, Math.ceil(maxY * 10) / 10);
       this.s = { forma: 0, cae: 0, mueve: 0, lejos: 0 };
       this.mota = document.createElement('canvas');
       this.mota.width = this.mota.height = 64;
@@ -28,9 +31,10 @@
       grad.addColorStop(1, 'rgba(226,133,74,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
+      const motivo = L.querySelector('#motivo-pocos');
+      if (motivo) motivo.textContent = '«' + K.datos.pocos.semaforo.motivo + '»';
     },
-    px: function (x) { return X0 + ((x - this.N.ejes.x.min) / (this.N.ejes.x.max - this.N.ejes.x.min)) * (X1 - X0); },
-    py: function (y) { return Y1 - (y / this.topeY) * (Y1 - Y0); },
+    px: function (n) { return X0 + (Math.log(n / N0) / Math.log(N1 / N0)) * (X1 - X0); },
     alAjustar: function () {
       const r = (this.r = K.razon(1.5));
       this.cv.width = Math.round(1920 * r);
@@ -63,7 +67,7 @@
       this.pts.forEach(function (p) {
         const k = tau == null ? 1 : K.fuera((tau - p.d) / 1.4);
         if (k <= 0) return;
-        const x = yo.px(p.x) + (1 - k) * p.dx, y = yo.py(p.y) + (1 - k) * p.dy;
+        const x = p.x + (1 - k) * p.dx, y = p.y + (1 - k) * p.dy;
         ctx.globalAlpha = k;
         ctx.drawImage(yo.mota, x - 22, y - 22, 44, 44);
         ctx.fillStyle = 'rgba(244,224,196,0.58)';
@@ -87,28 +91,31 @@
       ctx.restore();
     },
     cuadro: function (t) {
-      const ctx = this.ctx, r = this.r, s = this.s, N = this.N;
+      const ctx = this.ctx, r = this.r, s = this.s, P = this.P;
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);
-      const borde = this.px(LIMITE_X), listo = K.acotar((s.forma - 0.8) * 5, 0, 1);
+      const izq = this.px(P.minimo), der = this.px(P.maximo + 1), arriba = YC - ALTO - 40, listo = K.acotar((s.forma - 0.8) * 5, 0, 1);
 
-      // la zona donde nunca practicó
+      // las dos zonas donde nunca practicó: muy pocas muestras, o demasiadas
       if (listo > 0) {
         ctx.globalAlpha = listo;
         ctx.fillStyle = 'rgba(228,96,60,0.085)';
-        ctx.fillRect(borde, Y0 - 10, X1 + 24 - borde, Y1 - Y0 + 10);
+        ctx.fillRect(X0 - 30, arriba, izq - X0 + 30, YEJE - arriba);
+        ctx.fillRect(der, arriba, X1 + 30 - der, YEJE - arriba);
         ctx.globalAlpha = 1;
       }
 
-      // ejes, en palabras
+      // el eje: cuántas muestras trae el banco
       ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(X0, Y0 - 20); ctx.lineTo(X0, Y1); ctx.lineTo(X1 + 24, Y1); ctx.stroke();
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 25px ' + F;
-      ctx.textAlign = 'left'; ctx.fillText('Ninguna columna adivina la respuesta', X0, Y1 + 44);
-      ctx.textAlign = 'right'; ctx.fillText('Una la adivina siempre', X1 + 24, Y1 + 44);
+      ctx.beginPath(); ctx.moveTo(X0 - 30, YEJE); ctx.lineTo(X1 + 30, YEJE); ctx.stroke();
+      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 25px ' + F; ctx.textAlign = 'center';
+      [10, P.minimo, 100, P.maximo].forEach(function (n) {
+        const x = this.px(n);
+        ctx.beginPath(); ctx.moveTo(x, YEJE); ctx.lineTo(x, YEJE + 12); ctx.stroke();
+        ctx.fillText(K.miles(n), x, YEJE + 44);
+      }, this);
       ctx.fillStyle = '#7d7568'; ctx.font = '450 19px ' + MONO;
-      ctx.save(); ctx.translate(X0 - 26, (Y0 + Y1) / 2); ctx.rotate(-Math.PI / 2);
-      ctx.textAlign = 'center'; ctx.fillText(N.ejes.y.nombre.toUpperCase(), 0, 0); ctx.restore();
+      ctx.fillText('MUESTRAS QUE TRAE EL BANCO', (X0 + X1) / 2, YEJE + 86);
 
       // la nube
       if (s.forma >= 1) {
@@ -129,32 +136,29 @@
       if (listo > 0) {
         ctx.globalAlpha = listo;
         ctx.setLineDash([10, 10]); ctx.strokeStyle = '#e4603c'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(borde, Y0 - 10); ctx.lineTo(borde, Y1); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(izq, arriba); ctx.lineTo(izq, YEJE); ctx.moveTo(der, arriba); ctx.lineTo(der, YEJE); ctx.stroke(); ctx.setLineDash([]);
         ctx.font = '650 27px ' + F;
-        ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'right'; ctx.fillText('Todo lo que practicó', borde - 18, Y0 - 28);
-        ctx.fillStyle = '#e4603c'; ctx.textAlign = 'left'; ctx.fillText('Nunca practicó', borde + 16, Y0 - 28);
+        ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'center'; ctx.fillText('Todo lo que practicó', (izq + der) / 2, arriba - 22);
+        ctx.fillStyle = '#e4603c'; ctx.textAlign = 'right'; ctx.fillText('Nunca practicó', izq - 16, arriba - 22);
         ctx.globalAlpha = 1;
       }
 
       // el archivo
       if (s.cae > 0) {
-        const m = s.mueve, xa = this.px(N.malo.x) - 22, xb = this.px(N.corregido.x), yF = this.py(N.malo.y);
-        const x = K.mezcla(xa, xb, m), y = yF - (1 - s.cae) * 760 - Math.sin(Math.PI * m) * 120;
-        const rojo = [228, 96, 60], verde = [54, 194, 174];
-        const color = 'rgb(' + rojo.map(function (v, i) { return Math.round(K.mezcla(v, verde[i], m)); }).join(',') + ')';
+        const m = s.mueve, xa = this.px(this.pocas), xb = this.px(this.todas);
+        const x = K.mezcla(xa, xb, m), y = YC - (1 - s.cae) * 760 - Math.sin(Math.PI * m) * 150;
+        const color = 'rgb(' + ROJO.map(function (v, i) { return Math.round(K.mezcla(v, VERDE[i], m)); }).join(',') + ')';
         if (m > 0) {                                  // de dónde venía
           ctx.setLineDash([6, 9]); ctx.strokeStyle = 'rgba(228,96,60,0.6)'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.moveTo(xa, yF);
-          for (let j = 1; j <= 30; j++) { const q = (m * j) / 30; ctx.lineTo(K.mezcla(xa, xb, q), yF - Math.sin(Math.PI * q) * 120); }
+          ctx.beginPath(); ctx.moveTo(xa, YC);
+          for (let j = 1; j <= 30; j++) { const q = (m * j) / 30; ctx.lineTo(K.mezcla(xa, xb, q), YC - Math.sin(Math.PI * q) * 150); }
           ctx.stroke(); ctx.setLineDash([]);
         }
-        if (s.lejos > 0 && m === 0) {                 // qué tan lejos cae de lo que conoce
-          const x0 = borde + 6, x1 = K.mezcla(x0, xa - 30, s.lejos);
+        if (s.lejos > 0 && m === 0) {                 // cuánto le falta para parecerse a lo que conoce
+          const x0 = xa + 30, x1 = K.mezcla(x0, izq - 6, s.lejos);
           ctx.globalAlpha = s.lejos;
           ctx.strokeStyle = '#e4603c'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.moveTo(x0, yF); ctx.lineTo(x1, yF); ctx.moveTo(x0, yF - 12); ctx.lineTo(x0, yF + 12); ctx.moveTo(x1, yF - 12); ctx.lineTo(x1, yF + 12); ctx.stroke();
-          ctx.fillStyle = '#e4603c'; ctx.font = '500 19px ' + MONO; ctx.textAlign = 'center';
-          ctx.fillText('LEJOS', (x0 + x1) / 2, yF + 38);
+          ctx.beginPath(); ctx.moveTo(x0, YC); ctx.lineTo(x1, YC); ctx.moveTo(x1, YC - 12); ctx.lineTo(x1, YC + 12); ctx.stroke();
           ctx.globalAlpha = 1;
         }
         const pulso = (t * 0.9) % 1;
@@ -164,9 +168,10 @@
           ctx.globalAlpha = 1;
         }
         this.hoja(ctx, x, y, color);
+        const muestras = Math.round(K.mezcla(this.pocas, this.todas, K.suave(m)));
         ctx.font = '700 29px ' + F; ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'center';
-        ctx.shadowColor = '#0b0a09'; ctx.shadowBlur = 14;
-        ctx.fillText('Tu archivo', x - (m < 0.5 ? 40 : 0), y - 44);
+        ctx.shadowColor = '#0b0a09'; ctx.shadowBlur = 16;
+        ctx.fillText(K.miles(muestras) + ' muestras', x, y - 44);
         ctx.shadowBlur = 0;
       }
     },

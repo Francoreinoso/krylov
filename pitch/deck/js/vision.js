@@ -1,9 +1,10 @@
-/* 7 · Hoja de ruta. Cinco ilustraciones hechas de puntos, una por cada decisión crítica de la mina:
-   leyes, sismicidad, camiones, flotación y taludes. Nada de esto son datos ni existe todavía: la lámina lo dice. */
+/* 7 · Cinco decisiones de una mina (D-37), cada una con una ilustración hecha de puntos, en el orden del plan:
+   leyes, taludes, flotación, flota y sismicidad. Las figuras son ilustraciones, no datos. El estado real de cada
+   decisión («responde», «precalculado» u «hoja de ruta») se escribe en config.js y lo pinta nucleo.js. */
 (function () {
   'use strict';
   const K = window.K;
-  const X = [-20.24, -10.12, 0, 10.12, 20.24], Y = -0.7;      // una columna por problema, en unidades de escena
+  const X = [-20.24, -10.12, 0, 10.12, 20.24], Y = 0.9;      // una columna por problema, en unidades de escena
   const COLORES = `
     const vec3 COBRE = vec3(0.91, 0.52, 0.27);
     const vec3 ORO = vec3(1.0, 0.82, 0.45);
@@ -46,7 +47,7 @@
         g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(v), 3));
         return new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: opacidad }));
       };
-      const grupo = function (i) { const g = new THREE.Group(); g.position.set(X[i], Y, 0); g.scale.setScalar([1.02, 1.3, 1.1, 1.22, 1.08][i]); scene.add(g); return g; };
+      const grupo = function (i) { const g = new THREE.Group(); g.position.set(X[i], Y, 0); g.scale.setScalar([0.95, 0.92, 1.12, 0.95, 1.12][i]); scene.add(g); return g; };
 
       // ----- 1 · Leyes: un cuerpo mineralizado bajo tierra y los sondajes que lo cruzan -----
       const leyes = (this.leyes = grupo(0));
@@ -76,8 +77,8 @@
       leyes.add(lineas(malla, 0x6b6156, 0.55), lineas(sondas, 0xffffff, 0.8));
       leyes.rotation.x = 0.36;
 
-      // ----- 2 · Sismicidad: una galería y los sismos que se encadenan después de una tronadura -----
-      const sismo = (this.sismo = grupo(1));
+      // ----- 5 · Sismicidad: una galería y los sismos que se encadenan después de una tronadura -----
+      const sismo = (this.sismo = grupo(4));
       const arcos = [], piso = [];
       for (let k = 0; k < 9; k++) {
         const z = -4 + k;
@@ -107,8 +108,8 @@
         }`));
       sismo.rotation.x = 0.3;
 
-      // ----- 3 · Camiones: el desgaste de cada equipo, lo ya visto y lo que podría venir -----
-      const flota = (this.flota = grupo(2));
+      // ----- 4 · Flota: el desgaste de cada equipo, lo ya visto y lo que podría venir -----
+      const flota = (this.flota = grupo(3));
       const pf = [], uf = [], rf = [];
       for (let c = 0; c < 11; c++) {
         const ritmo = 0.45 + azar() * 1.0, curva = 1.6 + azar() * 1.6, dato = azar();
@@ -136,8 +137,8 @@
       for (let k = 0; k < 21; k++) umbral.push(-4.2 + k * 0.4, 2.0, 0, -4.2 + k * 0.4 + 0.2, 2.0, 0);
       flota.add(lineas(umbral, 0xea5c38, 0.95), lineas([-4.2, -3.1, 0, 4.2, -3.1, 0, -4.2, -3.1, 0, -4.2, 2.9, 0], 0x6b6156, 0.7));
 
-      // ----- 4 · Flotación: burbujas que suben en tres celdas y la espuma que se lleva el metal -----
-      const planta = (this.planta = grupo(3));
+      // ----- 3 · Flotación: burbujas que suben en tres celdas y la espuma que se lleva el metal -----
+      const planta = (this.planta = grupo(2));
       const pb = [], ab = [], cajas = [];
       for (let c = 0; c < 3; c++) {
         const x0 = -2.9 + c * 2.9;
@@ -158,8 +159,8 @@
           gl_Position = projectionMatrix * mv;
         }`));
 
-      // ----- 5 · Taludes y relaves: un muro con sus bancos, el barrido del radar y una zona que empieza a moverse -----
-      const talud = (this.talud = grupo(4));
+      // ----- 2 · Taludes y relaves: un muro con sus bancos, el barrido del radar y una zona que empieza a moverse -----
+      const talud = (this.talud = grupo(1));
       const pt = [], at = [];
       for (let f = 0; f < 34; f++) {
         for (let c = 0; c < 52; c++) {

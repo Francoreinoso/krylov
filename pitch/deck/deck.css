@@ -46,7 +46,7 @@
   /* Decisiones, en tonos de mineral */
   --actuar: #e4603c;
   --en-duda: #eec25a;
-  --no-actuar: #2aa596;
+  --no-actuar: #1fa87a;
   --titulo: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --texto: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
@@ -248,12 +248,12 @@ html, body {
    ===================================================================== */
 
 .sobre-mapa .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f0 0%, #0b0a09a6 30%, transparent 50%); }
-.sobre-mapa .cabeza { left: 110px; top: 100px; width: 800px; }
-.sobre-mapa .cabeza .t2 { font-size: 98px; }
-.sobre-mapa .cabeza .p { margin-top: 16px; font-size: 34px; }
-#l-mapa .lateral { left: 110px; top: 392px; width: 720px; }
+.sobre-mapa .cabeza { left: 110px; top: 96px; width: 840px; }
+.sobre-mapa .cabeza .t2 { font-size: 88px; }
+.sobre-mapa .cabeza .p { margin-top: 14px; font-size: 31px; width: 760px; }
+#l-mapa .lateral { left: 110px; top: 400px; width: 720px; }
 .leyenda { display: grid; gap: 10px; }
-.leyenda .fila { display: grid; grid-template-columns: 54px 1fr auto; gap: 22px; align-items: center; font-size: 35px; font-weight: 520; }
+.leyenda .fila { display: grid; grid-template-columns: 54px 1fr auto; gap: 22px; align-items: center; font-size: 33px; font-weight: 520; }
 .leyenda .fila .num { font-size: 58px; min-width: 110px; text-align: right; }
 .muestra { width: 54px; height: 30px; }
 .muestra.actuar { background: var(--actuar); }
@@ -261,13 +261,14 @@ html, body {
 .muestra.en-duda { background-color: var(--en-duda); background-image: repeating-linear-gradient(-45deg, transparent 0 5px, #0b0a0999 5px 9px); }
 .muestra.corte { height: 0; border-top: 4px solid #fff; }
 .muestra.malla { background-image: linear-gradient(#f4efe6b0 2px, transparent 2px), linear-gradient(90deg, #f4efe6b0 2px, transparent 2px); background-size: 13px 13px; }
-.leyenda .fila.chica { font-size: 27px; line-height: 1.2; color: var(--suave); font-weight: 450; margin-top: 4px; }
-#l-mapa .cuesta { margin-top: 28px; }
-#l-mapa .cuesta .num { font-size: 128px; color: var(--cobre); white-space: nowrap; margin-top: 4px; }
+.leyenda .fila.chica { font-size: 26px; line-height: 1.2; color: var(--suave); font-weight: 450; margin-top: 2px; }
+#l-mapa .cuesta { margin-top: 24px; }
+#l-mapa .cuesta .p { font-size: 36px; }
+#l-mapa .cuesta .num { font-size: 124px; color: var(--cobre); white-space: nowrap; margin-top: 4px; }
 #l-mapa .cuesta .dato { margin-top: 10px; }
 
 #l-donde .cabeza { width: 860px; }
-#l-donde .cabeza .t2 { font-size: 88px; }
+#l-donde .cabeza .t2 { font-size: 92px; }
 #l-donde .ranking { left: 110px; top: 400px; width: 700px; }
 #l-donde .ranking .fila { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; border-top: 1.5px solid var(--linea); padding: 12px 0 6px; opacity: 0; transition: opacity .6s ease; }
 #l-donde .ranking .fila.ver { opacity: 1; }
@@ -281,7 +282,8 @@ html, body {
 #l-donde .medicion .t3 { font-size: 78px; white-space: nowrap; }
 #l-donde .medicion .baja { margin-top: 30px; }
 #l-donde .medicion .baja .p { font-size: 36px; }
-#l-donde .medicion .baja .num { font-size: 156px; color: var(--oxido); white-space: nowrap; margin-top: 6px; }
+#l-donde .medicion .baja .num { font-size: 150px; color: var(--no-actuar); white-space: nowrap; margin-top: 6px; }
+#l-donde .medicion .baja .dato { margin-top: 12px; }
 /* La regla de medición: los tres resultados posibles sobre una escala */
 .regla { position: relative; height: 150px; margin-top: 34px; width: 720px; }
 .regla .eje { position: absolute; left: 0; right: 0; top: 96px; height: 2px; background: var(--tenue); }
@@ -300,22 +302,26 @@ html, body {
 
 #l-nube canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #l-nube .cabeza { left: 110px; top: 110px; width: 760px; }
-#l-nube .cabeza .t2 { font-size: 92px; }
-#l-nube .paso-txt { left: 110px; top: 560px; width: 720px; }
+#l-nube .cabeza .t2 { font-size: 90px; }
+#l-nube .paso-txt { left: 110px; top: 540px; width: 740px; }
 #l-nube .paso-txt .t3 { font-size: 84px; }
 #l-nube .paso-txt .p { margin-top: 18px; font-size: 38px; }
 #l-nube .rojo { color: var(--actuar); }
-#l-nube .verde { color: var(--oxido); }
+#l-nube .verde { color: var(--no-actuar); }
 
 /* =====================================================================
    7 · Hoja de ruta
    ===================================================================== */
 
 #l-vision .cabeza { left: 110px; top: 100px; width: 1700px; }
-#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 150px; display: grid; grid-template-columns: repeat(5, 1fr); }
+#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(5, 1fr); }
 #l-vision .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
-#l-vision .cinco .dato { color: var(--cobre); font-size: 22px; }
-#l-vision .cinco .t3 { font-size: 56px; margin-top: 8px; line-height: 1; }
+#l-vision .cinco .t3 { font-size: 48px; line-height: 1.02; min-height: 150px; }
+#l-vision .cinco .estado { font-size: 22px; }
+#l-vision .cinco .responde .estado { color: var(--no-actuar); }
+#l-vision .cinco .precalculado .estado { color: var(--oro); }
+#l-vision .cinco .ruta .estado { color: var(--tenue); }
+#l-vision .cinco .responde { border-top-color: var(--no-actuar); }
 #l-vision .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
 
 /* =====================================================================

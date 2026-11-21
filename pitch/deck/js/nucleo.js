@@ -281,8 +281,10 @@
   K.enlazarDatos = function () {
     const d = K.datos;
     d.terreno.n_puntos = d.terreno.puntos.length;
-    d.terreno.examen_dentro = Math.round(d.terreno.examen.paso * d.terreno.examen.n);
-    d.nube.n_dibujadas = d.nube.puntos.length;
+    d.real.examen_dentro = Math.round(d.real.examen.paso * d.real.examen.n);
+    d.real.n_puntos = d.real.puntos.length;
+    d.sello.analisis_medidos = Math.round(d.sello.amortizacion.mcmc_s / d.sello.mcmc_s_por_dataset);
+    d.practica.n = d.practica.muestras.length;
     const formatos = {
       miles: K.miles,
       coma1: function (v) { return K.coma(v, 1); },
@@ -296,6 +298,13 @@
       el.textContent = el.dataset.formato ? formatos[el.dataset.formato](v) : v;
     });
     document.querySelectorAll('[data-tiempo]').forEach(function (el) { el.textContent = (K.config.tiempos || {})[el.dataset.tiempo] || ''; });
+    // El estado real de cada decisión de la mina sale de config.js (y tiene que calzar con estado/TABLERO.md).
+    const estados = { responde: 'Responde hoy', precalculado: 'Precalculado', ruta: 'Hoja de ruta' };
+    document.querySelectorAll('[data-caso]').forEach(function (el) {
+      const clave = (K.config.casos || {})[el.dataset.caso], estado = estados[clave] ? clave : 'ruta', linea = el.querySelector('.estado');
+      el.classList.add(estado);
+      if (linea) linea.textContent = estados[estado];
+    });
     const equipo = document.getElementById('equipo-nombres');
     if (equipo && K.config.equipo && K.config.equipo.length) equipo.textContent = K.config.equipo.join(' · ');
   };

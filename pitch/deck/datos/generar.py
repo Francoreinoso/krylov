@@ -4,23 +4,28 @@ Desde la raíz del repositorio:
 
     uv run python pitch/deck/datos/generar.py
 
-Todo sale del repositorio, con la red del motor `espacial` (validada, sello de las 09:39):
+Todo sale del repositorio, con la red del motor `espacial` (validada, sello de las 09:39). Desde el pivote a
+minería (D-37) el caso estrella es `leyes`, un banco de tronadura simulado; el caso `terreno` (datos reales
+públicos) queda para la demostración de tiempos y para el examen con datos reales.
 
-- `terreno`     api.analizar("terreno"): el mapa real (155 mediciones de zinc junto al río Mosa).
-                El rango creíble por bloque (5% a 95%) no viene en la respuesta de la API: se calcula
-                aquí con las mismas funciones de `nucleo/espacial.py` (media y desviación de la cabeza
-                de mapa), y se comprueba que la media coincide con la de la API.
-- `donde`       api.donde_medir("terreno"): los tres lugares donde medir vale más. Además, `lugares`: todos los
-                lugares candidatos con su valor, repitiendo el cálculo de `nucleo/espacial.donde_medir` (se comprueba
-                que los tres mejores coinciden con los de la API).
-- `mediciones`  api.analizar("terreno", mediciones=[...]) para cada pin y cada resultado posible
-                (bajo, medio, alto): el mapa rehecho por la red. En el deck se anima este resultado.
-- `nube`        api.nube("rotacion_malo") y la misma con la corrección `quitar_factor:fecha_salida`.
-- `simulados`   256 terrenos del simulador `motor/espacial/simular.py` (semilla 2026), el campo
-                verdadero de cada uno llevado a 0..255. En pantalla van rotulados «terrenos simulados».
+- `terreno`     el caso estrella (`CASO`, hoy `leyes`): api.analizar, con el mapa y sus rótulos. La clave se llama
+                `terreno` porque es el terreno que dibujan las láminas 4 y 5, sea cual sea el caso.
+                El rango creíble por bloque (5% a 95%) no viene en la respuesta de la API: se calcula aquí con las
+                mismas funciones de `nucleo/espacial.py` y se comprueba que la media coincide con la de la API.
+- `donde`       api.donde_medir del caso estrella: los tres mejores lugares. Además, `lugares`: todos los lugares
+                candidatos con su valor, repitiendo el cálculo de `nucleo/espacial.donde_medir` (se comprueba que
+                los tres mejores coinciden con los de la API).
+- `mediciones`  api.analizar(CASO, mediciones=[...]) para cada letra y cada resultado posible (bajo, medio, alto):
+                el mapa rehecho por la red. En el deck se anima este resultado.
+- `real`        api.analizar("terreno"): el mapa del terreno real (155 mediciones de zinc junto al río Mosa) y su
+                examen. Lo usan la lámina 2 (es el encargo de los 228 análisis, M-08 a M-10) y la de arquitectura.
+- `pocos`       api.analizar("leyes_pocos"): el archivo que no alcanza. Krylov no responde y dice por qué.
+- `practica`    cuántas muestras tenía cada uno de 3.000 terrenos del simulador `motor/espacial/simular.py`
+                (semilla 2026): con qué se parece o no un archivo nuevo. Y los límites del motor (30 y 400).
+- `simulados`   256 terrenos del mismo simulador, el campo verdadero de cada uno llevado a 0..255.
 - `sello`       copia de `motor/artefactos/espacial/sello.json`.
 
-Tarda unos segundos. Si en este computador hay un entrenamiento corriendo, igual se puede correr.
+Tarda unos segundos. No hay que correrlo con un entrenamiento andando más de lo que dura.
 """
 
 from __future__ import annotations
@@ -42,19 +47,23 @@ import numpy as np  # noqa: E402
 
 from nucleo import api, casos, decision, espacial  # noqa: E402
 
+CASO = "leyes"            # el caso estrella: láminas 4 y 5
+REAL = "terreno"          # datos reales públicos: lámina 2 y examen
+POCOS = "leyes_pocos"     # el archivo que no alcanza: lámina 6
 SEMILLA = 2026
 TERRENOS_SIMULADOS = 256
+TERRENOS_PRACTICA = 3000
 Z90 = 1.645
 ESTADO = {"no_actuar": 0, "en_duda": 1, "actuar": 2}
 
 
-def mapa_con_rango(mediciones: list[dict]) -> dict:
-    """La respuesta de la API más el rango creíble de 90% por bloque, en mg/kg."""
-    r = api.analizar("terreno", mediciones=mediciones)
+def mapa_con_rango(nombre: str, mediciones: list[dict]) -> dict:
+    """La respuesta de la API más el tope del rango creíble de 90% por bloque, en las unidades del caso."""
+    r = api.analizar(nombre, mediciones=mediciones)
     assert r["implementacion"] == "red" and not r["precalculado"], "el mapa tiene que salir de la red"
     m = r["mapa"]
 
-    caso = casos.cargar_caso("terreno")
+    caso = casos.cargar_caso(nombre)
     terreno = espacial.leer_terreno(caso, mediciones)
     canales, media, escala = espacial.canales_de(terreno["suma"], terreno["cuenta"], terreno["raiz_dist"])
     inf = espacial.inferir(canales[None], terreno["cuenta"][None], "red", espacial._clave(caso, False))
@@ -63,9 +72,9 @@ def mapa_con_rango(mediciones: list[dict]) -> dict:
     def a_unidades(v):
         return espacial._a_unidades_del_caso(v, float(media), float(escala), terreno["transformacion"]).reshape(-1)
 
-    centro, bajo, alto = a_unidades(mu), a_unidades(mu - Z90 * desv), a_unidades(mu + Z90 * desv)
+    centro, alto = a_unidades(mu), a_unidades(mu + Z90 * desv)
     dentro = [i for i, v in enumerate(m["media"]) if v is not None]
-    assert np.allclose([m["media"][i] for i in dentro], centro[dentro], atol=0.06), "la media no coincide con la de la API"
+    assert np.allclose([m["media"][i] for i in dentro], centro[dentro], rtol=2e-4, atol=0.06), "la media no coincide con la de la API"
 
     costos = {k: v["valor"] for k, v in r["costos"].items()}
     p = np.array([m["p"][i] for i in dentro])
@@ -73,7 +82,6 @@ def mapa_con_rango(mediciones: list[dict]) -> dict:
     return {
         "respuesta": r, "dentro": dentro,
         "media": [round(float(centro[i])) for i in dentro],
-        "bajo": [round(float(bajo[i])) for i in dentro],
         "alto": [round(float(alto[i])) for i in dentro],
         "p": [m["p"][i] for i in dentro],
         "estado": [ESTADO[e] for e in estado],
@@ -83,16 +91,33 @@ def mapa_con_rango(mediciones: list[dict]) -> dict:
 
 
 def capa(c: dict) -> dict:
-    return {k: c[k] for k in ("media", "bajo", "alto", "p", "estado", "colores", "costo_de_no_saber")}
+    return {k: c[k] for k in ("media", "alto", "p", "estado", "colores", "costo_de_no_saber")}
 
 
-def lugares_con_valor(candidatas: list[dict]) -> list[dict]:
-    """Todos los lugares candidatos de «¿Dónde mido?» con lo que vale medir en cada uno.
+def ficha(nombre: str, c: dict) -> dict:
+    """Lo que las láminas necesitan de un caso espacial: geometría, mapa, puntos, rótulos y de dónde vienen los datos."""
+    r, m = c["respuesta"], c["respuesta"]["mapa"]
+    examen = (r.get("examen") or {}).get("tramos") or [None]
+    return {
+        "caso": nombre, "nx": m["nx"], "ny": m["ny"], "x0": m["x0"], "y0": m["y0"], "lado": m["lado"],
+        "umbral": m["umbral"], "unidad_valor": m["unidad_valor"], "punto_de_corte": r["punto_de_corte"],
+        "dentro": c["dentro"], **capa(c),
+        "puntos": [[p["x"], p["y"], p["valor"]] for p in m["puntos"]],
+        "orilla": orilla_del_rio(nombre),
+        "costos": {k: v["valor"] for k, v in r["costos"].items()},
+        "rotulos": r["rotulos"], "unidad": r["unidad"], "examen": examen[0], "origen_datos": r["origen_datos"],
+        "sintetico": r["sintetico"], "umbral_de_duda": decision.UMBRAL_DE_DUDA,
+        "implementacion": r["implementacion"], "precalculado": r["precalculado"],
+    }
+
+
+def lugares_con_valor(nombre: str, candidatas: list[dict]) -> list[dict]:
+    """Todos los lugares candidatos de «¿Dónde perforo?» con lo que vale medir en cada uno.
 
     La API entrega solo los tres mejores. Aquí se repite el cálculo de `nucleo/espacial.donde_medir`
     con sus mismas funciones, y se comprueba que los tres mejores coinciden con los de la API.
     """
-    caso = casos.cargar_caso("terreno")
+    caso = casos.cargar_caso(nombre)
     costos = casos.costos_numericos(caso, None)
     terreno = espacial.leer_terreno(caso, [])
     dentro, suma, cuenta = terreno["dentro"], terreno["suma"], terreno["cuenta"]
@@ -131,81 +156,87 @@ def lugares_con_valor(candidatas: list[dict]) -> list[dict]:
     return salida
 
 
-def orilla_del_rio() -> list[list[float]]:
-    """Celdas de la grilla fina pegadas al río (distancia 0): se dibujan como la orilla."""
-    with open(RAIZ / "datos/demo/terreno_grilla.csv") as f:
+def orilla_del_rio(nombre: str) -> list[list[float]]:
+    """Solo si el caso trae grilla con distancia a un río: las celdas pegadas a la orilla (distancia 0)."""
+    grilla = casos.cargar_caso(nombre).get("grilla")
+    if not grilla:
+        return []
+    with open(RAIZ / grilla) as f:
         return [[float(fila["x"]), float(fila["y"])] for fila in csv.DictReader(f) if float(fila["dist"]) == 0.0]
 
 
-def terrenos_simulados() -> str:
+def simulador() -> tuple[str, list[int]]:
+    """Del simulador del motor: 256 campos para dibujar y cuántas muestras tenían 3.000 terrenos de práctica."""
     import torch
 
     from motor.espacial.simular import Prior, simular
 
     gen = torch.Generator().manual_seed(SEMILLA)
-    campo = simular(TERRENOS_SIMULADOS, Prior(), gen)["campo"].numpy()
+    prior = Prior()
+    campo = simular(TERRENOS_SIMULADOS, prior, gen)["campo"].numpy()
     lo = np.quantile(campo, 0.01, axis=(1, 2), keepdims=True)
     hi = np.quantile(campo, 0.99, axis=(1, 2), keepdims=True)
     gris = np.clip((campo - lo) / np.maximum(hi - lo, 1e-6), 0, 1)
-    return base64.b64encode((gris * 255).round().astype(np.uint8).tobytes()).decode()
+    muestras: list[int] = []
+    while len(muestras) < TERRENOS_PRACTICA:
+        muestras += [int(v) for v in simular(500, prior, gen)["n"].tolist()]
+    return base64.b64encode((gris * 255).round().astype(np.uint8).tobytes()).decode(), muestras[:TERRENOS_PRACTICA], prior
 
 
 def main() -> None:
     inicio = time.time()
-    base = mapa_con_rango([])
-    r, m = base["respuesta"], base["respuesta"]["mapa"]
+    base = mapa_con_rango(CASO, [])
+    r = base["respuesta"]
 
-    donde = api.donde_medir("terreno")
+    donde = api.donde_medir(CASO)
     assert donde["implementacion"] == "red" and not donde["precalculado"]
 
     mediciones = {}
     for c in donde["candidatas"]:
         mediciones[c["etiqueta"]] = {
-            nivel: capa(mapa_con_rango([{"x": c["x"], "y": c["y"], "valor": valor}]))
+            nivel: capa(mapa_con_rango(CASO, [{"x": c["x"], "y": c["y"], "valor": valor}]))
             for nivel, valor in c["resultados_posibles"].items()
         }
 
-    malo, corregido = api.nube("rotacion_malo"), api.nube("rotacion_malo", ["quitar_factor:fecha_salida"])
+    real = mapa_con_rango(REAL, [])
+    pocos = api.analizar(POCOS)
+    assert pocos["semaforo"]["estado"].startswith("rojo"), "el archivo que no alcanza tendría que salir rojo"
+    campos, muestras, prior = simulador()
     sello = json.loads((RAIZ / "motor/artefactos/espacial/sello.json").read_text())
 
     datos = {
         "generado": time.strftime("%Y-%m-%d %H:%M"),
         "comando": "uv run python pitch/deck/datos/generar.py",
-        "terreno": {
-            "nx": m["nx"], "ny": m["ny"], "x0": m["x0"], "y0": m["y0"], "lado": m["lado"],
-            "umbral": m["umbral"], "unidad_valor": m["unidad_valor"], "punto_de_corte": r["punto_de_corte"],
-            "dentro": base["dentro"], **capa(base),
-            "puntos": [[p["x"], p["y"], p["valor"]] for p in m["puntos"]],
-            "orilla": orilla_del_rio(),
-            "costos": {k: v["valor"] for k, v in r["costos"].items()},
-            "rotulos": r["rotulos"], "unidad": r["unidad"], "examen": r["examen"]["tramos"][0], "origen_datos": r["origen_datos"],
-            "umbral_de_duda": decision.UMBRAL_DE_DUDA,
-            "implementacion": r["implementacion"], "precalculado": r["precalculado"],
-        },
+        "terreno": ficha(CASO, base),
         "donde": {
             "candidatas": donde["candidatas"], "analisis_rehechos": donde["analisis_rehechos"],
-            "lugares": lugares_con_valor(donde["candidatas"]), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
-            "implementacion": donde["implementacion"], "precalculado": donde["precalculado"],
+            "lugares": lugares_con_valor(CASO, donde["candidatas"]), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
+            "implementacion": donde["implementacion"], "precalculado": donde["precalculado"], "tiempo_ms_aqui": donde["tiempo_ms"],
         },
         "mediciones": mediciones,
-        "nube": {
-            "n_simulaciones": malo["n_simulaciones"], "ejes": malo["ejes"], "puntos": malo["puntos"],
-            "malo": malo["archivo"], "motivo": malo["detectores"]["ejes_con_nombre"]["motivo"],
-            "corregido": corregido["archivo"],
+        "real": ficha(REAL, real),
+        "pocos": {
+            "caso": POCOS, "semaforo": pocos["semaforo"], "titular": pocos["titular"],
+            "muestras": sum(1 for _ in open(RAIZ / casos.cargar_caso(POCOS)["dataset"])) - 1,
         },
-        "simulados": {"n": TERRENOS_SIMULADOS, "lado": 32, "semilla": SEMILLA, "b64": terrenos_simulados()},
+        "practica": {"muestras": muestras, "minimo": prior.n_min, "maximo": espacial.MEDICIONES_MAXIMO, "semilla": SEMILLA},
+        "simulados": {"n": TERRENOS_SIMULADOS, "lado": 32, "semilla": SEMILLA, "b64": campos},
         "sello": sello,
     }
     salida = Path(__file__).with_name("datos.js")
     salida.write_text("// Generado por pitch/deck/datos/generar.py. No editar a mano.\nwindow.KRYLOV_DATOS = "
                       + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";\n")
     print(f"{salida.relative_to(RAIZ)}: {salida.stat().st_size / 1e3:.0f} kB en {time.time() - inicio:.1f} s")
-    print("colores", base["colores"], "· cuesta no saber", base["costo_de_no_saber"])
+    print(CASO, "· colores", base["colores"], "· cuesta no saber", base["costo_de_no_saber"], "·", r["origen_datos"])
     for c in donde["candidatas"]:
-        print(c["etiqueta"], c["valor_de_medir"], {k: (v["colores"], v["costo_de_no_saber"]) for k, v in mediciones[c["etiqueta"]].items()})
-    print("lugares candidatos:", len(datos["donde"]["lugares"]), "×", datos["donde"]["resultados_por_lugar"], "resultados =",
-          len(datos["donde"]["lugares"]) * datos["donde"]["resultados_por_lugar"], "análisis · API:", donde["analisis_rehechos"])
-    print("nube", malo["archivo"], "→", corregido["archivo"], "·", datos["nube"]["motivo"])
+        print(" ", c["etiqueta"], c["valor_de_medir"], c["resultados_posibles"],
+              {k: v["costo_de_no_saber"] for k, v in mediciones[c["etiqueta"]].items()})
+    print("  lugares candidatos:", len(datos["donde"]["lugares"]), "×", espacial.RESULTADOS_POR_LUGAR, "=",
+          len(datos["donde"]["lugares"]) * espacial.RESULTADOS_POR_LUGAR, "análisis · API:", donde["analisis_rehechos"],
+          "·", donde["tiempo_ms"], "ms en este computador")
+    print(REAL, "· colores", real["colores"], "· examen", datos["real"]["examen"])
+    print(POCOS, "·", datos["pocos"]["muestras"], "muestras ·", pocos["semaforo"]["motivo"])
+    print("práctica:", len(muestras), "terrenos, de", min(muestras), "a", max(muestras), "muestras")
 
 
 if __name__ == "__main__":

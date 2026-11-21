@@ -6,7 +6,8 @@
 (function () {
   'use strict';
   const K = window.K;
-  const F = 0.0052;                    // unidades de escena por mg/kg
+  let F = 0.0052;                      // unidades de escena por unidad del caso; se ajusta al construir
+  const TOPE = 15;                     // altura máxima de la malla y de los puntos, en unidades de escena
   const M = 192;                       // lado de la rejilla fina con que se dibuja la superficie
   let E = null;
 
@@ -62,7 +63,7 @@
     };
     return { media: difuminar(subir(g.media), 3, 2), alto: difuminar(subir(g.alto), 3, 2), p: difuminar(subir(g.p), 2, 1), masc: difuminar(subir(masc), 2, 1) };
   }
-  K.rejilla = function (capa) { return rejilla(K.datos.terreno, capa || K.datos.terreno); };
+  K.rejilla = function (T, capa) { T = T || K.datos.terreno; return rejilla(T, capa || T); };
   K.rejillaLado = M;
 
   const VERT = `
@@ -93,7 +94,7 @@
   const ZONAS = `
     uniform float uDuda;
     const vec3 C_ACTUAR = vec3(0.90, 0.38, 0.23);     // rojo cobre
-    const vec3 C_BIEN = vec3(0.12, 0.60, 0.55);       // óxido de cobre, turquesa
+    const vec3 C_BIEN = vec3(0.10, 0.62, 0.44);       // verde malaquita
     const vec3 C_DUDA = vec3(0.94, 0.76, 0.35);       // oro
     float zona(float p, float w) {                    // +1 actuar, 0 en duda, −1 no hace falta
       return smoothstep(1.0 - uDuda - w, 1.0 - uDuda + w, p) - (1.0 - smoothstep(uDuda - w, uDuda + w, p));
@@ -193,11 +194,15 @@
     function aEscena(x, y) { return { x: (x - T.x0) / T.lado - nx / 2 - cx, z: -((y - T.y0) / T.lado - nx / 2) - cz }; }
     function bloqueDe(x, y) { return indiceDe[Math.floor((y - T.y0) / T.lado) * nx + Math.floor((x - T.x0) / T.lado)]; }
 
+    // La estimación más alta del mapa llega a unas 7,5 unidades de escena, sea cual sea el caso.
+    F = 7.5 / Math.max.apply(null, T.media);
+
     // ----- una textura por capa: la base y los nueve mapas rehechos -----
     let maximo = 0;
     const capas = [T];
     Object.keys(D.mediciones).forEach(function (l) { Object.keys(D.mediciones[l]).forEach(function (q) { capas.push(D.mediciones[l][q]); }); });
     capas.forEach(function (c) { c.alto.forEach(function (v) { maximo = Math.max(maximo, v); }); });
+    maximo = Math.min(maximo, TOPE / F);
     function textura(capa) {
       if (capa._tex) return capa._tex;
       const r = rejilla(T, capa), bytes = new Uint8Array(M * M * 4);
@@ -246,15 +251,17 @@
     const orillas = T.orilla.map(function (p) { return aEscena(p[0], p[1]); });
     const gOrilla = new THREE.BufferGeometry();
     gOrilla.setAttribute('position', new THREE.BufferAttribute(new Float32Array([].concat.apply([], orillas.map(function (e) { return [e.x, 0.12, e.z]; }))), 3));
-    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x57b6ff, size: 1.5, transparent: true, opacity: 0.2, depthWrite: false })));
-    scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x8fd0ff, size: 0.46, transparent: true, opacity: 1 })));
+    if (orillas.length) {
+      scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x57b6ff, size: 1.5, transparent: true, opacity: 0.2, depthWrite: false })));
+      scene.add(new THREE.Points(gOrilla, new THREE.PointsMaterial({ color: 0x8fd0ff, size: 0.46, transparent: true, opacity: 1 })));
+    }
 
     // ----- las mediciones reales -----
     const np = T.puntos.length, azar = K.azar(155);
     const mEsfera = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1 });
     const esferas = new THREE.InstancedMesh(new THREE.SphereGeometry(0.17, 12, 8), mEsfera, np);
     esferas.frustumCulled = false;
-    const puntos = T.puntos.map(function (p) { const e = aEscena(p[0], p[1]); return { x: e.x, y: p[2] * F, z: e.z, demora: azar() * 1.5 }; });
+    const puntos = T.puntos.map(function (p) { const e = aEscena(p[0], p[1]); return { x: e.x, y: Math.min(p[2] * F, TOPE), z: e.z, demora: azar() * 1.5 }; });
     const tallos = new Float32Array(np * 6);
     puntos.forEach(function (p, i) { tallos.set([p.x, 0, p.z, p.x, p.y, p.z], i * 6); });
     const gTallos = new THREE.BufferGeometry();
@@ -300,14 +307,14 @@
     // ----- estado animable -----
     const s = {
       crece: 0, color: 1, vidrio: 0, caida: 0, tallos: 0, puntos: 1, morf: 0, escaneo: 0, destaca: 0, haces: 0, taladro: 0, medido: 0,
-      az: -0.42, el: 0.62, R: 52, ty: 0.8, dx: -430, fase: 0, arrastre: 0, arrastreEl: 0,
+      az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, fase: 0, arrastre: 0, arrastreEl: 0,
     };
     let actual = T, destino = T, pin = null;
 
     function altura(i) { return i == null ? 0 : actual.media[i] * F * s.crece; }
 
     E = {
-      tres: { scene: scene, camera: camera }, s: s, T: T, D: D, haces: haces, orillas: orillas, sel: 'A', nivel: 'alto',
+      tres: { scene: scene, camera: camera }, s: s, T: T, D: D, haces: haces, orillas: orillas, sel: 'A', nivel: 'medio',
       candidata: function (letra) { return D.donde.candidatas.filter(function (c) { return c.etiqueta === letra; })[0]; },
       // Rehace el mapa hacia otra capa (la respuesta de la red con una medición más), propagándose desde el pin.
       morfar: function (capa, desde, inst, demora) {
@@ -361,7 +368,7 @@
           taladro.position.set(pin.x, abajo, pin.z);
           taladro.scale.set(0.09, Math.max(0.01, tope - abajo) * (1 - s.medido), 0.09);
           nueva.visible = s.medido > 0;
-          nueva.position.set(pin.x, pin.valor * F, pin.z);
+          nueva.position.set(pin.x, Math.min(pin.valor * F, TOPE), pin.z);
           nueva.scale.setScalar(K.fuera(s.medido * 2));
           const frente = K.acotar(s.morf * 1.9, 0, 1);
           ondaAro.position.set(pin.x, suelo + 0.3, pin.z);
@@ -407,7 +414,7 @@
       this.tres = m.tres;
       this.rio = document.createElement('div');
       this.rio.className = 'etq rio';
-      this.rio.textContent = 'Río Mosa';
+      this.rio.textContent = 'Río';
       L.querySelector('#etq-mapa').appendChild(this.rio);
     },
     entrar: function () {
@@ -415,7 +422,7 @@
       if (!m) return;
       if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
       Object.assign(m.s, { haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0, morf: 1, arrastre: 0, arrastreEl: 0, color: 1 });
-      K.anim(m.s, { az: -0.42, el: 0.62, R: 52, ty: 0.8, dx: -430 }, 2.0, false);
+      K.anim(m.s, { az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400 }, 2.0, false);
     },
     paso: function (p, inst) {
       const m = this.m;
@@ -432,7 +439,7 @@
         K.anim(s, { vidrio: p >= 2 ? 1 : 0 }, 1.8, inst);
         K.anim(s, { puntos: p >= 2 ? 0.45 : 1 }, 1.2, inst);
       }
-      this.rio.classList.add('ver');
+      this.rio.classList.toggle('ver', m.orillas.length > 0);
     },
     cuadro: function (t, dt) {
       const m = this.m;
@@ -471,15 +478,17 @@
         const fila = document.createElement('div');
         fila.className = 'fila ' + c.etiqueta.toLowerCase();
         fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$ ' + K.miles(c.valor_de_medir) + '</span>' +
-          (c.etiqueta === 'A' ? '<span class="p">es lo que vale medir en A. Cinco veces lo que cuesta.</span>' : '');
+          (c.etiqueta === 'A' ? '<span class="p"></span>' : '');
         ranking.appendChild(fila);
         yo.filas[c.etiqueta] = fila;
       });
       const veces = D.donde.candidatas[0].valor_de_medir / D.terreno.costos.medicion, frase = this.filas.A.querySelector('.p');
-      frase.textContent = 'es lo que vale medir en A: ' + K.coma(veces, 1) + ' veces lo que cuesta.';
+      frase.textContent = 'vale una muestra más en A: ' + K.coma(veces, 1).replace(',0', '') + ' veces lo que cuesta.';
       this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
       this.texto = L.querySelector('#texto-medicion');
       this.monto = L.querySelector('#baja-monto');
+      this.sentido = L.querySelector('#baja-sentido');
+      this.promedio = L.querySelector('#baja-promedio');
       this.regla = L.querySelector('#regla');
       this.regla.addEventListener('click', function (ev) {
         const b = ev.target.closest('button');
@@ -505,7 +514,12 @@
       K.anim(s, { taladro: 1 }, 0.8, inst, 'power2.in');
       K.anim(s, { medido: 1 }, 0.9, inst, 'power2.out', 0.8);
       m.morfar(capa, m.pinDe(m.sel, valor), inst, 0.9);
-      this.texto.innerHTML = 'Mides en ' + m.sel + ': <span class="oro">' + K.miles(valor) + ' ' + m.T.unidad_valor + '</span>.';
+      const perfora = /perfor/i.test(m.T.rotulos.donde_medir || '');
+      this.texto.innerHTML = (perfora ? 'Perforas en ' : 'Mides en ') + m.sel + ': <span class="oro">' + K.miles(valor) + ' ' + m.T.unidad_valor.split(' ')[0] + '</span>.';
+      // Con un resultado puntual la duda puede bajar o subir; en promedio baja lo que vale medir ahí.
+      this.sentido.textContent = baja >= 0 ? 'baja' : 'sube';
+      this.monto.parentNode.style.color = baja >= 0 ? '' : 'var(--cobre)';
+      this.promedio.textContent = 'En promedio, sobre todos los resultados posibles, la baja US$ ' + K.miles(c.valor_de_medir) + '.';
       if (this.cuenta) this.cuenta.kill();
       this.cuenta = K.contar(this.monto, 0, Math.abs(baja), 2.4, K.miles, inst, 'power1.inOut');
       this.pintarRegla();
@@ -514,7 +528,7 @@
     entrar: function () {
       const m = this.m;
       if (!m) return;
-      m.sel = 'A'; m.nivel = 'alto';
+      m.sel = 'A'; m.nivel = 'medio';
       Object.assign(m.s, { crece: 1, vidrio: 0, caida: 1, tallos: 1, color: 1, arrastre: 0, arrastreEl: 0 });
     },
     paso: function (p, inst) {
@@ -526,14 +540,14 @@
         if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
         gsap.killTweensOf(s, 'taladro,medido,escaneo,destaca');
         Object.assign(s, { morf: 1, taladro: 0, medido: 0 });
-        K.anim(s, { az: -0.2, el: 0.9, R: 68, ty: 2.6, dx: -430 }, 2.6, inst);
+        K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5, dx: -410 }, 2.6, inst);
         if (!inst) { s.escaneo = 0; s.destaca = 0; }
         K.anim(s, { escaneo: 1 }, 3.4, inst, 'none', 0.7);
         K.anim(s, { destaca: 1 }, 1.8, inst, 'power1.inOut', 4.0);
         m.haces.forEach(function (h) { if (h.etq) h.etq.classList.remove('sel'); });
       } else {
         K.anim(s, { escaneo: 1, destaca: 1 }, 0.3, inst);
-        K.anim(s, { az: -0.3, el: 0.84, R: 64, ty: 2.6, dx: -430 }, 2.4, inst);
+        K.anim(s, { az: -0.58, el: 0.8, R: 92, ty: 1.5, dx: -410 }, 2.4, inst);
         this.medir(inst);
       }
     },

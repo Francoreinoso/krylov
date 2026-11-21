@@ -6,11 +6,14 @@ window.KRYLOV_CONFIG = {
     url: 'https://krylov-tan.vercel.app/',
     texto: 'krylov-tan.vercel.app',
   },
+  // Lámina 7: quién responde hoy cada decisión. Valores: 'responde' (una red validada), 'precalculado' (el método
+  // lento, calculado antes) o 'ruta' (hoja de ruta). Tiene que decir lo mismo que la tabla «Los cinco casos» de
+  // estado/TABLERO.md; se revisa a las 20:30.
+  casos: { leyes: 'responde', taludes: 'ruta', flotacion: 'ruta', flota: 'ruta', sismicidad: 'ruta' },
   // Nombres para la lámina de cierre. Se escriben cuando cada persona confirme que se puede mostrar el suyo.
   equipo: [],
   // Tiempos del guion (pitch/PITCH_v2.md), para las notas de cada lámina.
   tiempos: {
-    mina: '0:00 a 0:23', demo: '0:23 a 0:45', mundos: '0:45 a 1:06', mapa: '1:06 a 1:30', donde: '1:30 a 1:51',
-    nube: '1:51 a 2:11', vision: '2:11 a 2:23', negocio: '2:23 a 2:43', cierre: '2:43 a 2:51',
+    mina: '0:00 a 0:23', demo: '0:23 a 0:45', mundos: '0:45 a 1:06', mapa: '1:06 a 1:31', donde: '1:31 a 1:51', nube: '1:51 a 2:12', vision: '2:12 a 2:27', negocio: '2:27 a 2:43', cierre: '2:43 a 2:51',
   },
 };

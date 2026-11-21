@@ -16,7 +16,7 @@
 
   // El mapa de decisiones visto desde arriba, con sus curvas de nivel: la misma respuesta de la lámina 4.
   function mapaDesdeArriba() {
-    const T = K.datos.terreno, r = K.rejilla(), M = K.rejillaLado, duda = T.umbral_de_duda || 0.1;
+    const T = K.datos.real, r = K.rejilla(T), M = K.rejillaLado, duda = T.umbral_de_duda || 0.1;     // el terreno real: es el encargo de M-08 a M-10
     const cv = document.createElement('canvas');
     cv.width = cv.height = M;
     const ctx = cv.getContext('2d'), img = ctx.createImageData(M, M);
@@ -25,7 +25,7 @@
         const i = y * M + x, o = ((M - 1 - y) * M + x) * 4;                   // la fila 0 es el sur: se dibuja abajo
         if (r.masc[i] < 0.5) continue;
         const p = r.p[i], m = r.media[i];
-        let c = p >= 1 - duda ? [228, 96, 60] : (p <= duda ? [42, 165, 150] : ((x + y) % 7 < 3 ? [140, 108, 40] : [238, 194, 90]));
+        let c = p >= 1 - duda ? [228, 96, 60] : (p <= duda ? [31, 168, 122] : ((x + y) % 7 < 3 ? [140, 108, 40] : [238, 194, 90]));
         const der = r.media[Math.min(M - 1, x + 1) + y * M], arr = r.media[x + Math.min(M - 1, y + 1) * M];
         const curva = Math.floor(m / 100) !== Math.floor(der / 100) || Math.floor(m / 100) !== Math.floor(arr / 100);
         const corte = (m - T.umbral) * (der - T.umbral) < 0 || (m - T.umbral) * (arr - T.umbral) < 0;
@@ -43,7 +43,7 @@
       const a = K.datos.sello.amortizacion, q = function (s) { return L.querySelector(s); };
       this.total = a.mcmc_s;                 // 26.698,8 s
       this.rapido = a.red_s;                 // 0,69 s
-      this.n = K.datos.donde.analisis_rehechos;
+      this.n = Math.round(a.mcmc_s / K.datos.sello.mcmc_s_por_dataset);      // 228: los análisis de M-08, medidos en el terreno real
       this.el = {
         relojLento: q('#reloj-lento'), barraLenta: q('#barra-lenta'), falta: q('#falta-lento'), cualLento: q('#cual-lento'),
         relojK: q('#reloj-krylov'), barraK: q('#barra-krylov'), listo: q('#listo-krylov'), cualK: q('#cual-krylov'),

@@ -25,8 +25,8 @@
       <div class="t2">En una mina, las decisiones no esperan.</div>
       <div class="preguntas">
         <div class="p" data-paso="0" style="--d:.9s">¿Dónde perforo?</div>
-        <div class="p" data-paso="0" style="--d:1.5s">¿Este bloque va a planta o a botadero?</div>
-        <div class="p" data-paso="0" style="--d:2.1s">¿Qué camión detengo hoy?</div>
+        <div class="p" data-paso="0" style="--d:1.5s">¿Esta roca va a la planta o se aparta?</div>
+        <div class="p" data-paso="0" style="--d:2.1s">¿Qué camión paro antes de que falle?</div>
       </div>
     </div>
 
@@ -45,7 +45,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="mina"></span></h4>
-        <p class="dice">«En una mina, las decisiones no esperan: dónde perforar, qué bloque va a planta, qué camión detener.» <b>[→]</b> «Los modelos que las responden bien tardan horas y exigen un data scientist. Cuando la respuesta llega, la decisión ya se tomó.» <b>[→]</b> «Nosotros construimos un Artificial Data Scientist para la minería. Se llama Krylov.»</p></div>
+        <p class="dice">«En una mina, las decisiones no esperan: dónde perforar, a dónde va la roca, qué camión parar.» <b>[→]</b> «Los modelos que las responden bien tardan horas y exigen un data scientist. Cuando la respuesta llega, la decisión ya se tomó.» <b>[→]</b> «Nosotros construimos un Artificial Data Scientist para la minería. Se llama Krylov.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">El rajo es una ilustración generada por computador: no es una mina real. «Tardan horas» se sostiene con M-10 (más de 7 horas para rehacer 228 análisis). No se nombran faenas ni empresas, y no se dan cifras de costo por hora: las del documento de minería no tienen fuente registrada en <code>CIFRAS.md</code>.</p></div>
     </div></aside>
@@ -55,7 +55,7 @@
   <section class="lamina" id="l-demo" data-id="demo" data-pasos="3">
     <div class="bloque cabeza" data-paso="0">
       <div class="t2">El mismo encargo, al mismo tiempo.</div>
-      <div class="p">Rehacer <span data-dato="donde.analisis_rehechos">228</span> análisis completos de un terreno, para decidir dónde conviene medir.</div>
+      <div class="p">Rehacer <span data-dato="sello.analisis_medidos">228</span> análisis completos de un terreno real, para decidir dónde conviene medir.</div>
     </div>
 
     <div class="bloque pantallas" data-paso="0" style="--d:.3s">
@@ -84,7 +84,7 @@
       <div><h4>Qué se dice · <span data-tiempo="demo"></span></h4>
         <p class="dice">«Se lo mostramos. El mismo encargo, al mismo tiempo: 228 análisis de un terreno.» <b>[→]</b> «Krylov: listo, con el mapa en pantalla. El método de siempre todavía va en el primer análisis.» <b>[→]</b> «Termina en más de siete horas. Krylov, en menos de un segundo.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">M-08 (228 análisis), M-09 (0,69 s, la red), M-10 (26.699 s = 7 h 24 min 59 s), M-25 (117 s por análisis lento). <b>Las 7 horas son 228 × 117,1 s</b> (medido por análisis en 6 terrenos): nadie las corrió seguidas. La pantalla de la izquierda avanza en tiempo real hasta el segundo clic; después dice «acelerado». El mapa de la derecha es la respuesta real de la red. <b>Tecla D:</b> abre la demo en vivo (<code>config.js</code>, necesita internet); hoy apunta a la app publicada, que todavía no es la versión minera.</p></div>
+        <p class="fuente">M-08 (228 análisis), M-09 (0,69 s, la red), M-10 (26.699 s = 7 h 24 min 59 s), M-25 (117 s por análisis lento). <b>Las 7 horas son 228 × 117,1 s</b> (medido por análisis en 6 terrenos): nadie las corrió seguidas. La pantalla de la izquierda avanza en tiempo real hasta el segundo clic; después dice «acelerado». El mapa de la derecha es la respuesta de la red para ese terreno (datos reales públicos, río Mosa): es el encargo que se midió. <b>Tecla D:</b> abre la demo en vivo (<code>config.js</code>, necesita internet); hoy apunta a la app publicada, que todavía no es la versión minera.</p></div>
     </div></aside>
   </section>
 
@@ -114,122 +114,123 @@
   </section>
 
   <!-- ============================== 4 · El mapa ============================== -->
-  <section class="lamina sobre-mapa" id="l-mapa" data-id="mapa" data-pasos="3" data-gl="1">
+    <section class="lamina sobre-mapa" id="l-mapa" data-id="mapa" data-pasos="3" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq" id="etq-mapa"></div>
 
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2">Un terreno real. <span data-dato="terreno.n_puntos">155</span> muestras de zinc.</div>
-      <div class="p">Datos públicos, tomados junto al río Mosa.</div>
+      <div class="t2">Un banco de la mina, simulado. <span data-dato="terreno.n_puntos">340</span> muestras.</div>
+      <div class="p" data-dato="terreno.origen_datos">Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina.</div>
     </div>
 
     <div class="bloque lateral" data-paso="1">
       <div class="leyenda">
-        <div class="fila"><span class="muestra actuar"></span><span data-dato="terreno.rotulos.actuar">Hay que limpiar</span><span class="num" data-dato="terreno.colores.actuar">20</span></div>
-        <div class="fila"><span class="muestra en-duda"></span><span data-dato="terreno.rotulos.en_duda">No sabemos: conviene medir</span><span class="num" data-dato="terreno.colores.en_duda">67</span></div>
-        <div class="fila"><span class="muestra no-actuar"></span><span data-dato="terreno.rotulos.no_actuar">No hace falta limpiar</span><span class="num" data-dato="terreno.colores.no_actuar">254</span></div>
-        <div class="fila chica"><span class="muestra corte"></span><span>Línea blanca: <span data-dato="terreno.umbral">720</span> <span data-dato="terreno.unidad_valor">mg/kg</span>, el nivel que obliga a actuar</span><span></span></div>
-        <div class="fila chica" data-paso="2"><span class="muestra malla"></span><span><b>Malla de arriba: el rango creíble.</b> Hasta dónde podría llegar el metal.</span><span></span></div>
+        <div class="fila"><span class="muestra actuar"></span><span data-dato="terreno.rotulos.actuar">Conviene apartar</span><span class="num" data-dato="terreno.colores.actuar">147</span></div>
+        <div class="fila"><span class="muestra en-duda"></span><span data-dato="terreno.rotulos.en_duda">No sabemos: conviene muestrear</span><span class="num" data-dato="terreno.colores.en_duda">309</span></div>
+        <div class="fila"><span class="muestra no-actuar"></span><span data-dato="terreno.rotulos.no_actuar">Puede ir a la planta</span><span class="num" data-dato="terreno.colores.no_actuar">568</span></div>
+        <div class="fila chica"><span class="muestra corte"></span><span>Línea blanca: <span data-dato="terreno.umbral">500</span> <span data-dato="terreno.unidad_valor">ppm de arsénico</span>, el límite de este ejemplo</span><span></span></div>
+        <div class="fila chica" data-paso="2"><span class="muestra malla"></span><span><b>Malla de arriba: el rango creíble.</b> Hasta dónde podría llegar en cada bloque.</span><span></span></div>
       </div>
       <div class="cuesta" data-paso="1" style="--d:1.4s">
-        <div class="p" style="color:var(--tinta)">Lo que te cuesta no saber</div>
-        <div class="num">US$ <span data-dato="terreno.costo_de_no_saber" data-formato="miles">646.485</span></div>
+        <div class="p" style="color:var(--tinta)" data-dato="terreno.rotulos.costo_de_no_saber">Lo que te cuesta no saber</div>
+        <div class="num">US$ <span data-dato="terreno.costo_de_no_saber" data-formato="miles">1.577.707</span></div>
         <div class="dato">Con los costos que tú pones</div>
       </div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="mapa"></span></h4>
-        <p class="dice">«Esto funciona hoy. Un terreno real: 155 muestras de zinc.» <b>[→]</b> «Krylov estima el metal en todo el terreno y decide. Rojo, hay que limpiar. Turquesa, no hace falta. Dorado, no sabemos. Y pone en plata lo que cuesta no saber.» <b>[→]</b> «La malla de arriba es cuánto se puede equivocar.»</p></div>
+        <p class="dice">«Primera decisión: un banco de la mina, recién tronado. En cada pozo se midió el arsénico.» <b>[→]</b> «Krylov responde el banco entero. Verde, puede ir a la planta. Rojo, conviene apartarlo. Ámbar, no sabemos. Y este número es lo que te cuesta no saber.» <b>[→]</b> «La malla de arriba es cuánto se puede equivocar.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">D-04 (155 mediciones; datos <code>meuse</code>, río Mosa). K-11 (720 mg/kg). K-12 y K-13 (costos: hipótesis; en pantalla dice «con los costos que tú pones»). Bloques por decisión, lo que cuesta no saber y alturas: <code>api.analizar("terreno")</code> con la red. La superficie se dibuja interpolando entre los 341 bloques del motor; la malla es el tope del rango de 90%. <b>Es un terreno contaminado, no una mina:</b> se dice que es el mismo tipo de modelo con que se estiman leyes, no que sea un yacimiento. Los colores son decisiones, no pronósticos. Si preguntan por exactitud: M-13, 24 de 31 mediciones escondidas cayeron en el rango (77%).</p></div>
+        <p class="fuente"><b>El banco es simulado</b> y la lámina lo dice en el título y en la bajada (caso <code>leyes</code>, D-37). M-41 (US$ 1.577.707), K-21 (500 ppm, supuesto del demo), K-22 y K-23 (costos: hipótesis). Bloques por decisión y alturas: <code>api.analizar("leyes")</code> con la red. La superficie se dibuja interpolando entre los 1.024 bloques del motor; la malla es el tope del rango de 90%. Los colores son decisiones, no pronósticos. <b>Con datos reales:</b> el mismo motor, en el terreno público del río Mosa, dejó 24 de 31 mediciones escondidas dentro de su rango (M-13, 77%); está en la lámina <code>0</code>. El castigo por arsénico (I-04, I-05) no se dice con cifra hasta que una persona firme esas fuentes.</p></div>
     </div></aside>
   </section>
 
   <!-- ============================== 5 · ¿Dónde mido? ============================== -->
-  <section class="lamina sobre-mapa" id="l-donde" data-id="donde" data-pasos="2" data-gl="1">
+    <section class="lamina sobre-mapa" id="l-donde" data-id="donde" data-pasos="2" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq" id="etq-donde"></div>
 
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2">Una medición más cuesta US$ <span data-dato="terreno.costos.medicion" data-formato="miles">3.000</span>. <span class="oro">¿Dónde vale la pena?</span></div>
+      <div class="t2">Una muestra más cuesta US$ <span data-dato="terreno.costos.medicion" data-formato="miles">1.500</span>. <span class="oro" data-dato="terreno.rotulos.donde_medir">¿Dónde perforo?</span></div>
     </div>
 
     <div class="bloque ranking" id="ranking" data-paso="0" data-hasta="0"></div>
 
     <div class="bloque escaner dato" data-paso="0" data-hasta="0">
-      Krylov rehízo el análisis completo <b><span id="cuenta-analisis">0</span> veces</b>, uno por cada lugar dudoso y cada resultado posible. <b><span data-dato="sello.amortizacion.red_s" data-formato="coma2">0,69</span> s.</b>
+      Krylov rehízo el análisis completo <b><span id="cuenta-analisis">0</span> veces</b>: cada lugar dudoso, con cada resultado posible.
     </div>
 
     <div class="bloque medicion toca" data-paso="1">
-      <div class="t3" id="texto-medicion">Mides en A: 1.113 mg/kg.</div>
+      <div class="t3" id="texto-medicion">Perforas en A: 375 ppm.</div>
       <div class="regla" id="regla"></div>
       <div class="baja">
-        <div class="p" style="color:var(--tinta)">El mapa se rehace. Lo que cuesta no saber baja</div>
-        <div class="num">US$ <span id="baja-monto">21.038</span></div>
+        <div class="p" style="color:var(--tinta)">El mapa se rehace. Lo que cuesta no saber <span id="baja-sentido">baja</span></div>
+        <div class="num">US$ <span id="baja-monto">10.263</span></div>
+        <div class="dato" id="baja-promedio"></div>
       </div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="donde"></span></h4>
-        <p class="dice">«Una medición más cuesta tres mil dólares: ¿dónde vale la pena? Krylov probó cada lugar dudoso y rehízo el análisis 228 veces, en menos de un segundo. Medir en A vale más de quince mil.» <b>[→]</b> «Mido, sale alto, el mapa se rehace y la duda baja.»</p></div>
+        <p class="dice">«La pregunta que vale plata: una muestra más, ¿dónde perforo? Krylov probó cada lugar dudoso y rehízo el análisis completo 480 veces. Una muestra en A vale cerca de nueve mil dólares, y cuesta mil quinientos.» <b>[→]</b> «Perforo, y el mapa se rehace.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">K-17 (la medición cuesta US$ 3.000: hipótesis). M-08, M-09. Valor de medir en A, B y C: <code>api.donde_medir("terreno")</code> (M-12 sigue «pendiente» en CIFRAS). Las 19 columnas de luz son todos los lugares candidatos con su valor: <code>generar.py</code> repite el cálculo de <code>nucleo/espacial.donde_medir</code> y comprueba que los tres mejores coinciden con la API. El mapa rehecho es la respuesta de la red a <code>api.analizar("terreno", mediciones=[…])</code>, guardada: aquí se anima, en la app corre en vivo. En la regla se puede elegir «Bajo», «Medio» o «Alto», y en el mapa otra letra.</p></div>
+        <p class="fuente">K-24 (la muestra cuesta US$ 1.500: hipótesis). M-43 (480 análisis), M-46 (lo que vale perforar en A, B y C). <b>El tiempo no está en pantalla:</b> M-44 sigue sin medirse limpio; en este computador tardó 1,3 s. Lo medido es el terreno real: 228 análisis en 0,69 s (lámina 2). Las 40 columnas de luz son todos los lugares candidatos: <code>generar.py</code> repite el cálculo de <code>nucleo/espacial.donde_medir</code> y comprueba los tres mejores contra la API. El mapa rehecho es la respuesta de la red, guardada: aquí se anima, en la app corre en vivo. <b>Ojo con el resultado:</b> por defecto se muestra el del medio; si la muestra sale alta, lo que cuesta no saber sube, y la lámina lo dice. En promedio baja lo que vale la muestra.</p></div>
     </div></aside>
   </section>
 
   <!-- ============================== 6 · Sabe cuando no sabe ============================== -->
-  <section class="lamina" id="l-nube" data-id="nube" data-pasos="3">
+    <section class="lamina" id="l-nube" data-id="nube" data-pasos="3">
     <canvas id="lienzo-nube"></canvas>
 
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2">¿Y si los datos vienen malos? Lo nota antes de responder.</div>
+      <div class="t2">¿Y si los datos no alcanzan? Lo dice antes de responder.</div>
     </div>
 
     <div class="bloque paso-txt" data-paso="0" data-hasta="0" style="--d:1.2s">
-      <div class="p">Cada punto es un caso con el que Krylov practicó. Un archivo nuevo tiene que <b>parecerse a alguno.</b></div>
+      <div class="p">Cada punto es un banco simulado con el que Krylov practicó. Un archivo nuevo tiene que <b>parecerse a alguno.</b></div>
     </div>
     <div class="bloque paso-txt" data-paso="1" data-hasta="1">
       <div class="t3 rojo">No responde.</div>
-      <div class="p">Este archivo cae lejos de todo lo que practicó: <b>una de sus columnas adivina sola la respuesta.</b> Algo anda mal con los datos.</div>
+      <div class="p">Este banco trae <span data-dato="pocos.muestras">12</span> muestras, y nunca practicó con tan pocas. <b id="motivo-pocos">«Hay 12 mediciones y hacen falta al menos 30.»</b></div>
     </div>
     <div class="bloque paso-txt" data-paso="2">
       <div class="t3 verde">Ahora sí responde.</div>
-      <div class="p">Propone quitar esa columna. El archivo vuelve a parecerse a lo que conoce. <b>Sabe cuando no sabe.</b></div>
+      <div class="p">El mismo banco, con sus <span data-dato="terreno.n_puntos">340</span> muestras, cae dentro de lo que conoce. <b>Sabe cuando no sabe.</b></div>
     </div>
 
-    <div class="pie-dato dato"><span data-dato="nube.n_simulaciones" data-formato="miles">5.000</span> casos simulados (se dibujan <span data-dato="nube.n_dibujadas" data-formato="miles">3.000</span>) · archivo público de ejemplo con una columna agregada</div>
+    <div class="pie-dato dato"><span data-dato="practica.n" data-formato="miles">3.000</span> terrenos del simulador con que practicó · la altura de cada punto no significa nada</div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="nube"></span></h4>
-        <p class="dice">«¿Y si los datos vienen malos? Antes de responder, Krylov compara el archivo con todo lo que practicó.» <b>[→]</b> «Este cae lejos: una columna delata la respuesta. No responde.» <b>[→]</b> «Propone quitarla, y recién ahí contesta. Sabe cuando no sabe.»</p></div>
+        <p class="dice">«¿Y si los datos no alcanzan? Antes de responder, compara el archivo con todo lo que practicó.» <b>[→]</b> «Este trae doce muestras: nunca practicó con tan pocas. No responde, y dice qué falta.» <b>[→]</b> «Con el banco completo, recién ahí contesta. Sabe cuando no sabe.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">M-29 (el archivo malo cae fuera y, corregido, dentro; límite 0,912). Puntos y posiciones: <code>api.nube("rotacion_malo")</code> y la misma con <code>["quitar_factor:fecha_salida"]</code>. <b>El ejemplo no es minero:</b> es el archivo público de rotación (D-01, ficticio, de IBM) con una columna agregada por nosotros (D-05). Por eso la lámina habla de «casos» y de «un archivo», sin decir de qué industria. Cuando exista un archivo malo minero, se regenera <code>datos.js</code>. Esa red no pasó su sello: no se dice «al instante» de ese caso.</p></div>
+        <p class="fuente">El archivo es el caso <code>leyes_pocos</code> (el mismo banco con 12 pozos; en la app, tecla <code>M</code>). El motivo en pantalla es el que entrega <code>api.analizar("leyes_pocos")</code>. Los puntos son 3.000 terrenos de <code>motor/espacial/simular.py</code> (semilla 2026) según cuántas muestras tenían; los límites, 30 y 400, son los del simulador y los de <code>nucleo/espacial.py</code>. Solo el eje horizontal significa algo. Esta lámina reemplaza a la nube del caso de rotación, que se retiró con D-37.</p></div>
     </div></aside>
   </section>
 
   <!-- ============================== 7 · Hoja de ruta ============================== -->
-  <section class="lamina" id="l-vision" data-id="vision" data-pasos="1" data-gl="1">
+    <section class="lamina" id="l-vision" data-id="vision" data-pasos="1" data-gl="1">
     <div class="velo-pie"></div>
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2"><span class="cobre">Hoja de ruta:</span> un modelo para cada decisión crítica de la mina.</div>
+      <div class="t2">Una mina decide esto todos los días.</div>
     </div>
 
     <div class="cinco" data-paso="0" style="--d:.5s">
-      <div><div class="dato">Leyes</div><div class="t3">¿Planta o botadero?</div></div>
-      <div><div class="dato">Sismicidad</div><div class="t3">¿Evacúo el sector?</div></div>
-      <div><div class="dato">Camiones</div><div class="t3">¿Cuál falla primero?</div></div>
-      <div><div class="dato">Flotación</div><div class="t3">¿Cómo ajusto la planta?</div></div>
-      <div><div class="dato">Taludes y relaves</div><div class="t3">¿Ruido o falla?</div></div>
+      <div data-caso="leyes"><div class="t3">¿Va a la planta o se aparta?</div><div class="dato estado"></div></div>
+      <div data-caso="taludes"><div class="t3">¿Es ruido, o el muro va a ceder?</div><div class="dato estado"></div></div>
+      <div data-caso="flotacion"><div class="t3">¿Se me está yendo cobre?</div><div class="dato estado"></div></div>
+      <div data-caso="flota"><div class="t3">¿Qué camión paro antes de que falle?</div><div class="dato estado"></div></div>
+      <div data-caso="sismicidad"><div class="t3">¿Puede volver a entrar la gente?</div><div class="dato estado"></div></div>
     </div>
 
-    <div class="pie-dato dato">Nada de esta lámina existe todavía · imágenes: ilustración</div>
+    <div class="pie-dato dato">Imágenes: ilustración · en seguridad, Krylov apoya la decisión de un especialista; no la reemplaza</div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="vision"></span></h4>
-        <p class="dice">«Hoy lo ven en un terreno. La hoja de ruta: un modelo para cada decisión crítica de la mina. Leyes, sismicidad, camiones, flotación, taludes y relaves.»</p></div>
+        <p class="dice">«La misma idea, en cuatro decisiones más: si un muro va a ceder, si se está yendo cobre, qué camión parar, cuándo vuelve a entrar la gente. Hoy son hoja de ruta.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente"><b>Nada de esta lámina existe:</b> es hoja de ruta y las cinco figuras son ilustraciones. Los cinco problemas salen del documento «Inferencia Bayesiana Amortizada para la Gran Minería Chilena». No van sus cifras (costo por hora de un camión detenido, minutos para decidir, porcentaje de arsénico) ni los nombres de las faenas: no tienen fuente registrada. Si alguien las quiere en pantalla, primero se registran en <code>CIFRAS.md</code> con su enlace.</p></div>
+        <p class="fuente"><b>El estado de cada decisión se escribe en <code>config.js</code></b> («responde», «precalculado» o «ruta») y tiene que decir lo mismo que la tabla «Los cinco casos» de <code>estado/TABLERO.md</code> a las 20:30. Hoy: <code>leyes</code> responde; las otras cuatro, hoja de ruta. La frase entre corchetes se ajusta a eso. Las cinco figuras son ilustraciones. Regla 22: en taludes y sismicidad no se promete seguridad ni se usa un accidente como gancho. Las cifras de minería (I-01 a I-22) no van en pantalla hasta que una persona las firme (S-25).</p></div>
     </div></aside>
   </section>
 
@@ -252,9 +253,9 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="negocio"></span></h4>
-        <p class="dice">«Partimos por la minería: tiene los problemas más difíciles y es la industria que más pesa en Chile. Primer paso: un piloto con datos históricos de una faena.» <b>[→]</b> «Y el mismo Artificial Data Scientist sirve en cualquier industria que decida con datos.»</p></div>
+        <p class="dice">«Partimos por la minería: tiene los problemas más difíciles y es la industria que más pesa en Chile.» <b>[→]</b> «Y el mismo Artificial Data Scientist sirve en cualquier industria que decida con datos.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">Todo es plan del equipo: no hay clientes, pilotos firmados ni precio. Salieron Buk, AgendaPro y el precio de US$ 20 (C-05, C-06): eran para plataformas y no aplican a una faena. «La industria que más pesa en Chile» va sin cifra; si se quiere una, hay que registrarla con su fuente. La duración del piloto (el documento dice 8 semanas) es una hipótesis sin registrar: no va en pantalla.</p></div>
+        <p class="fuente">Todo es plan del equipo: no hay clientes, pilotos firmados ni precio. Salieron Buk, AgendaPro y el precio de US$ 20 (C-05, C-06). «La industria que más pesa en Chile» se sostiene con I-02 (13,1% del PIB y 59% de las exportaciones en 2025), que todavía no tiene la firma de una persona: por eso va sin cifra. La duración del piloto es una hipótesis sin registrar: no va en pantalla. <b>Ojo:</b> <code>pitch/LAMINAS.md</code> (D-37) deja el negocio fuera de los 3 minutos; esta lámina se mantiene por la revisión del deck y se puede saltar con la tecla <code>9</code>.</p></div>
     </div></aside>
   </section>
 
@@ -262,7 +263,7 @@
   <section class="lamina" id="l-cierre" data-id="cierre" data-pasos="1" data-gl="1">
     <div class="bloque frase" data-paso="0">
       <div class="t2">Krylov sabe cuánto no sabe, <span class="cobre">y te dice cuánto vale averiguarlo.</span></div>
-      <div class="p" data-paso="0" style="--d:.7s">Un Artificial Data Scientist que responde en un segundo, porque ya practicó con millones de mundos simulados.</div>
+      <div class="p" data-paso="0" style="--d:.7s">Un Artificial Data Scientist para la minería. Responde en un segundo, porque ya practicó con millones de minas simuladas.</div>
     </div>
 
     <div class="bloque qr" data-paso="0" style="--d:.4s">
@@ -279,7 +280,7 @@
       <div><h4>Qué se dice · <span data-tiempo="cierre"></span></h4>
         <p class="dice">«Está en línea: escaneen y pruébenlo. Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
-        <p class="fuente">La frase es la de AGENTS.md. «Millones» se sostiene con M-01. <b>El QR se dibuja solo desde <code>config.js</code></b>: al cambiar <code>demo.url</code> por la del producto final, cambian el QR, el texto y la tecla D. Hoy apunta a la app publicada. Los nombres del equipo también van en <code>config.js</code>. De Anthropic, solo «construido con Claude Code», salvo que la interpretación del chat funcione a las 18:00.</p></div>
+        <p class="fuente">La frase es la de AGENTS.md con el remate de D-37. «Millones de minas simuladas» se sostiene con M-01 (7.750.592 terrenos simulados); si preguntan «¿minas?»: «terrenos; el número exacto está en la lámina de cómo funciona». <b>El QR se dibuja solo desde <code>config.js</code></b>: al cambiar <code>demo.url</code> por la del producto final, cambian el QR, el texto y la tecla D. Hoy apunta a la app publicada. Los nombres del equipo también van en <code>config.js</code>. De Anthropic, solo «construido con Claude Code», salvo que la interpretación del chat funcione a las 18:00.</p></div>
     </div></aside>
   </section>
 
@@ -292,14 +293,14 @@
       <div><b><span data-dato="sello.cobertura_90" data-formato="coma2"></span></b>acierto del rango de 90%</div>
       <div><b><span data-dato="sello.mcmc_diferencia_media" data-formato="coma3"></span></b>diferencia con el MCMC (límite 0,3)</div>
       <div><b><span data-dato="sello.mcmc_s_por_dataset" data-formato="coma1"></span> s → <span data-dato="sello.latencia_ms"></span> ms</b>un análisis: MCMC → red</div>
-      <div><b><span data-dato="terreno.examen_dentro"></span> de <span data-dato="terreno.examen.n"></span></b>mediciones reales escondidas, dentro del rango</div>
+      <div><b><span data-dato="real.examen_dentro"></span> de <span data-dato="real.examen.n"></span></b>mediciones reales escondidas, dentro del rango</div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Para las preguntas</h4>
         <p class="dice">A la izquierda, lo que se hace una sola vez: las reglas del modelo inventan casos, y la red practica con ellos. A la derecha, lo que pasa con cada archivo: la misma red, ya entrenada, entrega la respuesta con su rango, y de ahí sale la decisión. Es inferencia basada en simulación, amortizada (NPE): codificador más flujo normalizador, validado con SBC y contra MCMC (NUTS).</p></div>
       <div><h4>Fuentes</h4>
-        <p class="fuente">Todo sale de <code>motor/artefactos/espacial/sello.json</code> y de <code>api.analizar("terreno")</code>: M-01, M-11, M-13, M-25, M-28. Solo el motor del terreno pasó su sello; los otros no se muestran. Límites del motor: terrenos en dos dimensiones, grilla de 32 por 32, entre 30 y 400 mediciones.</p></div>
+        <p class="fuente">Todo sale de <code>motor/artefactos/espacial/sello.json</code> y de <code>api.analizar("terreno")</code> (el terreno real del río Mosa): M-01, M-11, M-13, M-25, M-28. Es el motor del caso <code>leyes</code>; los otros cuatro motores están en construcción (D-37) y no se muestran aquí. Límites del motor: terrenos en dos dimensiones, grilla de 32 por 32, entre 30 y 400 mediciones.</p></div>
     </div></aside>
   </section>
 
