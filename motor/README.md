@@ -1,6 +1,6 @@
 # Krylov · README técnico (borrador)
 
-> Borrador de la tarea A-18, escrito por `amortizacion` (PC 2) el sábado 21-nov a las 06:30. Aquí van los nombres técnicos precisos; la pantalla y el pitch usan `GLOSARIO.md`. **No trae resultados de validación:** a esta hora ninguna red está validada. Cada cifra de este archivo está medida y anotada en `estado/amortizacion.md` («Números medidos»); lo que falta dice «pendiente» y se llena desde `motor/artefactos/<motor>/sello.json`.
+> Borrador de la tarea A-18, escrito por `amortizacion` (PC 2) el sábado 21-nov a las 06:13. Aquí van los nombres técnicos precisos; la pantalla y el pitch usan `GLOSARIO.md`. **No trae resultados de validación:** a esta hora ninguna red está validada. Cada cifra de este archivo está medida y anotada en `estado/amortizacion.md` («Números medidos»); lo que falta dice «pendiente» y se llena desde `motor/artefactos/<motor>/sello.json`.
 
 ## 1. Qué es
 
@@ -89,7 +89,7 @@ Escribe `motor/artefactos/<motor>/sello.json` (lo que muestra la app) y `validac
 | `jerarquico` | pendiente | pendiente | pendiente | pendiente | pendiente |
 | `estados` | pendiente | pendiente | pendiente | pendiente | pendiente |
 
-Medido hasta ahora, del método rápido solo (sáb 06:15): en el examen real de crédito, AUC 0,762 sobre 400 clientes reservados; en el de inasistencias, AUC 0,737 sobre 396 citas. La comparación con Krylov está pendiente de las redes.
+Medido hasta ahora, del método rápido solo (sáb 06:12): en el examen real de crédito, AUC 0,762 sobre 400 clientes reservados; en el de inasistencias, AUC 0,737 sobre 396 citas. La comparación con Krylov está pendiente de las redes.
 
 ## 6. Cómo reproducirlo
 
