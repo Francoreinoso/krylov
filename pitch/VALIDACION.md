@@ -44,22 +44,22 @@ Una persona abre cada enlace y anota si la página dice lo mismo que `pitch/CIFR
 
 | Id | Dónde se usa | Qué mirar | Enlace | ¿Coincide? | Verificó |
 |---|---|---|---|---|---|
-| N-01 | Apertura del pitch | Presentó tablas para decidir qué compartimento inundar; se usaron en todo el mundo. En el pitch: «a comienzos del 1900», sin fecha exacta | https://en.wikipedia.org/wiki/Aleksey_Krylov | | |
-| D-01 | Momento 2 | 1.470 personas, ficticio, creado por IBM, licencia ODbL | https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset | | |
-| D-04 | Momento 4 | 155 muestras de suelo junto al río Mosa | https://rdrr.io/cran/sp/man/meuse.html | | |
-| K-11 | Mapa del terreno | 720 mg/kg de zinc: valor de intervención holandés, suelo estándar | https://enviroeng.eu/wp-content/uploads/2022/01/LISTA-HOLANDESA-2013.pdf (anexo 1, tabla 1) | | |
-| A-01 | Lámina de negocio | SAP y Prior Labs, 4 de mayo de 2026; «más de 1.000 millones de euros en cuatro años»; no es el precio | https://news.sap.com/2026/05/sap-to-acquire-prior-labs-establish-frontier-ai-lab-europe/ | | |
-| P-01 | Lámina de negocio | Buk: hoy se verifica «+6.000 empresas»; en voz alta, «miles» | https://www.buk.cl/quienes-somos/buk-mejores-softwares-rh | | |
-| P-04 | Lámina de negocio | AgendaPro: más de 22.000 negocios | https://www.descubre.vc/noticia/agendapro-alcanza-50-millones-de-reservas-y-lanza-marketplace-regional-2026-08-20 | | |
+| N-01 | Apertura del pitch | Presentó tablas para decidir qué compartimento inundar; se usaron en todo el mundo. En el pitch: «a comienzos del 1900», sin fecha exacta | https://en.wikipedia.org/wiki/Aleksey_Krylov | Sí, en lo esencial (PC 3, 10:27): «después de 1900» trabajó en la inundabilidad de barcos y «sus tablas de inundabilidad se usan en todo el mundo». No da los años 1902 y 1903 (salen de la biografía) y atribuye a Makarov la idea de inundar compartimentos sanos. El pitch dice «a comienzos del 1900» y no nombra el barco: calza | (firma de una persona) |
+| D-01 | Momento 2 | 1.470 personas, ficticio, creado por IBM, licencia ODbL | https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset | Sí (PC 3, 10:27, abierto en el navegador): «a fictional data set created by IBM data scientists»; licencia Open Database (ODbL); archivo de 227,98 kB, 35 columnas, 1.470 filas | (firma de una persona) |
+| D-04 | Momento 4 | 155 muestras de suelo junto al río Mosa | https://rdrr.io/cran/sp/man/meuse.html | Sí, por el paquete (PC 3): la página describe el zinc en mg/kg junto al río Mosa pero no dice cuántas filas; `nrow(meuse)` en R da 155 (`datos/preparar/terreno.R`) | (firma de una persona) |
+| K-11 | Mapa del terreno | 720 mg/kg de zinc: valor de intervención holandés, suelo estándar | https://enviroeng.eu/wp-content/uploads/2022/01/LISTA-HOLANDESA-2013.pdf (anexo 1, tabla 1) | Sí según el agente de las 04:50 (anexo 1, tabla 1: 720 mg/kg de materia seca, suelo estándar); copia en un sitio de terceros. No reabierto a las 10:27 | (firma de una persona) |
+| A-01 | Lámina de negocio | SAP y Prior Labs, 4 de mayo de 2026; «más de 1.000 millones de euros en cuatro años»; no es el precio | https://news.sap.com/2026/05/sap-to-acquire-prior-labs-establish-frontier-ai-lab-europe/ | Sí (PC 3, 10:27): 4 de mayo de 2026; «more than €1 billion over the next four years»; «Terms of the deal were not disclosed»; cierre sujeto a aprobaciones | (firma de una persona) |
+| P-01 | Lámina de negocio | Buk: hoy se verifica «+6.000 empresas»; en voz alta, «miles» | https://www.buk.cl/quienes-somos/buk-mejores-softwares-rh | Sí, «+6.000 empresas felices» (PC 3, 10:27). En voz alta, «miles» | (firma de una persona) |
+| P-04 | Lámina de negocio | AgendaPro: más de 22.000 negocios | https://www.descubre.vc/noticia/agendapro-alcanza-50-millones-de-reservas-y-lanza-marketplace-regional-2026-08-20 | Sí (PC 3, 10:27): «más de 22,000 comercios en 17 países» | (firma de una persona) |
 
-**Sponsors en el lugar** (`AGENTS.md`, «Sponsors»): mirar los carteles o preguntar a la organización.
+**Sponsors en el lugar** (`AGENTS.md`, «Sponsors»): mirar los carteles o preguntar a la organización. Web del evento revisada a las 10:27 (https://hack.platan.us/26-cl): once sponsors, Anthropic y Buk como principales, y ElevenLabs, Vercel, Render, Kairos, Kapso, CChC, AgendaPro, Copec y Lici. Calza con `AGENTS.md`.
 
 | Pregunta | Respuesta | Hora |
 |---|---|---|
-| ¿Buk auspicia? (tarjeta «Caso tipo Buk») | | |
-| ¿AgendaPro auspicia? (tarjeta «Caso tipo AgendaPro»; si no, pierde el nombre) | | |
-| ¿Vercel y Render auspician? (infraestructura) | | |
-| ¿Anthropic auspicia? (D-34: se dice solo si la interpretación funciona a las 18:00) | | |
+| ¿Buk auspicia? (tarjeta «Caso tipo Buk») | Sí en la web del evento («sponsored by the big ones», junto a Anthropic). Falta mirarlo en el lugar | 10:27 |
+| ¿AgendaPro auspicia? (tarjeta «Caso tipo AgendaPro»; si no, pierde el nombre) | Sí en la web del evento. Falta mirarlo en el lugar | 10:27 |
+| ¿Vercel y Render auspician? (infraestructura) | Sí, los dos en la web del evento | 10:27 |
+| ¿Anthropic auspicia? (D-34: se dice solo si la interpretación funciona a las 18:00) | Sí, sponsor principal en la web del evento | 10:27 |
 
 ## Prueba con extraños 1 (sábado 12:30)
 
