@@ -61,9 +61,9 @@ SISTEMA_CALCE = """Eres Krylov, un data scientist artificial. Un modelo estadís
 Reglas:
 - Cada papel lleva entre `minimo` y `maximo` columnas. Un papel con mínimo 0 es opcional: déjalo vacío si ninguna columna sirve.
 - Una columna va en un solo papel. Las que no uses van en `no_usadas`.
-- Una columna que solo tiene dato cuando la respuesta ya se sabe (por ejemplo, una fecha de salida) delata la respuesta: no la uses como factor.
+- Una columna que solo tiene dato cuando la respuesta ya se sabe delata la respuesta: no la uses como factor.
 - La transformación de un papel se aplica a todas sus columnas: si una columna no la necesita, no pongas transformación en ese papel.
-- Usa una transformación solo para llevar la columna a las unidades que pide el papel (meses a años: `dividir` por 12; una fecha a años: `anios_desde_fecha`), nunca para mejorar el modelo: el modelo ya considera efectos no lineales. Si la columna ya está en esas unidades, `ninguna`. Los parámetros que no usa la transformación van en null.
+- Usa una transformación solo para llevar la columna a las unidades que pide el papel (minutos a horas: `dividir` por 60; un porcentaje a una fracción entre 0 y 1: `dividir` por 100; una escala donde el límite es 120 a una donde es 1: `dividir` por 120), nunca para mejorar el modelo: el modelo ya considera efectos no lineales. Si la columna ya está en esas unidades, `ninguna`. Los parámetros que no usa la transformación van en null.
 - `motivo`: una frase corta, sin jerga, que diga por qué esa columna cumple el papel.
 - `confianza`: alta si el nombre y los valores calzan sin duda, media si es probable, baja si es una adivinanza."""
 
@@ -100,8 +100,10 @@ def _entrada(columnas: list[str], motivo: str, confianza: str, transformacion: d
     return {"columnas": columnas, "transformacion": transformacion, "motivo": motivo, "confianza": confianza}
 
 
-def calce_por_regla(papeles: list[dict], resumen: list[dict]) -> dict:
-    """Sin modelo de lenguaje: primero por el nombre de la columna, después por su tipo, en el orden de los papeles."""
+def calce_por_regla(papeles: list[dict], resumen: list[dict], pistas: dict[str, str] | None = None) -> dict:
+    """Sin modelo de lenguaje: primero por el nombre de la columna, después por su tipo, en el orden de los papeles.
+
+    `pistas` suma palabras a un papel (papel → texto), por ejemplo la unidad del valor que trae el YAML del caso."""
     libres = {c["nombre"]: c for c in resumen}
     calce = {}
 
@@ -116,7 +118,7 @@ def calce_por_regla(papeles: list[dict], resumen: list[dict]) -> dict:
         return any(w.startswith(t) or t.startswith(w) for w in palabras for t in partes)
 
     for p in papeles:
-        palabras = set(re.findall(r"[a-z]{4,}", _normalizar(f"{p['papel']} {p['texto']}")))
+        palabras = set(re.findall(r"[a-z]{4,}", _normalizar(f"{p['papel']} {p['texto']} {(pistas or {}).get(p['papel'], '')}")))
         por_nombre = [n for n, c in libres.items() if c["tipo"] in _COMPATIBLES[p["tipo"]] and calza_el_nombre(n, palabras)]
         tomar(p, por_nombre, "El nombre de la columna calza con lo que pide el papel", "media", p["maximo"])
     for p in papeles:
@@ -134,6 +136,34 @@ def calce_por_regla(papeles: list[dict], resumen: list[dict]) -> dict:
         if p["tipo"] == "texto":                      # el identificador distingue a cada fila; el grupo tiene pocos valores
             candidatas.sort(key=lambda n: libres[n]["distintos"], reverse=p["papel"] == "id")
         tomar(p, candidatas, f"Es la columna de tipo {p['tipo'].replace('_', ' o ')} que quedaba libre", "baja", faltan)
+    return calce
+
+
+def _nombre_dice(nombre: str, *raices: str) -> bool:
+    partes = re.findall(r"[a-z]+", _normalizar(nombre))
+    return any(t.startswith(r) for t in partes for r in raices)
+
+
+def unidades_por_regla(papeles: list[dict], resumen: list[dict], calce: dict, tabla: dict[str, list[str]]) -> dict:
+    """Sin modelo de lenguaje, dos conversiones de unidades que se leen en el nombre de la columna: un porcentaje
+    cuando el papel pide una fracción entre 0 y 1 (÷ 100) y minutos cuando el papel pide horas (÷ 60)."""
+    por_nombre = {c["nombre"]: c for c in resumen}
+    for p in papeles:
+        entrada = calce.get(p["papel"])
+        if not entrada or len(entrada["columnas"]) != 1 or entrada["transformacion"]:
+            continue
+        columna = entrada["columnas"][0]
+        pide = _normalizar(f"{p['texto']} {p['texto_largo']}")
+        rango = por_nombre[columna]["rango"]
+        if re.search(r"de 0 a 1|entre 0 y 1", pide) and (
+                _nombre_dice(columna, "pct", "porc") or (rango and 1 < rango[1] <= 100)):
+            t, motivo = {"nombre": "dividir", "por": 100}, "La columna viene en porcentaje y el papel pide una fracción: se divide por 100"
+        elif re.search(r"\bhoras?\b", pide) and _nombre_dice(columna, "minut"):
+            t, motivo = {"nombre": "dividir", "por": 60}, "La columna viene en minutos y el papel pide horas: se divide por 60"
+        else:
+            continue
+        if _se_puede_aplicar(t, [columna], tabla):
+            calce[p["papel"]] = _entrada([columna], motivo, "media", t)
     return calce
 
 
@@ -212,8 +242,28 @@ def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str,
     return (calce, escrito[1]) if calce else None
 
 
-def proponer_calce(motor_id: str, contenido: bytes) -> dict:
-    """El calce de un archivo subido, con la forma de `calce_del_demo`. Lanza `PeticionInvalida` si el archivo no se lee."""
+def _pistas(caso: str | None, motor_id: str) -> dict[str, str]:
+    """Lo que el YAML del caso dice del valor medido (`columnas.unidad_valor`, «ppm de arsénico», y su transformación):
+    ayuda a la regla."""
+    if not caso:
+        return {}
+    try:
+        datos = cargar_caso(caso)
+    except Exception:                                          # noqa: BLE001 — un caso desconocido solo deja sin pista
+        return {}
+    columnas = datos.get("columnas") or {}
+    if datos.get("motor") != motor_id:
+        return {}
+    pistas = {"valor": columnas["unidad_valor"]} if isinstance(columnas.get("unidad_valor"), str) else {}
+    if columnas.get("transformacion"):                         # en el terreno: la del valor medido del caso (`log`)
+        pistas["transformacion_valor"] = columnas["transformacion"]
+    return pistas
+
+
+def proponer_calce(motor_id: str, contenido: bytes, caso: str | None = None) -> dict:
+    """El calce de un archivo subido, con la forma de `calce_del_demo`. Lanza `PeticionInvalida` si el archivo no se lee.
+
+    `caso` es la tarjeta elegida en el chat: de su YAML sale una pista para la regla (el modelo de lenguaje no la necesita)."""
     respuesta = api.papeles(motor_id)
     if "error" in respuesta:
         raise PeticionInvalida(respuesta["error"], respuesta["codigo"])
@@ -226,7 +276,13 @@ def proponer_calce(motor_id: str, contenido: bytes) -> dict:
     if del_modelo:
         (calce, proveedor), origen = del_modelo, "modelo"
     else:
-        calce, proveedor, origen = calce_por_regla(respuesta["papeles"], resumen), None, "regla"
+        pistas = _pistas(caso, motor_id)
+        calce = calce_por_regla(respuesta["papeles"], resumen, pistas)
+        valor = calce.get("valor")
+        if pistas.get("transformacion_valor") and valor and valor["columnas"]:
+            valor["transformacion"] = {"nombre": pistas["transformacion_valor"]}
+            valor["motivo"] = "El nombre calza con lo que mide el caso; se usa la misma escala que en el archivo del demo"
+        calce, proveedor, origen = unidades_por_regla(respuesta["papeles"], resumen, calce, columnas), None, "regla"
     usadas = {c for v in calce.values() for c in v["columnas"]}
     nombres = list(columnas)
     return {"caso": None, "motor_id": motor_id, "calce": calce, "columnas": nombres,

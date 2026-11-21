@@ -16,6 +16,15 @@ const forzarEstatico = new URLSearchParams(window.location.search).has('estatico
 export const hayApi = Boolean(API_URL) && !forzarEstatico
 
 // Un archivo propio exige la API; sin ella el chat lo dice en vez de responder otra cosa.
+// El servidor respondió con un error del contrato: el mensaje para la persona y su código (`no_disponible`, …).
+export class ErrorDelServidor extends Error {
+  codigo: string | null
+  constructor(mensaje: string, codigo: string | null) {
+    super(mensaje)
+    this.codigo = codigo
+  }
+}
+
 export class SinServidor extends Error {
   constructor() {
     super('No hay servidor')
@@ -87,7 +96,7 @@ async function conArchivo<T>(ruta: string, campos: Record<string, string | Blob>
     clearTimeout(tope)
   }
   const cuerpo = await r.json().catch(() => null)
-  if (!r.ok) throw new Error(cuerpo?.error ?? `El servidor respondió ${r.status}`)
+  if (!r.ok) throw new ErrorDelServidor(cuerpo?.error ?? `El servidor respondió ${r.status}`, cuerpo?.codigo ?? null)
   return cuerpo as T
 }
 
@@ -138,6 +147,13 @@ async function dondeMedir(caso: string): Promise<Respuesta<DondeMedir>> {
 export const api = {
   casos: () => pedir<Casos>('casos', 'casos'),
   textos: () => pedir<Textos>('textos', 'textos'),
+  // El archivo de prueba de un caso (`datos/demo/subida_<caso>.csv`, copiado a `web/public/pruebas/`).
+  archivoDePrueba: async (caso: string): Promise<File> => {
+    const nombre = `subida_${caso}.csv`
+    const r = await fetch(`${import.meta.env.BASE_URL}pruebas/${nombre}`)
+    if (!r.ok || r.headers.get('content-type')?.includes('html')) throw new Error(`no encontré ${nombre}`)
+    return new File([await r.blob()], nombre, { type: 'text/csv' })
+  },
   analizar: (caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []) =>
     pedir<Analisis>('analizar', `analizar/${clave(caso, transformaciones, mediciones)}`, {
       caso,
@@ -148,7 +164,8 @@ export const api = {
     pedir<Nube>('nube', `nube/${clave(caso, transformaciones)}`, { caso, transformaciones }),
   papeles: (motor: string) => pedir<Papeles>(`papeles/${motor}`, `papeles/${motor}`),
   calce: (caso: string) => pedir<Calce>(`calce/${caso}`, `calce/${caso}`),
-  calcePropio: (archivo: File, motor: string) => conArchivo<Calce>('calce', { archivo, motor_id: motor }),
+  // `caso` es la tarjeta elegida: de su YAML sale una pista para la regla de columnas.
+  calcePropio: (archivo: File, motor: string, caso: string) => conArchivo<Calce>('calce', { archivo, motor_id: motor, caso }),
   analizarArchivo: (archivo: File, motor: string, columnas: ColumnasConfirmadas) =>
     conArchivo<Analisis>('analizar_archivo', { archivo, motor_id: motor, columnas: JSON.stringify(columnas) }),
   interpretar,

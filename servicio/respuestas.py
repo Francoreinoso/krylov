@@ -52,5 +52,6 @@ def sello(motor_id: str) -> dict:
 
 
 def textos() -> dict:
-    """Los textos de pantalla que la web dibuja por su cuenta (la curva), de `casos/textos.yaml`."""
-    return {"curva": plantillas()["curva"]}
+    """Los textos de pantalla que la web dibuja por su cuenta (la curva y el chat), de `casos/textos.yaml`."""
+    todas = plantillas()
+    return {"curva": todas["curva"], "chat": todas.get("chat") or {}}

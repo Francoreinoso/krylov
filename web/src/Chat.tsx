@@ -7,7 +7,7 @@
 // Lámina (cada respuesta como una lámina) y Óxido (las cinco decisiones siempre a la vista).
 
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { api, clave as claveEstatica, despertarApi, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
+import { api, clave as claveEstatica, despertarApi, ErrorDelServidor, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
 import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
@@ -102,6 +102,7 @@ export default function Chat() {
   const [abierta, setLateral] = useState(false)
   const [enPanel, setEnPanel] = useState<number | null>(null) // Mesa: la respuesta que muestra el lienzo
   const textos = useRef<Textos | null>(null) // los rótulos de la curva; sin ellos, la curva va sin rótulos
+  const [textosChat, setTextosChat] = useState<NonNullable<Textos['chat']>>({}) // sin ellos, no hay botón de prueba
   const ultimaPregunta = useRef<HTMLLIElement>(null)
   const selectorArchivo = useRef<HTMLInputElement>(null)
 
@@ -113,7 +114,10 @@ export default function Chat() {
     despertarApi()
     api
       .textos()
-      .then((r) => (textos.current = r.datos))
+      .then((r) => {
+        textos.current = r.datos
+        setTextosChat(r.datos.chat ?? {})
+      })
       .catch(() => {})
     api
       .casos()
@@ -201,7 +205,14 @@ export default function Chat() {
       setOrigen(r.origen)
       decirRespuesta(id, { intencion, analisis, nube, donde, clave: caso.nombre })
     } catch (e) {
-      decir(id, { de: 'krylov', tipo: 'texto', texto: e instanceof SinServidor ? SIN_SERVIDOR : `No pude responder: ${(e as Error).message}` })
+      // Una decisión cuya red todavía no responde archivos propios no es un error: se dice con su frase.
+      const texto =
+        e instanceof SinServidor
+          ? SIN_SERVIDOR
+          : e instanceof ErrorDelServidor && e.codigo === 'no_disponible'
+            ? (textosChat.no_disponible ?? e.message)
+            : `No pude responder: ${(e as Error).message}`
+      decir(id, { de: 'krylov', tipo: 'texto', texto })
     } finally {
       setPensando(null)
     }
@@ -244,7 +255,7 @@ export default function Chat() {
     const modelo = MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor
     try {
       const [calce, papeles] = await Promise.all([
-        archivo ? api.calcePropio(archivo.archivo, caso.motor) : api.calce(caso.nombre).then((c) => c.datos),
+        archivo ? api.calcePropio(archivo.archivo, caso.motor, caso.nombre) : api.calce(caso.nombre).then((c) => c.datos),
         api.papeles(caso.motor),
       ])
       decir(id, {
@@ -392,6 +403,15 @@ export default function Chat() {
     }
   }
 
+  // El archivo de prueba del caso elegido, adjunto como si se hubiera arrastrado.
+  const probarArchivo = async (caso: Caso) => {
+    try {
+      await adjuntar(await api.archivoDePrueba(caso.nombre))
+    } catch (e) {
+      decir(conv.id, { de: 'krylov', tipo: 'texto', texto: `No pude abrir el archivo de prueba: ${(e as Error).message}` })
+    }
+  }
+
   if (completa) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-[90rem] flex-col px-4 py-5 sm:px-8 md:h-dvh md:min-h-0">
@@ -441,6 +461,11 @@ export default function Chat() {
       alAdjuntar={() => selectorArchivo.current?.click()}
       alQuitarAdjunto={() => setAdjunto(null)}
       alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c, calceListo: false, columnas: null }))}
+      probarArchivo={
+        conv.caso && textosChat.probar_archivo
+          ? { rotulo: textosChat.probar_archivo, alProbar: () => conv.caso && probarArchivo(conv.caso) }
+          : undefined
+      }
     />
   )
 

@@ -122,9 +122,9 @@ def _json_de_formulario(texto: str | None, campo: str) -> dict | None:
 
 
 @app.post("/api/calce")
-async def calce_propio(archivo: UploadFile = File(...), motor_id: str = Form(...)):
+async def calce_propio(archivo: UploadFile = File(...), motor_id: str = Form(...), caso: str | None = Form(None)):
     """El calce de un archivo subido: lo propone el modelo de lenguaje con un resumen de columnas, o la regla por tipo."""
-    return proponer_calce(motor_id, await _leer_archivo(archivo))
+    return proponer_calce(motor_id, await _leer_archivo(archivo), caso)
 
 
 @app.post("/api/analizar_archivo")

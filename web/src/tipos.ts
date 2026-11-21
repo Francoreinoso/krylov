@@ -56,6 +56,8 @@ export interface Curva {
 // Los textos de pantalla que la web dibuja por su cuenta (casos/textos.yaml, GET /api/textos).
 export interface Textos {
   curva: Record<'titulo' | 'medido' | 'ahora' | 'abanico' | 'limite' | 'falta' | 'sin_curva', string>
+  // El botón del archivo de prueba y la frase de una decisión que todavía no responde archivos propios.
+  chat?: Partial<Record<'probar_archivo' | 'no_disponible', string>>
 }
 
 export interface Factor {

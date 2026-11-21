@@ -21,6 +21,7 @@ interface Props {
   alAdjuntar: () => void
   alQuitarAdjunto: () => void
   alElegirCaso: (c: Caso) => void
+  probarArchivo?: { rotulo: string; alProbar: () => void } // adjunta el archivo de prueba del caso elegido
   comando?: boolean // la barra de comando del diseño Lámina
 }
 
@@ -78,6 +79,15 @@ export default function Compositor(p: Props) {
           </svg>
         </button>
         <SelectorModelo casos={p.casos} caso={p.caso} alElegir={p.alElegirCaso} />
+        {p.probarArchivo && !p.adjunto && (
+          <button
+            type="button"
+            onClick={p.probarArchivo.alProbar}
+            className="ml-1 border border-linea px-3 py-1.5 text-sm text-tinta-suave transition-colors hover:border-acento hover:text-tinta"
+          >
+            {p.probarArchivo.rotulo}
+          </button>
+        )}
         <span className="flex-1" />
         <button
           type="submit"
