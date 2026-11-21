@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { api, clave as claveEstatica, despertarApi, ErrorDelServidor, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
 import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
+import Cierre from './Cierre'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
 import Decisiones, { type Quien } from './Decisiones'
@@ -106,6 +107,7 @@ export default function Chat() {
   const [origen, setOrigen] = useState<Origen | null>(null)
   const [abierta, setLateral] = useState(false)
   const [enPanel, setEnPanel] = useState<number | null>(null) // Mesa: la respuesta que muestra el lienzo
+  const [cierre, setCierre] = useState(false) // tecla L: la lámina de cierre con el QR
   const textos = useRef<Textos | null>(null) // los rótulos de la curva; sin ellos, la curva va sin rótulos
   const [textosChat, setTextosChat] = useState<NonNullable<Textos['chat']>>({}) // sin ellos, no hay botón de prueba
   const ultimaPregunta = useRef<HTMLLIElement>(null)
@@ -319,7 +321,8 @@ export default function Chat() {
     calceListo: boolean,
     columnas: ColumnasConfirmadas | null,
   ) => {
-    const intencion = interpretar(pregunta, preguntasDe(caso))
+    // Con el rótulo de medir del caso: sin él, «¿Dónde perforo?» no se reconoce.
+    const intencion = interpretar(pregunta, preguntasDe(caso, rotulosMedir[caso.nombre] ?? rotuloMedir(conv)))
     if (intencion && !calceListo) {
       mostrarCalce(id, caso, intencion, archivo)
       return
@@ -386,27 +389,49 @@ export default function Chat() {
       if (!base) continue
       // El primero siempre está; los demás, solo si su respuesta existe.
       if (archivo !== ARCHIVOS_QUE_NO_ALCANZAN[0] && !(await api.analizar(archivo.nombre).then(() => true, () => false))) continue
-      abrirArchivoQueNoAlcanza({ ...base, nombre: archivo.nombre }, base.titulo)
+      abrirConRespuesta({ ...base, nombre: archivo.nombre }, base.titulo)
       return
     }
   }
 
-  const abrirArchivoQueNoAlcanza = (caso: Caso, pregunta: string) => {
+  // Modo demo (WORKPLAN.md 4.3): una conversación nueva que responde de inmediato con el archivo del
+  // demo y las columnas del equipo, sin el paso del calce.
+  const abrirConRespuesta = (caso: Caso, pregunta: string) => {
+    if (pensando !== null) return
     const c = { ...nueva(caso), calceListo: true }
     setEstado((s) => ({ conversaciones: [c, ...s.conversaciones], activa: c.id }))
     setEnPanel(null)
+    setCompleta(null)
+    setCierre(false)
     setTimeout(() => {
       decir(c.id, { de: 'tu', texto: pregunta })
-      // La conversación nueva le da el foco al cuadro de texto; se suelta para que otra M funcione.
-      responder(c.id, caso, 'decidir', null).then(() => requestAnimationFrame(() => (document.activeElement as HTMLElement | null)?.blur()))
+      responder(c.id, caso, 'decidir', null)
     })
   }
 
+  // Teclas del demo: 1 a 9 abren la tarjeta de ese lugar del inicio; D, «¿Dónde perforo?» en la
+  // conversación activa; M, un archivo que no alcanza; L, el cierre; F, pantalla completa.
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
       const escribiendo = e.target instanceof HTMLElement && e.target.closest('input, textarea, select')
       if (escribiendo || e.metaKey || e.ctrlKey || e.altKey) return
-      if (e.key === 'm' || e.key === 'M') archivoQueNoAlcanza()
+      const k = e.key.toLowerCase()
+      if (k === 'escape') setCierre(false)
+      else if (k === 'l') setCierre((c) => !c)
+      else if (k === 'f') {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {})
+        else document.documentElement.requestFullscreen().catch(() => {})
+      } else if (k === 'm') archivoQueNoAlcanza()
+      else if (k === 'd') {
+        const medir = rotuloMedir(conv)
+        if (!medir || conv.caso?.motor !== 'espacial') return
+        setCompleta(null)
+        setCierre(false)
+        enviar(medir)
+      } else if (/^[1-9]$/.test(k)) {
+        const caso = casos[Number(k) - 1]
+        if (caso) abrirConRespuesta(caso, caso.titulo)
+      }
     }
     window.addEventListener('keydown', tecla)
     return () => window.removeEventListener('keydown', tecla)
@@ -444,6 +469,7 @@ export default function Chat() {
           <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} textos={completa.textos} />
         </main>
         <SelectorDiseno />
+        {cierre && <Cierre alCerrar={() => setCierre(false)} />}
       </div>
     )
   }
@@ -799,6 +825,7 @@ export default function Chat() {
       )}
 
       <SelectorDiseno />
+      {cierre && <Cierre alCerrar={() => setCierre(false)} />}
     </div>
   )
 }

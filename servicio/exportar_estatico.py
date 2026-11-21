@@ -60,7 +60,7 @@ def _si_existe(ruta: str, pedir) -> int:
 
 def exportar() -> tuple[int, dict[str, str]]:
     shutil.rmtree(DESTINO, ignore_errors=True)
-    lista = respuestas.casos()
+    lista = respuestas.inicio()
     _escribir("casos", lista)
     _escribir("textos", respuestas.textos())
     n = 2
@@ -87,6 +87,11 @@ def exportar() -> tuple[int, dict[str, str]]:
         n += _si_existe(f"sello/{c['motor']}", lambda: respuestas.sello(c["motor"]))
         n += _si_existe(f"papeles/{c['motor']}", lambda: nucleo.papeles(c["motor"]))
         n += _si_existe(f"calce/{nombre}", lambda: calce_del_demo(nombre))
+    # P-27: la tarjeta cuyo motor todavía no responde no sale en el inicio ni se exporta.
+    visibles = {c["nombre"] for c in lista["casos"]}
+    for c in respuestas.casos()["casos"]:
+        if c["nombre"] not in visibles:
+            quien[c["nombre"]] = "fuera del inicio: sin respuesta del motor"
     for nombre in ARCHIVOS_QUE_NO_ALCANZAN:
         datos = respuestas.analizar(nombre) if (CASOS / f"{nombre}.yaml").exists() else None
         if datos is None or "error" in datos:

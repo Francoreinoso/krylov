@@ -54,7 +54,7 @@ def salud():
 
 @app.get("/api/casos")
 def casos():
-    return respuestas.casos()
+    return respuestas.inicio()
 
 
 @app.post("/api/analizar")

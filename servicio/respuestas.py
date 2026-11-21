@@ -5,6 +5,8 @@ Es la única tabla entre una petición y su respuesta. La usan `servicio.app` y
 El ejemplo fijo trae `_aviso`, así se distingue de una respuesta de un motor.
 """
 
+from functools import cache
+
 from nucleo import api as nucleo
 from nucleo.textos import plantillas
 from servicio import fijos
@@ -33,6 +35,16 @@ def _motor_de(caso: str) -> str | None:
 
 def casos() -> dict:
     return _o_fijo(nucleo.casos(), fijos.casos)
+
+
+@cache
+def inicio() -> dict:
+    """Las tarjetas que se muestran: las de `casos()` cuyo motor responde (P-27). La que pinta su ejemplo fijo sale del inicio.
+
+    Se calcula una vez por proceso: las variables `KRYLOV_MOTOR_<ID>` y los sellos no cambian mientras corre.
+    """
+    todas = casos()
+    return {**todas, "casos": [c for c in todas["casos"] if "_aviso" not in analizar(c["nombre"])]}
 
 
 def analizar(caso: str, transformaciones=(), costos: dict | None = None, mediciones=()) -> dict:

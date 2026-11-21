@@ -24,9 +24,12 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 17:42 · P-25 terminada: `taludes` responde con su red (sello de `deformacion` PASA, D-39, revalidado por PC 3 a las 17:36). Estático regenerado con `KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_CINETICA=red KRYLOV_MOTOR_DEFORMACION=red uv run python -m servicio.exportar_estatico`: `leyes`, `taludes` y `flotacion` red; `flota` y `sismicidad` ejemplo. `taludes`: verde, 5 conviene cerrar / 29 puede seguir abierto / 2 no sabemos. El pie ya trae la frase del sello (A-32 de PC 2). Sin desplegar: H6. Render necesita las tres variables.
 
+- sáb 17:53 · P-27 terminada: el inicio muestra solo las tarjetas cuyo motor responde (`servicio/respuestas.py`, `inicio()`; la usan `GET /api/casos` y `exportar_estatico`). Hoy: `leyes`, `taludes` y `flotacion`, las tres con «Responde la red»; `flota` y `sismicidad` quedan fuera sin tocar `casos/INICIO`, y entran solas al exportar con su variable en `red` (P-30). Prueba nueva en `servicio/prueba_sello.py`.
+- sáb 17:53 · P-28 terminada: teclas del demo en `web/src/Chat.tsx`. `1`–`9` abren la tarjeta de ese lugar del inicio y responden al tiro, sin calce; `D` es «¿Dónde perforo?» en leyes; `M` el archivo que no alcanza; `L` la lámina de cierre (`web/src/Cierre.tsx`: frase, QR fijo `web/public/qr.svg` a krylov-tan.vercel.app, `Esc` la cierra); `F` pantalla completa. Se quitó el foco automático del cuadro de texto. Lámina es el diseño por defecto (portada). Arreglado de paso: «¿Dónde perforo?» escrito o desde la tecla no se reconocía (`atender` armaba las preguntas sin el rótulo de medir). Estático: `KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_CINETICA=red KRYLOV_MOTOR_DEFORMACION=red uv run python -m servicio.exportar_estatico`; dos corridas dan lo mismo salvo `tiempo_ms` (semilla fija); se dejaron los tiempos anteriores. Verificación: `cd web && npm run build && npm run prueba` (45) y `uv run pytest servicio -q` (8); recorrido con teclas en Chromium sin ventana sobre `vite preview` con `?estatico=1` (1, D con tres pines, 2, 3, 4 y 5 sin efecto, M con banda roja, L, Esc), sin errores; el QR de la captura se decodifica a `https://krylov-tan.vercel.app/`. El recorrido con el mouse en la URL pública queda para la persona.
+
 ## En curso
 
-- sáb 17:42 · Siguiente: P-27 (`flota`, `sismicidad`) y P-28 (modo demo; ahí conviene quitar el foco automático del cuadro de texto en modo demo para que `1`–`5`, `D`, `M`, `L` funcionen sin `Esc`).
+- sáb 17:53 · P-29: `preparar-demo` y borrar código muerto (otros tres diseños, `/clasico`, ruta `/api/cartera`). Tope 18:00. Después, P-30: cada red que pase hasta las 20:30.
 
 ## Bloqueos
 

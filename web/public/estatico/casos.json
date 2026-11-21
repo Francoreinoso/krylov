@@ -29,26 +29,6 @@
    "sintetico": true,
    "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina.",
    "tiene_cartera": false
-  },
-  {
-   "nombre": "flota",
-   "titulo": "¿Qué camión paro antes de que falle?",
-   "empresa_o_industria": "Flota de camiones · mantención",
-   "sponsor": null,
-   "motor": "desgaste",
-   "sintetico": true,
-   "origen_datos": "Flota simulada: 40 camiones con sus muestras de aceite. No son datos de ninguna mina.",
-   "tiene_cartera": false
-  },
-  {
-   "nombre": "sismicidad",
-   "titulo": "¿Puede volver a entrar la gente?",
-   "empresa_o_industria": "Sismicidad · mina subterránea",
-   "sponsor": null,
-   "motor": "sismico",
-   "sintetico": true,
-   "origen_datos": "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina.",
-   "tiene_cartera": false
   }
  ]
 }

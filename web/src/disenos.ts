@@ -1,6 +1,6 @@
 // Cuatro diseños para comparar en local, todos con la cara del deck. Cada uno redefine tokens del
 // CSS (index.css) y elige una disposición de la pantalla. Se elige con ?diseno=<id>, lo guardado o
-// el primero; la tecla V pasa al siguiente (la D queda para el modo demo).
+// Lámina, el que eligió el grupo; la tecla V pasa al siguiente (la D queda para el modo demo).
 
 import { useSyncExternalStore } from 'react'
 
@@ -21,6 +21,7 @@ export const DISENOS: Diseno[] = [
 ]
 
 const CLAVE = 'krylov.diseno'
+const POR_DEFECTO: Disposicion = 'lamina' // el que eligió el grupo
 const EVENTO = 'diseno'
 // El atributo del CSS usa el nombre corto del diseño.
 const ATRIBUTO: Record<Disposicion, string> = { columna: 'carta', mesa: 'mesa', lamina: 'lamina', oxido: 'oxido' }
@@ -33,9 +34,9 @@ export function disenoInicial(): Disposicion {
   try {
     guardado = localStorage.getItem(CLAVE)
   } catch {
-    // Sin almacenamiento: se usa el primero.
+    // Sin almacenamiento: se usa el de por defecto.
   }
-  return (porId(pedido) ?? porId(guardado) ?? DISENOS[0]).id
+  return (porId(pedido) ?? porId(guardado) ?? porId(POR_DEFECTO)!).id
 }
 
 export function aplicarDiseno(id: Disposicion): void {

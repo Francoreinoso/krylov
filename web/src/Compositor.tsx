@@ -55,10 +55,9 @@ export default function Compositor(p: Props) {
         ref={campo}
         rows={1}
         value={p.texto}
-        autoFocus
         onChange={(e) => p.alEscribir(e.target.value)}
         onKeyDown={(e) => {
-          // Esc suelta el cuadro: así las teclas del demo (M) funcionan sin hacer clic afuera.
+          // Esc suelta el cuadro: así las teclas del demo funcionan sin hacer clic afuera.
           if (e.key === 'Escape') e.currentTarget.blur()
           if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
             e.preventDefault()

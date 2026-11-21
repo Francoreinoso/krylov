@@ -24,3 +24,17 @@ def test_rojo_datos_sale_aunque_el_sello_no_pase(monkeypatch):
     monkeypatch.setattr(respuestas.nucleo, "sello", lambda motor_id: {"motor_id": "espacial", "pasa": False})
     r = respuestas.analizar("leyes_pocos")
     assert "_aviso" not in r and r["semaforo"]["estado"] == "rojo_datos"
+
+
+def test_el_inicio_no_muestra_tarjetas_con_ejemplo(monkeypatch):
+    # P-27: una tarjeta cuyo motor todavía no responde sale del inicio.
+    monkeypatch.setenv("KRYLOV_MOTOR_ESPACIAL", "red")
+    monkeypatch.setattr(respuestas.nucleo, "sello", lambda motor_id: {"motor_id": motor_id, "pasa": motor_id == "espacial"})
+    respuestas.inicio.cache_clear()
+    try:
+        nombres = [c["nombre"] for c in respuestas.inicio()["casos"]]
+        assert "leyes" in nombres
+        assert all("_aviso" not in respuestas.analizar(n) for n in nombres)
+        assert len(nombres) < len(respuestas.casos()["casos"])
+    finally:
+        respuestas.inicio.cache_clear()
