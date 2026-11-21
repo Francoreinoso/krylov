@@ -190,6 +190,13 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Aprobación:** el equipo, conversado en el grupo. Lo registra PC 1 a pedido de su persona, sin pasar por PC 3. Aviso a PC 2 por Discord.
 · Decisión del equipo.
 
+**D-36 · sáb 21-nov 09:23 · H1 (08:45, corrido a las 09:23): pasa. Tag `h1`. Dos alertas para el camino crítico.**
+- **Pasa:** (1) puntos de guardado de toda la noche en los dos computadores: `espacial` en PC 2 de 03:50 a 08:30 (7.750.592 terrenos, 279,6 min) y `supervivencia` en PC 3 de 04:05 a 08:30 (12.739.616 datasets, 267,5 min), uno cada 10 minutos, sin cortes; (2) la URL pública responde (página y respuestas precalculadas con 200, entre 0,47 y 0,74 s); (3) lo de la noche lo revisó una persona en cada computador: la de PC 3 siguió cada ronda y aprobó D-34; Rodrigo estuvo en A-M3 (07:31); la persona de PC 1 escribió D-34 y D-35. El paso local y el MCMC de `supervivencia` y `espacial` existen (A-N2 06:20, A-N3 04:49): lo de PC 2 no se corre.
+- **Hecho después de las 08:30:** la red de `supervivencia` exportada y subida (13b3e42); `jerarquico` con papeles opcionales (D-35) entrena en PC 3 desde las 08:52 hasta las 11:30.
+- **Alerta 1, PC 2 detenido desde las 08:30:** A-08 (sello de `espacial`), el sello de `supervivencia` (D-33) y el lanzamiento de `estados` esperan a Rodrigo. Es el camino crítico del H2 de las 12:15 (terreno y rotación) y del de las 14:00 (crédito). Si a las 10:00 no partió A-08, el H2 de `estados` corre al tope de las 16:00 y se decide en la ronda si `estados` sale con el MCMC precalculado.
+- **Alerta 2, PC 1 sin código desde las 05:03:** P-12 (a) tiene tope 10:30. Si a las 10:30 no está en `main`, en la ronda se adelanta el orden de corte de D-34 y D-35: se cortan el calce por modelo de lenguaje y la interpretación, y queda el chat con los archivos del demo.
+· Hito H1, con la aprobación de la persona de PC 3.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
