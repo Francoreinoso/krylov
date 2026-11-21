@@ -96,6 +96,8 @@ La de tres, más: una segunda tarjeta elegida por el jurado («elijan otra pregu
 
 ## Corchetes pendientes
 
+**Ojo con el método rápido (sáb 06:33):** en los exámenes con datos reales la regresión logística sola acierta parecido a lo que se espera de Krylov (AUC 0,76 en crédito, 0,74 en inasistencias, 0,77 en rotación; M-34). La diferencia que se puede decir está en **el rango**: cuando el método rápido dice 90%, ¿acierta 90%? Por eso el momento 4 compara «dice 90% seguro y acierta [P]%», nunca «Krylov acierta más». Si al medir resulta que tampoco hay diferencia en el rango, esa frase sale.
+
 | Corchete | Cifra | Quién la mide | Tarea |
 |---|---|---|---|
 | Personas del caso de rotación | D-01 | ya está: 1.470 | |

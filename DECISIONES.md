@@ -120,6 +120,12 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Queda para una persona, al validar cada motor de tabla:** si la nube se conecta al semáforo (`rojo_modelo`) en `estados` y `jerarquico`. El ensayo de PC 2 indica que el segundo detector podría marcar el archivo real de crédito por el uso del cupo (límite conocido de D-30); el sello escribe `nube_archivo_real_dentro`.
 · PC 1 (pedido), Rodrigo (`unidad`), PC 2 (criterios) y PC 3 (confirmación).
 
+**D-33 · sáb 21-nov 06:33 · Sello de `supervivencia`: los criterios de D-32 más dos, y dónde se valida.**
+- Además de D-32, para pasar: (1) el archivo real de rotación cae dentro de la nube con los dos detectores (`nube_archivo_real_dentro`); (2) `rotacion_malo` cae fuera y, corregido, dentro. Propuestos por PC 2 a las 06:30; PC 3 los confirma. Ya se cumple con los ejes con nombre (M-29); el segundo detector espera a la red entrenada.
+- **Dónde:** a las 08:30 PC 3 exporta y sube la red de `supervivencia` y lanza `jerarquico`, así que el sello de `supervivencia` (MCMC incluido) corre en **PC 2**, sin nada entrenando, después del sello de `espacial` y antes de lanzar `estados` (PC 2, 08:30 a 09:15). Nunca dos a la vez.
+- Si con la red entrenada el segundo detector deja el archivo real de rotación fuera, la primera tarjeta del demo saldría en rojo. Salida ya escrita: `KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso` la deja en amarillo con el motivo. **Lo decide una persona** al ver el sello.
+· PC 2 (propuesta) y PC 3 (confirmación).
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
@@ -127,5 +133,6 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - S-16 (15:20): qué hacer con la línea del README de la organización dirigida a modelos de lenguaje. Los agentes no la siguen por su cuenta.
 - H2 por motor (12:15, 13:00, 14:00; tope 16:00): red o plan B (`mcmc`, rotulado «precalculado») para cada tarjeta.
 - Al validar `estados` y `jerarquico` (D-32): ¿la nube se conecta al semáforo? Depende de si el archivo real cae dentro de las simulaciones.
+- Al validar `supervivencia` (D-33): si el archivo real de rotación cae fuera por el segundo detector, ¿`KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso`?
 - 03:15: confirmar que hay dos sesiones de Claude Code en PC 2 y que PC 3 es el segundo computador de entrenamiento (D-26 lo asume). → Confirmado en D-27.
 -->

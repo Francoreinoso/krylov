@@ -97,7 +97,7 @@ Una fila por motor y por medida. `sup` = rotación, `jer` = inasistencias, `est`
 | M-26 | Milisegundos de Krylov por archivo, por motor, sin nada entrenando | [pendiente] ×4 | 12:00 y A-16 | |
 | M-27 | Cartera de 1.000 empresas: horas con el método lento (M-25 × 1.000, dicho como cálculo) contra segundos de Krylov (M-14) | [pendiente] | A-16 | |
 | M-28 | Diferencia entre Krylov y el método lento en los mismos archivos, por motor. Lámina técnica | [pendiente] ×4 | `validar-motor` | |
-| M-29 | El archivo malo cae fuera de la nube y, corregido, dentro | [pendiente: sí o no, por cada uno de los dos chequeos] | A-13 | |
+| M-29 | El archivo malo cae fuera de la nube y, corregido, dentro | **Ejes con nombre: sí y sí.** Con `fecha_salida`, el mejor factor solo adivina con AUC 1,0 (fuera; el límite de 5.000 empresas simuladas es 0,912); sin ella, 0,669 (dentro), igual que el archivo limpio. Segundo detector (resúmenes aprendidos): [pendiente de la red entrenada] | medido (PC 2, sáb 06:26; repetido en PC 3 a las 06:33 con `api.nube`) | |
 | M-30 | Qué manda en el terreno | [pendiente]. No escribir nada antes de correr el motor | A-11 | |
 | M-31 | Examen con datos reales, inasistencias | [pendiente] | A-14 | |
 | M-32 | Examen con datos reales, crédito | [pendiente] | A-15 | |
