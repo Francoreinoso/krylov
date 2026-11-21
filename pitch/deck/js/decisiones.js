@@ -24,9 +24,10 @@
       vec2 d = gl_PointCoord - 0.5;
       float r = dot(d, d);
       if (r > 0.25 || vA < 0.004) discard;
-      gl_FragColor = vec4(vColor * vA * (1.0 - r * 2.4), 1.0);
+      vec3 c = vColor * vA * (1.0 - r * 2.4);
+      gl_FragColor = vec4(c, max(c.r, max(c.g, c.b)));       // la opacidad es la de su canal más fuerte: siempre un color válido
     }`;
-  const FRAG_LINEA = 'precision highp float;\nvarying vec3 vColor;\nvarying float vA;\nvoid main() { gl_FragColor = vec4(vColor * vA, 1.0); }';
+  const FRAG_LINEA = 'precision highp float;\nvarying vec3 vColor;\nvarying float vA;\nvoid main() { vec3 c = vColor * vA; gl_FragColor = vec4(c, max(c.r, max(c.g, c.b))); }';
   const DECISION = { actuar: [0.92, 0.36, 0.22], en_duda: [0.95, 0.78, 0.36], no_actuar: [0.12, 0.68, 0.49] };
   const ROJO = [0.92, 0.36, 0.22], COBRE = [0.91, 0.52, 0.27];
 
@@ -41,9 +42,11 @@
           uniforms: Object.assign({}, u, extra || {}),
           vertexShader: 'uniform float uT;\nuniform float uEsc;\nvarying vec3 vColor;\nvarying float vA;\n' + GLSL + vertex,
           fragmentShader: lineas ? FRAG_LINEA : FRAG, transparent: true, depthWrite: false,
-          // la luz solo suma: el lienzo no se vuelve opaco donde un punto ya casi se apagó
+          // La luz suma, y su opacidad también. Antes la opacidad quedaba en cero («solo luz»): un color así no es
+          // válido, y hay navegadores que simplemente no lo pintan (el panel de la app de Claude, por ejemplo): la escena
+          // desaparecía entera. Con la opacidad igual al canal más fuerte, un punto casi apagado sigue sin tapar el fondo.
           blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
-          blendSrcAlpha: THREE.ZeroFactor, blendDstAlpha: THREE.OneFactor,
+          blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneFactor,
         });
       },
       geometria: function (atributos) {

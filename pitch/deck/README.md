@@ -6,7 +6,9 @@ Es una página HTML con animaciones que **abre con doble clic y corre sin intern
 
 ## Cómo abrirlo
 
-Doble clic en `index.html`. Después, `F` para pantalla completa.
+Doble clic en `index.html` **desde el Finder**, o `open pitch/deck/index.html` en la terminal: se abre en el navegador. Después, `F` para pantalla completa.
+
+**No sirve abrirlo desde una vista previa que solo carga el HTML** (por ejemplo, haciendo clic en el archivo dentro de la app de Claude): ahí no llegan ni el código ni los estilos, y la página lo avisa arriba. Para verlo dentro de un panel así hay que servir la carpeta: `python3 -m http.server 8765 --directory pitch/deck` y abrir `http://localhost:8765/`.
 
 | Tecla | Qué hace |
 |---|---|
@@ -114,6 +116,7 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 ## Qué se probó y qué no
 
 - **Probado** (sáb 21-nov, 16:30, MacBook Air M3 con un entrenamiento corriendo en su GPU, Chromium sin ventana, abierto por `file://`): las 18 láminas y sus 20 pasos a 1920×1080 en modo estático, y el recorrido completo con el teclado a 1280×720 en movimiento (14 pulsaciones hasta el cierre; la siguiente no pasa a las preguntas), sin errores de consola y a 60 cuadros por segundo; las teclas, incluidas `Q`, `A`, `L`, `M`, `0` y `Fin`; la pausa. Dos revisiones automáticas, en todas las láminas y pasos: que ninguna cifra quede partida en dos líneas y que ningún texto quede encima de otro, ni a mitad de un cambio de paso.
+- **Probado también en un navegador con ventana** (el panel de la app de Claude, pantalla de alta densidad, con dos entrenamientos corriendo): 60 cuadros por segundo. **Ahí apareció un error que las capturas sin ventana no mostraban:** las cuatro escenas de las láminas 8 a 11 no se pintaban, porque sus puntos sumaban luz sin opacidad (un color que no es válido, y que ese navegador descarta). Se corrigió (`js/decisiones.js`: la opacidad de cada punto es la de su canal más fuerte) y se comprobó en ese mismo panel.
 - **Las escenas se miraron además como se ven en una pantalla de alta densidad** (el doble de píxeles): ahí los camiones anteriores, dibujados con contornos, eran un enredo punteado, y las líneas de un píxel de los estanques y los túneles casi no se veían. Por eso los camiones se rehicieron macizos y todos los contornos se dibujan ahora con puntos seguidos (`cordon` en `js/decisiones.js`).
 - **Lo que la revisión automática no mira:** el texto dibujado dentro de un lienzo (las barras de las láminas 1 y 3, las filas de la 2, la curva de la 8, el gráfico de la 12). Eso se revisó a ojo, en capturas.
 - **Sin probar:** la tecla `D` y «reducir movimiento» en esta versión (no cambiaron), Safari, el proyector del lugar, un control de presentaciones real, y el deck en una pantalla de verdad con el entrenamiento corriendo (las capturas dan 60 cuadros por segundo, pero sin ventana).
