@@ -278,7 +278,7 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 | ¿Qué existe hoy y qué es lámina? | Existe una app en línea con cuatro casos, cada uno con su modelo, y [N] redes entrenadas entre anoche y hoy [las que hayan pasado; las demás tarjetas dicen «precalculado»]. Series de tiempo y eventos raros son hoja de ruta |
 | ¿Suben cualquier archivo? | Cualquiera con el esquema de uno de los cuatro modelos: eliges el modelo y asignas cada columna a su papel (D-34). Si no calza, Krylov no responde y dice qué falta. Agregar un tipo nuevo de archivo es escribir sus reglas y dejarlo practicando una noche |
 | ¿Y si se equivoca? | Por eso el examen: escondemos datos reales y mostramos cuánto acertó. Y cuando el archivo no se parece a nada que conozca, no responde |
-| ¿Mis datos salen de la empresa? | No hace falta: los motores son chicos y pueden correr dentro de la empresa. El modelo de lenguaje no ve el archivo, solo los números de la respuesta, y se puede apagar: queda la plantilla (D-34) |
+| ¿Mis datos salen de la empresa? | No hace falta: los motores son chicos y pueden correr dentro de la empresa. Al modelo de lenguaje van los nombres de las columnas con un resumen de cada una (tipo, rango y tres valores de ejemplo) para proponer el calce, y los números de la respuesta para interpretarla; nunca filas completas. Se puede apagar: quedan la regla por tipo y la plantilla (D-34, D-35) |
 | ¿Quién paga y cuánto? | La plataforma que lo integra. Pensamos en US$ 20 al mes por empresa que lo use; es una hipótesis y lo decimos así |
 
 Técnicas, para quien las haga:
