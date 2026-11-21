@@ -1,4 +1,5 @@
-// Vista 1 · «¿Qué quieres saber?»: una pregunta por caso de uso, como entradas de una tabla.
+// Vista 1 · «¿Qué quieres saber?»: la frase de Krylov y una pregunta por caso de uso, como
+// entradas de una tabla.
 
 import { lineaDelCaso } from './textos'
 import type { Caso } from './tipos'
@@ -10,27 +11,27 @@ interface Props {
 
 export default function Inicio({ casos, alElegir }: Props) {
   return (
-    <section>
-      <h1 className="condensado text-5xl font-bold">¿Qué quieres saber?</h1>
-      <ul className="mt-10 border-t border-linea">
+    <section className="max-w-4xl">
+      <p className="max-w-[40ch] text-xl text-tinta-suave">
+        Sabe cuánto no sabe, y te dice cuánto vale averiguarlo.
+      </p>
+      <h1 className="condensado mt-4 text-5xl font-bold">¿Qué quieres saber?</h1>
+      <ul className="mt-5 border-t border-linea">
         {casos.map((caso) => (
           <li key={caso.nombre} className="border-b border-linea">
-            <button
-              onClick={() => alElegir(caso)}
-              className="group block w-full py-6 text-left"
-            >
+            <button onClick={() => alElegir(caso)} className="group block w-full py-3 text-left">
               <span className="block text-tinta-suave">
                 {lineaDelCaso(caso)}
                 {caso.sintetico && ', sintéticos'}
               </span>
-              <span className="mt-1 block text-3xl font-semibold decoration-2 underline-offset-[6px] group-hover:underline group-focus-visible:underline">
+              <span className="mt-0.5 block text-2xl font-semibold sm:text-3xl decoration-en-duda decoration-2 underline-offset-[6px] group-hover:underline group-focus-visible:underline">
                 {caso.titulo}
               </span>
             </button>
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-sm text-tinta-suave">
+      <p className="mt-4 text-sm text-tinta-suave">
         Casos de ejemplo con datos públicos. No son datos de estas empresas.
       </p>
     </section>

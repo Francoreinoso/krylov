@@ -2,7 +2,7 @@
 // Pide a la API; si no hay API configurada, si no responde en 1,5 s o si la URL trae
 // ?estatico=1, lee la copia precalculada de /estatico/<archivo>.json.
 
-import type { Analisis, Casos } from './tipos'
+import type { Analisis, Casos, Nube } from './tipos'
 
 const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8010' : '')
@@ -67,4 +67,6 @@ export const api = {
       caso,
       transformaciones,
     }),
+  nube: (caso: string, transformaciones: string[] = []) =>
+    pedir<Nube>('nube', `nube/${clave(caso, transformaciones)}`, { caso, transformaciones }),
 }

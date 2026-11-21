@@ -47,6 +47,41 @@ export interface Factor {
   certeza: Certeza
 }
 
+export interface Medicion {
+  x: number
+  y: number
+  valor: number
+}
+
+export interface Mapa {
+  nx: number
+  ny: number
+  x0: number
+  y0: number
+  lado: number
+  p: (number | null)[]
+  media: (number | null)[]
+  puntos: Medicion[]
+  umbral: number
+  unidad_valor: string
+}
+
+export interface Examen {
+  tipo: string
+  n: number
+  frase: string
+  tramos: { dijimos: number; paso: number; n: number }[]
+}
+
+export interface Nube {
+  caso: string
+  n_simulaciones: number
+  ejes: Record<'x' | 'y', { nombre: string; min: number; max: number }>
+  puntos: [number, number][]
+  archivo: { x: number; y: number; dentro: boolean }
+  detectores: { ejes_con_nombre: { dentro: boolean; motivo?: string } }
+}
+
 export interface Analisis {
   caso: string
   motor_id: string
@@ -59,6 +94,8 @@ export interface Analisis {
   unidades: Unidad[] | null
   resumen_colores: Record<Estado, number> | null
   factores: Factor[] | null
+  mapa?: Mapa
+  examen: Examen | null
   semaforo: {
     estado: Semaforo
     motivo: string
