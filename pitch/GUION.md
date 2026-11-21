@@ -88,7 +88,7 @@ Consecuencia: el negocio ocupa, a lo más, una frase. No hay criterio que lo pre
 >
 > `5` «Y bajo tierra, después de una explosión la roca sigue crujiendo. Dice en qué sectores conviene esperar antes de que vuelva a entrar la gente.»
 >
-> *(la verdad sobre quién responde, una sola frase; se elige a las 20:30)* «[Las cuatro responden al instante.]» (si la flota pasa su sello) o «[Estas tres ya responden al instante; los camiones son lo que sigue.]» (lo cierto a las 18:35) o, si alguna salió precalculada, «[esta la calculamos con el método lento de siempre.]» Se dice solo lo que diga el tablero.
+> *(la verdad sobre quién responde, una sola frase; se elige a las 20:30)* «[Las cuatro responden al instante.]» (si la flota pasa su sello) o «[Estas tres ya responden al instante; los camiones son lo que sigue.]» (lo cierto a las 18:30) o, si alguna salió precalculada, «[esta la calculamos con el método lento de siempre.]» Se dice solo lo que diga el tablero.
 
 **Momento 7 · Cierre (2:40 a 3:00).** Deck, lámina de cierre (tecla `L` en la app).
 
@@ -157,6 +157,6 @@ Las respuestas completas están en `WORKPLAN.md`, sección 5. Las cinco que hay 
 |---|---|---|
 | Segundos de «¿Dónde perforo?» en el banco, sin nada entrenando | M-44 | Medido en PC 3: 1,3 s. Falta en el computador que presenta (PC 2, A-22, o el ensayo) |
 | Qué resultado se elige en el pin A | — | Ensayo, S-26 |
-| Quién responde cada tarjeta nueva | M-52 | A las 18:35, con su red: el muro, la planta y los temblores (más el banco). Falta la flota: su red valida después de las 18:15. Se cierra a las 20:30 |
+| Quién responde cada tarjeta nueva | M-52 | A las 18:30, con su red: el muro, la planta y los temblores (más el banco). Falta la flota: su red valida después de las 18:15. Se cierra a las 20:30 |
 | Cuánto tardó el método lento en una tarjeta precalculada | M-50 | PC 2, sellos |
 | Extraños que repiten la idea | M-53 | PC 3, S-29 y 19:00 |

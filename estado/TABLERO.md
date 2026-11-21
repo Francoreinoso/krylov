@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 18:36 · **Producto terminado (H6, 18:00): sin tag `congelado` todavía** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 18:31 · **Producto terminado (H6, 18:00): sin tag `congelado` todavía** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **sigue con las tarjetas de antes del pivote: Vercel limitó los despliegues por 24 horas (17:58).** El código y el estático están en `main`. Lo decide una persona: otra cuenta o proyecto de Vercel. Sin eso, el QR lleva a la app antigua.
 
@@ -20,7 +20,7 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 | flota | desgaste | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 | sismicidad | sismico | listo | listo | listo | listo | en curso | pendiente | red |
 
-Verificado en PC 3 a las 18:35, corriendo: `pytest nucleo motor servicio`, 98 pasan; con sus variables en `red`, `leyes` (147, 568 y 309 bloques), `taludes` (5, 29 y 2 sectores), `flotacion` (2, 3 y 3 líneas) y `sismicidad` (0, 4 y 4 sectores) responden verde. «En la app» es en local y en el estático de `main`, no en la URL pública.
+Verificado en PC 3 a las 18:30, corriendo: `pytest nucleo motor servicio`, 98 pasan; con sus variables en `red`, `leyes` (147, 568 y 309 bloques), `taludes` (5, 29 y 2 sectores), `flotacion` (2, 3 y 3 líneas) y `sismicidad` (0, 4 y 4 sectores) responden verde. «En la app» es en local y en el estático de `main`, no en la URL pública.
 
 ## Semáforo
 
