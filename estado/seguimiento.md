@@ -12,6 +12,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 03:22 · S-03, rotación: `datos/demo/rotacion.csv` (1.470 filas, las 35 columnas, 294 respuestas vacías al azar con semilla 2026) y `rotacion_verdad.csv` (294 filas, `id`, `objetivo`). Las dos clases quedan presentes. Comando: `python3 datos/preparar/rotacion.py` (el crudo se baja con el `curl` del encabezado del script). Columnas del YAML verificadas contra el archivo.
 - sáb 03:22 · S-04, terreno: `datos/demo/terreno.csv` (155 filas, `x`, `y`, `zinc`, `dist`; 33 sobre 720 mg/kg) y `terreno_grilla.csv` (3.103 celdas, `x`, `y`, `dist`). Comando: `Rscript datos/preparar/terreno.R` (R con `sp` 2.1.4, sin descargas). Los 155 puntos caen dentro de la grilla; su `dist` coincide con la de la celda más cercana (diferencia máxima 0,033).
 - sáb 03:23 · `uv` 0.13.9 instalado (para `uv sync --group entrenar` a las 04:55).
+- sáb 03:28 · S-05, crédito (adelantado): `datos/demo/credito.csv` (muestra de 2.000 de 30.000, las 25 columnas con los seis meses de `PAY_*`, `BILL_AMT*` y `PAY_AMT*`, 400 respuestas vacías al azar) y `credito_verdad.csv` (400 filas). Las dos clases quedan presentes. Comando: `uv run --no-project --with pandas --with xlrd python datos/preparar/credito.py` (el crudo se baja con los comandos del encabezado del script).
 
 ## En curso
 
@@ -25,6 +26,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 ## Pedidos a otros
 
 - sáb 03:23 · A PC 2: los datos de rotación y del terreno ya están en `main` (`datos/demo/`), con `terreno_grilla.csv`. El terreno puede partir con la distancia al río.
+- sáb 03:28 · A PC 2: crédito también está en `main` (`datos/demo/credito.csv`). La respuesta `default` es 0 o 1, y vacía en las 400 por decidir.
 
 ## Rondas
 
@@ -36,7 +38,8 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
-| Casos listos como tarjeta | 0 de 4 (con datos: rotación y terreno) | `casos/INICIO` y `datos/demo/` | 03:23 |
+| Casos listos como tarjeta | 0 de 4 (con datos: rotación, terreno y crédito) | `casos/INICIO` y `datos/demo/` | 03:28 |
+| Crédito, por decidir | 400 de 2.000; con respuesta 1.600, 23,3% no pagó | `datos/preparar/credito.py` (cifra D-02b) | 03:28 |
 | Rotación, por decidir | 294 de 1.470; con respuesta 1.176, 15,6% renunció | `python3 datos/preparar/rotacion.py` (cifra D-01b) | 03:22 |
 | Terreno, puntos y grilla | 155 puntos, 3.103 celdas | `Rscript datos/preparar/terreno.R` (D-04, D-04b) | 03:22 |
 | Prueba del asistente genérico: respuestas distintas de 3 | sin medir | S-09 | — |

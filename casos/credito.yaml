@@ -1,7 +1,8 @@
 # Caso de uso. Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Skill: `agregar-caso`.
-# Tarea S-05. Se toma una muestra de 2.000 filas con semilla fija.
-# Usar la copia en CSV con encabezados legibles (UCI_Credit_Card.csv): ahí la respuesta se llama
-# `default.payment.next.month` y el script de preparación la renombra a `default`. No existe PAY_1: de PAY_0 se pasa a PAY_2.
+# Tarea S-05. Se toma una muestra de 2.000 filas con semilla fija (datos/preparar/credito.py, semilla 2026).
+# El script lee el .xls de UCI, cuya segunda fila trae los mismos encabezados que la copia UCI_Credit_Card.csv; la respuesta
+# se llama `default payment next month` y el script la renombra a `default` (0 pagó, 1 no pagó, vacío = por decidir).
+# No existe PAY_1: de PAY_0 se pasa a PAY_2. Columnas verificadas contra el archivo el sáb 03:28.
 nombre: credito
 tarjeta:
   titulo: "¿A quién le apruebo el crédito?"

@@ -31,7 +31,8 @@ La columna «Verificó» lleva el nombre de la persona que abrió la fuente o re
 |---|---|---|---|---|---|
 | D-01 | Archivo de rotación | 1.470 personas, 35 columnas, 16,1% renunció (237). Ficticio, creado por IBM | fuente | Kaggle, calculado del archivo. Recalculado en PC 3 sobre la copia de IBM en GitHub (mismo archivo, 227.977 bytes), sáb 03:22, `python3 datos/preparar/rotacion.py` | Agente, 21-nov |
 | D-01b | Personas por decidir en rotación | 294 de 1.470 (20%, elegidas al azar con semilla 2026). De ellas, 54 renunciaron de verdad (la verdad no entra al motor). Quedan 1.176 con respuesta: 183 renunciaron (15,6%) | medido | PC 3, sáb 03:22, `python3 datos/preparar/rotacion.py` | |
-| D-02 | Archivo de crédito | 30.000 clientes, 22,1% no pagó. Taiwán, 2005 | fuente | UCI, calculado del archivo | Agente, 21-nov |
+| D-02 | Archivo de crédito | 30.000 clientes, 22,1% no pagó. Taiwán, 2005 | fuente | UCI, calculado del archivo. Recalculado en PC 3 sobre el .xls de UCI, sáb 03:28, `datos/preparar/credito.py` | Agente, 21-nov |
+| D-02b | Clientes del caso de crédito | Muestra de 2.000 de los 30.000 (semilla 2026). 400 por decidir (20% al azar); de ellos, 95 no pagaron de verdad (la verdad no entra al motor). Quedan 1.600 con respuesta: 373 no pagaron (23,3%) | medido | PC 3, sáb 03:28, `uv run --no-project --with pandas --with xlrd python datos/preparar/credito.py` | |
 | D-03 | Archivo de inasistencias | 110.527 citas, 20,2% no llegó, 81 barrios | fuente | Kaggle, calculado del archivo. Licencia no comercial | Agente, 21-nov |
 | D-04 | Archivo del terreno | 155 mediciones; 33 superan los 720 mg/kg de zinc | fuente | Paquete `sp` de R, calculado de una copia. Recalculado en PC 3 con `sp` 2.1.4, sáb 03:22, `Rscript datos/preparar/terreno.R` | Agente, 21-nov |
 | D-04b | Grilla del terreno | 3.103 celdas de 40 m con su distancia al río (`meuse.grid`) | fuente | Paquete `sp` 2.1.4, `Rscript datos/preparar/terreno.R` | |
