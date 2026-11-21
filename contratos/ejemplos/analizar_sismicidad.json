@@ -1214,7 +1214,7 @@
  "examen": {
   "tipo": "verdad_escondida",
   "n": 8,
-  "frase": "De 1 sectores en que dijimos «conviene mantener cerrado», en 1 pasó de verdad. Con datos simulados.",
+  "frase": "En el único sector en que dijimos «conviene mantener cerrado», pasó de verdad. Con datos simulados.",
   "tramos": [
    {
     "dijimos": 0.05,
@@ -1238,7 +1238,7 @@
   "medido": false
  },
  "en_palabras": [
-  "En 1 sectores, conviene mantener cerrado, y saber más no cambiaría la decisión.",
+  "En 1 sector, conviene mantener cerrado, y saber más no cambiaría la decisión.",
   "En 5 sectores los datos no alcanzan para decidir: no sabemos: esperar y seguir midiendo."
  ],
  "rotulos": {

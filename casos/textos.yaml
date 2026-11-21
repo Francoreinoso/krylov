@@ -148,6 +148,11 @@ inicio:
     flota: "Se revisa en cada turno."
     sismicidad: "El sector está cerrado y cada temblor nuevo cambia la respuesta."
 
+chat:
+  # Vista 1, al adjuntar (P-24). La web lee estas dos claves.
+  probar_archivo: "Probar con el archivo de otra faena"      # adjunta datos/demo/subida_<caso>.csv (simulado, con otros nombres de columnas)
+  no_disponible: "Esta decisión todavía no responde archivos propios: su red sigue practicando. Mientras, puedo responder con el archivo del demo."
+
 pie:
   datos_publicos: "Datos públicos reales"
   datos_simulados: "Datos simulados"

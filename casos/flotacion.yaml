@@ -30,7 +30,7 @@ columnas:
   unidad_tiempo: "minutos"
   unidad_valor: "del cobre recuperado"
   eje_tiempo: "Minutos en la línea"
-  eje_valor: "Cobre recuperado"
+  eje_valor: "Cobre recuperado (1 = todo)"
   extra: []
   elegidas_por: equipo
 etiquetas: { velocidad: "Qué tan rápido flota el cobre en esta planta", tope: "Cuánto cobre se puede recuperar como máximo", fraccion_rapida: "Qué parte del cobre flota rápido", ruido: "Error de cada medición" }
