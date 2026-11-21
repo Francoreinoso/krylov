@@ -49,7 +49,7 @@ Un dueño por motor. Antes de tomar un motor sin dueño, anótate aquí y súbel
 | `espacial` | `motor/espacial/`, `nucleo/espacial.py` | A | sáb 03:24 |
 | `supervivencia` | `motor/supervivencia/`, `nucleo/supervivencia.py` | B | sáb 03:24 |
 | `jerarquico` | `motor/jerarquico/`, `nucleo/jerarquico.py` | sin dueño | — |
-| `estados` | `motor/estados/`, `nucleo/estados.py` | sin dueño | — |
+| `estados` | `motor/estados/`, `nucleo/estados.py` | A | sáb 04:51 |
 
 Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transformaciones, costos)` que devuelve el diccionario de `contratos/CONTRATO.md`; `nucleo/api.py` (sesión A) la llama. `estado/amortizacion.md` lo editan todas las sesiones: cambios chicos, `git pull --rebase --autostash` justo antes, y commit de inmediato.
 
