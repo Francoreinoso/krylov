@@ -3,11 +3,12 @@
 > **Hackathon:** el producto se termina el **sábado a las 18:00**; después solo se itera el demo y el pitch. Lo más simple que se vea bien.
 
 Lo edita solo PC 1 (skill `actualizar-estado`). Líneas cortas, con hora de Santiago.
-Persona: [nombre] · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PRODUCTO.md`.
+Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PRODUCTO.md`.
 
 ## Hecho
 
 - sáb 03:00 · Plan final recibido. Nada construido todavía.
+- sáb 03:55 · Arranque: clon con push a los dos repositorios, rol declarado. Espejo `Silent-math/krylov` público (verificado 03:47).
 
 ## En curso
 
