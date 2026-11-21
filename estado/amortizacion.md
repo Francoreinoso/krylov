@@ -130,8 +130,8 @@ Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transf
 
 ## En curso
 
-- sáb 08:30 · Sesión A: esperando a Rodrigo para A-08 (`uv run python -m motor.espacial.sello`, sin nada más corriendo en PC 2) y, después, lanzar `estados`. PC 2 está libre desde las 08:30: el sello de `supervivencia` (D-33, sesión B) y el de `espacial` no pueden correr a la vez, porque los dos miden tiempos y corren MCMC.
-- sáb 07:31 · Sesión B: A-19 (`papeles` y `analizar_archivo` en `nucleo/api.py`), tope 10:30; sello de `supervivencia` en PC 2 (D-33).
+- sáb 09:29 · **Sesión A: A-08 corriendo desde las 09:29, con Rodrigo presente** (`uv run python -m motor.espacial.sello`; salida en `motor/checkpoints/espacial/sello_salida.log`). El ensayo previo del programa corrió completo a las 09:27. **Nadie más lanza MCMC, sellos ni entrenamientos en PC 2 hasta que termine.**
+- sáb 09:29 · **Orden en PC 2 (D-33), sin sesión C:** (1) sello de `espacial`, sesión A, ahora; (2) sello de `supervivencia`, sesión B, cuando la A anote aquí que terminó; (3) `estados`, lo lanza la sesión B al terminar su sello, con el comando de la sección de `estados`. Mientras espera, la sesión B hace A-19 (`papeles` y `analizar_archivo`, tope 10:30), que es solo código.
 
 ## Lanzar `supervivencia` en PC 3 (sesión B → la persona de PC 3)
 
