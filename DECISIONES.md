@@ -230,7 +230,7 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Tareas.** Numeración nueva desde 21 para no chocar con lo ya hecho: P-21 en adelante, A-21 en adelante, S-21 en adelante. Los estados anteriores quedaron en `estado/historia/`.
 - **Lo que se pierde, dicho:** tres redes en las que se invirtió la noche (más de 12 millones de empresas simuladas), los exámenes con datos reales de crédito e inasistencias, el gancho con el anfitrión y la cartera. **Lo que se gana:** un relato único, un caso estrella que ya funciona y cuatro decisiones más que cualquiera entiende.
 - **Lo que una persona del equipo tiene que confirmar** (hasta entonces vale lo escrito): (1) la excepción de las 20:30; (2) el orden de las rondas; (3) que las tarjetas usen datos simulados rotulados; (4) quién presenta.
-· Pedido del equipo (Rodrigo). El detalle es propuesta del plan; el equipo lo confirma o lo cambia en el tablero.
+· Pedido del equipo. El detalle es propuesta del plan; el equipo lo confirma o lo cambia en el tablero.
 
 **D-38 · sáb 21-nov 13:10 · El método lento de cada motor se corre al final, y cada modelo lleva un nivel explícito para el tamaño del dataset.** Reemplaza de D-37 «cada motor tiene primero su método lento precalculado (plan B)» y, de la sección 11 de `WORKPLAN.md`, los tamaños de dataset que eran casi fijos. No cambia la forma de ninguna respuesta.
 
@@ -256,7 +256,7 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **En la validación:** SBC y cobertura por tramos de tamaño, con el peor tramo en el sello (`peor_grupo`, `cobertura_90_peor_grupo`, que ya existían).
 - **En el producto:** fuera del rango, `rojo_datos` con un motivo que nombra lo que hay y lo que el motor conoce; sobre el máximo, submuestra con semilla fija y aviso. `papeles()` y la tabla «Rangos que el motor conoce» de `contratos/CONTRATO.md` publican el mismo rango que el `config.json`. Los archivos del demo quedan bien adentro (36 sectores, 8 líneas, 40 camiones, 8 sectores y 340 pozos).
 - **Qué se toca:** `WORKPLAN.md` (1.2, 6.1, 6.3, 6.5, 6.7, 6.8, 8 y 11), las tareas A-22, A-24, A-26, A-29, A-30, A-32 y A-35, la tarea nueva A-36, `PC2_AMORTIZACION.md`, las skills `entrenar-motor` y `validar-motor`, la tabla de rangos del contrato, y `estado/MODELOS.md` con el tablero en vivo, que desde ahora muestran el modelo de cada caso pieza por pieza.
-· Pedido del equipo (Rodrigo). Lo escribe PC 2 por encargo directo; PC 3 queda avisado en `estado/amortizacion.md`.
+· Pedido del equipo. Lo escribe PC 2 por encargo directo; PC 3 queda avisado en `estado/amortizacion.md`.
 
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.

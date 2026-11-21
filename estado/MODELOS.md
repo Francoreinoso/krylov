@@ -77,7 +77,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** el andamio de series (A-23) y después su simulador con el a priori de tamaño (A-25).
+**Falta ahora:** su simulador con el a priori de tamaño, sobre el andamio que ya existe (A-25).
 
 ## `cinetica` · caso `flotacion`
 
@@ -115,7 +115,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** la prueba de humo y lanzar su entrenamiento (ronda 1, A-26).
+**Falta ahora:** correr su prueba de humo (3 minutos y un SBC de 200) y lanzar su entrenamiento en la ronda 1 (A-26).
 
 ## `desgaste` · caso `flota`
 
@@ -152,7 +152,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** el andamio de series (A-23) y después su simulador con el a priori de tamaño (A-27, ronda 2).
+**Falta ahora:** su simulador con el a priori de tamaño, sobre el andamio que ya existe (A-27, ronda 2).
 
 ## `sismico` · caso `sismicidad`
 
@@ -191,4 +191,4 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** el andamio de series (A-23) y después su simulador con el a priori de tamaño (A-28, ronda 2).
+**Falta ahora:** su simulador con el a priori de tamaño, sobre el andamio que ya existe (A-28, ronda 2).

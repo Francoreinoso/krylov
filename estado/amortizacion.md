@@ -18,9 +18,12 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 13:12 · A-23 terminada: el andamio de series. `motor/comun/series.py` (codificador por unidad con máscara, atención sobre unidades, flujo global y local, pérdida, SBC global, local y de lo que se decide por tramos de tamaño, sello sin MCMC, exportación) y `nucleo/series.py` (leer el archivo largo, revisar tamaño, ONNX + flujos en NumPy, `unidades`, `curva`, `factores`, examen). Verificado con `uv run pytest motor/comun/prueba_series.py -q`: exporta a ONNX con formas fijas, NumPy = torch en los dos flujos (diferencia bajo 1e-4), el relleno no cambia los resúmenes y la pérdida baja.
 - sáb 13:12 · A-24, simulador y red de `cinetica` listos, con el a priori de tamaño (2 a 16 líneas, 5 a 12 celdas, 3 al total medidas, 2 a 6 minutos por celda). Verificado con `uv run pytest motor/cinetica -q`: tamaños dentro del rango, un solo preprocesamiento, y el archivo del demo cae entre los percentiles 2 y 98 de lo simulado.
 
+- sáb 13:20 · A-23, ampliación: el andamio acepta un estado discreto por unidad (`CON_CLASE`, para `deformacion`: estable o acelerando), con su cabeza exportada junto al flujo local y muestreada en NumPy. Las mismas pruebas pasan.
+- sáb 13:20 · A-24: `api.analizar("flotacion")` probado de punta a punta con una red de ensayo exportada a una carpeta temporal: la respuesta trae las mismas claves que `contratos/ejemplos/analizar_flotacion.json` (unidades con `curva`, factores, examen, semáforo) y un archivo de 1 línea da `rojo_datos` con su motivo. La red de ensayo se borró: no hay artefactos de `cinetica` en el repositorio.
+
 ## En curso
 
-- sáb 13:12 · A-24: prueba de humo de `cinetica` (3 minutos de entrenamiento y SBC de 200) y `analizar("flotacion")`. Sigue A-25 (`deformacion`).
+- sáb 13:20 · Nada corriendo y ningún entrenamiento lanzado: el repositorio queda preparado para que los tres computadores partan. Sigue, en este orden: prueba de humo de `cinetica` (A-24), `deformacion` (A-25), lanzar la ronda 1 (A-26) cuando el equipo lo diga.
 
 ## Bloqueos
 

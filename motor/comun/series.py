@@ -23,6 +23,9 @@ Cada motor aporta una **especificación** (su módulo `motor/<id>/simular.py`):
                                                cantidad (B, U): lo que se decide, exacto con los parámetros verdaderos,
                                                y extra: lo que `cantidad_de` necesita
     cantidad_de(eta, lam, extra) -> (L, B, U)  lo que se decide, para muestras del posterior (L, B, d) y (L, B, U, d_local)
+    CON_CLASE (opcional)                       True si cada unidad tiene además un estado discreto z_j ∈ {0, 1} (en `deformacion`:
+                                               estable o acelerando). Entonces `lam` trae z_j como última columna, una cabeza
+                                               da P(z_j = 1 | η, s_j, s(D)) y el flujo local se condiciona también en z_j
 
 `nucleo/series.py` es la otra mitad: lo mismo en NumPy y onnxruntime, para responder.
 """
@@ -78,11 +81,15 @@ class CodificadorSeries(nn.Module):
 class RedSeries(nn.Module):
     """Codificador + flujo global q(η | s(D)) + flujo local q(λ_j | η, s_j, s(D))."""
 
-    def __init__(self, canales: int, dim_cov: int, dim_tam: int, dim_eta: int, dim_lam: int = 2):
+    def __init__(self, canales: int, dim_cov: int, dim_tam: int, dim_eta: int, dim_lam: int = 2, con_clase: bool = False):
         super().__init__()
+        self.con_clase = con_clase
+        dim_contexto = dim_eta + DIM_UNIDAD + DIM_DATASET
         self.codificador = CodificadorSeries(canales, dim_cov, dim_tam)
         self.flujo = FlujoCondicional(dim_eta, DIM_DATASET, capas=8, ocultas=(128, 128))
-        self.local = FlujoCondicional(dim_lam, dim_eta + DIM_UNIDAD + DIM_DATASET, capas=6, ocultas=(128, 128))
+        self.local = FlujoCondicional(dim_lam, dim_contexto + int(con_clase), capas=6, ocultas=(128, 128))
+        if con_clase:        # P(z_j = 1 | η, s_j, s(D)): el estado discreto de la unidad
+            self.clase = nn.Sequential(nn.Linear(dim_contexto, 128), nn.ReLU(), nn.Linear(128, 128), nn.ReLU(), nn.Linear(128, 1))
 
     def contexto_local(self, eta: Tensor, s_j: Tensor, s_d: Tensor) -> Tensor:
         """[η estandarizado, s_j, s(D)] por unidad. eta (..., B, d), s_j (B, U, c), s_d (B, c) → (..., B, U, c_total)."""
@@ -92,28 +99,46 @@ class RedSeries(nn.Module):
         return torch.cat([p.expand(forma + (p.shape[-1],)) for p in partes], dim=-1)
 
     def perdida(self, lote: dict[str, Tensor]) -> tuple[Tensor, dict[str, float]]:
-        """−log q(η | s(D)) − promedio_j log q(λ_j | η, s_j, s(D)), con el η verdadero como condición del flujo local."""
+        """−log q(η | s(D)) − promedio_j log q(λ_j | η, s_j, s(D)), con el η verdadero como condición del flujo local.
+
+        Con estado discreto: q(λ_j, z_j | ·) = q(z_j | η, s_j, s(D)) · q(λ_j | z_j, η, s_j, s(D)); se suma la entropía cruzada de z_j.
+        """
         s_d, s_j = self.codificador(lote["x"], lote["mascara"], lote["cov"], lote["tam"])
         global_ = -self.flujo.log_prob(lote["eta"], s_d).mean()
         hay = lote["mascara"].sum(-1) > 0                                              # (B, U)
-        contexto = self.contexto_local(lote["eta"], s_j, s_d)
-        local = -self.local.log_prob(lote["lam"][hay], contexto[hay]).mean()
-        return global_ + local, {"global": float(global_.detach()), "local": float(local.detach())}
+        contexto, lam = self.contexto_local(lote["eta"], s_j, s_d)[hay], lote["lam"][hay]
+        partes = {}
+        clase = torch.zeros((), device=global_.device)
+        if self.con_clase:
+            z, lam = lam[:, -1:], lam[:, :-1]
+            clase = nn.functional.binary_cross_entropy_with_logits(self.clase(contexto), z)
+            contexto = torch.cat([contexto, z], dim=-1)
+            partes["clase"] = float(clase.detach())
+        local = -self.local.log_prob(lam, contexto).mean()
+        return global_ + local + clase, {"global": float(global_.detach()), "local": float(local.detach()), **partes}
+
+    def muestrear_locales(self, contexto: Tensor, ruido: Tensor, uniforme: Tensor | None = None) -> Tensor:
+        """λ_j dado el contexto y el ruido. Con estado discreto, z_j = 1 si `uniforme` < P(z_j = 1), y va como última columna."""
+        if not self.con_clase:
+            return self.local.muestrear_con_ruido(contexto, ruido)
+        z = (uniforme < torch.sigmoid(self.clase(contexto)[..., 0])).to(contexto.dtype).unsqueeze(-1)
+        return torch.cat([self.local.muestrear_con_ruido(torch.cat([contexto, z], dim=-1), ruido), z], dim=-1)
 
     @torch.no_grad()
     def muestrear(self, lote: dict[str, Tensor], muestras: int) -> tuple[Tensor, Tensor]:
-        """`muestras` de η y, por cada una, una de cada λ_j: (L, B, d) y (L, B, U, d_local)."""
+        """`muestras` de η y, por cada una, una de cada λ_j: (L, B, d) y (L, B, U, d_local [+ 1 con estado discreto])."""
         s_d, s_j = self.codificador(lote["x"], lote["mascara"], lote["cov"], lote["tam"])
         eta = self.flujo.muestrear(s_d, muestras)
         contexto = self.contexto_local(eta, s_j, s_d)
-        lam = self.local.muestrear_con_ruido(contexto, torch.randn(*contexto.shape[:-1], self.local.dim_theta, device=contexto.device))
+        forma = contexto.shape[:-1]
+        lam = self.muestrear_locales(contexto, torch.randn(*forma, self.local.dim_theta, device=contexto.device), torch.rand(*forma, device=contexto.device))
         return eta, lam
 
 
 # ------------------------------------------------------------------------------ construir, simular en tensores
 
 def construir(esp: ModuleType) -> RedSeries:
-    return RedSeries(esp.CANALES, esp.DIM_COV, esp.DIM_TAM, len(esp.NOMBRES_ETA), len(esp.NOMBRES_LAM))
+    return RedSeries(esp.CANALES, esp.DIM_COV, esp.DIM_TAM, len(esp.NOMBRES_ETA), len(esp.NOMBRES_LAM), bool(getattr(esp, "CON_CLASE", False)))
 
 
 _TENSORES = ("x", "mascara", "cov", "tam", "eta", "lam")
@@ -131,13 +156,13 @@ def fijar_escalas(red: RedSeries, esp: ModuleType, semilla: int = 0, lotes: int 
         sim = esp.simular(gen, lote)
         etas.append(sim["eta"]); lams.append(sim["lam"][sim["mascara"].sum(-1) > 0])
     red.flujo.fijar_escala(torch.as_tensor(np.concatenate(etas), dtype=torch.float32))
-    red.local.fijar_escala(torch.as_tensor(np.concatenate(lams), dtype=torch.float32))
+    red.local.fijar_escala(torch.as_tensor(np.concatenate(lams)[:, : red.local.dim_theta], dtype=torch.float32))
 
 
 def configuracion(esp: ModuleType, **extra) -> dict:
     """Lo que el servicio necesita saber de la red: formas fijas del ONNX, nombres de los parámetros y el diseño de tamaños."""
     return {"motor_id": esp.MOTOR_ID, "nombres_eta": list(esp.NOMBRES_ETA), "nombres_lam": list(esp.NOMBRES_LAM),
-            "canales": esp.CANALES, "dim_cov": esp.DIM_COV, "dim_tam": esp.DIM_TAM,
+            "canales": esp.CANALES, "dim_cov": esp.DIM_COV, "dim_tam": esp.DIM_TAM, "con_clase": bool(getattr(esp, "CON_CLASE", False)),
             "max_unidades": int(esp.DISENO["unidades"][1]), "max_lecturas": int(esp.DISENO["lecturas"][1]),
             "diseno": {k: list(v) for k, v in esp.DISENO.items()}, "prior": dict(getattr(esp, "PRIOR", {})),
             "arquitectura": "codificador por unidad (convoluciones 1D con máscara) + atención sobre unidades + "
@@ -212,19 +237,25 @@ def exportar(esp: ModuleType, red: RedSeries, carpeta: Path, progreso: dict | No
     exportar_onnx(red.codificador, ejemplo, ruta, ["x", "mascara", "cov", "tam"], None, nombres_salida=("resumen", "resumen_unidades"))
     dif_onnx = comparar_con_onnxruntime(red.codificador, ruta, ejemplo)
     red.flujo.exportar_npz(str(carpeta / "flujo.npz"))
-    red.local.exportar_npz(str(carpeta / "flujo_local.npz"))
+    cabeza = {}
+    if red.con_clase:        # la cabeza del estado discreto viaja en el mismo archivo que el flujo local
+        lineales = [m for m in red.clase if isinstance(m, nn.Linear)]
+        cabeza = {"clase_n": np.int64(len(lineales))}
+        for j, lineal in enumerate(lineales):
+            cabeza[f"clase_W{j}"], cabeza[f"clase_b{j}"] = lineal.weight.detach().numpy(), lineal.bias.detach().numpy()
+    red.local.exportar_npz(str(carpeta / "flujo_local.npz"), **cabeza)
     # NumPy contra torch, con los mismos pesos y el mismo ruido, en los dos flujos (regla 3 de AGENTS.md).
     with torch.no_grad():
         s_d, s_j = red.codificador(sim["x"], sim["mascara"], sim["cov"], sim["tam"])
         ruido = torch.randn(16, 1, red.flujo.dim_theta)
         eta = red.flujo.muestrear_con_ruido(s_d, ruido)
         contexto = red.contexto_local(eta, s_j, s_d)
-        ruido_l = torch.randn(*contexto.shape[:-1], red.local.dim_theta)
-        lam = red.local.muestrear_con_ruido(contexto, ruido_l)
+        ruido_l, uniforme = torch.randn(*contexto.shape[:-1], red.local.dim_theta), torch.rand(*contexto.shape[:-1])
+        lam = red.muestrear_locales(contexto, ruido_l, uniforme)
     f, fl = flujo_np.cargar(str(carpeta / "flujo.npz")), flujo_np.cargar(str(carpeta / "flujo_local.npz"))
     eta_np = flujo_np.muestrear(f, s_d.numpy(), ruido.numpy())
     contexto_np = series_np.contexto_local(f, eta_np[:, :, None, :], s_j.numpy()[None], s_d.numpy()[None, :, None, :], tuple(contexto.shape[:-1]))
-    lam_np = flujo_np.muestrear(fl, contexto_np, ruido_l.numpy())
+    lam_np = series_np.muestrear_locales(fl, contexto_np, ruido_l.numpy(), uniforme.numpy())
     diferencias = {"onnx": dif_onnx, "flujo_numpy": float(np.abs(eta_np - eta.numpy()).max()), "flujo_local_numpy": float(np.abs(lam_np - lam.numpy()).max())}
     torch.save(red.state_dict(), carpeta / "pesos.pt")
     progreso = progreso or {}
@@ -257,7 +288,7 @@ def tramos_de_tamano(diseno: dict) -> list[tuple[str, int, int]]:
 
 
 @torch.no_grad()
-def sbc(esp: ModuleType, red: RedSeries, datasets: int = 2000, muestras: int = 99, lote: int = 100, semilla: int = 12345) -> dict:
+def sbc(esp: ModuleType, red: RedSeries, datasets: int = 2000, muestras: int = 99, lote: int = 20, semilla: int = 12345) -> dict:
     """Calibración basada en simulación en datasets nuevos, sin MCMC: η (global), λ_j (local) y lo que se decide.
 
     Para cada dataset simulado se sacan `muestras` del posterior amortizado y se cuenta cuántas quedan bajo el valor

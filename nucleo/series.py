@@ -69,7 +69,8 @@ def revisar_tamano(caso: dict, series: dict, diseno: dict, practica: str) -> tup
     plural = caso["unidad"]["plural"]
     con_lecturas = [j for j, t in enumerate(series["t"]) if len(t) >= k_min]
     if len(series["ids"]) < u_min:
-        raise ArchivoNoCalza(f"Hay {len(series['ids'])} {plural} y {practica}.")
+        cuantas = f"Hay 1 {caso['unidad']['singular']}" if len(series["ids"]) == 1 else f"Hay {len(series['ids'])} {plural}"
+        raise ArchivoNoCalza(f"{cuantas} y {practica}.")
     if len(con_lecturas) < u_min:
         raise ArchivoNoCalza(f"Solo {len(con_lecturas)} {plural} tienen al menos {k_min} mediciones, y {practica}.")
     avisos = []
@@ -141,8 +142,19 @@ def muestrear_posterior(r: dict, s_d: np.ndarray, s_j: np.ndarray, m: int = MUES
     d, d_local, u = len(r["flujo"]["media_theta"]), len(r["local"]["media_theta"]), len(s_j)
     eta = _flujo.muestrear(r["flujo"], s_d, gen.standard_normal((m, d)).astype(np.float32))
     contexto = contexto_local(r["flujo"], eta[:, None, None, :], s_j[None, None], s_d[None, None, None], (m, l, u))
-    lam = _flujo.muestrear(r["local"], contexto, gen.standard_normal((m, l, u, d_local)).astype(np.float32))
+    lam = muestrear_locales(r["local"], contexto, gen.standard_normal((m, l, u, d_local)).astype(np.float32), gen.random((m, l, u)).astype(np.float32))
     return eta, lam
+
+
+def muestrear_locales(local: dict, contexto: np.ndarray, ruido: np.ndarray, uniforme: np.ndarray) -> np.ndarray:
+    """λ_j dado su contexto. Si el motor tiene estado discreto (la cabeza `clase_*` viene en `flujo_local.npz`),
+    z_j = 1 donde `uniforme` < P(z_j = 1 | contexto); el flujo se condiciona en z_j y z_j sale como última columna."""
+    if "clase_n" not in local:
+        return _flujo.muestrear(local, contexto, ruido)
+    n = int(local["clase_n"])
+    logit = _flujo._mlp(contexto, [local[f"clase_W{j}"] for j in range(n)], [local[f"clase_b{j}"] for j in range(n)])[..., 0]
+    z = (uniforme < 1.0 / (1.0 + np.exp(-logit))).astype(np.float32)[..., None]
+    return np.concatenate([_flujo.muestrear(local, np.concatenate([contexto, z], axis=-1), ruido), z], axis=-1)
 
 
 def contexto_local(flujo_global: dict, eta: np.ndarray, s_j: np.ndarray, s_d: np.ndarray, forma: tuple[int, ...]) -> np.ndarray:
