@@ -103,6 +103,8 @@ Una fila por motor y por medida. `sup` = rotación, `jer` = inasistencias, `est`
 | M-32 | Examen con datos reales, crédito | [pendiente] | A-15 | |
 | M-33 | Qué tarjetas respondieron con lo que practicó y cuáles salieron precalculadas | [pendiente: se fija a las 16:00] | A-17 | |
 | M-34 | Examen con datos reales del método rápido de siempre, en los mismos casos | **Crédito** (400 clientes reservados): AUC 0,762; tramos dijo → pasó: 7,3% → 8,1%, 14,4% → 13,4%, 27,2% → 27,1%, 57,3% → 60,6%. **Inasistencias** (396 citas): AUC 0,737; tramos 4,6% → 2,5%, 15,9% → 11,9%, 29,4% → 33,1%, 47,8% → 42,9%. Rotación y terreno: [pendiente]. **Ojo: es una vara alta.** Lo que se pierde sin el modelo completo se dice solo después de medir a Krylov en el mismo examen | medido (PC 2, sáb 06:12, `uv run python -m motor.comun.rapido --caso credito`; inasistencias dentro de `motor.jerarquico.sello --ensayo`) | |
+| M-35 | Recuperación de parámetros: correlación entre el valor verdadero y el estimado, por parámetro y por motor. Lámina técnica | [pendiente] ×4. Sale de las simulaciones del SBC que ya corre cada sello | sello de cada motor | |
+| M-36 | Desde cuántos análisis conviene Krylov frente al método lento: minutos de entrenamiento ÷ (segundos del método lento − segundos de la red) por análisis. Sostiene el momento de la cartera | [pendiente] ×4. Se calcula con M-23, M-25 y M-26; no se mide aparte | PC 3, cuando estén esas tres | |
 
 **Retiradas por D-26** (no se usan; los ids no se reciclan): todo tiempo o acierto del método exacto de las tres tarjetas con lista del plan anterior; «Krylov eligió N de M columnas» y cualquier cifra de la propuesta de columnas o de «Sube tus datos»; M-19 se reemplaza por M-23 y M-02.
 

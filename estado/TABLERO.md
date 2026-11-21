@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 06:33 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 07:08 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
@@ -19,7 +19,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora P-07 (tecla `M` y corrección); después P-09 (pines de «¿Dónde mido?»). Dos arreglos chicos: en rojo, el pie no dice «Respondió la red»; ejes de la nube más grandes. Portada y cierre (P-13): texto en `pitch/LAMINAS.md`. Desde las 05:11 `codificador.onnx` es un solo archivo, con los pesos dentro.
-- **PC 2 · amortizacion:** sesión B: `supervivencia` lista salvo la red; a las 08:30, su sello en PC 2 (D-33). Sesión A: mirar `espacial` a las 07:10, A-M3 a las 07:30 y A-08 a las 08:30. Criterios del sello confirmados en D-32; `supervivencia` los usa también. Pruebas de `nucleo/`: 24 pasan en PC 3. Variantes en singular en `casos/textos.yaml` (`hay_actuar_una`, `hay_en_duda_una`). Terreno con `KRYLOV_ESPACIAL_THETA=mcmc`: «qué manda» lleva «precalculado» y el pie, `precalculado.pie_espacial_mixto`.
+- **PC 2 · amortizacion:** sesión B: `supervivencia` lista salvo la red; a las 08:30, su sello en PC 2 (D-33). Sesión A: mirar `espacial` a las 07:10, A-M3 a las 07:30 y A-08 a las 08:30. Criterios del sello confirmados en D-32; `supervivencia` los usa también. **Pedido nuevo:** en cada `sello.json`, la recuperación por parámetro (correlación verdadero contra estimado, M-35), sin reentrenar. Pruebas de `nucleo/`: 24 pasan en PC 3. Variantes en singular en `casos/textos.yaml` (`hay_actuar_una`, `hay_en_duda_una`). Terreno con `KRYLOV_ESPACIAL_THETA=mcmc`: «qué manda» lleva «precalculado» y el pie, `precalculado.pie_espacial_mixto`.
 - **PC 3 · seguimiento:** ahora S-N4 (rondas 06:15, 07:15, 08:15); a las 08:15 S-06 y a las 08:30 S-06b (`git pull`, exportar `supervivencia` y lanzar `jerarquico`). Para una persona: los borradores `pitch/README_borrador.md` y `pitch/descripcion_borrador.md`, y tres cifras por revisar en `pitch/CIFRAS.md` («Revisión de fuentes»).
 
 ## Qué cambió respecto del plan

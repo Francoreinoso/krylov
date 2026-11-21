@@ -271,6 +271,7 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 | ¿De verdad reemplaza a un data scientist? | Reemplaza el análisis de rutina. Para una empresa que no tiene ninguno, es el primero |
 | ¿Estos son datos de Buk o de AgendaPro? | No. Son datos públicos, y lo dice la pantalla. Son casos tipo, para mostrar la pregunta |
 | ¿Hablaron con clientes? | [Si hubo conversación con alguien de Buk: la frase textual, con permiso.] Si no: «Todavía no, y no lo vamos a inventar. Es lo primero que haríamos el lunes» |
+| ¿Esto ya existe? | Es un campo de investigación activo (inferencia bayesiana amortizada) y hay consultoras que lo aplican a medida para cada cliente. Nosotros lo empaquetamos por tipo de pregunta, con sus reglas y su examen, para plataformas con miles de empresas. No se nombra a nadie como competencia y no se usan cifras ajenas |
 | ¿Qué impide que lo copien? | Hoy, poco: el equipo, que investiga en esto, y llegar primero. La ventaja se construye con cada motor nuevo y con el historial de exámenes |
 | ¿Qué existe hoy y qué es lámina? | Existe una app en línea con cuatro casos, cada uno con su modelo, y [N] redes entrenadas entre anoche y hoy [las que hayan pasado; las demás tarjetas dicen «precalculado»]. Series de tiempo y eventos raros son hoja de ruta |
 | ¿Suben cualquier archivo? | Todavía no. Cada motor responde un tipo de pregunta con un tipo de archivo. Agregar un tipo nuevo es escribir sus reglas y dejarlo practicando una noche |
@@ -292,6 +293,7 @@ Técnicas, para quien las haga:
 | ¿Ese 90% es sobre sus propias simulaciones? | El del sello, sí, y por eso va en la lámina técnica. Lo que decimos en voz alta es el examen con datos reales |
 | ¿Qué pasa con datos que no se parecen al entrenamiento? | Dos detectores, y basta que marque uno. El que se dibuja usa dos medidas con nombre; el otro mide la distancia en los resúmenes que aprendió la red. No dependemos solo del segundo, porque una red puede mandar algo que nunca vio a cualquier parte |
 | ¿Por qué una grilla en el terreno y no los puntos tal cual? | Porque en la grilla agregar una medición hipotética es trivial y rehacer 480 análisis es una sola pasada. En los otros tres motores la red sí recibe las filas tal cual, en cualquier orden y cantidad |
+| ¿Por qué no usaron BayesFlow? | Es la biblioteca de referencia de este campo y seguimos su forma de validar (calibración, recuperación de parámetros, revisión contra datos reales). Elegimos PyTorch con `zuko` para controlar cada pieza y exportar a ONNX, porque el servicio corre sin `torch` |
 | ¿Qué no hace todavía? | Archivos fuera de las cuatro familias, empresas con más de 2.000 filas por análisis, terrenos en tres dimensiones, más de 400 mediciones. Está en la lámina técnica |
 
 ## 6. Plan hora a hora
@@ -898,6 +900,10 @@ Herramientas (detalle y versiones en `STACK.md`, sección 5)
 - Vercel, límites y repositorios. https://vercel.com/docs/limits · https://vercel.com/docs/git · https://vercel.com/docs/deployments/troubleshoot-project-collaboration
 - PyTorch en la GPU del Mac y exportación a ONNX. https://docs.pytorch.org/docs/2.15/notes/mps.html · https://docs.pytorch.org/docs/2.15/onnx.html
 - Claude Code: instrucciones de proyecto y skills. https://code.claude.com/docs/en/memory.md · https://code.claude.com/docs/en/skills.md
+
+Contexto del campo (solo si preguntan; consultado el 21-nov por un agente, sáb 06:45)
+- Laboratorio de Stefan T. Radev, autor de BayesFlow: lista de investigación en inferencia amortizada. https://bayesops.com/research/
+- PyMC Labs, «Amortized Bayesian Inference: Fully Bayesian Inference in Milliseconds» (actualizado el 5-nov-2026). https://www.pymc-labs.com/blog-posts/amortized-bayesian-inference
 
 Negocio (solo lámina de respaldo)
 - Buk. https://buk.mx/ · https://www.buk.cl/quienes-somos/buk-mejores-softwares-rh
