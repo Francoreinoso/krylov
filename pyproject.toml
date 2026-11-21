@@ -11,6 +11,7 @@ dependencies = [
     "fastapi[standard]",
     "pandas",
     "pytest",
+    "anthropic>=2.12.0",
 ]
 
 [dependency-groups]

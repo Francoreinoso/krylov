@@ -10,6 +10,7 @@ from pathlib import Path
 from nucleo import api as nucleo
 from servicio import fijos
 from servicio.calce import calce_del_demo
+from servicio.interpretar import interpretar
 
 DESTINO = Path(__file__).resolve().parent.parent / "web" / "public" / "estatico"
 CORRECCION = ["quitar_factor:fecha_salida"]
@@ -21,6 +22,13 @@ def _escribir(ruta: str, datos: dict) -> None:
     archivo.write_text(json.dumps(datos, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+def _analisis(clave: str, datos: dict) -> int:
+    """La respuesta y su interpretación, precalculada y rotulada. Solo la de Claude se sube; si no, la plantilla."""
+    _escribir(f"analizar/{clave}", datos)
+    _escribir(f"interpretar/{clave}", {**interpretar(datos, solo_claude=True), "precalculado": True})
+    return 2
+
+
 def exportar() -> int:
     shutil.rmtree(DESTINO, ignore_errors=True)
     lista = fijos.casos()
@@ -28,8 +36,7 @@ def exportar() -> int:
     n = 1
     for c in lista["casos"]:
         nombre = c["nombre"]
-        _escribir(f"analizar/{nombre}", fijos.analizar(nombre))
-        n += 1
+        n += _analisis(nombre, fijos.analizar(nombre))
         if c["tiene_cartera"]:
             _escribir(f"cartera/{nombre}", fijos.cartera(nombre))
             n += 1
@@ -43,9 +50,9 @@ def exportar() -> int:
     # El arco rojo → corrección → verde del archivo malo.
     for t in ([], CORRECCION):
         clave = fijos.clave("rotacion_malo", t)
-        _escribir(f"analizar/{clave}", fijos.analizar("rotacion_malo", t))
+        n += _analisis(clave, fijos.analizar("rotacion_malo", t))
         _escribir(f"nube/{clave}", fijos.nube("rotacion_malo", t))
-        n += 2
+        n += 1
     return n
 
 

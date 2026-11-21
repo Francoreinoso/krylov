@@ -1,15 +1,19 @@
-"""El calce de columnas de los archivos del demo (CONTRATO.md, secciones 5 y 6; D-35).
+"""El calce de columnas: qué columna del archivo cumple cada papel del modelo (CONTRATO.md, secciones 5 y 6; D-35).
 
-En los cuatro casos del demo el calce lo eligió el equipo y está escrito en `casos/<nombre>.yaml`.
-Se entrega con la misma forma que `POST /api/calce`, con `origen: "equipo"`, para que el chat
-lo muestre igual que el de un archivo propio.
+En los cuatro casos del demo el calce lo eligió el equipo y está escrito en `casos/<nombre>.yaml`
+(`origen: "equipo"`). En un archivo propio lo propone el modelo de lenguaje (`origen: "modelo"`) o, sin
+él, una regla por nombre y tipo de columna (`origen: "regla"`). Las dos formas son iguales, para que el
+chat las muestre igual.
 """
 
 import csv
+import json
+import re
 
-from nucleo import api
-from nucleo.casos import cargar_caso
-from servicio.fijos import RAIZ
+from nucleo import api, preproceso
+from nucleo.casos import ArchivoNoCalza, cargar_caso
+from servicio import lenguaje
+from servicio.fijos import RAIZ, PeticionInvalida
 
 
 def _encabezado(caso: dict) -> list[str]:
@@ -39,3 +43,177 @@ def calce_del_demo(nombre: str) -> dict:
     return {"caso": nombre, "motor_id": caso["motor"], "calce": calce,
             "columnas": columnas, "no_usadas": [c for c in columnas if c not in usadas],
             "origen": "equipo", "precalculado": True}
+
+
+# ------------------------------------------------------------------------------------------------
+# El calce de un archivo propio (POST /api/calce, D-35): lo propone el modelo de lenguaje leyendo un
+# resumen de cada columna, nunca las filas; sin modelo, o si su propuesta no valida, una regla por
+# nombre y tipo de columna. En los dos casos el usuario lo ve y lo confirma antes de analizar.
+# ------------------------------------------------------------------------------------------------
+
+_SI_NO = {"si", "sí", "no", "yes", "y", "n", "true", "false", "verdadero", "falso", "1", "0"}
+_COMPATIBLES = {"texto": {"texto", "numero", "entero", "si_no", "fecha"}, "si_no": {"si_no"},
+                "numero": {"numero", "entero", "si_no"}, "entero": {"entero", "si_no"}}
+EJEMPLOS_POR_COLUMNA = 3
+
+SISTEMA_CALCE = """Eres Krylov, un data scientist artificial. Un modelo estadístico recibe columnas en papeles fijos. Te doy los papeles del modelo y un resumen de cada columna del archivo del usuario (nombre, tipo, valores distintos, rango, porcentaje vacío y tres ejemplos). Propón qué columna cumple cada papel.
+
+Reglas:
+- Cada papel lleva entre `minimo` y `maximo` columnas. Un papel con mínimo 0 es opcional: déjalo vacío si ninguna columna sirve.
+- Una columna va en un solo papel. Las que no uses van en `no_usadas`.
+- Una columna que solo tiene dato cuando la respuesta ya se sabe (por ejemplo, una fecha de salida) delata la respuesta: no la uses como factor.
+- Usa una transformación solo si hace falta para que la columna diga lo que pide el papel (meses a años: `dividir` por 12; una fecha a años: `anios_desde_fecha`). Si no hace falta, `ninguna`. Los parámetros que no usa la transformación van en null.
+- `motivo`: una frase corta, sin jerga, que diga por qué esa columna cumple el papel.
+- `confianza`: alta si el nombre y los valores calzan sin duda, media si es probable, baja si es una adivinanza."""
+
+
+def _normalizar(texto: str) -> str:
+    return texto.lower().translate(str.maketrans("áéíóúüñ", "aeiouun"))
+
+
+def _tipo(valores: list[str]) -> str:
+    if valores and all(v.lower() in _SI_NO for v in valores):
+        return "si_no"
+    try:
+        numeros = [float(v.replace(",", ".")) for v in valores]
+    except ValueError:
+        return "fecha" if valores and all(re.fullmatch(r"\d{1,4}[-/]\d{1,2}[-/]\d{1,4}", v) for v in valores) else "texto"
+    return "entero" if all(n.is_integer() for n in numeros) else "numero"
+
+
+def resumen_columnas(columnas: dict[str, list[str]]) -> list[dict]:
+    """Por columna: nombre, tipo, valores distintos, rango, porcentaje vacío y tres ejemplos. Nunca filas completas."""
+    resumen = []
+    for nombre, valores in columnas.items():
+        llenos = [v.strip() for v in valores if v.strip()]
+        tipo = _tipo(llenos)
+        numeros = [float(v.replace(",", ".")) for v in llenos] if tipo in ("numero", "entero") else []
+        resumen.append({"nombre": nombre, "tipo": tipo, "distintos": len(set(llenos)),
+                        "rango": [min(numeros), max(numeros)] if numeros else None,
+                        "vacio_pct": round(100 * (1 - len(llenos) / max(len(valores), 1))),
+                        "ejemplos": list(dict.fromkeys(llenos))[:EJEMPLOS_POR_COLUMNA]})
+    return resumen
+
+
+def _entrada(columnas: list[str], motivo: str, confianza: str, transformacion: dict | None = None) -> dict:
+    return {"columnas": columnas, "transformacion": transformacion, "motivo": motivo, "confianza": confianza}
+
+
+def calce_por_regla(papeles: list[dict], resumen: list[dict]) -> dict:
+    """Sin modelo de lenguaje: primero por el nombre de la columna, después por su tipo, en el orden de los papeles."""
+    libres = {c["nombre"]: c for c in resumen}
+    calce = {}
+
+    def tomar(p: dict, candidatas: list[str], motivo: str, confianza: str, hasta: int) -> None:
+        elegidas = candidatas[:hasta]
+        for nombre in elegidas:
+            libres.pop(nombre)
+        calce[p["papel"]] = _entrada(calce[p["papel"]]["columnas"] + elegidas if p["papel"] in calce else elegidas, motivo, confianza)
+
+    def calza_el_nombre(nombre: str, palabras: set[str]) -> bool:
+        partes = re.findall(r"[a-z]{3,}", _normalizar(nombre))
+        return any(w.startswith(t) or t.startswith(w) for w in palabras for t in partes)
+
+    for p in papeles:
+        palabras = set(re.findall(r"[a-z]{4,}", _normalizar(f"{p['papel']} {p['texto']}")))
+        por_nombre = [n for n, c in libres.items() if c["tipo"] in _COMPATIBLES[p["tipo"]] and calza_el_nombre(n, palabras)]
+        tomar(p, por_nombre, "El nombre de la columna calza con lo que pide el papel", "media", p["maximo"])
+    for p in papeles:
+        faltan = p["minimo"] - len(calce[p["papel"]]["columnas"])
+        if faltan <= 0:
+            continue
+        candidatas = [n for n, c in libres.items() if c["tipo"] in _COMPATIBLES[p["tipo"]]]
+        familias: dict[str, list[str]] = {}               # PAGO_1 … PAGO_6: columnas que solo cambian en el número final
+        for n in candidatas:
+            familias.setdefault(re.sub(r"[_\s]*\d+$", "", n), []).append(n)
+        familia = next((f for f in familias.values() if len(f) >= faltan > 1), None)
+        if familia:
+            tomar(p, familia, "Son columnas de la misma familia, una por período", "baja", faltan)
+            continue
+        if p["tipo"] == "texto":                      # el identificador distingue a cada fila; el grupo tiene pocos valores
+            candidatas.sort(key=lambda n: libres[n]["distintos"], reverse=p["papel"] == "id")
+        tomar(p, candidatas, f"Es la columna de tipo {p['tipo'].replace('_', ' o ')} que quedaba libre", "baja", faltan)
+    return calce
+
+
+def _esquema_calce(papeles: list[dict], nombres: list[str]) -> dict:
+    nulo = lambda tipo: {"anyOf": [tipo, {"type": "null"}]}   # noqa: E731
+    transformacion = {
+        "type": "object", "additionalProperties": False, "required": ["nombre", "por", "hasta", "desde", "de", "a"],
+        "properties": {"nombre": {"type": "string", "enum": ["ninguna", *preproceso.TRANSFORMACIONES]},
+                       "por": nulo({"type": "number"}), "hasta": nulo({"type": "string"}), "desde": nulo({"type": "string"}),
+                       "de": nulo({"type": "array", "items": {"type": "number"}}), "a": nulo({"type": "array", "items": {"type": "number"}})}}
+    papel = {"type": "object", "additionalProperties": False, "required": ["columnas", "transformacion", "motivo", "confianza"],
+             "properties": {"columnas": {"type": "array", "items": {"type": "string", "enum": nombres}},
+                            "transformacion": transformacion, "motivo": {"type": "string"},
+                            "confianza": {"type": "string", "enum": ["alta", "media", "baja"]}}}
+    return {"type": "object", "additionalProperties": False, "required": [*(p["papel"] for p in papeles), "no_usadas"],
+            "properties": {**{p["papel"]: papel for p in papeles},
+                           "no_usadas": {"type": "array", "items": {"type": "string", "enum": nombres}}}}
+
+
+def _transformacion_valida(t: dict | None, nombres: set[str]) -> dict | None:
+    """La transformación sin parámetros vacíos, o None si no hace falta o le falta lo que necesita."""
+    if not isinstance(t, dict) or t.get("nombre") not in preproceso.TRANSFORMACIONES:
+        return None
+    t = {k: v for k, v in t.items() if v is not None}
+    necesita = {"dividir": ("por",), "dias_entre": ("desde",), "reescalar_ordinal": ("de", "a")}.get(t["nombre"], ())
+    if any(k not in t for k in necesita) or t.get("por") == 0 or ("desde" in t and t["desde"] not in nombres):
+        return None
+    return t
+
+
+def validar(propuesto: dict, papeles: list[dict], nombres: list[str]) -> dict | None:
+    """El calce del modelo, revisado por el código: columnas que existen, sin repetir, dentro de mínimo y máximo."""
+    existentes, usadas, calce = set(nombres), set(), {}
+    for p in papeles:
+        entrada = propuesto.get(p["papel"])
+        if not isinstance(entrada, dict):
+            return None
+        columnas = [c for c in entrada.get("columnas") or [] if isinstance(c, str)]
+        if not set(columnas) <= existentes or usadas & set(columnas) or len(set(columnas)) != len(columnas):
+            return None
+        if not p["minimo"] <= len(columnas) <= p["maximo"]:
+            return None
+        usadas |= set(columnas)
+        confianza = entrada.get("confianza") if entrada.get("confianza") in ("alta", "media", "baja") else "baja"
+        calce[p["papel"]] = _entrada(columnas, str(entrada.get("motivo") or ""), confianza,
+                                     _transformacion_valida(entrada.get("transformacion"), existentes))
+    return calce
+
+
+def _calce_por_modelo(papeles: list[dict], resumen: list[dict]) -> tuple[dict, str] | None:
+    nombres = [c["nombre"] for c in resumen]
+    pedido = {"papeles": [{k: p[k] for k in ("papel", "minimo", "maximo", "tipo", "texto_largo")} for p in papeles],
+              "columnas": resumen}
+    escrito = lenguaje.pedir(SISTEMA_CALCE, json.dumps(pedido, ensure_ascii=False), _esquema_calce(papeles, nombres))
+    if escrito is None:
+        return None
+    try:
+        propuesto = json.loads(escrito[0])
+    except json.JSONDecodeError:
+        return None
+    calce = validar(propuesto, papeles, nombres) if isinstance(propuesto, dict) else None
+    return (calce, escrito[1]) if calce else None
+
+
+def proponer_calce(motor_id: str, contenido: bytes) -> dict:
+    """El calce de un archivo subido, con la forma de `calce_del_demo`. Lanza `PeticionInvalida` si el archivo no se lee."""
+    respuesta = api.papeles(motor_id)
+    if "error" in respuesta:
+        raise PeticionInvalida(respuesta["error"], respuesta["codigo"])
+    try:
+        columnas = api._columnas_de_texto(contenido)                 # el mismo lector que usa `analizar_archivo`
+    except ArchivoNoCalza as e:
+        raise PeticionInvalida(e.motivo, "archivo_ilegible") from None
+    resumen = resumen_columnas(columnas)
+    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen)
+    if del_modelo:
+        (calce, proveedor), origen = del_modelo, "modelo"
+    else:
+        calce, proveedor, origen = calce_por_regla(respuesta["papeles"], resumen), None, "regla"
+    usadas = {c for v in calce.values() for c in v["columnas"]}
+    nombres = list(columnas)
+    return {"caso": None, "motor_id": motor_id, "calce": calce, "columnas": nombres,
+            "no_usadas": [c for c in nombres if c not in usadas], "origen": origen, "proveedor": proveedor,
+            "precalculado": False}
