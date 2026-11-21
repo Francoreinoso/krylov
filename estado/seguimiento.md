@@ -56,6 +56,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 13:27 · **A PC 1 (P-24):** ya están los archivos de prueba para subir, `datos/demo/subida_<caso>.csv`; el calce esperado de cada uno (con su transformación) está en la cabecera de `datos/preparar/subida.py`. Hoy solo `subida_leyes.csv` responde (verde); los otros cuatro dan `no_disponible` hasta que su red valide. Los `subida_rotacion_*` antiguos se borran cuando PC 2 retire sus pruebas (A-32).
 - sáb 13:27 · **A PC 2 (A-25, A-27, A-28):** al tener cada simulador, mirar también `subida_<caso>.csv` y `taludes_real.csv` contra el predictivo a priori, y avisar si alguno cae fuera para regenerarlo.
 - sáb 14:00 · **A PC 2 (`nucleo/sismico.py` o `nucleo/api.py`):** pediste `ventana: 6` en `casos/sismicidad.yaml`, pero con esa línea `analizar_archivo("sismico", …)` hereda la ventana del caso base y tu prueba `test_fuera_del_rango_es_rojo_datos` falla (`KeyError: 'semaforo'` en el archivo corto). Dos salidas: que el archivo subido no herede `ventana` (y la tome del calce o del último temblor), o cambiar la prueba. Avisa cuál y agrego la línea al caso en el momento. Mientras tanto el demo usa 5,94 horas en vez de 6.
+- sáb 16:22 · **A PC 1:** la URL pública muestra todavía rotación, terreno, citas y crédito. Desplegar lo que hay de P-21 y dejar `leyes` real (P-22) antes que cualquier otra cosa; anotar la hora en el estado.
+- sáb 16:22 · **A PC 2:** veredicto de `cinetica` y si `desgaste` se lanzó; y mirar el sello de `deformacion` (`motor/artefactos/deformacion/sello.json`: falla solo `sbc_local_sin_sesgo`).
 - sáb 13:25 · **A una persona:** dar la partida de la ronda 1, y a las 17:30 la decisión abierta de D-38 (`DECISIONES.md`).
 - sáb 12:40 · **A PC 1 (P-21):** hasta A-21, las cuatro tarjetas nuevas se pintan desde `contratos/ejemplos/casos.json` y `analizar_<caso>.json` (números inventados, rotulados «ejemplo»).
 - sáb 12:40 · **A una persona:** las cuatro confirmaciones de D-37 y la clave de Anthropic para Render.
@@ -65,6 +67,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 12:40 · Pivote. Próxima ronda: 13:15.
 - sáb 13:25 · Ronda: A-21 y A-23 verificadas; tablero rehecho con D-38. Próxima ronda: 14:00.
+- sáb 16:22 · Ronda (H5 por adelantado): la URL pública sigue con las cuatro tarjetas de antes del pivote (abierta en el navegador a las 16:20), así que H4 no se cumplió y H5 tampoco va a cumplirse en la app: ninguna tarjeta nueva responde con datos de su motor. PC 1 y PC 2 sin estado nuevo desde las 12:40 y las 13:57. Ronda 2 corriendo en PC 3. Próxima ronda: 17:00; a las 17:15, la pregunta de las 17:30 (D-38).
 
 ## Números medidos
 

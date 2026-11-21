@@ -2,9 +2,9 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 16:18 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 16:22 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
-**URL pública:** https://krylov-tan.vercel.app/ (todavía muestra las cuatro tarjetas anteriores; cambia con P-21 y P-22).
+**URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
 
 **Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **Ronda 1 terminada en PC 3:** `deformacion` no pasó su sello (falla solo el SBC por unidad). **Ronda 2:** `sismico` entrena en PC 3 desde las 16:14, hasta las 18:15. Falta el veredicto de `cinetica` (PC 2). El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
 
@@ -26,8 +26,8 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟡 atrasado | P-21 subida (commit `cc97fdc`), una hora después de su tope. Ahora P-22, que es lo que exige H4 y ya pasó su tope (13:50) |
-| amortizacion (PC 2) | 🟢 adelantado | A-21 a A-29 hechas salvo dos pruebas de humo (`desgaste`, `sismico`); `cinetica` entrena desde las 13:38, cerca de 8.700 datasets por segundo |
+| producto (PC 1) | 🔴 atrasado | La URL pública no cambió desde el pivote: H4 (14:30) no se cumplió. Sin estado nuevo desde las 12:40. Recorte: desplegar ya P-21 y sacar `leyes` real (P-22); `Curva` (P-23) y el chat (P-24) esperan |
+| amortizacion (PC 2) | 🟡 sin noticias | Sin estado ni commits desde las 13:57. Falta el veredicto de `cinetica` (16:10), lanzar `desgaste` y responder el pedido de `ventana` |
 | seguimiento (PC 3) | 🟡 entrenando | `sismico` corre desde las 16:14. `deformacion`: 1.684.160 muros en 146 min; pasa todo salvo el SBC por unidad. Sin método lento corrido |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
