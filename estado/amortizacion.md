@@ -138,7 +138,20 @@ Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transf
 
 ## En curso
 
-- sáb 09:58 · **Sesión B: `estados` entrena en PC 2 desde las 09:55:17 y termina solo a las 12:00** (tabla «Entrenamiento en curso»). El sello de `supervivencia` terminó a las 09:54:55: NO PASA (ver «Hecho»). **Nadie corre MCMC, sellos ni mediciones de tiempo en PC 2 hasta las 12:00.** Sesión B queda con: mirar `estados` una vez por hora y lo que decida Rodrigo sobre `supervivencia`.
+- sáb 10:06 · **PC 2 contra el plan** (sesión B; `estado/TABLERO.md` es de las 09:25 y no trae nada de esto):
+
+| Tarea | Tope del plan | Cómo está |
+|---|---|---|
+| A-08 · sello de `espacial` | 09:15 | Hecho 09:39, **pasa**. `KRYLOV_MOTOR_ESPACIAL=red` ya vale |
+| A-09 · lanzar `estados` | 09:30 | **Lanzado 09:55, 40 min tarde**: entrena 125 min en vez de 165. Primer punto de guardado 10:05; paso 20.400, 34 pasos/s (se estimaban 25). Termina solo a las 12:00 |
+| A-10 · rotación y sello de `supervivencia` | 10:15 | Código hecho; **el sello no pasa** (09:55). La tarjeta responde con el plan B (`mcmc`, precalculado) |
+| A-11 y A-12 · terreno y «¿Dónde mido?» | 11:00 y 12:00 | Hechos y con red validada (10 ms y 0,69 s) |
+| A-19 · `papeles` y `analizar_archivo` | 10:30 | Hecho 09:44. **Faltan las transformaciones de D-35** (`nucleo/preproceso.py`, sesión A) |
+| A-13 · cartera y nube | 13:15 | Código hecho. **Falta el plan B de la cartera de rotación** (`cartera_mcmc`, es MCMC: no antes de las 12:00 en PC 2) |
+| A-14 y A-15 · inasistencias y crédito | 14:10 y 14:50 | Código hecho; esperan sus redes (`jerarquico` en PC 3 hasta las 11:30, `estados` aquí hasta las 12:00) y sus sellos |
+| D-35 en `supervivencia` (papeles opcionales) | — | Evaluado: no cabe; recomendado cortar. Espera a Rodrigo |
+
+- sáb 10:06 · **A las 12:00 en PC 2, en este orden y de a uno** (propuesta de la sesión B; lo confirma Rodrigo): (1) comprobar que `estados` terminó (`tail -3 motor/checkpoints/estados/salida.log`); (2) `uv run python -m motor.supervivencia.cartera_mcmc --empresas 5` y subir `cartera.json` (plan B de la cartera; minutos **sin medir**); (3) `uv run python -m motor.estados.sello`; (4) si llegó una red nueva de `supervivencia`, su sello (12 min).
 
 - sáb 09:40 · **Orden en PC 2 (D-33):** (1) sello de `espacial`: hecho, 09:39. (2) Sello de `supervivencia`, sesión B: **puede partir ya**. (3) `estados`: lo lanza la sesión B al terminar su sello, con el comando de la sección de `estados`. La sesión A no lanza nada pesado en PC 2 hasta que `estados` esté corriendo.
 - sáb 09:40 · Sesión A: README técnico con el sello de `espacial`; pendiente de Rodrigo la decisión de «qué manda» (red o MCMC).
@@ -215,7 +228,7 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Bloqueos
 
-- Ninguno (sáb 07:16). Los tres anteriores están resueltos y pasaron a «Hecho».
+- sáb 10:06 · **La red de `supervivencia` no pasó su sello (09:55) y la tarjeta que abre el demo queda en plan B.** No frena a PC 1: `api.analizar("rotacion")` responde con el MCMC precalculado. Sí frena: decir que rotación la respondió la red, la subida de un archivo propio de rotación (los tres archivos de prueba son de rotación) y la cartera con la red. Espera una decisión de Rodrigo: plan B definitivo, o seguir entrenando desde el punto de la noche en un computador libre y revalidar antes de las 16:00 (pedido de las 09:58 y diagnóstico en «Números medidos»).
 
 ## Pedidos a otros
 
@@ -346,3 +359,6 @@ Cambios de interfaz se anotan aquí, con hora.
 | `supervivencia` · `recuperacion` (correlación entre el valor verdadero y la media del posterior, 2.000 empresas) | Media 0,865; mínima 0,186 en `log_tau` (la suavidad del spline casi no se identifica: lo esperable). Bajas también `log_sigma_u` 0,583, `gamma_0` 0,604 y `beta0` 0,625; los tres efectos 0,94, `lambda` 0,949, cargas de las encuestas 0,91 a 0,92, cortes 0,97 a 0,99, `mu_c` 0,986 | `sello.json` → `recuperacion` | sáb 09:55 |
 | D-35 · la red de la noche con papeles ausentes (300 empresas simuladas nuevas por fila; columna ausente en cero; solo evaluación) | Pérdida NPE y cobertura de 90% de los parámetros presentes: esquema completo −15,4 y 0,902 · un efecto ausente 82,4 y 0,653 · dos efectos 151,7 y 0,605 · una encuesta 513,4 y 0,898 (lo ausente 0,069) · dos encuestas 839,3 y 0,840 | `sonda_d35.py` (fuera del repositorio), 5 s, con `estados` entrenando al lado | sáb 09:58 |
 | `estados` · arranque del entrenamiento en PC 2 | A los 2,1 min: paso 4.200, 67.200 carteras, pérdida 8,96 (media móvil 11,62), 28 a 38 pasos/s en el procesador | `registro.jsonl` | sáb 09:57 |
+| `supervivencia` · red contra MCMC en el archivo real, parámetro por parámetro (1.000 muestras de la red contra las 2.000 del MCMC) | **La red es más ancha que el MCMC, y corrida en algunos parámetros.** Diferencia de medias sobre 0,3 desviaciones en 22 de 32 y sobre 1 en 7: `log_tau` 2,70 (3,2 veces más ancha), `beta_2` 2,52 (0,66 ± 0,20 contra 0,43 ± 0,09), `gamma_0` 1,94, `log_a_3` 1,84, `gamma_1` 1,70, `corte_3_2` 1,53, `log_sigma_u` 1,15. Por grupo: `lambda` 0,03 · cortes 0,38 · censura 0,69 · cargas 0,75 · `k` y `beta0` 0,79 · spline 0,91 · efectos 1,35 · `tau` y `sigma_u` 1,93. El MCMC está bien mezclado en el real (r̂ máximo 1,003, tamaño efectivo de 533 para arriba en estos parámetros) | `nucleo.supervivencia.posterior(..., "red", muestras=1000)` contra `mcmc/rotacion.npz`; segundos, con `estados` entrenando al lado (no es una medición de tiempo) | sáb 10:06 |
+| `supervivencia` · qué cambia en pantalla entre la red de la noche y el plan B (archivo real, costos por omisión, 32 muestras cada uno) | Misma decisión en 262 de las 294 personas. Red: 66 conviene retener, 183 no hace falta, 45 en duda; «lo que cuesta no saber» US$ 4.318. MCMC: 78, 183 y 33; **US$ 1.489**. Probabilidad por persona: diferencia media 0,026, máxima 0,28, correlación 0,976. Examen (294 reservadas): AUC 0,799 los dos; Brier 0,1200 la red y 0,1187 el MCMC. **La red no está mal en a quién retener: está menos segura, y eso infla la duda casi al triple** | ídem, con `nucleo.decision.decidir_tabla` | sáb 10:06 |
+| `estados` · primer punto de guardado | 10:05, `ultimo.pt` de 16,7 MB; paso 20.400, 326.400 carteras, media móvil de la pérdida −0,17 (partió en 29,1), 34 pasos/s | `ls motor/checkpoints/estados/` y `registro.jsonl` | sáb 10:05 |
