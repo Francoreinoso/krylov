@@ -9,7 +9,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Hecho
 
-- sáb 12:40 · S-21 terminada: pivote a minería en el repositorio (D-37). Primera parte: `AGENTS.md`, `GLOSARIO.md`, `WORKPLAN.md`, `contratos/CONTRATO.md` con sus ejemplos, los tres `PC*.md`, `casos/`, `datos/`, `pitch/CIFRAS.md` y el tablero. Segunda parte, en el commit que sigue: guion, láminas, skills, `STACK.md`, archivos de entrega y el tablero en vivo. Lo hizo una sesión de Claude Code en el computador de Rodrigo, a pedido suyo. Ver: `git log` y `estado/TABLERO.md`.
+- sáb 12:40 · S-21 terminada: pivote a minería en el repositorio (D-37). Primera parte: `AGENTS.md`, `GLOSARIO.md`, `WORKPLAN.md`, `contratos/CONTRATO.md` con sus ejemplos, los tres `PC*.md`, `casos/`, `datos/`, `pitch/CIFRAS.md` y el tablero. Segunda parte, en el commit siguiente: `pitch/` (guion, láminas, hoja de ruta, borradores de entrega), las doce skills, `SKILLS.md`, `STACK.md`, `motor/README.md`, la descripción del proyecto y el tablero en vivo (repositorio `krylov-panel`). Lo hizo una sesión de Claude Code en el computador de Rodrigo, a pedido suyo. Ver: `git log` y `estado/TABLERO.md`.
 - sáb 12:40 · Investigación de respaldo (dos agentes, fuentes abiertas hoy): cifras de minería con enlace (`pitch/CIFRAS.md`, I-01 en adelante; falta la firma de una persona, S-25) y datos abiertos por caso (`pitch/CIFRAS.md`, «Datos de los casos»).
 
 ## En curso
@@ -33,6 +33,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 12:40 · **A PC 2 (A-21):** `MOTORES` en `nucleo/casos.py` todavía no conoce `deformacion`, `cinetica`, `desgaste` ni `sismico`: por eso `casos/INICIO` lista solo `leyes` y deja las otras cuatro comentadas. Al registrarlos, descomentar esas líneas y ajustar `nucleo/prueba_api.py`.
 - sáb 12:40 · **A PC 1 (P-21):** hasta A-21, las cuatro tarjetas nuevas se pintan desde `contratos/ejemplos/casos.json` y `analizar_<caso>.json` (números inventados, rotulados «ejemplo»).
 - sáb 12:40 · **A una persona:** las cuatro confirmaciones de D-37 y la clave de Anthropic para Render.
+- sáb 12:40 · **A PC 2 (A-32):** `pyproject.toml` todavía describe el proyecto con «cuatro motores»; ajustarlo al retirar los antiguos.
 
 ## Rondas
 

@@ -24,8 +24,8 @@ Por qué así: Claude Code carga `CLAUDE.md` y `CLAUDE.local.md` automáticament
 
 ## Cómo se usa una skill
 
-- Escribiendo `/nombre` en Claude Code (por ejemplo `/punto-de-control h1` o `/validar-motor supervivencia`).
-- O pidiéndolo con palabras: Claude Code la elige por su descripción («prepara el caso de crédito»).
+- Escribiendo `/nombre` en Claude Code (por ejemplo `/punto-de-control h4` o `/validar-motor cinetica`).
+- O pidiéndolo con palabras: Claude Code la elige por su descripción («prepara el caso de taludes»).
 - Para repetirla sola: `/loop 30m /ronda`.
 
 ## Primera vez en cada computador
@@ -41,56 +41,56 @@ Está paso a paso en el archivo `PC*.md` de ese computador, sección «Arranque�
 
 | Skill | Quién | Cuándo | Qué deja |
 |---|---|---|---|
-| `ronda` | PC 3 | Cada 30 a 45 minutos, y cuando alguien termina algo | Tablero con la siguiente tarea de cada rol; guion al día |
-| `punto-de-control` | PC 3 | A la hora de cada hito (H0 a H3, congelado, entrega) | Tablero, decisiones y tag en los dos repositorios |
-| `actualizar-estado` | todos | Al terminar algo, al bloquearse, antes de cada hito | `estado/<rol>.md` al día y subido |
+| `ronda` | PC 3 | Cada 30 a 45 minutos, y cuando alguien termina algo | Tablero con la tabla «Los cinco casos» y la siguiente tarea de cada rol; guion al día |
+| `punto-de-control` | PC 3 | A la hora de cada hito (H4, H5, H6 o congelado, tope de redes, entrega) | Tablero, decisiones y tag en los dos repositorios |
+| `actualizar-estado` | todos | Al terminar algo, al bloquearse, antes de cada hito | `estado/<rol>.md` al día y subido, con el identificador de la tarea al inicio de cada línea |
 | `registrar-cifra` | todos proponen, PC 3 registra | Cada número que verá el jurado | Fila en `pitch/CIFRAS.md` |
-| `agregar-caso` | PC 3 | Para cada tarjeta y para el archivo malo | CSV con las columnas que pide el modelo del motor, archivo de verdad y YAML que calzan. 25 minutos |
-| `medir-rendimiento <motor>` | PC 2, PC 3 | Antes de lanzar cada entrenamiento | Procesador o GPU del Mac, decidido midiendo; presupuesto del paso local |
-| `entrenar-motor <motor>` | PC 2, PC 3 | Una corrida por motor (`espacial`, `supervivencia`, `jerarquico`, `estados`), o para retomarla | Entrenamiento corriendo, con puntos de guardado |
-| `validar-motor <motor>` | PC 2, PC 3 | Antes de activar la red de un motor en el producto | Sello del motor con números medidos, codificador en ONNX, flujo en `flujo.npz`, muestras del MCMC; pasa o no pasa |
-| `desplegar` | PC 1 | Primer despliegue (hoy, antes de dormir) y antes de cada hito | URL pública verificada desde un teléfono |
+| `agregar-caso` | PC 3 | Para cada una de las cinco tarjetas y para el archivo que no alcanza | CSV con la forma que pide el motor (espacial o de series), verdad escondida y YAML que calzan, con el origen de los datos. 25 minutos |
+| `medir-rendimiento <motor>` | PC 2, PC 3 | Antes de lanzar cada entrenamiento | Procesador o GPU del Mac, decidido midiendo; presupuesto de un análisis |
+| `entrenar-motor <motor>` | PC 2, PC 3 | Una corrida por motor de series (`cinetica`, `deformacion`, `desgaste`, `sismico`), en dos rondas, o para retomarla | Entrenamiento corriendo, con puntos de guardado |
+| `validar-motor <motor>` | PC 2, PC 3 | Al terminar cada ronda y antes de activar la red de un motor en el producto | Sello del motor con números medidos, codificador en ONNX, flujos en `flujo.npz` y `flujo_local.npz`, muestras del MCMC; pasa o no pasa |
+| `desplegar` | PC 1 | En cada redespliegue, agrupados en H4, H5 y H6, y cuando un motor pasa a `red` | URL pública verificada desde un teléfono |
 | `preparar-demo` | PC 1 | Antes de cada ensayo y en la fase de iteración | Demo revisado en 17 puntos |
-| `ensayo-pitch` | PC 3 | Sáb 12:30, 17:00, 18:30, 19:00, 21:00; dom 06:30, 07:30 | Tiempos y una corrección |
-| `preparar-entrega` | PC 3 | Sáb 15:20 y 22:00; dom antes de las 08:00 | Los cuatro archivos de entrega y el tag |
+| `ensayo-pitch` | PC 3 | Sáb 14:00, 16:40, 18:00, 18:30, 19:00, 21:00; dom 06:30, 07:30 | Tiempos y una corrección |
+| `preparar-entrega` | PC 3 | Sáb 17:10 y 23:00; dom antes de las 08:00 | Los cuatro archivos de entrega y el tag |
 
 ## Resumen de cada una
 
 ### ronda
-Es el trabajo principal de PC 3. Baja los cambios, lee los estados, verifica corriendo lo que cada uno dice haber terminado, escribe en el tablero la siguiente tarea de cada rol, recorta el plan si algo lleva el doble de su tiempo y reemplaza en el guion cada corchete que ya tiene su número. Diez minutos.
+Es el trabajo principal de PC 3. Baja los cambios, lee los estados, verifica corriendo lo que cada uno dice haber terminado, pone al día la tabla «Los cinco casos» del tablero contra el sello de cada motor, escribe la siguiente tarea de cada rol, recorta el plan si algo lleva el doble de su tiempo y reemplaza en el guion cada corchete que ya tiene su número. Diez minutos.
 
 ### punto-de-control
-Un hito: se mide contra el criterio escrito en `WORKPLAN.md`, se decide seguir o cortar, se anota y se deja un tag. Hay un H2 por motor (12:15, 13:00, 14:00; tope 16:00): ahí se decide si cada tarjeta responde con su red o con el plan B, el posterior del MCMC precalculado y rotulado.
+Un hito: se mide contra el criterio escrito en `WORKPLAN.md`, sección 6.5, se decide seguir o cortar, se anota y se deja un tag. Después del pivote son H4 (14:30), H5 (16:30) y H6 (18:00, tag `congelado`). En H5 y en el tope de redes (20:30) se decide si cada tarjeta nueva responde con su red o con el plan B, el posterior del MCMC precalculado y rotulado.
 
 ### actualizar-estado
-Un minuto: hecho, en curso, bloqueos, pedidos a otros y números medidos, con hora y con el identificador de la tarea.
+Un minuto: hecho, en curso, bloqueos, pedidos a otros y números medidos, con hora y con el identificador de la tarea al inicio de la línea («A-23 terminada: …»), que es lo que lee el tablero en vivo.
 
 ### registrar-cifra
-Cada número que verá el jurado se clasifica como medido, con fuente o hipótesis. Lo que se dice sobre exactitud sale del examen con datos reales. Una comparación dice exactamente qué se comparó.
+Cada número que verá el jurado se clasifica como medido, con fuente o hipótesis. Las cifras de minería (ids `I-xx`) llevan fuente y la firma de una persona que la abrió; los números del documento técnico del equipo no se usan sin fila. Lo que se dice sobre exactitud sale del examen. Una comparación dice exactamente qué se comparó.
 
 ### agregar-caso
-Deja listo el archivo de datos de un caso: 20% de las respuestas vacías al azar, con la verdad guardada aparte para el examen. Los YAML ya vienen escritos, con cada columna en su papel dentro del modelo del motor; hay que comprobar que calzan. Inasistencias se muestrea por pacientes completos dentro de barrios, y el terreno necesita además la grilla con la distancia al río.
+Deja listo el archivo de datos de un caso, en una de dos formas: espacial (`x`, `y`, `valor`) o de series (`unidad`, `tiempo`, `valor`). Si hay un archivo real con licencia abierta que calce, se usa; si no, lo genera `datos/preparar/<caso>.py` con semilla fija, con la verdad escondida guardada aparte para el examen. El YAML dice de dónde vienen los datos y lleva `sintetico: true` cuando son simulados.
 
 ### medir-rendimiento
-Ocho minutos por motor, con la red real, antes de lanzar su entrenamiento. Tapa abierta, enchufado y sin nada más entrenando. También mide el presupuesto del paso local: un análisis en menos de 1 segundo y la cartera en segundos.
+Ocho minutos por motor, con la red real, antes de lanzar su entrenamiento. Tapa abierta, enchufado y sin nada más entrenando. También mide el presupuesto de un análisis: menos de 1 segundo.
 
 ### entrenar-motor
-La corrida larga de la red de un motor, con datasets simulados al vuelo desde su modelo generativo y puntos de guardado cada 10 minutos. Un entrenamiento por computador: `espacial` y `estados` en PC 2, `supervivencia` y `jerarquico` en PC 3. Para lanzar basta simulador, codificador, flujo, pérdida, puntos de guardado y una prueba de humo con un SBC chico.
+La corrida de la red de un motor de series, con datasets simulados al vuelo desde su modelo generativo y puntos de guardado cada 10 minutos. Un entrenamiento por computador, en dos rondas: `cinetica` (PC 2) y `deformacion` (PC 3) de 14:30 a 16:10; `desgaste` (PC 2) y `sismico` (PC 3) de 16:30 a 18:15. Para lanzar basta simulador, la red del andamio de series, pérdida, puntos de guardado y una prueba de humo con un SBC chico. `espacial` no se reentrena.
 
 ### validar-motor
-Cuatro chequeos por motor: SBC y cobertura en simulaciones nuevas, comparación con el MCMC de referencia (5 a 10 datasets simulados más el real, con su tiempo), examen con datos reales reservados y la nube con el archivo malo. Además mide el método rápido de siempre, para poder decir qué se pierde sin el modelo completo. Exporta el codificador a ONNX, comprueba que el flujo en NumPy da lo mismo que en `torch` y escribe el sello. Si no pasa, la tarjeta sale con el MCMC precalculado.
+Los chequeos de `WORKPLAN.md`, 11.8: SBC global y local y cobertura de lo que se decide en simulaciones nuevas; comparación con el MCMC de referencia (3 a 5 datasets simulados más el del demo, con su tiempo) si NUTS converge en 10 minutos por dataset; examen con la verdad escondida; y semáforo. Además mide el método rápido de siempre, para poder decir qué se pierde sin el modelo completo. Exporta el codificador a ONNX, comprueba que los flujos en NumPy dan lo mismo que en `torch` y escribe el sello. Si no pasa, la tarjeta sale con el MCMC precalculado.
 
 ### desplegar
-Web y respuestas precalculadas en Vercel, API en Render, las dos desde el repositorio espejo. La URL pública funciona sin servidor. En el escenario el demo corre en local.
+Web y respuestas precalculadas en Vercel, API en Render, las dos desde el repositorio espejo. La URL pública funciona sin servidor. Los redespliegues se agrupan en los hitos, porque Vercel tiene un límite diario. En el escenario el demo corre en local.
 
 ### preparar-demo
-Diecisiete puntos antes de mostrar nada: el recorrido, lo que se lee, sin internet, y el computador que presenta.
+Diecisiete puntos antes de mostrar nada: el recorrido de `WORKPLAN.md`, 4.3 (teclas `1` a `5`, `D`, `M` y `L`), lo que se lee, sin internet, y el computador que presenta.
 
 ### ensayo-pitch
-De pie, cronometrado, con el demo real. Una sola corrección por ensayo. Incluye las dos pruebas con extraños: la de las 12:30 todavía puede cambiar el producto.
+De pie, cronometrado, con el demo real. Una sola corrección por ensayo. Revisa que ninguna palabra minera quede sin explicar. Incluye las dos pruebas con extraños: la de las 16:40 todavía puede cambiar la pantalla.
 
 ### preparar-entrega
-Los cuatro archivos que pide la hackathon, con contenido real y leídos por una persona. El README cuenta para la nota técnica y la descripción se muestra en la página de votación.
+Los cuatro archivos que pide la hackathon, con contenido real, contando el producto minero, y leídos por una persona. El README cuenta para la nota técnica y la descripción se muestra en la página de votación.
 
 ## Agregar una skill nueva
 

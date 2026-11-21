@@ -628,7 +628,7 @@ Magnitudes:   m_i − m_0 ~ Exponencial(b·ln 10),  con α < b·ln 10
 3. **Examen con la verdad escondida.** Cada archivo del demo trae aparte lo que pasó de verdad con cada unidad.
 4. **Semáforo.** Un archivo con muy pocas lecturas da `rojo_datos`; uno que cae lejos de las simulaciones en el espacio de resúmenes, `rojo_modelo`.
 
-Un motor **pasa** si: SBC sin sesgo visible (criterios de D-32), cobertura de 90% entre 85% y 95% para η y para lo que se decide, diferencia con el MCMC bajo 0,3 desviaciones estándar en las medias de η (si el MCMC convergió), y un análisis en menos de 1 segundo.
+Un motor **pasa** si: SBC sin sesgo visible (criterios de D-32), cobertura de 90% entre 85% y 95% para η y para lo que se decide (y sobre 80% en el peor grupo, como en el sello de `espacial`), diferencia con el MCMC bajo 0,3 desviaciones estándar en las medias de η (si el MCMC convergió), y un análisis en menos de 1 segundo.
 
 ### 11.9 Decisión y servicio
 

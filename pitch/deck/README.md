@@ -1,5 +1,7 @@
 # Krylov · deck de venta
 
+> **Pivote a minería (D-37, sáb 12:10): este deck todavía es el de antes del pivote.** Las láminas 1, 2 y 3 sirven con cambios de texto; la 4 y la 5 se regeneran con el caso `leyes`; la 6 se reemplaza por «cinco decisiones»; las de visión y negocio salen. El detalle, lámina por lámina, está en [`../LAMINAS.md`](../LAMINAS.md) (tarea S-27), y el guion en [`../GUION.md`](../GUION.md). Lo que sigue describe el deck tal como está hoy en el repositorio; el PDF y los PNG de `respaldo/` también son de antes del pivote.
+
 Las láminas del pitch de 3 minutos (cifra J-04). Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: no usa ningún servicio externo, las bibliotecas están en `vendor/` y los datos en `datos/datos.js`.
 
 El guion sincronizado, con los segundos de cada lámina, está en [`../PITCH_v2.md`](../PITCH_v2.md).

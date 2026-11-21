@@ -1,6 +1,6 @@
 ---
 name: agregar-caso
-description: Prepara un caso de uso de Krylov (una tarjeta del inicio) sin tocar código - baja o arma el CSV, deja vacío al azar el 20% de las respuestas guardando la verdad aparte, comprueba que cada columna cumple su papel en el modelo del motor, completa el YAML y registra sus cifras. Úsala en PC 3 para rotación, terreno, crédito, inasistencias y el archivo malo. Tope de 25 minutos por caso.
+description: Prepara un caso de uso de Krylov (una decisión de la mina, una tarjeta del inicio) sin tocar código - genera el archivo de datos con semilla fija o usa uno real con licencia abierta, guarda aparte la verdad escondida, comprueba que cada columna cumple su papel en el modelo del motor, completa el YAML con el origen de los datos y registra sus cifras. Úsala en PC 3 para leyes, taludes, flotacion, flota, sismicidad y el archivo que no alcanza. Tope de 25 minutos por caso.
 argument-hint: "[nombre del caso]"
 ---
 
@@ -8,33 +8,34 @@ argument-hint: "[nombre del caso]"
 
 # Preparar un caso de uso
 
-Rol: `seguimiento`; `producto` verifica que se ve. Un **caso de uso** es una pregunta de negocio resuelta con un motor, un archivo de datos y sus costos. Los cinco YAML ya vienen escritos en `casos/`, con las columnas **por papel en el modelo generativo del motor** (`WORKPLAN.md`, sección 11; decisión D-26): lo que falta es el archivo de datos y comprobar que las columnas calzan. **Tope: 25 minutos por caso.**
+Rol: `seguimiento`; `producto` verifica que se ve. Un **caso de uso** es una decisión de la mina resuelta con un motor, un archivo de datos y sus costos. Son cinco (`AGENTS.md`, «Las cinco decisiones»), cada uno en `casos/<nombre>.yaml`, con las columnas **por papel en el modelo generativo del motor** (`WORKPLAN.md`, sección 11; formato en `contratos/CONTRATO.md`). Esta skill deja listo el archivo de datos, su verdad escondida y un YAML que calza. **Tope: 25 minutos por caso.**
+
+## Las dos formas de archivo
+
+| Forma | Casos | Una fila por | Columnas |
+|---|---|---|---|
+| Espacial | `leyes` (motor `espacial`) | muestra | `x`, `y`, `valor` |
+| Series | `taludes`, `flotacion`, `flota`, `sismicidad` (motores de series) | medición | `unidad`, `tiempo`, `valor`, más lo propio que pida el modelo del motor (sección 11) |
 
 ## Pasos
 
-1. **Baja el archivo** desde la fuente de `WORKPLAN.md`, sección 12, a `datos/crudo/` (no se sube). Mira la licencia: el repositorio es público. Si no permite redistribuir, el CSV procesado se agrega a `.gitignore`, el caso funciona solo en local y en las respuestas precalculadas, y se anota en el estado.
-2. **Escribe `datos/preparar/<caso>.py`** (pandas, semilla fija) que deja `datos/demo/<caso>.csv`:
-   - **Conserva todas las columnas que el YAML nombra**, con su papel: en rotación, `tiempo`, `evento`, `grupo`, `efectos`, `suave` y las cuatro `encuestas`; en crédito, los seis meses de `atraso`, `saldo` y `pago`, más `cupo` y `transiciones`. Si falta una, el motor no puede responder.
-   - **Deja vacía la respuesta (`evento` u `objetivo`) en un 20% de las filas elegido al azar, sin mirar la respuesta**, y guarda esas respuestas en `datos/demo/<caso>_verdad.csv` (`id`, `objetivo`). Nunca vacíes según la respuesta: el caso se rompe.
-   - **Rotación y crédito:** si el archivo tiene más de 2.000 filas, toma una muestra de 2.000 filas al azar con la misma semilla.
-   - **Inasistencias: nunca filas sueltas.** Se eligen 30 barrios con semilla fija y, dentro de ellos, **pacientes completos** (todas sus citas) hasta unas 2.000 citas, cuidando que al menos un tercio de los pacientes tenga 2 o más. El script calcula `dias_de_espera` y `dia_semana`, y descarta las esperas negativas y los sábados. Muestrear filas rompe la estructura de paciente y de barrio que el modelo necesita.
-   - **Terreno:** columnas `x`, `y`, `valor` y `dist` (la distancia al río). Además hay que bajar `meuse.grid`, del mismo paquete, y dejarlo como `datos/demo/terreno_grilla.csv` (`x`, `y`, `dist` por celda): la tendencia se necesita en cada bloque, no solo en los 155 puntos. Si no está a las 04:30, avisa a PC 2: el motor arranca sin tendencia.
-   - **Archivo malo:** rotación más la columna `fecha_salida`, declarada en `extra`. No entra a la red: la detecta la nube.
-3. **Completa el YAML:** verifica cada nombre de columna contra el archivo real (se revisaron contra los CSV crudos el 21-nov, pero se vuelve a comprobar), llena `columnas.disponibles` con la cantidad de columnas del archivo original, revisa `origen_datos`.
-4. **Costos.** Cada uno necesita valor, mínimo y máximo del deslizador, etiqueta y un id de `pitch/CIFRAS.md`. Son supuestos: se dicen como supuestos.
-5. **Míralo en la app** cuando el motor responda: los tres colores aparecen (no todo de un color), el semáforo no está en rojo, y el examen muestra números.
+1. **Datos reales primero, 20 minutos como máximo.** Si existe un archivo real con licencia abierta que calce con el motor, se usa y se dice. Los candidatos ya encontrados están en D-37 (`DECISIONES.md`). Mira la licencia: el repositorio es público; lo que no permite redistribuir no se sube. Si el archivo real cae fuera de lo simulado, el semáforo lo dice y el demo usa el simulado.
+2. **Si no hay real, escribe `datos/preparar/<caso>.py`** (semilla fija; el modelo a seguir es `datos/preparar/leyes.py`). Genera los datos con las mismas ecuaciones del motor (sección 11) y parámetros fijos que el motor no ve. Deja dos archivos:
+   - `datos/demo/<caso>.csv`, con la forma de la tabla de arriba y tamaños dentro de los rangos del simulador.
+   - `datos/demo/<caso>_verdad.csv`, la **verdad escondida**: lo que pasó de verdad con cada unidad. Nunca entra al motor; sirve solo para el examen.
+3. **Los archivos de apoyo** que pide el plan: uno de prueba por caso para subir en el chat (`datos/demo/subida_<caso>.csv`, S-24) y el archivo que no alcanza de la tecla `M` (`leyes_pocos`, un banco con 12 pozos; si alcanza, una serie demasiado corta). El segundo tiene que dar rojo con su motivo.
+4. **Con PC 2 (S-24):** el archivo cae dentro de lo que simula el motor (predictivo a priori: `uv run python -m motor.<motor>.simular --revisar`). Si PC 2 cambió un prior, regenera con la misma semilla.
+5. **Completa el YAML:** cada nombre de columna contra el archivo; `motor`; `unidad`; rótulos que sean decisiones, no pronósticos; el límite y el horizonte donde el modelo los pida. **`origen_datos` dice de dónde vienen los datos** (se ve en pantalla tal cual) y **`sintetico: true` si el archivo es simulado**. `tarjeta.sponsor` va en `null`: ya no hay casos con nombre de sponsor, y ninguna tarjeta lleva el nombre de una minera ni de una faena (regla 10).
+6. **Costos.** Cada uno necesita valor, mínimo y máximo del deslizador, etiqueta y un id de `pitch/CIFRAS.md`. Son supuestos: se dicen como supuestos. En `taludes` y `sismicidad` hablan de producción y equipos; no se le pone precio a una vida (regla 22).
+7. **Míralo en la app** cuando el motor responda: los tres colores aparecen (no todo de un color), el semáforo no está en rojo, el examen muestra números y dice «con datos simulados», y en los casos de lista la curva se ve con su abanico.
 
-No hay capa de lenguaje que proponga columnas (se cortó con D-26): `elegidas_por` queda en `equipo`.
+Los textos de minería de la tarjeta van en el YAML y en `casos/textos.yaml`, nunca en el código, y cada palabra del rubro se explica la primera vez (`GLOSARIO.md`, «Minería en simple»).
 
 ## Si los colores no dicen nada
 
-- Todo de un color: mira dónde queda el punto de corte respecto de la tasa real de «sí». Mueve los costos por defecto a valores que puedas defender en voz alta y registra el cambio. No los ajustes para que el número se vea más grande.
-- Todo en duda: pocos datos. Prueba con más filas, dentro del rango de n que el motor conoce (`WORKPLAN.md`, sección 11).
-
-## Si lleva el nombre de un sponsor
-
-En pantalla dice «caso tipo Buk · datos públicos de ejemplo». Es una hipótesis de uso: no se afirma cómo trabaja esa empresa ni que los datos son suyos. Si en el lugar se confirma que la empresa no auspicia, `tarjeta.sponsor` pasa a `null`.
+- Todo de un color: mira dónde queda el punto de corte respecto de las probabilidades de las unidades. Mueve los costos por defecto a valores que puedas defender en voz alta y registra el cambio. No los ajustes para que el número se vea más grande.
+- Todo en duda: pocos datos. Prueba con más unidades o series más largas, dentro de los rangos que el motor conoce (`WORKPLAN.md`, sección 11).
 
 ## Terminado cuando
 
-El CSV, la verdad y el script están subidos (o anotados como no publicables), el YAML calza con el archivo y las cifras tienen fila en `pitch/CIFRAS.md`.
+El CSV, la verdad escondida y el script están subidos, PC 2 confirmó que el archivo cae dentro de lo simulado, el YAML calza con el archivo y dice el origen de los datos, y las cifras tienen fila en `pitch/CIFRAS.md`.

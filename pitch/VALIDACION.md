@@ -2,6 +2,34 @@
 
 > Hackathon: no se sale a validar con nadie externo. Aquí se anota solo lo que llegue. Si la tabla de personas queda vacía, en el pitch se dice «todavía no hablamos con clientes». Nunca se inventa una cita. El repositorio es público: no se anota aquí el nombre de nadie sin su permiso.
 
+## Después del pivote a minería (D-37, sáb 12:10)
+
+Lo de abajo que habla de Buk, del asistente genérico con el archivo de rotación (S-09) y de las pruebas de las 12:30 es de antes del pivote: se conserva como registro y **no se usa en el pitch**. Lo vigente:
+
+- **Clientes o mineras:** nadie. En el pitch se dice «todavía no hablamos con ninguna minera».
+- **Mentores que sepan de minería:** [vacío]. Pregunta en `MENSAJES.md`, 2.
+- **Firma de las cifras de minería (S-25):** [pendiente]. Las abrió un agente; falta que una persona abra cada enlace de `CIFRAS.md`, «La minería», y firme.
+
+### Prueba con extraños 1, guion minero (S-29, sábado 16:40)
+
+Tres personas que no sepan de minería ni de estadística. Preguntas en `MENSAJES.md`, 3.
+
+| Persona (sin nombre) | ¿Repite la idea? | ¿Qué simuló? | Palabra que no entendió | Decisión que más le importó |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+
+### Prueba con extraños 2 (sábado 19:00)
+
+| Persona (sin nombre) | ¿Repite la idea? | ¿Qué simuló? | Palabra que no entendió | Decisión que más le importó |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+
+---
+
 ## Organización
 
 | Pregunta | Respuesta | Hora |

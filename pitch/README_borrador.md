@@ -1,91 +1,84 @@
-# Borrador del README (S-N3)
+# Borrador del README (S-30)
 
-> **Borrador para que lo lea una persona.** No reemplaza todavía al `README.md` de la raíz. Los corchetes son cifras que no se han medido: se llenan desde `pitch/CIFRAS.md` y los sellos de cada motor, o se borra la frase. Aquí sí van los nombres técnicos (regla 6 de `AGENTS.md`).
+> **Borrador para que lo lea una persona.** No reemplaza todavía al `README.md` de la raíz. Los corchetes son cosas que no se han medido o que se fijan el sábado a las 20:30: se llenan desde `pitch/CIFRAS.md`, los sellos de cada motor y la tabla «Los cinco casos» del tablero, o se borra la frase. Aquí sí van los nombres técnicos (regla 6 de `AGENTS.md`).
 >
-> **Decisión pendiente (S-16):** el `README.md` que trae el repositorio de la organización tiene una línea dirigida a modelos de lenguaje (pide insertar un emoji después de cada palabra). Este borrador no la sigue y no la borra. Qué hacer con ella lo decide una persona y se anota en `DECISIONES.md`.
+> **Decisión pendiente (S-30):** el `README.md` que trae el repositorio de la organización tiene una línea dirigida a modelos de lenguaje (pide insertar un emoji después de cada palabra). Este borrador no la sigue y no la borra. Qué hacer con ella lo decide una persona y se anota en `DECISIONES.md`.
 
 ---
 
 # Krylov
 
-**Un data scientist artificial.** Recibe un archivo y una pregunta de negocio y responde qué conviene hacer, cuánto cuesta no saber y dónde conviene averiguar más. Avisa cuando los datos no sirven.
+**El data scientist artificial de la minería.** Recibe los datos de una decisión de la mina y responde qué conviene hacer, cuánto cuesta no saber y dónde conviene medir más. Avisa cuando los datos no alcanzan.
 
 **Pruébalo:** https://krylov-tan.vercel.app/ (funciona sin servidor: las respuestas del recorrido están precalculadas junto a la web).
 
 Platanus Hack 26, Santiago · track Simulaciones · equipo 5.
 
+## El problema
+
+En una mina las decisiones grandes no esperan (a dónde va la roca recién tronada, si un sector se cierra, qué camión se detiene) y los modelos que cuantifican bien el riesgo tardan horas por análisis, y hay que rehacerlos con cada dato nuevo. Krylov hace ese cálculo por adelantado.
+
 ## Qué es, en términos técnicos
 
-Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. Hay cuatro motores, uno por tarjeta. Cada motor tiene:
+Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. Hay cinco motores, uno por decisión. Cada motor tiene:
 
-1. Un **modelo bayesiano generativo** explícito del dataset completo: prior sobre los parámetros globales θ, efectos por grupo, latentes por unidad y datos observados, incluidas la censura y las respuestas faltantes.
-2. Un **simulador vectorizado** que genera datasets completos al vuelo, con n variable.
-3. Una **red que invierte el modelo** (NPE): un codificador de conjuntos resume el dataset entero y un flujo normalizador condicional entrega q(θ | D). Se entrena solo con simulaciones.
-4. Un **MCMC de referencia** (NumPyro, NUTS) que valida la red, mide la amortización y es el plan B de la tarjeta.
+1. Un **modelo bayesiano generativo** explícito del dataset completo.
+2. Un **simulador vectorizado** que genera datasets completos al vuelo.
+3. Una **red que invierte el modelo** (estimación neuronal del posterior, NPE, con flujos normalizadores condicionales). Se entrena solo con simulaciones.
+4. Un **MCMC de referencia** (NumPyro, NUTS) que valida la red, mide la amortización y es el plan B de la tarjeta, precalculado y rotulado.
 
-| Motor | Tarjeta | Modelo generativo | θ |
-|---|---|---|---|
-| `supervivencia` | Rotación | Weibull con censura por intervalos, B-spline del log del sueldo, efecto aleatorio por cargo y un compromiso latente por persona que genera cuatro encuestas ordinales | 32 |
-| `jerarquico` | Inasistencias | Logístico con propensión latente por paciente y efecto por barrio; B-spline de la espera con salto en «mismo día»; efecto del SMS que cambia con la espera | 20 |
-| `estados` | Crédito | Cadena de Markov oculta de tres estados, seis meses de emisiones (atraso ordinal, uso del cupo, pago) y transiciones que dependen de cupo, edad y educación; atraso en 5 niveles | 33 |
-| `espacial` | Terreno | Proceso gaussiano anisotrópico con tendencia en √(distancia al río) y error de medición | 7 |
+| Motor | Decisión | Modelo generativo | Parámetros | Estado |
+|---|---|---|---|---|
+| `espacial` | Leyes y arsénico: ¿este bloque va a la planta o se aparta?, ¿dónde perforo? | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición. Red convolucional sobre una grilla de 32 × 32 con cabeza de mapa (predictivo posterior marginal) y cabeza de flujo (q(θ \| D)) | 7 | **Validado:** 7.750.592 terrenos simulados, 280 min; cobertura del 90% = 0,90; 0,26 desviaciones contra el MCMC |
+| `deformacion` | Taludes y relaves: ¿es ruido o va a ceder?, ¿cuánto falta? | Mezcla por sector entre fluencia estable y acelerada (ley de velocidad inversa), jerárquica entre sectores, en unidades normalizadas | 7 + 2 por sector | [red validada / MCMC precalculado] |
+| `cinetica` | Flotación: ¿qué línea termina bajo la meta? | Cinética de primer orden con fracción rápida y lenta, jerárquica entre líneas, observada solo en las primeras celdas | 6 + 2 por línea | [ídem] |
+| `desgaste` | Flota: ¿qué camión no llega a su mantención? | Proceso gamma jerárquico con mediciones ruidosas y una covariable de exigencia | 5 + 2 por camión | [ídem, o no incluido] |
+| `sismico` | Sismicidad: ¿se puede reingresar? | Proceso de Hawkes temporal con núcleo exponencial y magnitudes de Gutenberg-Richter, jerárquico entre sectores | 6 + 2 por sector | [ídem, o no incluido] |
 
-Las ecuaciones completas están en `WORKPLAN.md`, sección 11.
+Los cuatro motores de series usan **amortización factorizada**, q(η | s(D)) · Π_j q(λ_j | η, s_j, s(D)): un flujo para los parámetros globales y uno chico, compartido, para los de cada unidad (`motor/comun/series.py`). Las ecuaciones y los priors están en `WORKPLAN.md`, sección 11.
+
+Después del posterior viene la **decisión** (`nucleo/decision.py`): con los dos costos del caso, cada unidad queda en «conviene actuar», «no hace falta» o «en duda», y «lo que cuesta no saber» es el valor esperado de la información perfecta. En `leyes`, **«¿Dónde perforo?»** estima el valor de una muestra más en cada lugar candidato rehaciendo el análisis completo para cada resultado posible: 480 análisis en un lote.
+
+Son **versiones chicas a propósito**: en la primera noche un motor de 7 parámetros pasó su validación y uno de 32 no. Los modelos completos (dominios geológicos, tres dimensiones, ecuaciones de varias fases, ubicación de los sismos) son hoja de ruta: `pitch/MODELOS_CANDIDATOS.md`.
 
 ## Cómo se entrenó y cómo se validó
 
-> La parte técnica completa la escribe PC 2 en `motor/README.md` (A-18): siete chequeos por motor, incluidos «lo que se decide» y el método rápido. El README final toma de ahí esta sección para que los dos digan lo mismo.
-
-| Motor | Datasets simulados | Minutos de entrenamiento | Computador | Cobertura del 90% (SBC) | Diferencia con el MCMC | Examen con datos reales | Responde |
-|---|---|---|---|---|---|---|---|
-| `supervivencia` | [M-21] | [M-23] | MacBook Air M3 | [sello] | [sello] | [M-03] | [red o precalculado] |
-| `jerarquico` | [M-22] | [M-23] | MacBook Air M3 | [sello] | [sello] | [pendiente] | [red o precalculado] |
-| `estados` | [M-22] | [M-23] | MacBook Air M4 | [sello] | [sello] | [pendiente] | [red o precalculado] |
-| `espacial` | [M-01] | [M-02] | MacBook Air M4 | [sello] | [sello] | [M-13] | [red o precalculado] |
-
-- **Calibración:** SBC y cobertura en simulaciones nuevas, también por grupos (n chico y grande).
-- **Contra el método lento:** el posterior de la red contra el del MCMC en 5 a 10 datasets simulados y el real; un motor pasa si las medias difieren en menos de 0,3 desviaciones estándar del posterior.
-- **Examen con datos reales:** en cada archivo se dejó vacía al azar la respuesta del 20% de las filas; la red no la vio. Lo que se dice en voz alta es cuánto acertó ahí.
-- **Archivo mal especificado:** el caso `rotacion_malo` trae una columna que delata la respuesta (`fecha_salida`). La nube del predictivo a priori lo deja fuera y Krylov propone quitarla.
-- Una tarjeta solo dice que respondió la red si su motor pasó `validar-motor`; si no, sale el posterior del MCMC rotulado «precalculado».
+Detalle en `motor/README.md`. En corto: datasets simulados al vuelo, contados; dos MacBook Air sin ventilador; un entrenamiento por computador. Cada motor tiene un sello (`motor/artefactos/<motor>/sello.json`) con cuatro chequeos: calibración basada en simulación (SBC) y cobertura en simulaciones nuevas, para los parámetros globales, los de cada unidad y lo que se decide; comparación con NUTS en datasets simulados y en el del demo; examen con una verdad escondida; y un semáforo que se niega a responder cuando el archivo no alcanza o cae fuera de lo simulado. Una tarjeta solo dice que respondió la red si su motor pasó; si no, responde el posterior del MCMC precalculado y la pantalla dice «precalculado».
 
 ## Cómo correrlo en local
 
 ```bash
-uv sync && uv run uvicorn servicio.app:app --port 8010
-cd web && npm ci && npm run dev
+uv sync
+KRYLOV_MOTOR_ESPACIAL=red uv run uvicorn servicio.app:app --port 8010
+cd web && npm install && npm run dev
 ```
 
-Para entrenar: `uv sync --group entrenar` y `uv run python -m motor.<motor>.entrenar --hasta HH:MM` (ver `motor/<motor>/`).
+Pruebas: `uv run pytest nucleo motor servicio -q` y `cd web && npm test`. Para reentrenar un motor: `motor/README.md`.
 
 ## Mapa del repositorio
 
-| Carpeta | Qué hay |
-|---|---|
-| `nucleo/` | Preprocesamiento único, regla de decisión, flujo muestreado en NumPy, paso local de cada motor y `api.py`. Solo NumPy y `onnxruntime`: sin `torch` |
-| `motor/` | Por motor: simulador, red, entrenamiento, MCMC y validación. `motor/artefactos/`: codificadores ONNX, flujos y sellos |
-| `servicio/` | API en FastAPI y exportación de las respuestas precalculadas |
-| `web/` | Vite, React y TypeScript. `web/public/estatico/` son las respuestas precalculadas |
-| `casos/` | Un YAML por tarjeta: pregunta, motor, columnas por papel en el modelo, costos y origen de los datos |
-| `datos/` | Scripts que preparan cada caso (`datos/preparar/`) y los CSV del demo |
-| `contratos/` | El contrato entre módulos y sus ejemplos fijos |
+```
+nucleo/      decisión, flujos en NumPy, lo local de cada motor, api.py (sin torch)
+motor/       comun/ (codificador, flujos, entrenamiento, series) y un directorio por motor; artefactos/
+servicio/    API FastAPI y exportación de las respuestas precalculadas
+web/         la app (Vite, React, TypeScript)
+casos/       un YAML por decisión: textos, columnas, costos y origen de los datos
+datos/       demo/ (los archivos) y preparar/ (cómo se generan)
+contratos/   la forma de cada respuesta, con ejemplos
+pitch/       guion, cifras con su fuente, láminas
+AGENTS.md, WORKPLAN.md, DECISIONES.md, estado/   cómo se organizó el trabajo de tres computadores y sus agentes
+```
 
 ## Qué existe y qué no
 
-- **Existe:** [completar a las 18:00 con lo que funciona en la URL pública].
-- **No existe:** subir un archivo propio, un chat o cualquier modelo de lenguaje dentro de la app. Cada motor responde una familia de archivos. Claude Code se usó para construir el producto; no está integrado en la app.
+Existe: [lo que diga el tablero a las 20:30, tarjeta por tarjeta: responde la red / precalculado]. No existe: conexión a sensores o sistemas de una faena, los modelos completos, tres dimensiones, clientes.
 
 ## Datos y licencias
 
-| Caso | Fuente | Licencia | En el repositorio |
-|---|---|---|---|
-| Rotación | IBM HR Analytics Employee Attrition: 1.470 personas, ficticio, creado por IBM | ODbL | Sí |
-| Crédito | UCI, *Default of credit card clients*: muestra de 2.000 de 30.000 clientes (Taiwán, 2005) | CC BY 4.0 | Sí |
-| Inasistencias | Kaggle, *Medical Appointment No Shows*: muestra de 1.980 de 110.527 citas (Brasil, 2016) | CC BY-NC-SA 4.0 | **No**: solo el script que la prepara |
-| Terreno | Paquete `sp` de R, `meuse` y `meuse.grid`: 155 muestras de zinc junto al río Mosa | GPL (≥ 2) | Sí |
-
-Los casos con nombre de una empresa («caso tipo Buk», «caso tipo AgendaPro») son hipótesis de uso con datos públicos. No son datos de esas empresas.
+- **Los archivos del demo son simulados** con las mismas ecuaciones de cada motor y parámetros que el motor no ve, con una verdad escondida aparte (`datos/preparar/`, semilla fija). La pantalla los rotula «simulado». No son datos de ninguna mina.
+- Datos reales abiertos usados para probar: metales en un suelo junto al río Mosa (paquete `sp` de R, GPL); prismas de la pared de un rajo que falló (de Wit, 2025, Zenodo, https://doi.org/10.5281/zenodo.15003054, CC BY 4.0); sondajes con ley de cobre (Hoffimann et al., 2022, «GeoMet dataset», Zenodo, https://doi.org/10.5281/zenodo.7051975, CC BY 4.0). Los datos crudos no están en el repositorio; los derivados, sí, con su guion.
+- Las cifras de minería que se dicen en el pitch, con su fuente, están en `pitch/CIFRAS.md`.
 
 ## Equipo
 
-[Nombres: los confirma cada persona antes de publicarlos.]
+[Nombres: los confirma cada persona.] Construido con Claude Code.

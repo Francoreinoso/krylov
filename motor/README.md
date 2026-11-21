@@ -1,45 +1,51 @@
 # Krylov · README técnico (borrador)
 
-> Borrador de la tarea A-18, escrito por `amortizacion` (PC 2) el sábado 21-nov a las 06:13. Aquí van los nombres técnicos precisos; la pantalla y el pitch usan `GLOSARIO.md`. **No trae resultados de validación:** a esta hora ninguna red está validada. Cada cifra de este archivo está medida y anotada en `estado/amortizacion.md` («Números medidos»); lo que falta dice «pendiente» y se llena desde `motor/artefactos/<motor>/sello.json`.
+> Borrador de `amortizacion` (PC 2), puesto al día con el pivote a minería (decisión D-37, sáb 21-nov 12:10). La versión final es la tarea A-35. Aquí van los nombres técnicos precisos; la pantalla y el pitch usan `GLOSARIO.md`. **Solo trae resultados de validación de `espacial`**, copiados de `motor/artefactos/espacial/sello.json`. Los cuatro motores de series están **en construcción (sáb 21-nov)**: lo suyo dice «pendiente» y se llena desde `motor/artefactos/<motor>/sello.json`, nunca de memoria.
 
 ## 1. Qué es
 
-Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. Para cada familia de archivos hay un **motor** con cinco piezas:
+Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**, para cinco decisiones de una mina. Para cada familia de archivos hay un **motor** con cinco piezas:
 
 | Pieza | Qué es | Dónde está |
 |---|---|---|
-| Modelo generativo | Un modelo bayesiano explícito del dataset completo: **prior** sobre los parámetros globales θ → efectos por grupo → latentes por unidad → datos observados, incluidas la censura y las respuestas que faltan | Encabezado de `nucleo/<motor>.py`; ecuaciones en `WORKPLAN.md`, sección 11 |
+| Modelo generativo | Un modelo bayesiano explícito del dataset completo: **prior** sobre los parámetros globales → parámetros locales de cada unidad → datos observados, con su error de medición | Ecuaciones en `WORKPLAN.md`, sección 11; encabezado de `nucleo/<motor>.py` |
 | Simulador | Ese modelo, vectorizado: genera lotes de datasets completos al vuelo, con tamaño variable | `motor/<motor>/simular.py` |
-| Red (NPE) | Un codificador resume el dataset entero en s(D) (128 números) y un **flujo normalizador** condicional entrega el **posterior** amortizado q(θ \| s(D)). Se entrena solo con simulaciones (estimación neuronal del posterior, **NPE**) | `motor/<motor>/red.py`, `motor/comun/` |
-| Paso local exacto | Dado cada θ muestreado, lo que falta saber de una unidad es de baja dimensión y se integra de forma exacta en NumPy: cuadratura, filtro forward o kriging | `nucleo/<motor>.py` |
+| Red (NPE) | Un codificador resume el dataset entero en s(D) (128 números) y un **flujo normalizador** condicional entrega el **posterior** amortizado. Se entrena solo con simulaciones (estimación neuronal del posterior, **NPE**) | `motor/<motor>/red.py`, `motor/comun/` |
+| Lo local | Lo que falta saber de cada unidad dados los parámetros globales. En `espacial` es exacto: kriging dado θ, en forma cerrada. En los motores de series lo entrega un segundo flujo, chico (amortización factorizada) | `nucleo/<motor>.py`, `nucleo/series.py` |
 | MCMC de referencia | NUTS (NumPyro) sobre el mismo modelo y el mismo prior. Valida la red, da la cifra de amortización y es el plan B de la tarjeta, precalculado | `motor/<motor>/mcmc.py` |
 
 Amortizar es pagar el costo de la inferencia una vez, al entrenar: después, el posterior de un dataset nuevo de la misma familia es una pasada de la red y un muestreo del flujo.
 
-Después del posterior viene la **decisión** (`nucleo/decision.py`): con los dos costos del caso, cada unidad queda en «conviene actuar», «no hace falta» o «en duda», y «lo que cuesta no saber» es el valor esperado de la información perfecta sobre θ.
+Después del posterior viene la **decisión** (`nucleo/decision.py`): con los dos costos del caso, cada unidad queda en «conviene actuar», «no hace falta» o «en duda», y «lo que cuesta no saber» es el valor esperado de la información perfecta.
 
-## 2. Los cuatro motores
+**Qué existe hoy.** `espacial` está entrenado y validado: su sello dice PASA. `deformacion`, `cinetica`, `desgaste` y `sismico` se escriben y entrenan hoy; no tienen sello ni resultados. Los motores de tabla anteriores al pivote (`supervivencia`, `jerarquico` y `estados`) **se están retirando** del repositorio (tarea A-32) y ya no son parte del producto: si todavía aparecen en `motor/` o en `nucleo/`, es código por borrar.
 
-| Motor | Caso | Modelo generativo | θ | Latentes que se integran | Paso local |
-|---|---|---|---|---|---|
-| `supervivencia` | Rotación | Tiempo hasta la renuncia Weibull con censura por intervalos de un año y modelo propio de la censura; B-spline cúbico del log del sueldo con prior de suavidad; efecto aleatorio por cargo; compromiso latente por persona que genera cuatro encuestas ordinales (logit ordenado) | 32 | Efecto del cargo y compromiso de cada persona | Cuadratura anidada cargo → persona (**en construcción**, tarea A-N2) |
-| `jerarquico` | Inasistencias | Regresión logística jerárquica: propensión latente por paciente y efecto por barrio; B-spline de log(1 + espera) con un salto en «mismo día»; el efecto del SMS cambia con la espera; se modela la asignación del SMS | 20 | Efecto del barrio y propensión del paciente | Cuadratura de Gauss-Hermite anidada, adaptativa en el nivel del barrio |
-| `estados` | Crédito | Cadena de Markov oculta de tres estados por cliente; seis meses de emisiones (atraso en logit ordenado de 5 niveles, uso del cupo normal, pago con masa en cero); transiciones que dependen de cupo, edad y educación; impago según el estado del mes siguiente | 33 | La cadena de estados de cada cliente | Filtro forward |
-| `espacial` | Terreno | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia en √(distancia al río) y error de medición | 7 | El campo en los bloques sin medir | Kriging dado θ (gaussiano, en forma cerrada) |
+## 2. Los cinco motores
 
-**Priors.** En `jerarquico` y `estados` el prior es una normal independiente por parámetro en el espacio sin restricciones (logaritmos, logits, incrementos positivos), definida una sola vez en `simular.py` (`PRIOR`, `MEDIAS`, `DESVS`) y leída desde ahí por el MCMC. En `estados` el intercambio de etiquetas entre estados se rompe en el prior: la posición del atraso y la probabilidad de impago van ordenadas por construcción (incrementos positivos). En `espacial` son normales truncadas (`motor/espacial/simular.py`, `Prior`). En `supervivencia`, `motor/artefactos/supervivencia/config.json`. Cada prior se ajustó mirando el **predictivo a priori** contra el archivo real (`python -m motor.<motor>.simular --revisar`): los resúmenes del archivo tienen que caer dentro de lo simulado.
+| Motor | Caso | Modelo generativo, en una línea | Globales | Local, por unidad | Lo que se decide | Estado |
+|---|---|---|---|---|---|---|
+| `espacial` | `leyes` | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición, sobre una grilla de 32 × 32 (11.6) | θ, 7 | El campo en los bloques sin medir: kriging dado θ | P(valor sobre el umbral) por bloque, y dónde vale más una muestra (`donde_medir`) | **Entrenado y validado** |
+| `deformacion` | `taludes` | Dos regímenes por sector, z_j ~ Bernoulli(π): estable, d_j(u) = v_j·u, o acelerando, d_j(u) = v_j·u + A_j·log(u_f,j / (u_f,j − u)) (ley de velocidad inversa); lecturas con ruido gaussiano; jerárquico entre sectores (11.2) | η, 7 | (z_j, log(u_f,j − 1)) | P(z_j = 1 y u_f,j ≤ 1 + H/T) | En construcción, sáb 21-nov |
+| `cinetica` | `flotacion` | Cinética de primer orden con fracción rápida y lenta: R_b(t) = Rmax_b·[1 − φ·exp(−k_b·t) − (1 − φ)·exp(−k_b·t/8)], observada solo en las primeras m_b celdas, con error gaussiano; jerárquica entre líneas (11.3) | η, 6 | (log k_b, logit Rmax_b) | P(R_b(t_K) < meta) | En construcción, sáb 21-nov |
+| `desgaste` | `flota` | Proceso gamma jerárquico: incrementos ΔX ~ Gamma(forma ν_i·Δt/c², escala c²), con log ν_i ~ Normal(μ_ν + β·x_i, σ_ν) y x_i la exigencia de la ruta; mediciones gaussianas ruidosas; falla cuando X_i cruza 1 (11.4) | η, 5 | (log ν_i, log X_i(t_ahora)) | P(X_i(t_ahora + h_i) ≥ 1) | En construcción, sáb 21-nov |
+| `sismico` | `sismicidad` | Proceso de Hawkes temporal con núcleo exponencial y magnitudes: λ_s(t) = μ_s + A_s·ω·e^(−ω·t) + Σ κ(m_i)·ω·e^(−ω·(t − t_i)), con κ(m) proporcional a e^(α·(m − m_0)) y magnitudes exponenciales (Gutenberg-Richter); jerárquico entre sectores (11.5) | η, 6 | (log μ_s, log A_s) | P(al menos un sismo de magnitud ≥ M_c en las próximas H horas) | En construcción, sáb 21-nov |
 
-**Covariables.** El simulador las genera mitad por remuestreo perturbado de filas del archivo del caso y mitad con un generador paramétrico. La red generaliza hasta donde llega ese generador; va en `limitaciones` de cada sello.
+Los priors, los rangos de cada simulador, el MCMC de referencia y el método rápido de cada motor están en `WORKPLAN.md`, sección 11. No se copian aquí.
 
-**Lo que se apartó del plan escrito** (con su motivo en `estado/amortizacion.md`): `jerarquico` tiene 20 parámetros y no 22 (el primer coeficiente del spline va fijo: con el intercepto quedaba una dirección sin identificar); `estados` tiene 33 y no 35 (el archivo no registra el código de atraso 1 en cinco de los seis meses, así que 1 y 2 van juntos); en `espacial` la dirección y la razón de anisotropía se parametrizan juntas, e = log r·(cos 2φ, sin 2φ), y el campo se simula por transformada de Fourier sobre un toro de 128.
+**Tamaño.** Los cuatro motores nuevos son chicos a propósito: entre 5 y 7 parámetros globales y 2 locales por unidad. Son la versión que se puede validar en una tarde; los modelos completos son hoja de ruta (sección 7).
+
+**Priors.** En `espacial` son normales truncadas (`motor/espacial/simular.py`, `Prior`) y quedaron en `motor/artefactos/espacial/config.json`. En los motores de series, los de la sección 11 son puntos de partida: antes de lanzar cada entrenamiento se mira el **predictivo a priori** contra el archivo del caso (`python -m motor.<motor>.simular --revisar`), se ajusta, y lo que quede va en el `config.json` del motor.
+
+**Lo que se apartó del plan escrito en `espacial`:** la dirección y la razón de anisotropía se parametrizan juntas, e = log r·(cos 2φ, sin 2φ), y el campo se simula por transformada de Fourier sobre un toro de 128. El caso `leyes` no usa la tendencia: 20% de las simulaciones de entrenamiento no la tenían.
 
 ## 3. La red
 
-- **Codificador del dataset** (`motor/comun/codificador.py`). DeepSets con pooling de atención y máscara de relleno: invariante al orden de las filas y con n variable. Sigue la jerarquía del modelo: filas → cargo → dataset en `supervivencia`; cita → paciente → barrio → dataset en `jerarquico`; en `estados` cada fila es el historial aplanado de un cliente. Las filas por decidir entran con la respuesta en cero y una marca. Los tres codificadores de tabla suman un atajo de segundo orden (promedio y covarianza de las columnas) y el tamaño del conjunto, que el pooling normalizado no ve.
-- **`espacial`** (`motor/espacial/red.py`). Una red convolucional con saltos sobre la grilla de 32 × 32 con tres canales (valor estandarizado, marca de medición, √dist). Dos cabezas: la **cabeza de mapa** da media y desviación por bloque (el predictivo posterior marginal, amortizado) y la **cabeza de flujo** da q(θ | D). La de flujo recibe las características con el gradiente cortado, así la de mapa entrena igual que si estuviera sola (`motor/espacial/prueba_red.py` compara los gradientes).
-- **Posterior** (`motor/comun/flujo.py`). Flujo normalizador condicional de acoplamiento afín (`zuko.flows.NICE`, 8 capas, máscara alternada), sobre θ estandarizado en espacio sin restricciones. **Pérdida NPE:** −log q(θ | s(D)), promediada sobre datasets simulados.
-- **Servicio sin `torch`.** A ONNX se exporta solo el codificador (ejes dinámicos para n); el flujo se guarda en `flujo.npz` y se muestrea en NumPy (`nucleo/flujo.py`). Una prueba exige la misma muestra con los mismos pesos y el mismo ruido: la diferencia máxima medida fue 9,5e-6 (`motor/comun/prueba_flujo.py`). `nucleo/` no importa `torch`, `zuko`, `jax` ni `numpyro`, y una prueba lo comprueba.
-- **Un solo preprocesamiento por motor**, en `nucleo/`: la misma función prepara los datasets simulados y el archivo real (`armar_filas`, `matriz_de_diseno`, `canales_terreno`, `preprocesar`).
+- **`espacial`** (`motor/espacial/red.py`). Una red convolucional con saltos sobre la grilla de 32 × 32 con tres canales (valor estandarizado, marca de medición, √dist). Dos cabezas: la **cabeza de mapa** da media y desviación por bloque (el predictivo posterior marginal, amortizado) y la **cabeza de flujo** da q(θ | D). La de flujo recibe las características con el gradiente cortado, así la de mapa entrena igual que si estuviera sola (`motor/espacial/prueba_red.py` compara los gradientes). `donde_medir` rehace el análisis para cada lugar candidato y cada resultado posible en un solo lote.
+- **El andamio de series** (`motor/comun/series.py` y `nucleo/series.py`; **en construcción**, tarea A-23). Una implementación para los cuatro motores nuevos; cada motor aporta su simulador, su lista de parámetros y su función «lo que se decide». La entrada son tensores con relleno y máscara (unidades, lecturas, canales), con tamaños máximos fijos por motor. Un **codificador por unidad** (convoluciones 1D con máscara y pooling; si no exporta o no aprende, una GRU chica) da s_j; la agregación entre unidades (`motor/comun/codificador.py`: DeepSets con pooling de atención y máscara de relleno, que ya existe) da s(D).
+- **Amortización factorizada** en los motores de series: p(η, λ_1..J | y) ≈ q(η | s(D)) · Π_j q(λ_j | η, s_j, s(D)). El **flujo global** entrega η; el **flujo local**, de 2 dimensiones y compartido entre unidades, entrega λ_j. Al entrenar se condiciona en el η verdadero; al responder, en cada muestra de η. Así la dimensión de cada flujo es chica y fija aunque cambie el número de unidades.
+- **Posterior** (`motor/comun/flujo.py`). Flujo normalizador condicional de acoplamiento afín (`zuko.flows.NICE`, 8 capas, máscara alternada), sobre los parámetros estandarizados en espacio sin restricciones. **Pérdida NPE:** −log q(θ | s(D)), promediada sobre datasets simulados; en los motores de series, −log q(η | s(D)) − promedio_j log q(λ_j | η, s_j, s(D)).
+- **Servicio sin `torch`.** A ONNX se exporta solo el codificador: en `espacial`, con la cabeza de mapa y lote variable; en los motores de series, con formas fijas con relleno y dos salidas, s(D) y los s_j. Los flujos se guardan en `flujo.npz` (y `flujo_local.npz`) y se muestrean en NumPy (`nucleo/flujo.py`). Una prueba exige la misma muestra con los mismos pesos y el mismo ruido (`motor/comun/prueba_flujo.py`). `nucleo/` no importa `torch`, `zuko`, `jax` ni `numpyro`, y una prueba lo comprueba.
+- **Un solo preprocesamiento por motor**, en `nucleo/`: la misma función prepara los datasets simulados y el archivo del caso (en `espacial`, `canales_terreno`; en `deformacion` resta el modo común entre sectores y normaliza tiempo y desplazamiento, así el motor no depende de las unidades del archivo).
 
 ## 4. Cómo se entrena
 
@@ -52,44 +58,46 @@ caffeinate -dims uv run python -m motor.<motor>.entrenar --dispositivo cpu --has
 
 - Los datasets se simulan al vuelo en cada paso: la red nunca ve dos veces el mismo, y el bucle (`motor/comun/entrenar.py`) cuenta cuántos vio. Esa cuenta es la cifra «practicó con N simulaciones».
 - Punto de guardado atómico cada 10 minutos (`motor/checkpoints/<motor>/ultimo.pt`: pesos, optimizador, pasos y conteo); el mismo comando retoma. Los puntos de guardado no se versionan.
-- Dispositivo por motor, medido con `python -m motor.<motor>.medir`: `espacial` en la GPU del Mac (7,6 veces el procesador); `supervivencia` en el procesador (2,8 veces la GPU). `jerarquico` y `estados`: procesador, sin comparar todavía.
-- Computadores: MacBook Air M4 de 16 GB (`espacial`, después `estados`) y MacBook Air M3 de 16 GB (`supervivencia`, después `jerarquico`). Un entrenamiento por computador.
+- Dispositivo por motor, medido con `python -m motor.<motor>.medir`: `espacial` en la GPU del Mac (7,6 veces el procesador). Los motores de series se miden antes de lanzar cada uno.
+- Computadores: MacBook Air M4 de 16 GB (`espacial`; después `cinetica` y `desgaste`) y MacBook Air M3 de 16 GB (`deformacion` y `sismico`). Un entrenamiento por computador, en dos rondas de unos 100 minutos (`WORKPLAN.md`, 6.3). **`espacial` no se reentrena.**
 
 | Motor | Datasets simulados | Minutos | Estado |
 |---|---|---|---|
-| `espacial` | pendiente (lo cuenta el último punto de guardado) | pendiente | entrenando desde el sáb 03:50 |
-| `supervivencia` | pendiente | pendiente | entrenando en PC 3 desde el sáb 04:05 |
-| `jerarquico` | pendiente | pendiente | listo para lanzar |
-| `estados` | pendiente | pendiente | listo para lanzar |
+| `espacial` | 7.750.592 | 280 | **Entrenado** (MacBook Air M4 de 16 GB) |
+| `cinetica` | pendiente | pendiente | En construcción; ronda 1, sáb 14:30 a 16:10 |
+| `deformacion` | pendiente | pendiente | En construcción; ronda 1, sáb 14:30 a 16:10 |
+| `desgaste` | pendiente | pendiente | En construcción; ronda 2, sáb 16:30 a 18:15 |
+| `sismico` | pendiente | pendiente | En construcción; ronda 2, sáb 16:30 a 18:15 |
 
 ## 5. Cómo se valida
 
 Un comando por motor, sin nada entrenando en ese computador (`--ensayo` recorre todo en chico, para probar el programa):
 
 ```bash
-uv run python -m motor.<motor>.sello        # espacial, estados, jerarquico (supervivencia: pendiente)
+uv run python -m motor.<motor>.sello
 ```
 
-Escribe `motor/artefactos/<motor>/sello.json` (lo que muestra la app) y `validacion.json` (el detalle), y termina en PASA o NO PASA. Los chequeos:
+Escribe `motor/artefactos/<motor>/sello.json` (lo que muestra la app) y `validacion.json` (el detalle), y termina en PASA o NO PASA. Los chequeos son los de `WORKPLAN.md`, 11.8:
 
-1. **Exportación.** `onnxruntime` y el flujo en NumPy contra `torch`, con tamaños distintos de los del ejemplo de exportación.
-2. **SBC y cobertura** en datasets simulados nuevos. SBC (calibración basada en simulación): para un dataset con θ verdadero se sacan L muestras de q(θ | D) y se cuenta cuántas quedan bajo el valor verdadero; si q está calibrado, ese rango es uniforme. Se informa por parámetro (χ² de uniformidad, rango medio, contracción respecto del prior) y la cobertura del intervalo de 90%, en total y por grupos (datasets chicos y grandes, pocos y muchos grupos). La cobertura se cuenta por rangos, que es exacta (`motor/comun/validacion.py`).
-3. **Lo que se decide.** En los motores de tabla: la cobertura del rango de 90% de la probabilidad de cada unidad por decidir, contra la que da el paso local exacto con el θ verdadero. En `espacial`: la cobertura de la cabeza de mapa en los bloques sin medición.
-4. **Contra el MCMC de referencia.** NUTS en 5 datasets simulados y en el archivo real: diferencia de medias del posterior en desviaciones estándar del posterior del MCMC, razón de anchos, r̂ y segundos por dataset. Las muestras del archivo real quedan en `mcmc/<caso>.npz`: son el plan B. En `espacial` la referencia marginaliza la estandarización de los datos (derivación en `motor/espacial/mcmc.py`).
-5. **El método rápido de siempre** (`motor/comun/rapido.py`): regresión logística simple con las mismas columnas por fila que ve el codificador, sin estructura; en `espacial`, kriging con parámetros fijos. Se mide su cobertura en las mismas simulaciones y su resultado en el mismo examen.
-6. **Examen con datos reales reservados.** En cada archivo se dejó vacía la respuesta del 20% de las filas; se compara lo dicho con lo que pasó, por tramos de probabilidad. En el terreno se esconde 20% de las mediciones, con cinco particiones.
-7. **Modelo mal especificado: la nube** (`nucleo/nube.py`, `motor/<motor>/nube.py`). El predictivo a priori del modelo, al tamaño del archivo, con dos detectores: dos ejes con nombre (el AUC del mejor factor por sí solo y la proporción de «sí») y la distancia de Mahalanobis en el espacio de resúmenes s(D) contra su percentil 99.
+1. **Exportación.** `onnxruntime` y los flujos en NumPy contra `torch`.
+2. **SBC y cobertura** en datasets simulados nuevos. SBC (calibración basada en simulación): para un dataset con parámetros verdaderos conocidos se sacan L muestras del posterior amortizado y se cuenta cuántas quedan bajo el valor verdadero; si está calibrado, ese rango es uniforme. Se informa por parámetro y por grupos, con la cobertura del intervalo de 90% contada por rangos, que es exacta (`motor/comun/validacion.py`). En los motores de series se hace **global (η) y local (λ_j)**.
+3. **Lo que se decide.** En los motores de series: la cobertura del rango de 90% de la probabilidad de cada unidad contra su valor exacto con el η y el λ_j verdaderos. En `espacial`: la cobertura de la cabeza de mapa en los bloques sin medición.
+4. **Contra el MCMC de referencia.** NUTS en datasets simulados (de 3 a 5 en los motores de series) y en el archivo del demo: diferencia de medias del posterior en desviaciones estándar, razón de anchos, r̂ y segundos por dataset. Las muestras del archivo quedan en `mcmc/<caso>.npz`: son el plan B. Si NUTS no converge (r̂ sobre 1,05) en 10 minutos por dataset, se anota y el sello se apoya en el SBC. En `espacial` la referencia marginaliza la estandarización de los datos (derivación en `motor/espacial/mcmc.py`).
+5. **El método rápido de siempre.** En `espacial`, kriging con parámetros fijos (lo mide `motor/espacial/sello.py`); en los motores de series, la regla simple de cada caso (11.2 a 11.5). Se mide en las mismas simulaciones y en el mismo examen.
+6. **Examen.** Con la **verdad escondida** del archivo del demo (`datos/demo/<caso>_verdad.csv`), que el motor nunca ve. En `espacial`, además, con mediciones reales: se esconde 20% de ellas, con cinco particiones.
+7. **Semáforo.** Un archivo con muy pocas lecturas da `rojo_datos`; uno que cae lejos de las simulaciones en el espacio de resúmenes s(D), `rojo_modelo`.
 
-**Un motor pasa** si el SBC no muestra sesgo, la cobertura de 90% queda entre 85% y 95% (y sobre 80% en el peor grupo), la diferencia con el MCMC es menor que 0,3 desviaciones estándar en las medias y un análisis tarda menos de 1 segundo. Una tarjeta solo dice que respondió la red si su motor pasó; si no, responde el posterior del MCMC precalculado, rotulado.
+**Un motor pasa** si el SBC no muestra sesgo (criterios de D-32), la cobertura de 90% queda entre 85% y 95% para los parámetros globales y para lo que se decide, la diferencia con el MCMC es menor que 0,3 desviaciones estándar en las medias (si el MCMC convergió) y un análisis tarda menos de 1 segundo. Una tarjeta solo dice que respondió la red si su motor pasó; si no, responde el posterior del MCMC precalculado, rotulado.
 
-| Motor | SBC | Cobertura del 90% | Diferencia con el MCMC | Examen real | Responde |
-|---|---|---|---|---|---|
-| `espacial` | pendiente | pendiente | pendiente | pendiente | pendiente |
-| `supervivencia` | pendiente | pendiente | pendiente | pendiente | pendiente |
-| `jerarquico` | pendiente | pendiente | pendiente | pendiente | pendiente |
-| `estados` | pendiente | pendiente | pendiente | pendiente | pendiente |
+| Motor | Sello | SBC | Cobertura del 90% | Diferencia con el MCMC | Examen | Latencia |
+|---|---|---|---|---|---|---|
+| `espacial` | **PASA** | sin sesgo, en 2.000 datasets simulados nuevos | 0,90 (`cobertura_90`); 0,898 en los parámetros; 0,831 en el peor grupo (alcance largo) | 0,263 desviaciones estándar en las medias, sobre 6 datasets; NUTS tardó 117,1 s por dataset | 138 de 155 mediciones escondidas dentro del rango de 90%, en 5 particiones | 10 ms un análisis; 1.423 ms un lote de 500 grillas |
+| `deformacion` | pendiente | pendiente | pendiente | pendiente | pendiente | pendiente |
+| `cinetica` | pendiente | pendiente | pendiente | pendiente | pendiente | pendiente |
+| `desgaste` | pendiente | pendiente | pendiente | pendiente | pendiente | pendiente |
+| `sismico` | pendiente | pendiente | pendiente | pendiente | pendiente | pendiente |
 
-Medido hasta ahora, del método rápido solo (sáb 06:12): en el examen real de crédito, AUC 0,762 sobre 400 clientes reservados; en el de inasistencias, AUC 0,737 sobre 396 citas. La comparación con Krylov está pendiente de las redes.
+Del mismo sello de `espacial`: el método rápido tuvo cobertura de 0,89 en las mismas simulaciones; y la cifra de amortización es rehacer los 228 análisis completos de `donde_medir`, que tomó 0,69 s con la red y 26.698,8 s con el MCMC de referencia.
 
 ## 6. Cómo reproducirlo
 
@@ -102,14 +110,15 @@ uv run python -m motor.<motor>.entrenar --hasta HH:MM          # sección 4
 uv run python -m motor.<motor>.sello                           # sección 5
 ```
 
-Con los artefactos en `motor/artefactos/<motor>/`, el servicio responde por `nucleo/api.py` (`analizar`, `cartera`, `donde_medir`, `nube`, `sello`) con `KRYLOV_MOTOR_<MOTOR>=red`; con `mcmc` (el valor por defecto) responde el posterior precalculado. Las semillas de todo lo que se muestra son fijas.
+Con los artefactos en `motor/artefactos/<motor>/`, el servicio responde por `nucleo/api.py` (`casos`, `analizar`, `donde_medir`, `nube`, `sello`, `papeles`, `analizar_archivo`) con `KRYLOV_MOTOR_<MOTOR>=red`; con `mcmc` (el valor por defecto) responde el posterior precalculado. Las semillas de todo lo que se muestra son fijas.
 
-Datos: `datos/demo/` trae rotación, crédito y terreno. El archivo de inasistencias no se versiona por su licencia (CC BY-NC-SA); `datos/preparar/inasistencias.py` lo genera idéntico. Sin él, `jerarquico` entrena solo con el generador paramétrico y su sello no corre.
+Datos: `datos/demo/leyes.csv` es un banco **simulado** (`datos/preparar/leyes.py`, semilla fija), con su verdad escondida en `leyes_verdad.csv`. Los archivos de los otros cuatro casos se generan igual, con `datos/preparar/<caso>.py` y las ecuaciones de la sección 11. `terreno.csv` y `terreno_grilla.csv` son las mediciones reales públicas con que se examinó `espacial`.
 
 ## 7. Límites conocidos
 
-- Cada motor responde una familia de archivos, dentro de los rangos de su simulador (por ejemplo, de 500 a 2.000 clientes en `estados`; de 1.000 a 3.000 citas en 10 a 40 barrios en `jerarquico`; grilla de 32 × 32 con 30 a 400 mediciones en `espacial`).
-- En `estados` el uso del cupo se modela como normal por estado; el real tiene ceros y un grupo pegado al cupo.
-- En `jerarquico` el SMS no es un experimento: se asigna solo con 3 o más días de espera, y el modelo lo sabe.
-- El segundo detector de la nube usa un resumen aprendido: no garantiza que un archivo raro caiga fuera. El que sostiene el caso del archivo malo es el de los ejes con nombre.
-- El paso local de `supervivencia` y su MCMC están en construcción a la hora de este borrador.
+- Cada motor responde una familia de archivos, dentro de los rangos de su simulador (en `espacial`, grilla de 32 × 32 con 30 a 400 mediciones; los de los motores de series, en 11.2 a 11.5).
+- `espacial`, según las `limitaciones` de su sello: dos dimensiones; una sola tendencia, la raíz de la distancia a un río; covarianza exponencial con anisotropía geométrica; dos mediciones en el mismo bloque se promedian.
+- Ningún motor es todavía el modelo completo (`WORKPLAN.md`, 1.2): `espacial` no separa dominios geológicos; `deformacion` no lleva el muro entero con miles de nodos; `cinetica` no resuelve las ecuaciones de varias fases; `desgaste` no cruza telemetría; `sismico` es temporal y no usa la ubicación de cada sismo.
+- En `sismico`, «lo que se decide» sale de la intensidad esperada en forma cerrada con una aproximación de Poisson; la tarea A-28 pide una prueba que la compare con simular hacia adelante.
+- En `deformacion` el posterior es multimodal (dos regímenes por sector): el MCMC de referencia marginaliza z_j, corre con 4 cadenas e informa r̂.
+- `rojo_modelo` se apoya en un resumen aprendido: no garantiza que todo archivo raro caiga fuera.

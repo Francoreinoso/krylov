@@ -9,9 +9,11 @@
 3. Lo que se elija se anota en `estado/<rol>.md` con una línea de por qué. Si la elección afecta a otro computador (por ejemplo, el formato en que se exporta la red), además va una entrada en `DECISIONES.md`.
 4. Las versiones de la sección 5 se verificaron en las páginas oficiales el 21 de noviembre de 2026. Lo que dice «por medir» o «sin verificar» no se da por cierto: se prueba.
 
-El caso de uso, en una línea, para juzgar cada alternativa: **una app web de cuatro vistas que se muestra una vez en un escenario, una URL pública que toda la sala abre a la vez desde el teléfono, y cuatro redes chicas de inferencia basada en simulación (un codificador del dataset más un flujo normalizador condicional por motor) que se entrenan entre una noche y una mañana en dos MacBook Air sin ventilador.** No hay usuarios, ni cuentas, ni datos que guardar.
+El caso de uso, en una línea, para juzgar cada alternativa: **una app web de tres vistas chicas que se muestra una vez en un escenario, una URL pública que toda la sala abre a la vez desde el teléfono, y cinco redes chicas de inferencia basada en simulación (un codificador del dataset más flujos normalizadores condicionales por motor): una ya entrenada en una noche y cuatro que se entrenan en dos rondas de unos 100 minutos, en dos MacBook Air sin ventilador.** No hay usuarios, ni cuentas, ni datos que guardar.
 
-Desde la decisión D-26, en la sección 3 de este archivo, en el código y en el README técnico se usan los nombres técnicos precisos: modelo generativo, prior, posterior, NPE, flujo normalizador, SBC, MCMC. La pantalla y el pitch siguen usando `GLOSARIO.md`.
+**Pivote a minería (D-37, sáb 12:10).** Las herramientas no cambiaron: cambiaron los motores. Son cinco: `espacial` (ya entrenado y validado) y cuatro **motores de series** (`deformacion`, `cinetica`, `desgaste`, `sismico`) que comparten un andamio. Los motores de tabla `supervivencia`, `jerarquico` y `estados` se retiran (tarea A-32); donde este archivo los nombra, es para explicar una elección que venía de ellos.
+
+Desde la decisión D-26, en la sección 3 de este archivo, en el código y en el README técnico se usan los nombres técnicos precisos: modelo generativo, prior, posterior, NPE, flujo normalizador, SBC, MCMC, proceso de Hawkes, proceso gamma. La pantalla y el pitch siguen usando `GLOSARIO.md`.
 
 ## 1. Común a los tres computadores
 
@@ -65,7 +67,7 @@ npm install tailwindcss @tailwindcss/vite  # solo si se elige Tailwind (2.3)
 npm install -g vercel                      # solo si hace falta desplegar por línea de comandos (2.6)
 ```
 
-Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANTHROPIC_API_KEY` desde D-34): una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. Desde D-34, en Render: `ANTHROPIC_API_KEY`, solo para interpretar (2.8).
+Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANTHROPIC_API_KEY` desde D-34): una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_ESPACIAL`, `KRYLOV_MOTOR_DEFORMACION`, `KRYLOV_MOTOR_CINETICA`, `KRYLOV_MOTOR_DESGASTE`, `KRYLOV_MOTOR_SISMICO`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. Desde D-34 y D-35, en Render: `ANTHROPIC_API_KEY`, para proponer el calce de columnas y para interpretar (2.8).
 
 ### 2.2 Framework de la web
 
@@ -74,9 +76,9 @@ Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANT
 | **Vite + React + TypeScript** | Es una sola página con estado en memoria: no necesita más. Arranca en segundos, sale como archivos estáticos que Vercel sirve sin configuración, y los agentes lo escriben sin tropiezos. Los tipos atrapan los desajustes con el contrato | Sin rutas ni servidor propios (no hacen falta) | **Recomendado** |
 | Next.js 16 | Vercel lo trata de primera; trae rutas y funciones de servidor | Trae complejidad que aquí no se usa (componentes de servidor, caché); más formas de romper el modo estático; compila más lento | Solo si el equipo ya lo domina y quiere las rutas de API en el mismo proyecto |
 | SvelteKit | Menos código por pantalla, animaciones incluidas | Menos material de entrenamiento para los agentes; nadie del equipo lo usa a diario | No |
-| HTML y JavaScript a mano | Cero dependencias | Con cuatro vistas, deslizadores y un mapa interactivo se vuelve inmanejable en horas | No |
+| HTML y JavaScript a mano | Cero dependencias | Con tres vistas, deslizadores, un mapa interactivo y curvas se vuelve inmanejable en horas | No |
 
-Regla para cambiar: ninguna. Con el tiempo que hay, cambiar de framework después de P-01 es perder la noche.
+Regla para cambiar: ninguna. La app ya está en línea con este framework; cambiarlo a esta altura es perder el demo.
 
 ### 2.3 Estilos
 
@@ -86,17 +88,17 @@ Regla para cambiar: ninguna. Con el tiempo que hay, cambiar de framework despué
 | CSS a mano con variables | Control total, cero dependencias | Más lento de iterar con un agente; fácil terminar con estilos inconsistentes | Válido para la tipografía grande del proyector, mezclado con Tailwind |
 | Biblioteca de componentes (shadcn y similares) | Deslizadores y tablas listos | Instalación y configuración que se comen media hora; apariencia genérica | Solo el deslizador, si el nativo del navegador no se ve bien |
 
-### 2.4 Mapa, nube y barras
+### 2.4 Mapa, nube, barras y curva
 
-Lo que hay que dibujar: una grilla de 32×32 bloques de colores con puntos y pines encima; una nube de unos 3.000 puntos; barras horizontales con su rango.
+Lo que hay que dibujar: una grilla de 32×32 bloques de colores con puntos y pines encima; una nube de unos 3.000 puntos, donde el motor la tenga; barras horizontales con su rango; y, desde D-37, la curva de una unidad (puntos medidos, abanico y línea del límite).
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
 | **Canvas 2D a mano** (un componente por dibujo) | 1.024 rectángulos y 3.000 puntos se dibujan en un milisegundo; control total de colores y animación; se ve igual en teléfono y proyector; cero dependencias | Hay que escribir la conversión de coordenadas y el clic sobre un pin | **Recomendado** para mapa y nube |
-| SVG con React | Clic y estilos gratis; nítido en cualquier tamaño | 1.024 nodos más 3.000 puntos empiezan a pesar al animar | **Recomendado** para las barras y la lista de unidades |
+| SVG con React | Clic y estilos gratis; nítido en cualquier tamaño | 1.024 nodos más 3.000 puntos empiezan a pesar al animar | **Recomendado** para las barras y la lista de unidades. Punto de partida también para la curva (`web/src/Curva.tsx`, P-23), que tiene pocos nodos |
 | D3 | Escalas y ejes resueltos | Curva de aprendizaje y choque con React | Solo `d3-scale`, si hace falta |
 | Biblioteca de gráficos (Recharts, Plotly) | Un gráfico en diez líneas | No hacen bien una grilla con pines interactivos; Plotly pesa varios megas en un teléfono | No |
-| Mapa geográfico (MapLibre, deck.gl, Leaflet) | Fondo de mapa real | El terreno son 155 puntos en coordenadas locales: un mapa de calles no aporta y agrega teselas, claves y fallas sin internet | No |
+| Mapa geográfico (MapLibre, deck.gl, Leaflet) | Fondo de mapa real | El banco son 340 pozos en coordenadas locales: un mapa de calles no aporta y agrega teselas, claves y fallas sin internet | No |
 
 ### 2.5 Backend
 
@@ -131,11 +133,13 @@ Hay tres piezas: la web con las respuestas precalculadas, la API, y el computado
 
 Configuración de Render: lenguaje «Python 3»; comando de construcción `pip install -r requirements.txt`; comando de inicio `uvicorn servicio.app:app --host 0.0.0.0 --port $PORT`; variable `PYTHON_VERSION` con una versión 3.12 completa (por ejemplo `3.12.x`, la que muestre `uv python list`); y las variables `KRYLOV_MOTOR_<ID>` de cada motor. El `requirements.txt` sale de `uv export --no-dev --no-hashes -o requirements.txt` y no incluye el grupo `entrenar`.
 
+**Límite diario de despliegues.** El plan gratuito de Vercel llegó a su límite el sábado a las 10:10. Desde entonces solo se despliega cuando cambia `web/`, y los redespliegues se agrupan en los hitos H4, H5 y H6 (`WORKPLAN.md`, 6.8).
+
 **El escenario: el computador que presenta, en local.** API y web corriendo en ese computador, con todo precargado y probado sin wifi. La URL pública es para la entrega y para el QR.
 
 ### 2.7 Cómo corren las redes dentro del servicio
 
-De cada motor llegan dos archivos: `codificador.onnx` y `flujo.npz` (sección 3.8). El servicio no los toca: llama a `nucleo/api.py`.
+De cada motor llegan `codificador.onnx` y `flujo.npz`; de los motores de series, además, `flujo_local.npz` (sección 3.8). El servicio no los toca: llama a `nucleo/api.py`.
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
@@ -146,9 +150,9 @@ De cada motor llegan dos archivos: `codificador.onnx` y `flujo.npz` (sección 3.
 
 ### 2.8 Capa de lenguaje (Claude)
 
-> **Vuelve con la decisión D-34 (sáb 07:12), solo para interpretar.** El modelo de lenguaje recibe el JSON de una respuesta y escribe un texto corto (`POST /api/interpretar`). **No propone columnas** (el usuario las asigna con el selector) ni elige el motor, y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON y, si no, o sin clave o sin internet, usa la plantilla de `casos/textos.yaml`. Se instala el SDK `anthropic` **solo en `servicio/`** (nunca en `nucleo/` ni en `web/`); la clave va en `ANTHROPIC_API_KEY`, variable de entorno de Render, y nunca entra al repositorio. Antes (D-26) la capa estaba cortada.
+> **Vuelve con las decisiones D-34 y D-35, para dos cosas y nada más.** El modelo de lenguaje **propone el calce**: recibe los papeles del motor y un resumen de cada columna, nunca filas, y el usuario ve la propuesta y la confirma. Y **escribe la interpretación**: recibe el JSON de una respuesta y devuelve un texto corto (`POST /api/interpretar`). No elige el motor ni agrega cifras: el servicio revisa que cada número del texto esté en el JSON y, si no, o sin clave o sin internet, usa la plantilla de `casos/textos.yaml` y el calce por regla. Se instala el SDK `anthropic` **solo en `servicio/`** (nunca en `nucleo/` ni en `web/`); la clave va en `ANTHROPIC_API_KEY`, variable de entorno de Render, y nunca entra al repositorio. Antes (D-26) la capa estaba cortada.
 
-Una sola llamada por respuesta (la interpretación). Para los archivos del demo se precalcula y se guarda en `web/public/estatico/interpretar/`. Se usa el SDK oficial `anthropic` de Python con salida estructurada. **Antes de escribir este código, el agente carga la skill `claude-api`**: varios parámetros que eran habituales ya no existen (temperatura, presupuesto de razonamiento, forzar una herramienta), y de memoria se escribe mal.
+Dos llamadas como máximo por archivo: el calce y la interpretación. Para los archivos del demo las dos se precalculan y se guardan en `web/public/estatico/`. Se usa el SDK oficial `anthropic` de Python con salida estructurada. **Antes de escribir este código, el agente carga la skill `claude-api`**: varios parámetros que eran habituales ya no existen (temperatura, presupuesto de razonamiento, forzar una herramienta), y de memoria se escribe mal.
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
@@ -164,7 +168,7 @@ Base de datos, autenticación, colas, Docker, bibliotecas de estado global, prue
 
 ## 3. PC 2 · amortización de los modelos (MacBook Air M4, 16 GB, sin ventilador)
 
-Reescrita por la decisión D-26. Los cuatro modelos generativos y la arquitectura están en `WORKPLAN.md`, sección 11; aquí va con qué herramienta se hace cada pieza y por qué.
+Reescrita por la decisión D-26 y puesta al día con D-37. Los cinco modelos generativos y el andamio de los motores de series están en `WORKPLAN.md`, sección 11; aquí va con qué herramienta se hace cada pieza y por qué.
 
 ### 3.1 Qué instalar
 
@@ -192,17 +196,17 @@ No hace falta Node. Antes de lanzar nada largo: enchufado, **tapa abierta**, bri
 
 | Computador | Qué es | Qué corre |
 |---|---|---|
-| PC 2 | MacBook Air M4, 16 GB | Entrena `espacial` de noche y `estados` de día. Validaciones y MCMC cuando no hay nada entrenando |
-| PC 3 | MacBook Air M3, 16 GB | Entrena `supervivencia` de noche y `jerarquico` de día. Lo lanza su persona; no edita `motor/` |
+| PC 2 | MacBook Air M4, 16 GB | Entrenó `espacial` (sáb 03:50 a 08:30; no se reentrena). Entrena `cinetica` en la ronda 1 y `desgaste` en la ronda 2. Validaciones y MCMC cuando no hay nada entrenando |
+| PC 3 | MacBook Air M3, 16 GB | Entrena `deformacion` en la ronda 1 y `sismico` en la ronda 2. Lo lanza su persona; no edita `motor/` |
 | PC 1 | Ryzen 3 5300U, 6,6 GiB de memoria (1,3 GiB libres), sin GPU | **No entrena ni corre MCMC.** No instala el grupo `entrenar` |
 
 Procesador o GPU del Mac no se decide de memoria: se mide con la skill `medir-rendimiento`, **motor por motor**, dos minutos en cada uno y dos minutos sostenidos.
 
 | Alternativa | Cuándo conviene |
 |---|---|
-| GPU del Mac (`mps`) | Si rinde más de 1,5 veces lo del procesador en la red real y no aparecen avisos de operaciones que caen al procesador. Con la red convolucional de `espacial` suele ganar; con los codificadores de conjuntos, que son capas densas chicas sobre muchas filas, **por medir** |
+| GPU del Mac (`mps`) | Si rinde más de 1,5 veces lo del procesador en la red real y no aparecen avisos de operaciones que caen al procesador. Con la red convolucional de `espacial` ganó (7,6 veces el procesador, medido); con los codificadores de series, que son redes chicas sobre muchas unidades, **por medir** |
 | Procesador (`cpu`) | Si la red es muy chica o si `mps` se calienta y cae más de 30% en dos minutos |
-| Nube (Kaggle o Colab gratuitos) | Solo si a las 09:00 algo va atrasado **y una persona abrió la sesión y vio la cuota** (diez minutos). Las cuotas gratuitas no se pudieron confirmar en páginas oficiales: no se cuenta con ella de antemano |
+| Nube (Kaggle o Colab gratuitos) | Solo si una ronda va atrasada **y una persona abrió la sesión y vio la cuota** (diez minutos). Las cuotas gratuitas no se pudieron confirmar en páginas oficiales: no se cuenta con ella de antemano |
 
 Dos reglas más: las mediciones de tiempo que van al guion se hacen sin ningún entrenamiento corriendo en ese computador, y el MCMC de referencia nunca corre encima de un entrenamiento.
 
@@ -212,38 +216,40 @@ Cada motor es inferencia basada en simulación amortizada: la red aprende a inve
 
 | Alternativa | Qué entrega | Pros | Contras | Veredicto |
 |---|---|---|---|---|
-| **NPE sobre los parámetros globales θ, y lo local exacto en NumPy** | q(θ \| D) con un flujo normalizador condicional sobre el resumen s(D) del codificador. Dado cada θ muestreado, el efecto de grupo y el latente de cada unidad se integran con cuadratura de Gauss-Hermite anidada (filtro forward en `estados`) | θ tiene tamaño fijo aunque cambie el número de cargos o de barrios; la red hace solo lo caro; el predictivo por unidad es exacto dado θ; `nucleo/` sigue sin `torch` | Hay que escribir el paso local de cada motor y medir su presupuesto (32 muestras × unidades × nodos²) | **Elegida** para `supervivencia`, `jerarquico` y `estados` |
-| Una cabeza por unidad (la red entrega directo la probabilidad de cada fila) | `muestras_p` sin paso local | Una sola pasada | No hay posterior de θ, así que no hay «qué pesa» ni SBC sobre parámetros; se parece a una regresión con un emulador al lado, que es justo lo que D-26 reemplaza | No |
-| NPE también sobre los efectos de grupo y los latentes | Todo el posterior conjunto | Sin cuadratura | La dimensión crece con n y con el número de grupos; no entrena en horas | No |
-| **En `espacial`: cabeza de mapa más cabeza de flujo** | La cabeza de mapa entrega media y margen por bloque (predictivo posterior marginal, amortizado); la de flujo, q(θ \| D) sobre los 7 parámetros del terreno | «¿Dónde mido?» sigue siendo una pasada en lote de ~480 grillas; «qué manda en el terreno» sale del posterior | Dos pérdidas sobre un mismo codificador podrían estorbarse | **Elegida**, con el gradiente cortado: la cabeza de flujo recibe el resumen con `detach`, así la de mapa entrena exactamente igual que si estuviera sola |
+| **Amortización factorizada: NPE sobre los parámetros globales η y un flujo local chico por unidad** | q(η \| s(D)) · Π_j q(λ_j \| η, s_j, s(D)): un flujo sobre el resumen del dataset y otro, de 2 dimensiones y compartido entre unidades, sobre el resumen de cada unidad | La dimensión de cada flujo es chica y fija aunque cambie el número de unidades; un flujo cubre posteriores locales alargados o bimodales, que una gaussiana no; `nucleo/` sigue sin `torch` | Dos flujos que exportar y que probar; el SBC se hace global y local | **Elegida** para los cuatro motores de series (D-37) |
+| NPE sobre los parámetros globales θ, y lo local exacto en NumPy | q(θ \| D) con un flujo normalizador condicional sobre el resumen s(D). Dado cada θ muestreado, lo local se integra en forma cerrada o con cuadratura | θ tiene tamaño fijo; la red hace solo lo caro; lo local es exacto dado θ | Hay que escribir el paso local de cada motor y medir su presupuesto; exige que lo local tenga forma cerrada o pocas dimensiones | Es lo que hace `espacial` (kriging dado θ). Fue la elegida para los tres motores de tabla que se retiran |
+| Una cabeza por unidad (la red entrega directo la probabilidad de cada unidad) | `muestras_p` sin paso local | Una sola pasada | No hay posterior de los parámetros, así que no hay «qué pesa» ni SBC sobre parámetros; se parece a una regresión con un emulador al lado, que es justo lo que D-26 reemplaza | No |
+| Un solo flujo sobre los globales y los locales de todas las unidades | Todo el posterior conjunto | Sin factorizar | La dimensión crece con el número de unidades; no entrena en una ronda | No |
+| **En `espacial`: cabeza de mapa más cabeza de flujo** | La cabeza de mapa entrega media y margen por bloque (predictivo posterior marginal, amortizado); la de flujo, q(θ \| D) sobre los 7 parámetros del modelo | «¿Dónde perforo?» (`donde_medir`) sigue siendo una pasada en lote de ~480 grillas; «qué pesa» sale del posterior | Dos pérdidas sobre un mismo codificador podrían estorbarse | **Elegida**, con el gradiente cortado: la cabeza de flujo recibe el resumen con `detach`, así la de mapa entrena exactamente igual que si estuviera sola |
 
 Qué flujo:
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **Acoplamiento afín** (8 capas, permutación fija entre capas) sobre θ en espacio sin restricciones | Muestrear es una pasada hacia adelante de productos de matrices: se reescribe en NumPy en pocas líneas y no depende de la exportación. Con n de cientos a miles de filas el posterior en ese espacio es casi gaussiano, y alcanza | Menos expresivo por capa que un spline | **Elegido** |
+| **Acoplamiento afín** (8 capas, permutación fija entre capas) sobre los parámetros en espacio sin restricciones | Muestrear es una pasada hacia adelante de productos de matrices: se reescribe en NumPy en pocas líneas y no depende de la exportación. El mismo `FlujoCondicional` de `motor/comun/flujo.py` sirve de flujo global y de flujo local | Menos expresivo por capa que un spline | **Elegido**, para el flujo de `espacial` y para los dos flujos de cada motor de series |
 | Flujo de splines (NSF) | Más expresivo | Los splines usan `searchsorted`, que complica la exportación a ONNX y la copia en NumPy | No |
-| Flujo autorregresivo (MAF) | Buena densidad con pocas capas | Muestrea en un bucle sobre las dimensiones de θ (32 a 35): lento y mal exportable | No |
+| Flujo autorregresivo (MAF) | Buena densidad con pocas capas | Muestrea en un bucle sobre las dimensiones de los parámetros: más lento y mal exportable | No |
 
 Con qué biblioteca:
 
 | Biblioteca | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **`zuko`** | Flujos normalizadores en PyTorch, liviana, se enchufa a cualquier red propia. `zuko.flows.NICE(features, context, transforms)` es el flujo de acoplamiento y usa transformaciones afines por defecto (leído en su documentación; se confirma corriéndolo en A-01) | Hay que escribir el bucle de entrenamiento, y comprobar que sus pesos se pueden leer capa por capa para la copia en NumPy | **Recomendada** para entrenar |
+| **`zuko`** | Flujos normalizadores en PyTorch, liviana, se enchufa a cualquier red propia. `zuko.flows.NICE(features, context, transforms)` es el flujo de acoplamiento y usa transformaciones afines por defecto (es el que usa `motor/comun/flujo.py`) | Hay que escribir el bucle de entrenamiento, y comprobar que sus pesos se pueden leer capa por capa para la copia en NumPy | **Recomendada** para entrenar |
 | Acoplamiento afín propio (unas 60 líneas) | Los pesos quedan con nombres propios y la copia en NumPy es directa | Código propio que probar | **Plan B inmediato** si leer los pesos de `zuko` cuesta más de 20 minutos |
 | `sbi` | Bucle de entrenamiento y diagnósticos incluidos | Pensada para simuladores lentos y bancos fijos; aquí el simulador es rápido y se entrena al vuelo, y su estructura estorba | No |
 | BayesFlow | Flujo de trabajo completo y diagnósticos de calibración | Corre sobre Keras con otro motor por debajo: un entorno más que cuidar la noche de la hackathon | No |
 
-Pérdida, en todos: NPE, −log q(θ | s(D)), promediada sobre datasets simulados al vuelo.
+Pérdida, en todos: NPE, −log q(θ | s(D)), promediada sobre datasets simulados al vuelo. En los motores de series se suma el término local: −log q(η | s(D)) − promedio_j log q(λ_j | η, s_j, s(D)). Al entrenar, el flujo local se condiciona en el η verdadero; al responder, en cada muestra de η.
 
 ### 3.5 Cómo se le pasa un dataset a la red (el codificador)
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **Codificador de conjuntos: DeepSets con pooling de atención y máscara de relleno**, jerárquico cuando el modelo lo es (filas → grupo → dataset) | Invariante al orden de las filas; admite n variable; es la arquitectura estándar para amortizar sobre datasets enteros. **Ya no es «investigación»: es la arquitectura de los tres motores de tabla** | El pooling de atención puede complicar la exportación a ONNX con n variable: se prueba sin entrenar | **Elegido** para `supervivencia`, `jerarquico` y `estados`. Si no exporta, promedio con máscara en vez de atención |
-| Set Transformer con puntos inductores | Más expresivo: las filas se miran entre sí | Más lento por paso y más frágil de exportar; no hace falta con filas condicionalmente independientes dado el grupo | Solo si la calibración por grupos no pasa |
-| Estadísticos resumen escritos a mano | Simple y rápido | Hay que adivinar qué es suficiente para 30 parámetros; es lo que la red aprende sola | No (los dos resúmenes con nombre de la nube son otra cosa: `WORKPLAN.md`, 11.9) |
-| **Grilla fija de 32×32 con canales** (valor, marca de medición, √dist) y red convolucional | Agregar una medición hipotética es marcar una celda; cualquier terreno entra igual; entrena en una noche | Dos puntos en la misma celda se promedian; la resolución es fija | **Elegido** para `espacial`. Salvavidas: dos canales, sin tendencia, si los tres no pasan la prueba de humo a las 04:45 |
+| **Codificador por unidad: convoluciones 1D con máscara y pooling (promedio y máximo)** sobre la serie de cada unidad | Lee tensores con relleno y máscara (unidades, lecturas, canales: tiempo normalizado, valor estandarizado, diferencia con la lectura anterior y covariables de la unidad) y entrega un resumen s_j por unidad. Con tamaños máximos fijos por motor, ONNX no necesita ejes dinámicos | Hay que probar, sin entrenar, que exporta y que la pérdida baja | **Elegido** para los cuatro motores de series (`motor/comun/series.py`). Si no exporta o no aprende, una GRU chica |
+| **Codificador de conjuntos: DeepSets con pooling de atención y máscara de relleno** (`motor/comun/codificador.py`, ya existe) | Invariante al orden; admite un número variable de elementos; es la arquitectura estándar para amortizar sobre datasets enteros. En los motores de series agrega los s_j de las unidades en el resumen del dataset, s(D) | El pooling de atención puede complicar la exportación a ONNX: se prueba sin entrenar | **Elegido** para agregar las unidades en los motores de series. Si no exporta, promedio con máscara en vez de atención |
+| Set Transformer con puntos inductores | Más expresivo: las unidades se miran entre sí | Más lento por paso y más frágil de exportar; no hace falta con unidades condicionalmente independientes dados los parámetros globales | Solo si la calibración por grupos no pasa |
+| Estadísticos resumen escritos a mano | Simple y rápido | Hay que adivinar qué es suficiente para cada modelo; es lo que la red aprende sola | No |
+| **Grilla fija de 32×32 con canales** (valor, marca de medición, √dist) y red convolucional | Agregar una medición hipotética es marcar una celda; cualquier terreno o banco entra igual; entrenó en una noche | Dos puntos en la misma celda se promedian; la resolución es fija | **Elegido** para `espacial`, que ya está entrenado con los tres canales |
 
 ### 3.6 Simuladores
 
@@ -252,37 +258,37 @@ Un simulador vectorizado por motor, en `torch`, que genera datasets completos al
 | Pieza | Alternativa elegida | Por qué, y qué se descartó |
 |---|---|---|
 | Campo del terreno | **Transformada de Fourier sobre una grilla del doble de tamaño, recortada** | Miles de terrenos por segundo. Es aproximado en los bordes: una prueba lo compara con el método directo (descomposición de la covarianza en NumPy), que es exacto pero toma decenas de milisegundos por terreno. `gstools` simula un terreno a la vez: no |
-| Río del terreno | **Una curva suave al azar y su campo de distancia** | Lo más simple que da una tendencia creíble. Nada de redes fluviales |
-| Tablas | **Muestreo directo del modelo de 11.2 a 11.4, con n y número de grupos variables y relleno con máscara** | Todos los modelos se muestrean hacia adelante sin iterar |
-| Covariables | **Mitad remuestreo perturbado de filas reales, mitad generador paramétrico** (cópula gaussiana con correlaciones y marginales al azar) | Solo con las X del archivo del demo la red no generaliza a las 1.000 empresas de la cartera; solo con el generador puede no cubrir el archivo real. Límite declarado: generaliza hasta donde llega el generador |
+| Río del terreno | **Una curva suave al azar y su campo de distancia** | Lo más simple que da una tendencia creíble. Nada de redes fluviales. El caso `leyes` no usa la tendencia: 20% de las simulaciones de entrenamiento no la tenían |
+| Series de `deformacion`, `cinetica` y `desgaste` | **Muestreo directo de los modelos de 11.2 a 11.4, con número de unidades y de lecturas variables, lecturas faltantes y relleno con máscara** | Los tres se muestrean hacia adelante sin iterar: trayectorias en forma cerrada e incrementos gamma independientes |
+| Sismos de `sismico` | **Simulación por ramificación, vectorizada por generaciones** (inmigrantes de fondo, hijos de la tronadura, hijos de cada sismo), truncada en 300 sismos por sector | Evita simular evento por evento en un bucle. La tarea A-28 pide una prueba que compare la forma cerrada de «lo que se decide» con simular hacia adelante |
 
-Los simuladores no se exportan: se usan solo al entrenar, al validar y para la cartera y la nube (que se precalculan o corren con una copia en NumPy si hace falta en `nucleo/`).
+El generador de covariables de los motores de tabla se retira con ellos (A-32). Los simuladores no se exportan: se usan solo al entrenar, al validar y, donde exista, para la nube. Los archivos del demo se generan aparte, con las mismas ecuaciones y semilla fija, en `datos/preparar/` (sección 4.2).
 
 ### 3.7 MCMC de referencia (validación y plan B)
 
-Cada motor tiene su modelo escrito una segunda vez, para NUTS. Sirve para dos cosas: es la vara contra la que se valida la red (mismas medias y rangos, y el tiempo de cada uno es la cifra de amortización), y sus muestras precalculadas son la implementación `mcmc`, el plan B de cada tarjeta.
+Cada motor tiene su modelo escrito una segunda vez, para NUTS. **NumPyro con NUTS sigue siendo el método de referencia de los cinco motores después del pivote.** Sirve para dos cosas: es la vara contra la que se valida la red (mismas medias y rangos, y el tiempo de cada uno es la cifra de amortización), y sus muestras precalculadas son la implementación `mcmc`, el plan B de cada tarjeta.
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **NumPyro (NUTS) sobre JAX**, solo dentro de `motor/` | Rápido en procesador; los latentes discretos de `estados` se marginalizan con el filtro forward escrito en JAX; cadenas vectorizadas | Dos dependencias más en el grupo `entrenar`; hay que confirmar que instalan (A-01) | **Recomendado** |
-| PyMC | Sintaxis más conocida | Compilación más lenta al primer uso; más pesado de instalar | Solo si NumPyro no instala |
-| Stan | El de referencia de los libros | Compilar cada modelo en C++ la noche de la hackathon | No |
-| Muestreo por importancia en NumPy | Sin dependencias | No escala a 30 parámetros con un latente por unidad | No |
+| **NumPyro (NUTS) sobre JAX**, solo dentro de `motor/` | Rápido en procesador; los latentes discretos se marginalizan a mano en JAX (en `deformacion`, la mezcla de las dos trayectorias por sector); cadenas vectorizadas | Dos dependencias más en el grupo `entrenar` (ya instaladas: el MCMC de `espacial` corrió con ellas) | **Recomendado** |
+| PyMC | Sintaxis más conocida | Compilación más lenta al primer uso; más pesado de instalar | Solo si NumPyro deja de servir |
+| Stan | El de referencia de los libros | Compilar cada modelo en C++ en plena hackathon | No |
+| Muestreo por importancia en NumPy | Sin dependencias | No escala con parámetros locales por unidad | No |
 
-Es acotado: de 5 a 10 datasets simulados por motor, más el real. Corre en un computador que no esté entrenando. En `espacial`, con 155 puntos, tarda segundos: la cifra de amortización ahí son los ~480 análisis rehechos de «¿Dónde mido?».
+Es acotado: de 3 a 5 datasets simulados por motor, más el del demo. Corre en un computador que no esté entrenando. Si NUTS no converge (r̂ sobre 1,05) en 10 minutos por dataset, se anota, el sello se apoya en el SBC y esa tarjeta no tiene plan B (`WORKPLAN.md`, 11.8). Qué muestrea NUTS en cada motor nuevo está en 11.2 a 11.5. En `espacial` un análisis con el MCMC tardó 117 s en promedio (sello): la cifra de amortización ahí es rehacer todos los análisis de «¿Dónde perforo?».
 
-**El método rápido de siempre** es otra cosa: una regresión logística simple (o kriging con parámetros fijos, en el terreno). No es un motor ni un plan B. Se mide solo para la comparación que muestra qué se pierde sin el modelo completo (A-16).
+**El método rápido de siempre** es otra cosa: la regla simple que se usa cuando no hay tiempo (kriging con parámetros fijos en `espacial`; en los motores de series, una recta, una sola exponencial o un conteo por hora, según 11.2 a 11.5). No es un motor ni un plan B. Se mide solo para la comparación que muestra qué se pierde sin el modelo completo.
 
 ### 3.8 Formato de entrega de cada red
 
 | Pieza | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|---|
-| Codificador | **ONNX** (`torch.onnx.export`, que hoy usa el exportador nuevo por defecto) | Lo lee `onnxruntime` en el servicio sin `torch` | Necesita `onnx` y `onnxscript`; el número de filas variable se declara con `dynamic_shapes`. **Probar la exportación con la red sin entrenar, motor por motor, la primera noche** | **Recomendado**. En `espacial` incluye la cabeza de mapa |
-| Flujo | **`flujo.npz` con los pesos, muestreado en NumPy por `nucleo/flujo.py`** | Sin riesgo de exportación; el acoplamiento afín son productos de matrices | Dos implementaciones del mismo flujo. Prueba obligatoria: con los mismos pesos y el mismo ruido, NumPy y `torch` dan la misma muestra, con tolerancia de `float32` | **Recomendado** |
+| Codificador | **ONNX** (`torch.onnx.export`, que hoy usa el exportador nuevo por defecto) | Lo lee `onnxruntime` en el servicio sin `torch` | Necesita `onnx` y `onnxscript`; un eje variable se declara con `dynamic_shapes`. **Probar la exportación con la red sin entrenar, motor por motor, antes de lanzar su ronda** | **Recomendado**. En `espacial` incluye la cabeza de mapa y el lote es variable. En los motores de series se exporta con formas fijas con relleno y máscara (tamaños máximos por motor) y **dos salidas**: s(D) y los s_j |
+| Flujo | **`flujo.npz` con los pesos, muestreado en NumPy por `nucleo/flujo.py`**; en los motores de series, dos archivos: `flujo.npz` (global) y `flujo_local.npz` | Sin riesgo de exportación; el acoplamiento afín son productos de matrices | Dos implementaciones del mismo flujo. Prueba obligatoria: con los mismos pesos y el mismo ruido, NumPy y `torch` dan la misma muestra, con tolerancia de `float32` | **Recomendado** |
 | Flujo | Exportar el flujo entero a ONNX | Un solo archivo | Muestrear dentro del grafo es justo lo que puede no exportar | No |
 | Todo | Archivo de pesos de `torch` | Sin exportar | Obliga a tener `torch` en el servicio | Se guarda igual (`pesos.pt`), para seguir entrenando |
 
-Artefactos por motor, en `motor/artefactos/<motor_id>/`: `codificador.onnx`, `flujo.npz`, `pesos.pt`, `config.json`, `sello.json`, `nube.npz` y `mcmc/<clave>.npz` (`contratos/CONTRATO.md`, sección 7).
+Artefactos por motor, en `motor/artefactos/<motor_id>/`: `codificador.onnx`, `flujo.npz` (y `flujo_local.npz` en los motores de series), `pesos.pt`, `config.json`, `sello.json`, `mcmc/<clave>.npz` y, donde exista, `nube.npz` (`contratos/CONTRATO.md`, sección 7).
 
 ## 4. PC 3 · seguimiento (monitoreo, casos, datos y pitch)
 
@@ -290,7 +296,7 @@ Artefactos por motor, en `motor/artefactos/<motor_id>/`: `codificador.onnx`, `fl
 
 ```bash
 uv sync                 # pandas para preparar los CSV, pytest, pyyaml
-uv sync --group entrenar   # D-26: este computador entrena `supervivencia` de noche y `jerarquico` de día
+uv sync --group entrenar   # D-37: este computador entrena `deformacion` en la ronda 1 y `sismico` en la ronda 2
 brew install node       # solo para poder levantar la web en local y verificar corriendo
 ```
 
@@ -300,10 +306,10 @@ PC 3 (MacBook Air M3, 16 GB) instala el grupo `entrenar` solo para **lanzar** en
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **Un script de Python por caso, con pandas, en `datos/preparar/`** | Reproducible; deja escrito de dónde salió cada archivo y con qué semilla se vació el 20% | Diez minutos más que hacerlo a mano | **Recomendado** |
+| **Un script de Python por caso, con NumPy o pandas, en `datos/preparar/`** | Reproducible; deja escrito de dónde salió cada archivo y con qué semilla se generó, y guarda aparte la verdad escondida | Diez minutos más que hacerlo a mano | **Recomendado** |
 | A mano en una planilla | Rápido para mirar | No queda registro; imposible repetir si hay que cambiar algo a las 16:00 | Solo para mirar |
 
-El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, se busca una copia en CSV de los mismos 155 puntos o se lee con el paquete `pyreadr` (`uv run --with pyreadr …`). Lo mismo vale para `meuse.grid` (3.103 celdas con `x`, `y`, `dist`), que desde D-26 hace falta como `datos/demo/terreno_grilla.csv`: la tendencia con la distancia al río se necesita en cada bloque.
+Desde D-37 los archivos del demo son **simulados con las mismas ecuaciones del motor** (`WORKPLAN.md`, sección 11), con semilla fija, una verdad escondida que el motor no ve y el rótulo «simulado»; el modelo a seguir es `datos/preparar/leyes.py`. Donde exista un archivo real con licencia abierta que calce con su motor, se usa y se dice. El suelo real con que se examinó `espacial` (155 puntos y su grilla, ya en `datos/demo/`) queda fuera del inicio: es el examen con datos reales de ese motor.
 
 ### 4.3 Láminas
 
@@ -311,6 +317,8 @@ El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, s
 |---|---|---|---|
 | **Láminas dentro de la misma app** (una vista más, tecla `L`) | No se cambia de ventana en el escenario; el QR y la frase salen con la misma tipografía; no depende de internet | Las escribe PC 1 con el texto de PC 3 | **Recomendado** para portada y cierre |
 | Google Slides o Keynote | Rápido de editar por cualquiera | Cambiar de ventana en vivo es donde más demos se traban | Para las láminas de respaldo, que solo se abren si preguntan |
+
+Además existe el deck de `pitch/deck/`: una página HTML que abre con doble clic y corre sin internet. El pitch parte ahí y entra a la app para las decisiones (`WORKPLAN.md`, 4.5); la tecla `L` de la app sigue siendo el cierre con el QR.
 
 ### 4.4 Video de respaldo y otros
 
@@ -332,7 +340,7 @@ El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, s
 | onnxruntime | 1.32.0 | Python 3.11 a 3.14; unos 28 MB en Linux | PyPI |
 | onnx / onnxscript | 1.23.x / 0.7.x | Los usa el exportador | PyPI |
 | zuko | 1.6.0 | `zuko.flows.NICE` es el flujo de acoplamiento; usa transformaciones afines por defecto (leído en la documentación el 21-nov, no ejecutado) | PyPI, zuko.readthedocs.io |
-| numpyro / jax | sin verificar | MCMC de referencia (NUTS), solo en `motor/`. La versión y que instalen en Python 3.12 en Mac con chip Apple se comprueban en A-01 | por confirmar en A-01 |
+| numpyro / jax | 0.22.0 / 0.12.1 (las de `uv.lock`) | MCMC de referencia (NUTS) de los cinco motores, solo en `motor/`. Instalan y corren en Python 3.12 en Mac con chip Apple: el MCMC de `espacial` se corrió con ellas | `uv.lock`; `motor/artefactos/espacial/sello.json` |
 | FastAPI / uvicorn | 0.165 / 0.54 | `fastapi[standard]` ya trae uvicorn | fastapi.tiangolo.com |
 | Node.js | 26 (LTS) | Vite 8 pide Node 20.19 o superior | nodejs.org |
 | Vite / React | 8 / 19 | `npm create vite@latest web -- --template react-ts` | vite.dev |
@@ -340,4 +348,4 @@ El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, s
 | Render, plan gratuito | | 0,1 de procesador, 512 MB, se duerme a los 15 minutos, despierta en cerca de un minuto, Python 3.14 por defecto | render.com/docs/free, /docs/python-version |
 | Vercel, plan gratuito | | No conecta repositorios de organizaciones; bloquea commits de otros autores en repositorios privados; funciones de Python con 2 GB | vercel.com/docs/limits, /docs/git |
 
-**Sin verificar, hay que probarlo:** que `caffeinate` mantenga despierto el Mac con la tapa cerrada (por eso la tapa queda abierta); las cuotas gratuitas de Kaggle y Colab; que `vercel deploy --prod` evite el bloqueo por autor; que cada codificador exporte a ONNX con n variable (se prueba sin entrenar, motor por motor: A-01, A-03, A-B2, A-N6); que `numpyro` y `jax` instalen en este entorno (A-01); cuántos datasets por segundo simula y entrena cada motor (`medir-rendimiento`).
+**Sin verificar, hay que probarlo:** que `caffeinate` mantenga despierto el Mac con la tapa cerrada (por eso la tapa queda abierta); las cuotas gratuitas de Kaggle y Colab; que `vercel deploy --prod` evite el bloqueo por autor; que el codificador por unidad de los motores de series exporte a ONNX con formas fijas y dos salidas (se prueba sin entrenar: en el andamio, A-23, y motor por motor, A-24, A-25, A-27 y A-28); que NUTS converja en 10 minutos por dataset en cada motor nuevo; cuántos datasets por segundo simula y entrena cada motor (`medir-rendimiento`).
