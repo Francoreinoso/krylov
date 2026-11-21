@@ -266,7 +266,7 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Hasta que alguien decida, vale (b):** la tarjeta sin respuesta de su motor sale del inicio a las 17:30 (`casos/INICIO`, P-27) y se nombra como hoja de ruta. El orden de corte no cambia: primero `desgaste`, después `sismico`.
 - **No toca a la ronda 1:** `flotacion` y `taludes` validan a las 16:10 y, si no pasan, adelantan su método lento en esa ventana.
 - **Respuesta para `sismicidad` · sáb 17:25 · decidió la persona de PC 3 (clementeferrer):** salida (b). `sismico` sigue entrenando hasta las 18:15 y no se adelanta su método lento. La tarjeta queda fuera del inicio a las 18:00 y entra si su red pasa el sello antes de las 20:30. A las 17:22 llevaba 1.696.000 datasets simulados en 67 minutos.
-- **`flota` sigue pendiente:** la decide la persona de PC 2; a las 17:25 no había estado de PC 2 desde las 13:57.
+- **Respuesta para `flota` · sáb 17:36 · decidió la persona de PC 2 (Rodrigo):** salida (b). `desgaste` sigue entrenando hasta las 18:15 y no se adelanta su método lento. La tarjeta queda fuera del inicio a las 18:00 y entra si su red pasa el sello antes de las 20:30. A las 17:38 llevaba 5.836.800 flotas simuladas en 64 minutos.
 · Respondida en parte (sismicidad). Falta `flota`.
 
 **D-39 · sáb 21-nov 17:10 · El SBC local de los motores de series se decide por el tamaño de la desviación, y el examen se informa pero no decide el «pasa».** Completa D-32 (que fijó el criterio para los parámetros globales) y D-38 (que pidió «SBC global y local» sin decir cómo se decide el local). No cambia el contrato ni la forma de ningún sello.
