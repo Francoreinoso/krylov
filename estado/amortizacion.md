@@ -31,6 +31,7 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - sáb 05:11 · Entrenamiento de `espacial` vivo: paso 35900, 2297600 terrenos; pérdida de mapa 0.8721, NPE 2.6328.
 - sáb 05:26 · **`jerarquico` (inasistencias), adelantado (D-29): A-N4, su mitad de A-N6 y el código de A-14.** `nucleo/jerarquico.py` (modelo, matriz de diseño, paso local con cuadratura anidada, `analizar`) y `motor/jerarquico/` (`simular.py` con la asignación del SMS, `red.py` con el codificador cita → paciente → barrio → dataset, `exportar.py`, `entrenar.py`, `validar.py`, `mcmc.py`). Ver: `uv run pytest motor/jerarquico nucleo/prueba_jerarquico.py -q` y `uv run python -m motor.jerarquico.exportar --prueba`. Con el θ verdadero, el paso local da probabilidades calibradas (prueba). **Pendiente:** entrenar en PC 3 (comando abajo), correr el MCMC y validar.
 - sáb 05:26 · Entrenamiento de `espacial` vivo: paso 42100, 2694400 terrenos; pérdida de mapa 0.7362, NPE 1.4452.
+- sáb 05:30 · **A-05 hecha, cambiada:** estado al día y lista de la madrugada repartida. Nadie se durmió a las 05:15 y el equipo no necesariamente duerme antes de las 08:00; el plan de PC 2 se ajustó (`PC2_AMORTIZACION.md` y `WORKPLAN.md` 6.3): tareas nuevas A-M1 a A-M3 entre las 05:35 y las 08:30. El cómputo no cambia: `espacial` sigue hasta las 08:30 y no se corre MCMC encima.
 
 ## `jerarquico`: listo para lanzar en PC 3 a las 08:30 (o antes, si `supervivencia` se detiene)
 
@@ -75,8 +76,9 @@ Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transf
 
 ## En curso
 
-- sáb 04:00 · Sesión B: A-B1 a A-B4 hechas en lo que toca a PC 2. Falta que PC 3 lance `supervivencia` (04:55). No se corre nada pesado de `supervivencia` en PC 2: `espacial` entrena aquí desde las 03:50. Sigue A-N2 (paso local y NumPyro) con la lista nocturna.
-- sáb 04:02 · Sesión A: A-01 a A-04 hechas; `espacial` entrena hasta las 08:30. Sigue A-05 (dejar la lista nocturna) cuando la persona lo diga. No verificado todavía: que `supervivencia` esté corriendo en PC 3 (es de la sesión B y de PC 3).
+- sáb 05:30 · Sesión B: A-M1, que es A-N2 (paso local de `supervivencia` y su modelo en NumPyro, con el presupuesto medido). **Es lo único de la lista de la madrugada sin hacer: no hay commits de `supervivencia` desde las 03:54.** Sigue: el código de A-10 contra la red sin entrenar.
+- sáb 05:30 · Sesión A: mejora del codificador de `estados` (`motor/estados/red.py`, con prueba de humo de 2 minutos). Sigue: A-M2 (el código de la cartera de A-13). `espacial` entrena hasta las 08:30.
+- sáb 05:30 · La persona, despierta: A-M2 (responder a PC 1 lo de `unidad`) y A-M3 a las 07:30 (validación intermedia de `espacial`; por defecto no se detiene).
 
 ## Lanzar `supervivencia` en PC 3 (sesión B → la persona de PC 3)
 
@@ -138,6 +140,7 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Pedidos a otros
 
+- sáb 05:30 · PC 2 → PC 3: Rodrigo ajustó el plan de PC 2 porque el equipo no necesariamente duerme antes de las 08:00 (A-05 cambiada, A-M1 a A-M3 nuevas en `WORKPLAN.md` 6.3; editó esas filas por esta vez). Falta lo tuyo: la entrada en `DECISIONES.md`, el tablero y, si PC 1 y PC 3 tampoco duermen, sus filas de las 05:15. `jerarquico` y `estados` están listos para lanzar: si `supervivencia` valida antes de las 08:30, `jerarquico` puede partir antes en PC 3.
 - sáb 05:11 · Sesión A → PC 3, para cuando armes los textos: los nombres en pantalla de los factores no están en los casos. Si agregas a `casos/credito.yaml` un bloque `etiquetas: {LIMIT_BAL: "Cupo de la tarjeta", AGE: "Edad", EDUCATION: "Educación"}`, `nucleo/estados.py` ya lo lee; sin eso muestra el nombre de la columna. No cambia la forma del contrato.
 - sáb 05:11 · Sesión A → sesión B: hecho lo de `codificador.onnx.data` (ahora es un solo archivo). Lo de reexportar `preprocesar` en `nucleo/preproceso.py`: no lo hice; cada motor tiene su único preprocesamiento en su módulo de `nucleo/` y `preproceso.py` queda para el terreno.
 - sáb 04:00 · Sesión B → PC 3: lanzar `supervivencia` a las 04:55 con la sección «Lanzar `supervivencia` en PC 3» de este archivo, y a las 08:30 exportar y subir (paso 7).

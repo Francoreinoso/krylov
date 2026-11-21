@@ -103,7 +103,10 @@ El detalle (entregable y criterio de cada una), el calendario de cómputo por co
 | A-B2 | 04:00 | 30 | *Sesión B.* Codificador jerárquico y flujo. Exportar el codificador sin entrenar |
 | A-B3 | 04:30 | 25 | *Sesión B.* Prueba de humo con SBC chico. `medir-rendimiento supervivencia` |
 | A-B4 | 04:55 | 15 | *Sesión B.* Subir. **La persona de PC 3 lanza `supervivencia` en su computador** |
-| A-05 | 05:10 | 5 | Dejar la lista nocturna y actualizar el estado. A dormir a las 05:15 |
+| A-05 | 05:10 | 5 | Actualizar el estado y repartir la lista de la madrugada entre las dos sesiones. **Cambiada a las 05:35: dormir a las 05:15 ya no es obligatorio.** Quien se duerma le deja antes al agente la frase de la sección de abajo |
+| A-M1 | 05:35 | 75 | *Sesión B, lo único que falta de la lista de la madrugada.* **A-N2:** paso local de `supervivencia` y su modelo en NumPyro, con el presupuesto medido. Después, el código de A-10 (`analizar` de rotación) contra la red sin entrenar |
+| A-M2 | 06:50 | 40 | *Sesión A.* El código de la cartera de A-13 (1.000 empresas en lote), contra la red sin entrenar. *La persona:* responder el pedido de PC 1 (`unidad` en `analizar`) y avisarle a PC 3 para su entrada en `DECISIONES.md` |
+| A-M3 | 07:30 | 15 | *La persona.* Validación intermedia de `espacial` sin detenerlo (`uv run python -m motor.espacial.validar --sbc 200`, menos de un minuto) y mirar si la pérdida sigue bajando en `salida.log`. **Por defecto sigue hasta las 08:30.** Solo si ya pasa el criterio de `validar-motor` y la pérdida lleva una hora plana, la persona puede detenerlo y adelantar A-08 y A-09: `estados` es el motor más difícil y gana esa hora |
 | A-08 | 08:30 | 45 | Revisar lo nocturno. Detener y validar `espacial`. MCMC de referencia de `espacial` y `supervivencia` (5 simulados más el real). PC 3 lanza `jerarquico` |
 | A-09 | 09:15 | 15 | Lanzar `estados` de fondo en este computador |
 | A-10 | 09:30 | 45 | `analizar` de rotación y `validar-motor supervivencia`. Entregar a PC 1 |
@@ -119,9 +122,13 @@ El detalle (entregable y criterio de cada una), el calendario de cómputo por co
 
 Después de las 18:00: respaldo técnico para las preguntas y, a las 22:00, el README técnico (`WORKPLAN.md`, sección 6.6). No se reentrena.
 
-## Lista nocturna (el agente trabaja solo de 05:15 a 08:30)
+## Lista de la madrugada (05:15 a 08:30, con la persona despierta o dormida)
 
-Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC2_AMORTIZACION.md y, cuando la termines, sigue adelantando las tareas de día en orden (D-29). No toques el proceso de entrenamiento. Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
+**Ajuste de las 05:35:** el equipo no necesariamente duerme antes de las 08:00. Estar despierto no suma cómputo: sigue un entrenamiento por computador, ningún MCMC encima de un entrenamiento y ningún tiempo medido con algo entrenando. Lo que sí cambia: las decisiones que antes esperaban a las 08:30 (A-M2, A-M3) se toman ahora, y las dos sesiones siguen con una persona que revisa. **Estado de la lista a las 05:35:** A-N1, A-N3, A-N4, A-N5 y A-N6 hechas, más el código de A-11, A-12, A-14, A-15 y la nube de A-13; **falta A-N2**, que pasa a ser lo primero (A-M1).
+
+**Si no se duerme nada:** A-08 sigue a las 08:30 (el entrenamiento termina solo a esa hora) y el día no se mueve. La persona que vaya a presentar el domingo duerme al menos un bloque el sábado en la tarde, después de las 18:00.
+
+Si la persona se duerme, antes le dice al agente: *«Haz la lista nocturna de PC2_AMORTIZACION.md y, cuando la termines, sigue adelantando las tareas de día en orden (D-29). No toques el proceso de entrenamiento. Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
 
 Es solo código, con pruebas de dos minutos como máximo. El detalle de cada una está en `WORKPLAN.md`, sección 6.3.
 

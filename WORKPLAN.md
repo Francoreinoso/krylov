@@ -400,8 +400,11 @@ Reglas del calendario: las mediciones de tiempo se hacen sin ningún entrenamien
 | A-B2 | 04:00 | 30 | Codificador jerárquico (filas → cargo → dataset) y flujo sobre los 32 parámetros, con lo de `motor/comun/`. Exportar el codificador sin entrenar | `motor/supervivencia/red.py` | Exporta a ONNX con n variable; la pérdida baja en 2 minutos |
 | A-B3 | 04:30 | 25 | Prueba de humo: 5 minutos de entrenamiento y SBC chico de 200 datasets (no tiene que pasar; tiene que correr y mejorar). `medir-rendimiento supervivencia` | Números en el estado | Datasets por segundo y pasos por segundo, medidos |
 | A-B4 | 04:55 | 15 | Subir. **La persona de PC 3 hace `git pull`, `uv sync --group entrenar` y lanza `entrenar-motor supervivencia`** | Proceso corriendo en PC 3 | Primer punto de guardado en PC 3; `estado/seguimiento.md` dice cómo retomar |
-| A-05 | 05:10 | 5 | Dejar al agente la lista nocturna. Actualizar el estado | | |
-| | 05:15 | | **Duerme hasta las 08:30.** Tapa abierta, enchufado, en los dos computadores | | |
+| A-05 | 05:10 | 5 | Actualizar el estado y repartir la lista de la madrugada entre las dos sesiones. **Cambiada a las 05:35: dormir a las 05:15 ya no es obligatorio**; quien se duerma le deja la lista al agente | Estado al día | «En curso» dice qué hace cada sesión |
+| A-M1 | 05:35 | 75 | *Sesión B.* A-N2, lo único que falta de la lista de la madrugada. Después, el código de A-10 contra la red sin entrenar | `nucleo/supervivencia.py`, `motor/supervivencia/mcmc.py` | El criterio de A-N2 |
+| A-M2 | 06:50 | 40 | *Sesión A.* El código de la cartera de A-13, contra la red sin entrenar. *La persona:* responder el pedido de PC 1 (`unidad` en `analizar`) | `nucleo/api.cartera` | La prueba de la cartera pasa con datos simulados; el pedido tiene respuesta en el estado |
+| A-M3 | 07:30 | 15 | *La persona.* Validación intermedia de `espacial` sin detenerlo (SBC de 200, menos de un minuto). Por defecto sigue hasta las 08:30; detenerlo antes para adelantar A-08 y A-09 lo decide la persona, solo si ya valida y la pérdida lleva una hora plana | Números en el estado | Decisión anotada con su hora |
+| | 05:15 a 08:30 | | Tapa abierta, enchufado, en los dos computadores, se duerma o no | | |
 
 Si a las 04:55 `supervivencia` no tiene prueba de humo: no se trasnocha. El agente la termina de noche y se lanza a las 08:30 en PC 3; su H2 pasa a las 13:30 y `jerarquico` espera turno o va a Kaggle o Colab.
 
