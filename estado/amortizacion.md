@@ -51,6 +51,10 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - sáb 07:05 · **Plan B de la cartera de rotación:** `motor/supervivencia/cartera_mcmc.py` precalcula `motor/artefactos/supervivencia/cartera.json` con el MCMC para unas pocas empresas (las mismas de la cartera con la red, con el mismo nombre; del lote más chico, 221 personas cada una) y `api.cartera("rotacion")` la sirve con `precalculado: true` cuando el motor está en `mcmc`. Ver: `uv run pytest motor/supervivencia/prueba_analizar.py -q -k mcmc` (una empresa con 20 pasos: prueba el programa). **No corrido de verdad:** `uv run python -m motor.supervivencia.cartera_mcmc --empresas 5`, sin nada entrenando; minutos por empresa, **sin medir**. Solo hace falta si la red de `supervivencia` no pasa.
 - sáb 07:10 · Entrenamiento de `espacial` vivo: paso 85.800, 5.491.200 terrenos, 7,5 pasos/s; media móvil de la pérdida 2,59 (06:12: 2,80), mapa 0,78, NPE 1,74; último punto de guardado a las 07:00. Próxima mirada: 08:10.
 - sáb 07:13 · **Pedido de PC 3 de las 07:08, hecho (M-35):** los tres `validar.py` míos dan `recuperacion` por parámetro (correlación entre el valor verdadero y la media del posterior, en las simulaciones del SBC) y los tres `sello.py` la escriben en `sello.json` como `recuperacion` (`media`, `minima`, `parametro_de_la_minima`, `por_parametro`). Sin reentrenar. Probado con los puntos de humo (`validar --sbc 40`); con las redes de verdad, **sin medir**.
+- sáb 07:16 · Bloqueos resueltos, movidos desde «Bloqueos» para que el tablero en vivo no los muestre como vigentes. A-N2 lo terminó la sesión B a las 06:20 (tablero de las 07:08):
+  - sáb 05:50 · A-N2 (paso local y NumPyro de `supervivencia`) estuvo detenido desde las 04:00: la sesión B había terminado su turno. **Resuelto a las 05:52:** Rodrigo abre dos sesiones nuevas (ver «Relevo»). De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15.
+  - sáb 05:52 · Resuelto: `analizar` ya trae `unidad` (`{"singular", "plural"}`, copiado del YAML del caso). Lo aprobó Rodrigo a las 05:52; es un campo nuevo y no cambia ninguno de los que había.
+  - sáb 04:07 · Resuelto: lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
 
 ## A las 08:30: validar `espacial` (A-08), con una persona
 
@@ -190,10 +194,7 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Bloqueos
 
-- sáb 05:50 · A-N2 (paso local y NumPyro de `supervivencia`) estuvo detenido desde las 04:00: la sesión B había terminado su turno. **Resuelto a las 05:52:** Rodrigo abre dos sesiones nuevas (ver «Relevo»). De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15.
-- sáb 05:52 · Resuelto: `analizar` ya trae `unidad` (`{"singular", "plural"}`, copiado del YAML del caso). Lo aprobó Rodrigo a las 05:52; es un campo nuevo y no cambia ninguno de los que había.
-
-- sáb 04:07 · Resuelto: lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
+- Ninguno (sáb 07:16). Los tres anteriores están resueltos y pasaron a «Hecho».
 
 ## Pedidos a otros
 
