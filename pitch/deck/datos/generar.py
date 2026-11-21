@@ -223,11 +223,21 @@ def serie(nombre: str) -> dict:
         for fila in csv.DictReader(f):
             unidades.setdefault(fila[col["unidad"]], []).append([round(float(fila[col["tiempo"]]), 3), round(float(fila[col["valor"]]), 3)])
     respuesta = None
+    # Si la red de ese motor ya está exportada (motor/artefactos/<motor>/codificador.onnx), responde ella, haya pasado
+    # o no su sello: el deck muestra lo que la red dice hoy, y guarda `sello_pasa` para que las notas lo digan.
+    artefactos = RAIZ / "motor/artefactos" / caso["motor"]
+    sello = json.loads((artefactos / "sello.json").read_text()) if (artefactos / "sello.json").exists() else None
+    if (artefactos / "codificador.onnx").exists():
+        os.environ["KRYLOV_MOTOR_" + caso["motor"].upper()] = "red"
     r = api.analizar(nombre)
     if "error" not in r and r.get("unidades") and r.get("implementacion") in ("red", "mcmc") and not r["semaforo"]["estado"].startswith("rojo"):
         respuesta = {
             "implementacion": r["implementacion"], "precalculado": r["precalculado"], "colores": r["resumen_colores"],
             "costo_de_no_saber": (r.get("costo_de_no_saber") or {}).get("valor"),
+            "costos": {k: v.get("valor") for k, v in (r.get("costos") or {}).items()},
+            "examen": r.get("examen"), "titular": r.get("titular"),
+            "sello_pasa": bool(sello and sello.get("pasa")),
+            "sello": {k: sello.get(k) for k in ("simulaciones_entrenamiento", "entrenamiento_min", "cobertura_90", "latencia_ms", "criterios")} if sello else None,
             "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "curva": u.get("curva")} for u in r["unidades"]},
         }
     return {

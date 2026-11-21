@@ -126,9 +126,10 @@ html, body {
 /* ---------- Tipografía ---------- */
 
 .t1, .t2, .t3, .num { font-family: var(--titulo); font-weight: 800; letter-spacing: .005em; text-wrap: balance; }
-.t1 { font-size: 196px; line-height: .9; }
-.t2 { font-size: 108px; line-height: .98; }
-.t3 { font-size: 72px; line-height: 1.02; font-weight: 700; }
+/* el interlineado deja aire entre las letras que bajan (p, q, g, y) y las que suben en la línea siguiente */
+.t1 { font-size: 196px; line-height: .96; }
+.t2 { font-size: 108px; line-height: 1.05; }
+.t3 { font-size: 72px; line-height: 1.08; font-weight: 700; }
 .p { font-size: 40px; line-height: 1.28; font-weight: 450; color: var(--suave); text-wrap: pretty; }
 .p b, .p strong { color: var(--tinta); font-weight: 650; }
 .dato { font-family: var(--mono); font-size: 21px; line-height: 1.45; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); font-weight: 450; }
@@ -143,6 +144,21 @@ html, body {
 .num .s { display: inline-block; width: .22em; text-align: center; }
 
 .bloque { position: absolute; }
+/* Dos bloques que se turnan en el mismo lugar (uno por paso): comparten una celda, que mide lo que mida el más alto.
+   Así lo que viene después nunca queda debajo, corte como corte las líneas cada navegador. */
+.zona { display: grid; }
+.zona > * { grid-area: 1 / 1; }
+
+/* Lo que Krylov entrega para una decisión, siempre en el mismo orden: respuesta, incertidumbre y valor. */
+.salida { display: grid; }
+.salida .fila { display: grid; grid-template-columns: 228px 1fr; align-items: center; column-gap: 18px; border-top: 1.5px solid var(--linea); padding: 15px 0 13px; }
+.salida .rot { font-family: var(--titulo); font-weight: 700; font-size: 38px; line-height: 1; color: var(--suave); }
+.salida .cont { display: grid; gap: 8px; }
+.salida .item { display: flex; align-items: center; gap: 16px; font-size: 29px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
+.salida .item .muestra { flex: none; width: 40px; height: 26px; }
+.salida .item .num { font-size: 60px; line-height: .95; min-width: 92px; text-align: right; }
+.salida .valor .item { flex-wrap: wrap; column-gap: 20px; row-gap: 2px; color: var(--suave); }
+.salida .valor .item .num { font-size: 84px; color: var(--cobre); min-width: 0; text-align: left; }
 .pie-dato { position: absolute; left: 110px; bottom: 92px; }
 
 /* ---------- Cromo ---------- */
@@ -267,7 +283,7 @@ html, body {
 
 #l-vision .cabeza { left: 110px; top: 100px; width: 1700px; }
 #l-vision .cabeza .p { margin-top: 14px; }
-#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 112px; display: grid; grid-template-columns: repeat(5, 1fr); }
+#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(5, 1fr); }
 #l-vision .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
 #l-vision .cinco .t3 { font-size: 50px; line-height: 1.02; }
 #l-vision .cinco .quien { font-size: 25px; line-height: 1.2; color: var(--cobre); margin-top: 12px; }
@@ -312,19 +328,18 @@ html, body {
    ===================================================================== */
 
 #l-rafaga canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#l-rafaga .cabeza { left: 110px; top: 96px; width: 840px; }
-#l-rafaga .cabeza .t2 { font-size: 100px; }
-#l-rafaga .cabeza .p { margin-top: 22px; font-size: 34px; }
-#l-rafaga .marcador { left: 110px; top: 450px; width: 760px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+#l-rafaga .columna { left: 110px; top: 96px; width: 800px; display: flex; flex-direction: column; gap: 24px; }
+#l-rafaga .columna .t2 { font-size: 100px; white-space: nowrap; }
+#l-rafaga .columna > .p { font-size: 34px; }
+#l-rafaga .marcador { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 12px; }
 #l-rafaga .lado .num { font-size: 170px; color: var(--tenue); }
 #l-rafaga .lado.krylov .num { color: var(--cobre); }
 #l-rafaga .lado .p { font-size: 29px; color: var(--tinta); margin-top: 4px; white-space: nowrap; }
 #l-rafaga .lado .dato { margin-top: 6px; font-size: 20px; white-space: nowrap; }
 #l-rafaga .lado .riel { position: relative; height: 5px; background: var(--linea); margin-top: 16px; width: 280px; }
 #l-rafaga .lado .riel i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--suave); }
-#l-rafaga .golpe { left: 110px; top: 450px; width: 800px; padding: 26px 0; background: var(--fondo); }
+#l-rafaga .golpe { padding: 26px 0; }
 #l-rafaga .golpe .t3 { font-size: 64px; line-height: 1.12; }
-#l-rafaga[data-paso-actual="1"] .marcador { opacity: 0; transition: opacity .5s ease; }
 
 /* =====================================================================
    5 · Leyes: «¿Dónde perforo?»
@@ -332,59 +347,44 @@ html, body {
 
 #l-leyes .lateral { top: 452px; }
 #l-leyes .lateral .partes { font-size: 30px; color: var(--tinta); margin-bottom: 14px; }
-#l-leyes .perforo { left: 110px; top: 400px; width: 780px; }
-#l-leyes .perforo .t3 { font-size: 96px; }
+#l-leyes .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 22px; }
+#l-leyes .columna .t2 { font-size: 86px; }
+#l-leyes .uno .p { font-size: 33px; margin-bottom: 18px; }
+#l-leyes .perforo .t3 { font-size: 92px; }
 #l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
 #l-leyes .perforo .p b { color: var(--tinta); }
 #l-leyes .perforo .ranking { position: static; width: 600px; margin-top: 18px; }
 #l-leyes .perforo .ranking .fila { padding: 8px 0 2px; }
 #l-leyes .perforo .ranking .fila .letra, #l-leyes .perforo .ranking .fila .num { font-size: 58px; }
-#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 118px; }
+#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 110px; }
 
 /* =====================================================================
    1 · El valor, a primera vista
    ===================================================================== */
 
-#l-valor canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#l-valor .marca { left: 110px; top: 78px; display: flex; align-items: center; gap: 44px; }
-#l-valor .marca .t1 { font-size: 132px; line-height: 1; letter-spacing: .03em; }
-#l-valor .marca .t3 { font-size: 50px; line-height: 1.06; padding-left: 44px; border-left: 4px solid var(--cobre); }
-#l-valor .gancho { left: 110px; top: 226px; width: 1700px; }
-#l-valor .gancho .p { font-size: 44px; color: var(--tinta); }
-/* dos filas iguales: quién, cuánto tarda, y su barra (en el lienzo) a la misma escala */
-#l-valor .fila { left: 110px; width: 1700px; }
-#l-valor .fila .quien { display: flex; align-items: baseline; gap: 30px; white-space: nowrap; }
-#l-valor .fila .quien .t3 { font-size: 52px; }
-#l-valor .fila .quien .p { font-size: 31px; }
-#l-valor .antes { top: 318px; }
-#l-valor .antes .quien .t3 { color: var(--suave); }
-#l-valor .antes .num { font-size: 164px; color: var(--suave); margin-top: 6px; }
-#l-valor .ahora { top: 608px; }
-#l-valor .ahora .quien .t3 { color: var(--cobre); }
-#l-valor .ahora .quien .p { color: var(--tinta); }
-#l-valor .ahora .num { font-size: 250px; color: var(--cobre); margin-top: 4px; }
+#l-valor .portada { left: 110px; top: 0; bottom: 0; width: 1500px; display: flex; flex-direction: column; justify-content: center; gap: 0; padding-bottom: 40px; }
+#l-valor .portada .t1 { font-size: 330px; letter-spacing: .02em; }
+#l-valor .portada .t3 { font-size: 92px; margin-top: 10px; }
+#l-valor .portada .p { font-size: 44px; color: var(--tinta); width: 1240px; margin-top: 46px; }
 
 /* =====================================================================
-   6 a 9 · Las otras cuatro decisiones, cada una con su escena
+   8 a 11 · Las otras cuatro decisiones, cada una con su escena
    ===================================================================== */
 
 /* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
 .sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09 44%, #0b0a09a0 49%, transparent 55%); }
 .sobre-serie .capa-etq { position: absolute; inset: 0; }
 .sobre-serie canvas.curva { position: absolute; left: 110px; bottom: 100px; width: 800px; height: 250px; }
-.sobre-serie .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 26px; }
-.sobre-serie .columna .t2 { font-size: 86px; }
-.sobre-serie .columna > .p { font-size: 35px; width: 760px; }
-.sobre-serie .cuantas { display: flex; align-items: center; gap: 28px; margin-top: 14px; }
-.sobre-serie .cuantas .num { font-size: 170px; color: var(--cobre); }
-.sobre-serie .cuantas .p { font-size: 34px; color: var(--tinta); width: 470px; }
-.sobre-serie .leyenda { width: 720px; }
-.sobre-serie .cuesta .p { color: var(--tinta); font-size: 32px; }
-.sobre-serie .cuesta .num { font-size: 104px; color: var(--cobre); margin-top: 4px; }
-/* el reloj del archivo: lo que se ve es un recorrido en el tiempo de lo medido */
-.sobre-serie .reloj { right: 110px; top: 96px; text-align: right; }
-.sobre-serie .reloj .num { font-size: 92px; color: var(--tinta); }
-.sobre-serie .reloj .dato { margin-top: 6px; }
+/* cuando la red respondió, el gráfico de la pared va arriba a la derecha: un sector que conviene cerrar y cuánto le falta */
+#l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 640px; height: 290px; }
+#l-taludes.con-respuesta .reloj { display: none; }
+.sobre-serie .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 22px; }
+.sobre-serie .columna .t2 { font-size: 84px; }
+.sobre-serie .columna > .p { font-size: 33px; width: 770px; }
+/* el reloj del recorrido: chico, al pie de la columna (lo que se ve es el archivo pasando en el tiempo) */
+.sobre-serie .reloj { display: flex; align-items: baseline; gap: 14px; margin-top: 6px; }
+.sobre-serie .reloj .num { font-size: 46px; color: var(--suave); }
+.sobre-serie .reloj .dato { font-size: 19px; }
 
 /* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */
 .etq.nota { width: 0; height: 0; }
@@ -397,6 +397,10 @@ html, body {
 .etq.nota.roja > div, .etq.nota.roja b { color: #ff8a66; }
 .etq.nota.roja::before { background: #ff8a66; }
 .etq.nota.roja > div { border-left-color: #ff8a66; }
+/* el hilo que une una unidad con su gráfico */
+.etq.nota.hilo::before { height: var(--alto, 60px); background: #ff7a50; }
+.etq.nota.hilo::after { content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: #ff7a50; }
+.etq.nota.hilo > div { display: none; }
 .etq.chica > div { position: absolute; left: 12px; top: -15px; font-family: var(--mono); font-size: 21px; letter-spacing: .02em; color: var(--suave); text-shadow: 0 0 8px #000, 0 2px 12px #000, 0 0 3px #000; }
 .etq.chica b { color: var(--tinta); font-weight: 600; }
 .etq.chica.meta > div { left: auto; right: 14px; color: #fff; font-weight: 600; }
@@ -406,16 +410,16 @@ html, body {
    ===================================================================== */
 
 #l-cierre canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#l-cierre .frase { left: 110px; top: 96px; width: 930px; }
-#l-cierre .frase .t2 { font-size: 90px; }
+#l-cierre .izq { left: 110px; top: 96px; bottom: 110px; width: 930px; display: flex; flex-direction: column; justify-content: space-between; gap: 30px; }
+#l-cierre .frase .t2 { font-size: 84px; }
 #l-cierre .frase .p { margin-top: 28px; font-size: 34px; width: 880px; }
 #l-cierre .mientras { left: 1110px; top: 96px; width: 700px; }
 #l-cierre .mientras .p { font-size: 34px; color: var(--tinta); }
 #l-cierre .mientras .num { font-size: 230px; color: var(--cobre); margin: 6px 0 2px; }
 #l-cierre .mientras .num .d { width: .46em; }
 #l-cierre .mientras .p b { color: var(--tinta); font-family: var(--titulo); font-weight: 800; font-size: 60px; line-height: .8; }
-#l-cierre .qr { left: 110px; bottom: 110px; display: flex; gap: 40px; align-items: flex-end; }
-#l-cierre .qr .codigo { width: 230px; height: 230px; background: #f4efe6; padding: 22px; flex: none; }
+#l-cierre .qr { display: flex; gap: 40px; align-items: flex-end; }
+#l-cierre .qr .codigo { width: 210px; height: 210px; background: #f4efe6; padding: 20px; flex: none; }
 #l-cierre .qr .codigo svg { width: 100%; height: 100%; display: block; }
 #l-cierre .qr .t3 { font-size: 76px; }
 #l-cierre .qr .dato { color: var(--cobre); font-size: 26px; margin-top: 4px; text-transform: none; letter-spacing: .02em; }
@@ -428,15 +432,13 @@ html, body {
 
 #l-paradigma canvas, #l-flujo canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #l-paradigma .columna { left: 110px; top: 96px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
-#l-paradigma .columna .t2 { font-size: 88px; text-wrap: wrap; }
+#l-paradigma .columna .t2 { font-size: 92px; white-space: nowrap; }
 #l-paradigma .columna .p { font-size: 35px; width: 780px; }
 #l-paradigma .columna .tecnica { font-size: 29px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 26px; }
 #l-paradigma .columna .tecnica b { color: var(--cobre); font-weight: 650; }
 #l-flujo .cabeza { left: 110px; top: 84px; width: 1260px; }
-#l-flujo .cabeza .t2 { font-size: 74px; }
+#l-flujo .cabeza .t2 { font-size: 70px; white-space: nowrap; }
 
-/* en las láminas de los camiones y de los túneles la escena ocupa todo el alto: el reloj va en la columna de texto */
-#l-flota .reloj, #l-sismicidad .reloj { left: 110px; right: auto; top: auto; bottom: 104px; text-align: left; }
 
 /* =====================================================================
    12 · ¿Y cómo sé que acierta?
@@ -457,19 +459,19 @@ html, body {
    Las láminas de preguntas (fuera del recorrido): Q, A, L, M
    ===================================================================== */
 
-.pregunta .cabeza { left: 110px; top: 84px; width: 1700px; }
+.pregunta .hoja { left: 110px; right: 110px; top: 84px; bottom: 96px; display: flex; flex-direction: column; gap: 40px; }
+.pregunta .hoja > .pie { margin-top: auto; }
 .pregunta .cabeza .t2 { font-size: 80px; }
 .pregunta .cabeza .p { margin-top: 18px; font-size: 35px; width: 1500px; }
-.pregunta .pie { left: 110px; bottom: 100px; width: 1700px; }
 .pregunta .pie .p { font-size: 34px; color: var(--suave); }
 
-#l-quien .roles { left: 110px; top: 410px; width: 1700px; }
 #l-quien .roles .fila { display: grid; grid-template-columns: 700px 1fr; align-items: baseline; gap: 30px; border-top: 1.5px solid var(--linea); padding: 20px 0 16px; }
 #l-quien .roles .t3 { font-size: 56px; }
 #l-quien .roles .p { font-size: 34px; }
 
-#l-archivo .tablas { left: 110px; top: 372px; width: 1700px; display: grid; grid-template-columns: 1fr 1fr; gap: 70px; }
-#l-archivo .rotulo { font-size: 30px; margin-bottom: 18px; min-height: 78px; }
+#l-archivo .tablas { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; }
+#l-archivo .rotulo { font-size: 30px; margin-bottom: 18px; }
+#l-archivo .tablas { align-items: end; }
 #l-archivo table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 25px; }
 #l-archivo th { text-align: left; font-weight: 600; padding: 0 14px 10px 0; vertical-align: bottom; border-bottom: 2px solid var(--tenue); }
 #l-archivo th i { display: block; font-family: var(--texto); font-style: normal; font-size: 21px; font-weight: 600; color: var(--cobre); margin-bottom: 4px; }
@@ -478,7 +480,6 @@ html, body {
 #l-archivo td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--linea); color: var(--tinta); }
 #l-archivo td.mas { color: var(--tenue); border-bottom: 0; font-family: var(--texto); font-size: 23px; }
 
-#l-llm .prueba { left: 110px; top: 330px; width: 1700px; }
 #l-llm .prueba .fila { display: grid; grid-template-columns: 520px 1fr 1fr 1fr; gap: 26px; align-items: center; border-top: 1.5px solid var(--linea); padding: 16px 0 12px; }
 #l-llm .prueba .fila.cab { border-top: 0; padding-bottom: 6px; }
 #l-llm .prueba .t3 { font-size: 44px; color: var(--suave); }
@@ -489,7 +490,6 @@ html, body {
 #l-llm .prueba .num.cobre { color: var(--cobre); }
 #l-llm .pie .p { font-size: 33px; }
 
-#l-produccion .controles { left: 110px; top: 420px; width: 1700px; }
 #l-produccion .controles .fila { display: grid; grid-template-columns: 520px 1fr; gap: 40px; align-items: center; border-top: 1.5px solid var(--linea); padding: 24px 0 20px; }
 #l-produccion .controles .t3 { font-size: 60px; display: flex; flex-direction: column; gap: 6px; }
 #l-produccion .controles .t3 .num { font-size: 84px; color: var(--cobre); }

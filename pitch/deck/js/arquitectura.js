@@ -1,5 +1,5 @@
 /* 0 · Cómo funciona (respaldo): la arquitectura en dos mitades. A la izquierda, lo que se hace una sola vez
-   (reglas → simulador → casos → la red practica). A la derecha, lo que pasa con cada archivo (la misma red responde).
+   (reglas → simulador → casos → la red se pre-entrena). A la derecha, lo que pasa con cada archivo (la misma red responde).
    Es la inferencia bayesiana amortizada de siempre, dibujada con las palabras del producto y los nombres técnicos debajo. */
 (function () {
   'use strict';
@@ -39,7 +39,7 @@
         caja('red', 795, 446, 330, 144, 'La red', 'codificador + flujo (NPE)') +
         '<g class="a"><text class="sub" x="672" y="398" style="fill:#e2854a">θ: la respuesta</text>' +
         '<text class="sub" x="672" y="706" style="fill:#e2854a">x: lo que se ve</text></g>' +
-        '<text class="sub" x="960" y="640">practica aquí · responde allá</text>' +
+        '<text class="sub" x="960" y="640">se pre-entrena aquí · responde allá</text>' +
         '<text class="sub" x="960" y="672">comprobada con SBC y contra MCMC</text>';
       hilos.forEach(function (h, i) { for (let k = 0; k < 3; k++) svg += '<g class="' + h[0] + '"><circle class="gota" r="6" data-hilo="' + i + '" data-fase="' + (k / 3) + '"/></g>'; });
       svg += '</svg>';

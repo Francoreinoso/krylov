@@ -2,7 +2,7 @@
    Una carrera con un solo reloj, el tiempo de cómputo, que corre de 0 a 7 h 25 min:
    - En el pasado, cada dataset repite los tres pasos (elegir el modelo, entrenar con ese dataset, inferir):
      117 s por dataset con el método lento (M-25). En 7 h 25 min salen 228 (M-08, M-10).
-   - Hoy, los pasos se hacen una sola vez (elegir el modelo del problema, simular datasets con él, entrenar la red):
+   - Hoy, los pasos se hacen una sola vez (elegir el modelo del problema, simular datasets con él, pre-entrenar la red):
      280 minutos (M-02). Después, inferir es un forward pass de 10 ms (latencia_ms del sello).
    Todo sale de motor/artefactos/espacial/sello.json. Lo que cuenta la fila de «Hoy» después de entrenar es una cuenta
    (segundos que quedan ÷ 10 ms), no una corrida. Los tres pasos del pasado se dibujan del mismo ancho: el archivo
@@ -83,11 +83,11 @@
       // ---------- Hoy ----------
       y = 626;
       ctx.fillStyle = '#e2854a'; ctx.font = '800 54px ' + TITULO; ctx.fillText('Hoy', X0, y);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '500 29px ' + TEXTO; ctx.fillText('Bayesian Amortized Inference: el trabajo se hace una vez, para todos los datasets', X0 + 100, y - 4);
+      ctx.fillStyle = '#f4efe6'; ctx.font = '500 29px ' + TEXTO; ctx.fillText('Bayesian Amortized Inference: se pre-entrena una vez, para todos los datasets', X0 + 100, y - 4);
       const una = Math.min(1, reloj / this.entrena);
       this.caja(ctx, X0, y + 30, A1, ELEGIR, 'Elegir el modelo del problema', una > 0 ? 1 : 0);
       this.caja(ctx, x2, y + 30, A2, SIMULAR, 'Simular millones de datasets', una);
-      this.caja(ctx, x3, y + 30, A3, ENTRENAR, 'Entrenar la red con ellos', una);
+      this.caja(ctx, x3, y + 30, A3, ENTRENAR, 'Pre-entrenar la red con ellos', una);
       const luz = listo ? 0.4 + 0.6 * Math.exp(-desdeListo * 1.2) : 0;
       this.caja(ctx, xi, y + 30, X1 - xi, INFERIR, 'Inferir: un forward pass', listo ? 1 : 0, luz);
       ctx.font = '500 25px ' + TEXTO;

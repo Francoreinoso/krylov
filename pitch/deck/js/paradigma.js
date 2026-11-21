@@ -2,17 +2,19 @@
    Dos filas con la misma forma, que se mueven a la vez: arriba un LLM (entra texto, sale texto); abajo Krylov
    (entra un dataset, sale la decisión con su incertidumbre). Ninguno de los dos se vuelve a entrenar para responder.
    Los datasets y los mapas de la fila de Krylov son los de la lámina de la ráfaga: la respuesta de la red para
-   32 bancos distintos (datos.js → rafaga). El texto del LLM son barras, a propósito: no se inventa ninguna conversación. */
+   32 bancos distintos (datos.js → rafaga). La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano:
+   no salen de ningún modelo. */
 (function () {
   'use strict';
   const K = window.K;
   const XE = 1070, XN = 1405, XS = 1700;               // entrada, núcleo, salida
   const FILAS = [{ y: 318 }, { y: 742 }];
-  const CICLO = 3.4;
+  const CICLO = 4.6;
+  const PREGUNTA = '¿Cuál es la mejor hackathon del año 2026?', RESPUESTA = 'Platanus Hack 26. Por lejos.';
   const MONO = '"JetBrains Mono", monospace', TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
 
   K.registrar('paradigma', {
-    tQuieto: 2.6,
+    tQuieto: 3.6,
     crear: function (L) {
       this.cv = L.querySelector('canvas');
       this.ctx = this.cv.getContext('2d');
@@ -23,18 +25,23 @@
       this.cv.width = Math.round(1920 * r);
       this.cv.height = Math.round(1080 * r);
     },
-    // una tarjeta de texto: renglones que se escriben de izquierda a derecha
-    texto: function (ctx, x, y, lado, renglones, semilla, avance) {
-      const azar = K.azar(semilla);
+    // una tarjeta con texto que se va escribiendo, letra por letra
+    texto: function (ctx, x, y, lado, texto, avance, fuente, color) {
       ctx.fillStyle = '#17140f'; ctx.fillRect(x - lado / 2, y - lado / 2, lado, lado);
       ctx.strokeStyle = '#7d7568'; ctx.lineWidth = 1.5; ctx.strokeRect(x - lado / 2, y - lado / 2, lado, lado);
-      const alto = (lado - 44) / renglones;
-      for (let i = 0; i < renglones; i++) {
-        const largo = (0.45 + 0.55 * azar()) * (lado - 48) * (i === renglones - 1 ? 0.6 : 1);
-        const k = K.acotar(avance * renglones - i, 0, 1);
-        if (k <= 0) break;
-        ctx.fillStyle = '#d9cfbd';
-        ctx.fillRect(x - lado / 2 + 24, y - lado / 2 + 26 + i * alto, largo * k, Math.min(9, alto * 0.42));
+      ctx.font = fuente; ctx.textAlign = 'left'; ctx.fillStyle = color;
+      const alto = parseInt(fuente.replace(/^\d+ /, ''), 10) * 1.22, ancho = lado - 40, renglones = [];
+      let actual = '';
+      texto.split(' ').forEach(function (palabra) {
+        const prueba = actual ? actual + ' ' + palabra : palabra;
+        if (actual && ctx.measureText(prueba).width > ancho) { renglones.push(actual); actual = palabra; } else actual = prueba;
+      });
+      renglones.push(actual);
+      let quedan = Math.round(K.acotar(avance, 0, 1) * texto.length);
+      const y0 = y - (renglones.length * alto) / 2 + alto * 0.78;
+      for (let i = 0; i < renglones.length && quedan > 0; i++) {
+        ctx.fillText(renglones[i].slice(0, quedan), x - lado / 2 + 20, y0 + i * alto);
+        quedan -= renglones[i].length + 1;
       }
     },
     nucleo: function (ctx, x, y, t, color, pulso) {
@@ -50,8 +57,8 @@
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);
       const k = Math.floor(t / CICLO), u = t - k * CICLO, b = this.bancos[k % this.bancos.length];
-      const escribe = K.acotar(u / 0.8, 0, 1), viaja = K.suave((u - 0.8) / 0.45), sale = K.fuera((u - 1.3) / 0.45);
-      const pulso = Math.exp(-Math.pow((u - 1.28) / 0.22, 2));
+      const escribe = K.acotar(u / 1.2, 0, 1), viaja = K.suave((u - 1.3) / 0.45), sale = K.fuera((u - 1.8) / 0.45);
+      const pulso = Math.exp(-Math.pow((u - 1.78) / 0.22, 2));
       const fin = K.quieto ? 1 : 1 - K.acotar((u - (CICLO - 0.35)) / 0.35, 0, 1);
 
       for (let f = 0; f < 2; f++) {
@@ -65,7 +72,7 @@
           ctx.globalAlpha = fin * K.acotar(escribe * 2, 0, 1);
           ctx.drawImage(b.datos, XE - 100, y - 100, 200, 200);
           ctx.strokeStyle = '#7d7568'; ctx.lineWidth = 1.5; ctx.strokeRect(XE - 100, y - 100, 200, 200);
-        } else this.texto(ctx, XE, y, 200, 4, 11 + k, escribe);
+        } else this.texto(ctx, XE, y, 200, PREGUNTA, K.quieto ? 1 : escribe, '500 25px ' + TEXTO, '#d9cfbd');
         // viaja al núcleo
         if (viaja > 0 && viaja < 1) {
           const x = K.mezcla(XE, XN, viaja), lado = K.mezcla(120, 34, viaja);
@@ -81,9 +88,9 @@
           ctx.globalAlpha = fin;
           if (krylov) {
             ctx.drawImage(b.mapa, x - lado / 2, y - lado / 2, lado, lado);
-            const brillo = 1 - K.acotar((u - 1.75) / 0.5, 0, 1);
+            const brillo = 1 - K.acotar((u - 2.25) / 0.5, 0, 1);
             if (sale >= 1 && brillo > 0 && !K.quieto) { ctx.strokeStyle = 'rgba(255,240,210,' + brillo + ')'; ctx.lineWidth = 3; ctx.strokeRect(x - lado / 2, y - lado / 2, lado, lado); }
-          } else this.texto(ctx, x, y, lado, 7, 301 + k, K.acotar((u - 1.5) / 1.1, 0, 1));
+          } else this.texto(ctx, x, y, lado, RESPUESTA, K.quieto ? 1 : K.acotar((u - 2.1) / 0.9, 0, 1), '700 33px ' + TEXTO, '#f4efe6');
           ctx.globalAlpha = 1;
         }
         // quién es cada fila, y qué entra y qué sale

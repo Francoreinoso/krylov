@@ -30,6 +30,7 @@
   const FRAG_LINEA = 'precision highp float;\nvarying vec3 vColor;\nvarying float vA;\nvoid main() { vec3 c = vColor * vA; gl_FragColor = vec4(c, max(c.r, max(c.g, c.b))); }';
   const DECISION = { actuar: [0.92, 0.36, 0.22], en_duda: [0.95, 0.78, 0.36], no_actuar: [0.12, 0.68, 0.49] };
   const ROJO = [0.92, 0.36, 0.22], COBRE = [0.91, 0.52, 0.27];
+  const COLOR_CSS = { actuar: '#ff7a50', en_duda: '#eec25a', no_actuar: '#2fbf8f' };
 
   // ---------- lo común a las cuatro ----------
   function base(fov) {
@@ -123,16 +124,20 @@
   }
 
   // Lo que dice la columna de texto: cuántas unidades trae el archivo y, si el motor responde, su decisión.
+  // La columna de texto de cada decisión: lo que Krylov entrega, siempre en el mismo orden.
+  //   Respuesta: cuántas unidades conviene actuar y en cuántas no hace falta.
+  //   Incertidumbre: en cuántas no se sabe todavía.
+  //   Valor: lo que cuesta no saber, que es lo que vale despejar esa duda.
+  // Los números aparecen solo si el motor del caso respondió (series.<caso>.respuesta); si no, quedan los rótulos.
   function llenar(L, S) {
-    L.querySelector('.cuantas .num').textContent = S.unidades.length;
-    const R = S.respuesta, leyenda = L.querySelector('.leyenda'), cuesta = L.querySelector('.cuesta');
-    if (!R) return;
-    ['actuar', 'en_duda', 'no_actuar'].forEach(function (e) {
-      L.querySelector('[data-rotulo="' + e + '"]').textContent = S.rotulos[e];
-      L.querySelector('[data-cuenta="' + e + '"]').textContent = R.colores[e];
-    });
-    leyenda.hidden = false;
-    if (R.costo_de_no_saber != null) { cuesta.querySelector('.monto').textContent = K.miles(R.costo_de_no_saber); cuesta.hidden = false; }
+    const R = S.respuesta, rot = S.rotulos;
+    const item = function (clase, n, texto) { return '<span class="item"><i class="muestra ' + clase + '"></i>' + (n == null ? '' : '<b class="num">' + n + '</b>') + '<span>' + texto + '</span></span>'; };
+    L.querySelector('.salida').innerHTML =
+      '<div class="fila"><span class="rot">Respuesta</span><span class="cont">' + item('actuar', R ? R.colores.actuar : null, rot.actuar) + item('no-actuar', R ? R.colores.no_actuar : null, rot.no_actuar) + '</span></div>' +
+      '<div class="fila"><span class="rot">Incertidumbre</span><span class="cont">' + item('en-duda', R ? R.colores.en_duda : null, rot.en_duda) + '</span></div>' +
+      '<div class="fila valor"><span class="rot">Valor</span><span class="cont"><span class="item">' +
+      (R && R.costo_de_no_saber != null ? '<b class="num">US$&nbsp;' + K.miles(R.costo_de_no_saber) + '</b><span>lo que vale despejar esa duda</span>' : '<span>Lo que vale despejar esa duda, en dólares</span>') + '</span></span></div>';
+    L.classList.toggle('con-respuesta', !!R);
   }
   function tinteDe(S, id, sinRespuesta) {
     const u = S.respuesta && S.respuesta.unidades[id];
@@ -179,8 +184,19 @@
       this.marcados = [finales[0][1]];
       for (let i = 1; i < finales.length && this.marcados.length < 2; i++) if (Math.abs(finales[i][1] - this.marcados[0]) >= 3) this.marcados.push(finales[i][1]);
       this.calmo = finales[finales.length - 1][1];
+      // Si la red respondió, el gráfico muestra un sector que conviene cerrar: lo medido, lo que puede venir y cuánto falta.
+      this.foco = -1;
+      if (S.respuesta) {
+        let mejor = -1;
+        S.unidades.forEach(function (un, i) {
+          const r = S.respuesta.unidades[un.id];
+          if (r && r.estado === 'actuar' && r.curva && r.curva.marca && r.p > mejor) { mejor = r.p; this.foco = i; }
+        }, this);
+        if (this.foco >= 0) this.marcados = [this.foco];
+      }
       this.cv = L.querySelector('canvas.curva');
-      if (S.respuesta) this.cv.hidden = true; else this.ctx = this.cv.getContext('2d');
+      this.ctx = this.cv.getContext('2d');
+      this.cw = this.foco >= 0 ? 640 : 800; this.ch = this.foco >= 0 ? 290 : 250;
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(11), ANCHO = 22, ALTO = 9, BANCOS = 8, PIE = 0.36;
       // un ruido suave, para que la roca no sea una lámina lisa
@@ -198,15 +214,16 @@
         return [(lado * ANCHO) / 2, -ALTO / 2 + ((b + K.suave((r - PIE) / (1 - PIE))) / BANCOS) * ALTO, 3.6 * lado * lado + 4.3 - 8.6 * v + r0 * 0.55 + r1 * 0.16];
       });
       const pos = [], au = [], as = [], tinte = [];
-      const poner3 = function (ux, v, luz, marca, col) { const q = pared(ux, v); pos.push(q[0], q[1], q[2]); au.push(ux, v); as.push(luz, azar(), marca); tinte.push(col[0], col[1], col[2]); };
+      const poner3 = function (ux, v, luz, marca, col, enf) { const q = pared(ux, v); pos.push(q[0], q[1], q[2]); au.push(ux, v); as.push(luz, azar(), marca, enf || 0); tinte.push(col[0], col[1], col[2]); };
       for (let s = 0; s < n; s++) {
-        const col = tinteDe(S, S.unidades[s].id, ROJO);
+        const col = tinteDe(S, S.unidades[s].id, ROJO), r0 = S.respuesta && S.respuesta.unidades[S.unidades[s].id];
+        const enf = r0 && r0.estado !== 'no_actuar' ? 1 : 0;          // lo que conviene cerrar y lo que está en duda se enciende, se haya movido mucho o poco
         for (let c = 0; c < 16; c++) for (let f = 0; f < 104; f++) {
           const ux = (s + (c + azar()) / 16) / n, v = (f + azar()) / 104, r = (v * BANCOS) % 1;
           // la cara de roca recibe la luz; el piso de cada escalón queda en sombra
-          poner3(ux, v, r < PIE ? 0.16 + 0.1 * azar() : 0.5 + 0.5 * K.acotar(0.5 + 1.6 * ruido(ux * 40, v * 30), 0, 1), 0, col);
+          poner3(ux, v, r < PIE ? 0.16 + 0.1 * azar() : 0.5 + 0.5 * K.acotar(0.5 + 1.6 * ruido(ux * 40, v * 30), 0, 1), 0, col, enf);
         }
-        for (let b = 0; b < BANCOS; b++) for (let k = 0; k < 26; k++) poner3((s + azar()) / n, (b + 0.985 + azar() * 0.014) / BANCOS, 1.25, 0, col);      // el borde de cada escalón
+        for (let b = 0; b < BANCOS; b++) for (let k = 0; k < 26; k++) poner3((s + azar()) / n, (b + 0.985 + azar() * 0.014) / BANCOS, 1.25, 0, col, enf);      // el borde de cada escalón
       }
       // las divisiones entre sectores, tenues; las de los sectores marcados, encendidas
       const marcados = this.marcados;
@@ -220,9 +237,9 @@
       this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
       this.tex.needsUpdate = true;
       this.barre = { value: -1 };
-      B.puntos({ position: [pos, 3], aU: [au, 2], aS: [as, 3], aTinte: [tinte, 3] }, `
+      B.puntos({ position: [pos, 3], aU: [au, 2], aS: [as, 4], aTinte: [tinte, 3] }, `
         attribute vec2 aU;             // dónde está en la pared: a lo largo (0 a 1) y hacia arriba (0 a 1)
-        attribute vec3 aS;             // luz, azar, y si es una división entre sectores (1) o la de un sector marcado (2)
+        attribute vec4 aS;             // luz, azar, si es una división entre sectores (1) o la de un sector marcado (2), y si su decisión se destaca
         attribute vec3 aTinte;
         uniform sampler2D uMov;
         uniform float uBarre;
@@ -236,7 +253,7 @@
           vec3 p = position + vec3(-lado * 0.3, 0.0, 1.0) * afuera * 1.15 + vec3(0.0, -0.5, 0.0) * baja;
           float dr = (aU.x - uBarre) / 0.008;
           float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.06) : 0.0);    // la franja del radar y su estela
-          float k = smoothstep(0.04, 0.42, d);
+          float k = max(smoothstep(0.04, 0.42, d) * mix(1.0, 0.45, uResp), 0.75 * aS.w * uResp);        // con respuesta manda la decisión, no cuánto se movió
           vec3 caliente = mix(mix(COBRE, ROJO, smoothstep(0.18, 0.55, d)), vec3(1.0, 0.88, 0.74), smoothstep(0.6, 1.0, d));
           vec3 color = mix(mix(ARENA * 0.92, aTinte, uResp * 0.7), mix(caliente, aTinte, uResp), k);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
@@ -279,11 +296,50 @@
       this.etq = etiquetas(L, this.marcados.length, 'nota');
       const primero = this.marcados[0];
       this.etq.forEach(function (e, i) { if (i) e.classList.add(this.marcados[i] < primero ? 'izq' : 'alta'); }, this);
+      if (this.foco >= 0) this.etq[0].classList.add('hilo');          // un hilo une ese sector con su gráfico, que ya dice su nombre
       this.tres = B.tres;
     },
     alAjustar: function () {
       if (this.B) this.B.ajustar();
-      if (this.ctx) { this.rc = K.razon(1.5); this.cv.width = Math.round(800 * this.rc); this.cv.height = Math.round(250 * this.rc); }
+      this.rc = K.razon(1.5); this.cv.width = Math.round(this.cw * this.rc); this.cv.height = Math.round(this.ch * this.rc);
+    },
+    // Con respuesta: un sector que conviene cerrar. Lo que midió el radar (se va dibujando con el recorrido), y desde
+    // «ahora» el abanico de lo que Krylov cree que viene, con su rango de cuánto falta. Todo sale de la curva de la API.
+    abanico: function (h, brota) {
+      const ctx = this.ctx, S = this.S, un = S.unidades[this.foco], R = S.respuesta.unidades[un.id], c = R.curva;
+      const W = this.cw, x0 = 4, x1 = W - 10, y0 = this.ch - 38, y1 = 104, color = COLOR_CSS[R.estado];
+      const fin = c.t_banda[c.t_banda.length - 1], tope = Math.max.apply(null, c.y) * 2.3;
+      const X = function (t) { return x0 + (t / fin) * (x1 - x0); }, Y = function (v) { return y0 - (K.acotar(v, 0, tope) / tope) * (y0 - y1); };
+      ctx.setTransform(this.rc, 0, 0, this.rc, 0, 0);
+      ctx.clearRect(0, 0, W, this.ch);
+      ctx.textAlign = 'left';
+      ctx.fillStyle = color; ctx.font = '800 42px "Big Shoulders Display", sans-serif';
+      ctx.fillText(nombre(un.id) + ': ' + S.rotulos[R.estado].toLowerCase(), x0, 36);
+      ctx.fillStyle = '#f4efe6'; ctx.font = '600 28px "Instrument Sans", sans-serif';
+      ctx.fillText(c.marca.texto, x0, 76);
+      ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
+      const xa = X(c.ahora);
+      ctx.setLineDash([5, 7]); ctx.strokeStyle = '#7d7568'; ctx.beginPath(); ctx.moveTo(xa, y1 - 6); ctx.lineTo(xa, y0); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#7d7568'; ctx.font = '450 19px "JetBrains Mono", monospace';
+      ctx.fillText('LO QUE MIDIÓ EL RADAR', x0, y0 + 30);
+      ctx.textAlign = 'right'; ctx.fillText('LO QUE PUEDE VENIR', x1, y0 + 30);
+      if (brota > 0) {                                                    // el abanico: de lo mejor a lo peor que puede pasar
+        ctx.globalAlpha = brota;
+        ctx.fillStyle = color + '55';
+        ctx.beginPath(); ctx.moveTo(xa, Y(c.y[c.y.length - 1]));
+        for (let i = 0; i < c.t_banda.length; i++) ctx.lineTo(X(c.t_banda[i]), Y(c.alto[i]));
+        for (let i = c.t_banda.length - 1; i >= 0; i--) ctx.lineTo(X(c.t_banda[i]), Y(c.bajo[i]));
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.setLineDash([7, 6]); ctx.beginPath(); ctx.moveTo(xa, Y(c.y[c.y.length - 1]));
+        for (let i = 0; i < c.t_banda.length; i++) ctx.lineTo(X(c.t_banda[i]), Y(c.medio[i]));
+        ctx.stroke(); ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+      }
+      let ultimo = null;
+      ctx.strokeStyle = '#e9dfcc'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (let i = 0; i < c.t.length && c.t[i] <= h + 0.01; i++) { const x = X(c.t[i]), y = Y(c.y[i]); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); ultimo = [x, y]; }
+      ctx.stroke();
+      if (ultimo) { ctx.fillStyle = '#e9dfcc'; ctx.beginPath(); ctx.arc(ultimo[0], ultimo[1], 6, 0, 6.2832); ctx.fill(); }
     },
     curva: function (h, ahora) {
       const ctx = this.ctx, S = this.S, x0 = 2, x1 = 500, y0 = 212, y1 = 52;
@@ -315,11 +371,13 @@
       }
     },
     cuadro: function (t) {
-      const S = this.S, n = this.n, h = recorrido(t - 0.8, 13, 4.5) * this.horas;
+      const S = this.S, n = this.n, DURA = 8, ESPERA = 8, k = recorrido(t - 0.8, DURA, ESPERA), h = k * this.horas;
+      const ciclo = DURA + ESPERA, x = (((t - 0.8) % ciclo) + ciclo) % ciclo;
       reloj(this.reloj, Math.floor(h) + ' h');
       const ahora = [];
       for (let s = 0; s < n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
-      if (this.ctx) this.curva(h, ahora);
+      if (this.foco >= 0) this.abanico(h, K.quieto ? 1 : (k >= 1 ? K.acotar((x - DURA) / 0.7, 0, 1) : 0));
+      else this.curva(h, ahora);
       if (!this.tres) return;
       const B = this.B, E = this.encuadre;
       let crudo = ahora.map(function (v) { return K.acotar(v / this.maximo, 0, 1); }, this), liso = crudo;
@@ -344,9 +402,15 @@
         ph.needsUpdate = true;
       }
       poner(this.etqRadar, B.camera, R[0] + 0.5, R[1], R[2], '<b>Radar</b>', true);
-      for (let i = 0; i < this.etq.length; i++) {
+      if (this.foco >= 0) {
+        const q = this.pared((this.foco + 0.5) / n, 0.999), pp = K.proyectar(q[0], q[1] + 0.1, q[2], B.camera), el = this.etq[0];
+        el.style.transform = 'translate(' + pp.x.toFixed(1) + 'px,' + pp.y.toFixed(1) + 'px)';
+        el.style.setProperty('--alto', Math.max(0, pp.y - 384).toFixed(0) + 'px');          // hasta el borde de abajo del gráfico
+        el.classList.add('ver');
+      }
+      for (let i = this.foco >= 0 ? 1 : 0; i < this.etq.length; i++) {
         const s = this.marcados[i], q = this.pared((s + 0.5) / n, 0.999), mm = ahora[s];
-        poner(this.etq[i], B.camera, q[0], q[1] + 0.15, q[2], '<b>' + nombre(S.unidades[s].id) + '</b>se movió ' + K.coma(Math.max(0, mm), 1) + ' mm', mm > 0.22 * this.maximo);
+        poner(this.etq[i], B.camera, q[0], q[1] + 0.15, q[2], '<b>' + nombre(S.unidades[s].id) + '</b>', this.foco >= 0 || mm > 0.22 * this.maximo);
       }
     },
   });
@@ -450,7 +514,6 @@
       const meta = [], yM = Y0 + this.meta * GH;
       for (let k = 0; k < 40; k++) { const z = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, k / 40), z2 = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
       B.cordon(meta, 0.04, 0xffffff, 0.9, 0.04);
-      this.etq = etiquetas(L, n, 'chica');
       this.etqMeta = etiquetas(L, 1, 'chica')[0];
       this.etqMeta.classList.add('meta');
       this.tres = B.tres;
@@ -467,7 +530,6 @@
       for (let l = 0; l < this.n; l++) {
         const pts = S.unidades[l].puntos, r = m < 0.4 ? 0 : leer(pts, m, 0);
         this.rec.value[l] = r;
-        poner(this.etq[l], B.camera, this.xG + 0.2, this.Y0 + this.GH + 0.2, this.zG(l), '<b>' + nombre(S.unidades[l].id) + '</b> ' + Math.round(r * 100) + '%', m >= pts[0][0]);
       }
       poner(this.etqMeta, B.camera, this.xG, this.Y0 + this.meta * this.GH, this.zG(0) - 1.1, 'Meta: ' + Math.round(this.meta * 100) + '%', true);
     },
@@ -614,7 +676,7 @@
         if (o[0] < 0.8 || q.x < 1020 || q.x > 1560 || q.y < 190 || q.y > 980) continue;
         if (puestas && Math.abs(q.x - this._x0) < 380 && Math.abs(q.y - this._y0) < 150) continue;       // que no se pisen entre sí
         if (!puestas) { this._x0 = q.x; this._y0 = q.y; }
-        poner(this.etq[puestas++], B.camera, o[2], y, o[3].z, '<b>' + nombre(S.unidades[o[1]].id) + '</b>desgaste: ' + Math.floor(o[0] * 100) + '% del límite', true);
+        poner(this.etq[puestas++], B.camera, o[2], y, o[3].z, '<b>' + nombre(S.unidades[o[1]].id) + '</b>cerca de fallar', true);
       }
       for (; puestas < this.etq.length; puestas++) this.etq[puestas].classList.remove('ver');
     },
@@ -700,7 +762,6 @@
           gl_PointSize = (0.07 + 0.1 * aD.w) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, tiempos);
-      this.etq = etiquetas(L, n, 'chica');
       this.etqFuerte = etiquetas(L, Math.min(2, this.eventos.length), 'nota');
       this.etqFuerte.forEach(function (e) { e.classList.add('roja', 'alta'); });
       this.etqFrente = etiquetas(L, 1, 'nota')[0];
@@ -728,7 +789,6 @@
         if (s.tinte) s.linea.color.setRGB(s.tinte[0], s.tinte[1], s.tinte[2]);
         else s.linea.color.copy(this.gris).lerp(this.vivo, a);
         s.linea.alfa.value = 0.4 + 0.5 * a;
-        poner(this.etq[i], B.camera, s.x, -0.5, s.fin + s.lado * 0.55, '<b>' + S.unidades[i].id + '</b> ' + cuenta, h > 0);
       }
       for (let i = 0; i < this.etqFuerte.length; i++) {
         const e = this.eventos[i];
