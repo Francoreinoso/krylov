@@ -2,11 +2,13 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 07:08 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 07:10 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
 **Para las 08:15:** A-N2 terminado (06:20) y el código de rotación listo: el archivo malo ya sale rojo con su corrección (verificado en PC 3). Falta la red de las 08:30. **PC 1 sin commits desde las 05:04: confirmar que sigue trabajando.**
+
+**Propuesta de PC 1 (chat, 07:01): en evaluación con la persona de PC 3 desde las 07:10.** Cambia el contrato y la regla 11: **nadie la construye hasta que esté en `DECISIONES.md`.** Lo que no calza, en `estado/seguimiento.md`.
 
 ## Semáforo
 

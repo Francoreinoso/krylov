@@ -65,6 +65,19 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 4. **S-N4 · ronda de lectura cada hora** (06:15, 07:15, 08:15): `git pull --rebase`, leer los estados de PC 1 y PC 2 y la última línea de `motor/checkpoints/supervivencia/registro.jsonl`. Si alguien dejó un bloqueo, o el entrenamiento dejó de escribir puntos de guardado, destacarlo arriba en el tablero para las 08:15.
 5. **Después, por D-29, las tareas de día que no exigen a una persona ni procesador pesado, en orden:** S-07 (revisar el caso de inasistencias contra su YAML) y S-08 (archivo malo: `datos/demo/rotacion_malo.csv`, rotación más `fecha_salida` solo para quienes renunciaron, declarada en `columnas.extra` de `casos/rotacion_malo.yaml`). S-09 y S-10 exigen a una persona: no se hacen de noche.
 
+## Propuesta de PC 1: chat (`estado/producto_propuesta_chat.md`, 07:01), en evaluación
+
+No está registrada. Lo que no calza, anotado a las 07:10 antes de decidir con la persona de PC 3:
+
+1. **Choca con decisiones vigentes:** D-26 cortó «Sube tus datos» y la capa de lenguaje, y la regla 11 de `AGENTS.md` («no hay modelo de lenguaje dentro de la app») es la respuesta a «¿no es un chat con un CSV?». Con un chat en la portada, el jurado ve primero justo eso.
+2. **La subida en vivo depende de la API de Render, que no existe todavía** (`estado/producto.md`: «sin desplegar»). Render gratis tiene 0,1 de procesador: el paso local de `supervivencia` tarda 0,56 s y `analizar` de inasistencias 0,59 s en un M3, así que en Render es probable que pase los 2 s de la regla 7.
+3. **El esquema es fijo:** `supervivencia` pide exactamente 3 efectos, 1 efecto suave y 4 encuestas de 1 a 4. Casi ningún archivo propio calza: en vivo saldría `rojo_modelo`. Para mostrarlo en el escenario igual habría que preparar el archivo.
+4. **Horario:** suma P-12 (PC 1), `papeles` y `analizar_archivo` (PC 2), `/api/interpretar` con su revisión de números, las interpretaciones precalculadas y el despliegue de Render, el mismo día en que PC 2 tiene el camino crítico (sellos a las 08:30, H2 a las 12:15) y H3 pide el recorrido completo dos veces a las 15:00.
+5. **Guion:** la versión de 3 minutos ya no cabe (176 s de habla). Elegir el modelo, subir el archivo y asignar columnas en el escenario suma 20 a 30 s: saldría la cartera y quizás el archivo malo.
+6. **Personas:** la clave de Anthropic la pone una persona; «¿mis datos salen de la empresa?» deja de responderse con «ningún modelo de lenguaje ve los datos».
+
+**Lo que sí tiene la propuesta, y vale:** que el jurado vea a la misma red responder un archivo que no es el del demo. Eso se puede mostrar sin chat, sin subida y sin cambiar el contrato: archivos reales nuevos del mismo esquema como casos ocultos (otros 2.000 clientes de crédito, otros 30 barrios de inasistencias), precalculados y en vivo, con un botón «Probar con otro archivo».
+
 ## Bloqueos
 
 - (ninguno)
