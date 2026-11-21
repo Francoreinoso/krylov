@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 04:40 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15; H1 a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 04:48 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15; H1 a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
 
@@ -12,26 +12,26 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 |---|---|---|
 | producto (PC 1) | 🟢 adelantado | P-01, P-02 y P-03 verificados en PC 3 (P-03 a las 04:38: lista de más a menos riesgo con el punto de corte, «qué pesa», tarjetas en el orden de `casos/INICIO`) |
 | amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04, A-B1 a A-B4 y A-N1 (`nucleo/decision.py`) en `main`. `espacial` entrena en PC 2 desde las 03:50 |
-| seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05 hechas. `supervivencia` entrena en PC 3 desde las 04:05: 1,74 millones de datasets a las 04:38 |
+| seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05, S-N1, S-08 y S-N3 hechas (D-29). `supervivencia` entrena en PC 3 desde las 04:05: 2,1 millones de datasets a las 04:46 |
 
 ## Antes de dormir (05:15): cómo vamos
 
 - ✅ Dos entrenamientos corriendo con puntos de guardado: `espacial` en PC 2, `supervivencia` en PC 3. Los dos terminan solos a las 08:30.
-- ✅ URL pública con el esqueleto. ✅ Datos de rotación, terreno y crédito en el repositorio.
+- ✅ URL pública con el esqueleto. ✅ Datos de rotación, terreno, crédito y el archivo malo en el repositorio. Inasistencias: solo en PC 3 (licencia no comercial); se regenera con `datos/preparar/inasistencias.py`.
 - Falta: la lista nocturna de PC 1 escrita en su estado antes de dormir.
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora P-N1 (`decision.ts` con su prueba y deslizadores); después P-N2 (mapa en canvas con el ejemplo espacial). Ojo: P-03 agregó `@fontsource-variable/archivo`: quien tenga la web abierta hace `npm ci` y reinicia `npm run dev`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
 - **PC 2 · amortizacion:** sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N3. Sesión B: A-N2. Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
-- **PC 3 · seguimiento:** nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. El agente: lista nocturna (S-N1 a S-N4); después S-07 y S-08 (archivo malo), sin procesador pesado. 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
+- **PC 3 · seguimiento:** ahora S-N2 (fuentes de las cifras, en curso); después S-N4 (rondas de lectura). Nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
 
 ## Qué cambió respecto del plan
 
 - **D-29 (texto final de las 04:38): las horas del plan son topes, no horas de inicio, en los tres computadores.** Quien termina una tarea toma la siguiente de su lista sin esperar; lo que no tiene insumo se hace contra el ejemplo fijo y se anota. No se adelanta el MCMC ni se mide encima de un entrenamiento (`AGENTS.md`, regla 21).
 - `supervivencia` se lanzó a las 04:05 y `espacial` a las 03:50: casi una hora más de entrenamiento cada uno.
 - Guion: la versión de 3 minutos es la principal (J-04). «Escondimos a 294 personas reales» pasó a «escondimos la respuesta de 294 personas del archivo»: el archivo de rotación es ficticio (D-01).
-- D-26 sigue mandando donde un archivo choque. Pendientes: `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md`, skills, resto de `WORKPLAN.md`.
+- D-26 ya está en todos los archivos del plan (revisado 04:47 con `git grep`: lo que nombra a `regresion` o «Sube tus datos» dice que se cortó).
 
 ## Próxima decisión
 

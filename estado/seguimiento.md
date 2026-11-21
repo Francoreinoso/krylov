@@ -16,12 +16,15 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 04:00 · **H0 cerrado**, tag `h0` en los dos repositorios (D-28). P-01 verificado corriendo: API local en el puerto 8010, web en 5173, inicio y respuestas fijas; con la API detenida, modo estático.
 - sáb 03:28 · S-05, crédito (adelantado): `datos/demo/credito.csv` (muestra de 2.000 de 30.000, las 25 columnas con los seis meses de `PAY_*`, `BILL_AMT*` y `PAY_AMT*`, 400 respuestas vacías al azar) y `credito_verdad.csv` (400 filas). Las dos clases quedan presentes. Comando: `uv run --no-project --with pandas --with xlrd python datos/preparar/credito.py` (el crudo se baja con los comandos del encabezado del script).
 
+- sáb 04:45 · **S-N1, inasistencias** (adelantado, D-29): `datos/preparar/inasistencias.py` deja `datos/demo/inasistencias.csv` (1.980 citas, 1.147 pacientes, 30 barrios con 66 citas cada uno, 38% de pacientes con 2 o más citas, 396 por decidir) e `inasistencias_verdad.csv`. Los dos en `.gitignore` (licencia no comercial). Sale idéntico en dos corridas (md5). Columnas verificadas contra `casos/inasistencias.yaml` (parte de S-07; falta ver la tarjeta respondiendo, cuando exista `jerarquico`).
+- sáb 04:45 · **S-08, archivo malo**: `datos/preparar/rotacion_malo.py` deja `datos/demo/rotacion_malo.csv` (1.470 filas, 36 columnas): `fecha_salida` tiene fecha solo para las 237 que renunciaron, incluidas 54 de las 294 por decidir. Comando: `python3 datos/preparar/rotacion_malo.py`.
+- sáb 04:46 · **S-N3**: borradores `pitch/README_borrador.md` (técnico, con los nombres precisos) y `pitch/descripcion_borrador.md`. No tocan el `README.md` de la organización. Los lee una persona en la mañana.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 ## En curso
 
 - sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».
-- sáb 03:49 · Crudo de inasistencias en `datos/crudo/inasistencias/KaggleV2-May-2016.csv` (copia pública del archivo de Kaggle, verificada contra D-03). Listo para S-N1. No se sube (licencia no comercial).
+- sáb 04:47 · S-N2: un agente abre las fuentes de `pitch/CIFRAS.md` y anota lo que dicen hoy. No firma «Verificó».
 
 ## Entrenamiento en curso
 
@@ -54,6 +57,8 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 
 - sáb 03:23 · A PC 2: los datos de rotación y del terreno ya están en `main` (`datos/demo/`), con `terreno_grilla.csv`. El terreno puede partir con la distancia al río.
 - sáb 03:28 · A PC 2: crédito también está en `main` (`datos/demo/credito.csv`). La respuesta `default` es 0 o 1, y vacía en las 400 por decidir.
+- sáb 04:47 · A PC 2: `datos/demo/rotacion_malo.csv` está en `main`. `fecha_salida` es texto (AAAA-MM-DD) o vacío: lo que delata la respuesta es si está o no, así que el eje «mejor factor por sí solo» de la nube tiene que tratar el vacío como un valor.
+- sáb 04:47 · A PC 2: inasistencias no está en el repositorio (licencia no comercial). Si lo necesitas en PC 2 para el predictivo a priori de `jerarquico`, el encabezado de `datos/preparar/inasistencias.py` trae el `curl` y el SHA-256; sale idéntico. En PC 3 ya está, para entrenar y validar `jerarquico` aquí.
 - sáb 04:36 · A PC 2 (respuesta a tu pedido de las 04:00): `supervivencia` corre en PC 3 desde las 04:05 y termina sola a las 08:30. A las 08:30 PC 3 exporta y sube (paso 7).
 
 ## Rondas
