@@ -70,7 +70,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/deformacion/prueba_deformacion.py`)
 - [x] Red: el andamio de series con estado discreto por sector, sin entrenar; exporta y responde `analizar("taludes")` con la forma del contrato
 - [x] Prueba de humo: 129.536 datasets en 3 min (GPU del Mac, lote 128); la pérdida bajó de 10,2 a 4,9; el SBC de 200 corre
-- [ ] Entrenamiento
+- [ ] Entrenamiento: en curso en PC 3 desde las 13:44, hasta las 16:10 (GPU del Mac, lote 128; cerca de 510 datasets por segundo)
 - [ ] SBC global
 - [ ] SBC por unidad
 - [ ] Cobertura de lo que se decide, por tamaño
@@ -78,7 +78,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** lanzar su entrenamiento en PC 3 en la ronda 1 (A-26) cuando el equipo dé la partida.
+**Falta ahora:** que termine su entrenamiento en PC 3 (16:10) y validarlo ahí, sin método lento (S-28).
 
 ## `cinetica` · caso `flotacion`
 

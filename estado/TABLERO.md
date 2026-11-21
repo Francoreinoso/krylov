@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 13:25 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 13:46 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ (todavía muestra las cuatro tarjetas anteriores; cambia con P-21 y P-22).
 
-**Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **Nada está entrenando y nada se lanza hasta que el equipo dé la partida.** El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
+**Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **`deformacion` entrena en PC 3 desde las 13:44, hasta las 16:10.** PC 2 lanza `cinetica` cuando su persona dé la partida. El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
 
 ## Los cinco casos
 
@@ -15,7 +15,7 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 | Caso | Motor | Datos | Simulador | Red | Sello | En la app | Método lento | Responde |
 |---|---|---|---|---|---|---|---|---|
 | leyes | espacial | listo | listo | listo | listo | pendiente | pendiente | red |
-| taludes | deformacion | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| taludes | deformacion | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 | flotacion | cinetica | listo | listo | pendiente | pendiente | pendiente | pendiente | ejemplo |
 | flota | desgaste | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
 | sismicidad | sismico | listo | pendiente | pendiente | pendiente | pendiente | pendiente | ejemplo |
@@ -28,13 +28,13 @@ Verificado en PC 3 a las 13:20, corriendo: `pytest nucleo` pasa (34) y `leyes` r
 |---|---|---|
 | producto (PC 1) | 🟡 sin noticias | P-21 pasó su tope (13:10) y no hay estado nuevo desde las 12:40. Si a las 13:50 no está, lleva el doble: subir lo que haya |
 | amortizacion (PC 2) | 🟢 adelantado | A-21 y A-23 terminadas; `cinetica` casi lista. Falta `deformacion` (A-25), que es lo que PC 3 necesita para la ronda 1 |
-| seguimiento (PC 3) | 🟢 al día | Plan y tablero al día con D-38; entorno de entrenamiento listo y probado. Espera A-25 y la partida |
+| seguimiento (PC 3) | 🟢 entrenando | `deformacion` corre desde las 13:44 (GPU del Mac, cerca de 510 datasets por segundo). Valida a las 16:10 |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora **P-21** (cinco tarjetas mineras, cuatro con su ejemplo rotulado): subirla con lo que haya. Después **P-22**, tope 13:50: `leyes` real con la red y «¿Dónde perforo?» en la URL pública; es lo único que H4 exige de PC 1. Después **P-23** (`Curva`). Nuevo y opcional: `papeles()` trae `rangos` con una frase lista (D-38).
 - **PC 2 · amortizacion:** ahora la prueba de humo de `cinetica` (**A-24**) y **A-25** (`deformacion`: simulador con su a priori de tamaño y prueba de humo; subirla apenas pase, PC 3 la lanza). Después **A-22** (examen de `leyes` con la verdad escondida) y **A-26** (lanzar la ronda 1 cuando el equipo dé la partida; tope 14:30). Sin método lento antes.
-- **PC 3 · seguimiento:** ahora **S-22** (una persona confirma las decisiones de abajo). **S-24 terminada** (13:27): `datos/demo/subida_<caso>.csv` para los cinco casos; el de `leyes` ya responde verde. Después **S-26** (guion en voz alta) y **S-25** (firmar cifras). Con la partida y A-25 subida: `medir-rendimiento` y lanzar `deformacion` aquí hasta las 16:10.
+- **PC 3 · seguimiento:** ahora **S-22** (una persona confirma las decisiones de abajo). **S-24 terminada** (13:27): `datos/demo/subida_<caso>.csv` para los cinco casos; el de `leyes` ya responde verde. Después **S-26** (guion en voz alta) y **S-25** (firmar cifras). A las 16:10, **S-28**: detener `deformacion`, validar sin método lento, exportar y subir.
 
 ## Qué cambió respecto del plan
 
@@ -44,6 +44,6 @@ Verificado en PC 3 a las 13:20, corriendo: `pytest nucleo` pasa (34) y `leyes` r
 
 ## Próxima decisión
 
-- **Ahora, una persona:** dar la partida de la ronda 1 (`cinetica` en PC 2, `deformacion` en PC 3). Y de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
+- **Ahora, la persona de PC 2:** lanzar `cinetica` (PC 3 ya partió con `deformacion`). Y de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
 - **H4 · 14:30:** `leyes` en la URL pública; cinco tarjetas; ronda 1 entrenando o por lanzarse.
 - **17:30, una persona, por `flota` y por `sismicidad`:** detener su entrenamiento para adelantar el método lento de su archivo (sale «precalculada» a las 18:00), o dejarla fuera del inicio y sumarla si su red pasa antes de las 20:30. PC 3 lleva la pregunta a las 17:15 con el avance de cada red.

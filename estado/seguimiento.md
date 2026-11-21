@@ -19,18 +19,24 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 13:27 · S-24 terminada (la parte que no depende de PC 2): un archivo de prueba por caso para subir en el chat, `datos/demo/subida_<caso>.csv` con su `_verdad.csv`, para `leyes`, `taludes`, `flotacion`, `flota` y `sismicidad`. Simulados con el mismo generador de cada caso, otra semilla (2027), otro tamaño y otros nombres de columnas y unidades (minutos, porcentaje, hierro en ppm); el calce esperado de cada uno está en la cabecera de `datos/preparar/subida.py`. Un comando: `uv run python datos/preparar/subida.py`. Verificado: `api.analizar_archivo("espacial", subida_leyes.csv, {x: este_m, y: norte_m, valor: arsenico_ppm, umbral: 500})` responde verde en 0,09 s; los otros cuatro quedan dentro de los rangos de tamaño de su motor (20 sectores con 66 a 71 lecturas; 5 líneas con 3 a 5 celdas medidas; 24 camiones con 4 a 10 muestras; 5 sectores con 13 a 32 sismos). Pendiente de A-25, A-27 y A-28: mirarlos contra cada simulador.
 - sáb 13:27 · S-23, verificado: el archivo real de sondajes con cobre (`datos/demo/leyes_cobre_real.csv`, 91 sondajes, Zenodo 7051975, CC BY 4.0) responde verde con la red por `analizar_archivo` (x, y, valor = `cu_pct`). Con límite 0,5% deja 954 de 1.024 bloques en «no sabemos»: son sondajes de exploración separados por cientos de metros, no un banco. No se agregó a la tarjeta: sirve como archivo real para subir, y como ejemplo de «sabe cuánto no sabe» con datos reales. El archivo real de taludes (`taludes_real.csv`, 52 prismas con 52 a 130 lecturas) cabe en los rangos de `deformacion`; falta probarlo cuando exista el motor.
 - sáb 13:30 · S-26, la parte que no exige a una persona: `pitch/GUION.md` al día con D-38 (qué se dice de cada tarjeta nueva cuando el método lento va al final) y M-44 medido aquí sin nada entrenando. Falta leerlo en voz alta con cronómetro (una persona).
+- sáb 13:44 · Ronda 1 lanzada en este computador: `deformacion` entrena hasta las 16:10. La partida la dio la persona de este computador (clementeferrer). Antes: `git pull` con A-25, 44 pruebas pasan (`pytest motor/comun/prueba_series.py motor/deformacion nucleo -q`), `validar --sbc 200` corre sobre una red de 1 minuto (ensayo, no es resultado), enchufado y nada más entrenando.
 
 ## En curso
 
-- sáb 13:25 · S-22: una persona da la partida de la ronda 1 y confirma las decisiones de D-37. Sigue: S-26 (guion contra lo que existe; leerlo en voz alta es de una persona) y S-25 (firmas, una persona). Con la partida y A-25 subida: `medir-rendimiento deformacion` y lanzar `deformacion` aquí hasta las 16:10.
+- sáb 13:44 · `deformacion` entrenando hasta las 16:10; primer punto de guardado a las 13:54. A las 16:10: S-28 (detener, `validar-motor deformacion` sin método lento, exportar y subir).
+- sáb 13:25 · S-22: una persona confirma las decisiones de D-37. Sigue: S-26 (guion contra lo que existe; leerlo en voz alta es de una persona) y S-25 (firmas, una persona). Con la partida y A-25 subida: `medir-rendimiento deformacion` y lanzar `deformacion` aquí hasta las 16:10.
 
 ## Entrenamiento en curso
 
 | Qué | Valor |
 |---|---|
-| Motor | (ninguno: nada se lanza hasta que el equipo dé la partida; después, `deformacion` en la ronda 1 y `sismico` en la ronda 2) |
-| Comando exacto | Pendiente de A-25 y de `medir-rendimiento`: `caffeinate -dims uv run python -m motor.deformacion.entrenar --dispositivo <cpu o mps> --hasta 16:10 --guardar-cada-min 10` |
-| Hora de inicio | — |
+| Motor | `deformacion` (ronda 1), en PC 3 |
+| Comando exacto | `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 128 --guardar-cada-min 10 --nuevo`, con la salida en `motor/checkpoints/deformacion/entrenar.log` |
+| Dónde corre | En el worktree `.claude/worktrees/pc3-seguimiento-tableros-d4cd0b` de este computador, con el Python de `~/Downloads/krylov/.venv` |
+| Puntos de guardado | `motor/checkpoints/deformacion/ultimo.pt`, cada 10 minutos (no se versionan) |
+| Para retomar si se cae | El mismo comando sin `--nuevo`: retoma solo desde `ultimo.pt` |
+| Para detener | `pkill -INT -f "motor.deformacion.entrenar"` (guarda antes de salir) |
+| Hora de inicio | sáb 13:44 |
 
 ## Bloqueos
 
@@ -56,6 +62,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
+| `deformacion`: datasets simulados por segundo al entrenar, en este Mac (M3) | GPU del Mac, lote 128: 509; lote 256: 639; procesador, lote 64: 91. Se eligió GPU con lote 128 (más pasos por minuto; es lo que recomendó PC 2). A ese ritmo, cerca de 4,4 millones de muros simulados hasta las 16:10 (estimación) | Tres corridas de 1,2 min con `--minutos 1.2 --nuevo` en una carpeta temporal, sin nada más entrenando | 13:42 |
 | `leyes`: «¿Dónde perforo?», 480 análisis rehechos (M-44) | 1,3 s (cinco corridas: 1,30 a 1,48) | `api.donde_medir("leyes")` con la red, MacBook Air M3, sin nada entrenando | 13:27 |
 | `leyes`: un análisis completo | 0,007 a 0,008 s | `api.analizar("leyes")`, cinco corridas, lo mismo | 13:27 |
 | Extraños que repiten la idea, prueba 1 (guion minero) | pendiente: de 3 | S-29 | — |
