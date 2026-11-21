@@ -118,6 +118,9 @@ Ninguno tiene fuente: son supuestos del demo, se ven como deslizadores y en voz 
 | K-61 | sismicidad | Magnitud desde la cual un temblor se considera fuerte | 1,0 | |
 | K-62 | sismicidad | Costo de mantener cerrado un sector que estaba tranquilo (medio turno sin producir) | US$ 150.000 | 9% |
 | K-63 | sismicidad | Costo de un temblor fuerte con el sector abierto (daños y detención) | US$ 1.500.000 | |
+| K-71 | yacimiento (sexto motor, fuera de la app; D-40) | Ley de corte: bajo esto, procesar el bloque no se paga | 0,5% de cobre | |
+| K-72 | yacimiento | Costo de procesar un bloque que era estéril | US$ 40.000 | 31% |
+| K-73 | yacimiento | Costo de botar un bloque que era mineral | US$ 90.000 | |
 
 ## Medidas nuestras
 

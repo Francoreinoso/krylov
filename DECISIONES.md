@@ -290,6 +290,14 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Motores:** `espacial`, `cinetica`, `deformacion` y `sismico` con sello PASA; `desgaste` sin veredicto. Ninguna tarjeta salió precalculada; el método lento de los cinco va al final (A-36).
 · Hito. Si algo se rompe después, se vuelve al tag `congelado`.
 
+**D-40 · sáb 21-nov 20:20 · Un sexto motor, `yacimiento` (un yacimiento en 3D leído desde sondajes), fuera del producto congelado.** Lo pide la persona de PC 3 a las 20:15, con el producto ya terminado (tag `congelado`, 18:32).
+
+- **Qué pidió:** un problema amortizado más, relevante para la minería, con un dataset más complejo y realista que los cinco (un mapa con muchas covariables, que se pueda mostrar como un campo en tres dimensiones), caro para el método lento, que se pueda entrenar y comparar con MCMC en menos de 3 horas, con la misma arquitectura o parecida, **sin pisar ni interferir con lo que ya funciona**, y fácil de sumar al deck.
+- **Qué se hace.** Carpeta nueva `yacimiento/` (modelo generativo, simulador, red, entrenamiento, validación, MCMC de referencia y sello propios). Modelo: ley de cobre en un modelo de bloques de 32 × 32 × 16 (16.384 bloques), proceso gaussiano anisotrópico en 3D con ocho covariables del modelo geológico y error de muestreo; 15 parámetros; de 15 a 60 sondajes por dataset. Red: U-Net 3D con cabeza de mapa y cabeza de flujo, como `espacial` pero en volumen. Demo: `pitch/deck/yacimiento.html`, una página aparte.
+- **Lo que choca con el plan, dicho:** AGENTS dice «nada nuevo después del sábado a las 18:00» y «nada que no aparezca en `WORKPLAN.md`». Este motor es la excepción que pide una persona del equipo, y por eso **no entra a la app, ni a `casos/INICIO`, ni al contrato, ni toca `nucleo/`, `motor/`, `servicio/` o `web/`** (solo lee `motor/comun/flujo.py` y `nucleo/decision.py`). El recorrido del demo y el tag `congelado` no cambian.
+- **Cómo se cuenta:** solo con los números de su sello (`yacimiento/artefactos/sello.json`) y como lo que es: un sexto modelo entrenado después del cierre, con datos simulados, que no está en la URL pública. Si su red no pasa su validación, se dice y no se muestra como resultado.
+· Decide la persona de PC 3; lo escribe PC 3. PC 1 y PC 2 quedan avisados por el tablero.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
