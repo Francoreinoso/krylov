@@ -88,7 +88,7 @@ Consecuencia: el negocio ocupa, a lo más, una frase. No hay criterio que lo pre
 >
 > `5` «Y bajo tierra, después de una explosión la roca sigue crujiendo. Dice en qué sectores conviene esperar antes de que vuelva a entrar la gente.»
 >
-> *(la verdad sobre quién responde, una sola frase; se elige a las 20:30)* «[Estas dos ya responden al instante; las otras dos las calculamos con el método lento mientras sus redes terminan de entrenar.]»
+> *(la verdad sobre quién responde, una sola frase; se elige a las 20:30)* «[Las cuatro responden al instante.]» o «[Estas dos ya responden al instante; las otras dos son lo que sigue.]» o, si alguna salió precalculada, «[esta la calculamos con el método lento de siempre.]» Se dice solo lo que diga el tablero.
 
 **Momento 7 · Cierre (2:40 a 3:00).** Deck, lámina de cierre (tecla `L` en la app).
 
@@ -103,7 +103,7 @@ Consecuencia: el negocio ocupa, a lo más, una frase. No hay criterio que lo pre
 | «más de siete millones de terrenos simulados» | M-01 | Son terrenos, no «minas»: la palabra exacta en ese momento es «terrenos» |
 | «una noche, en un MacBook Air» | M-02 | 280 minutos |
 | «480 veces» | M-43 | |
-| «en [X] segundos» | M-44 | **Pendiente:** lo medido (cerca de 1 s) fue con otro entrenamiento corriendo. Si no hay medición limpia, se dice «en cerca de un segundo» solo si A-22 lo confirma |
+| «en [X] segundos» | M-44 | Medido sin nada entrenando en PC 3 (MacBook Air M3, sáb 13:27): 1,3 s, cinco corridas entre 1,30 y 1,48. Hasta que se mida en el computador que presenta, se dice «en poco más de un segundo». No se dice «menos de un segundo» para los 480 análisis |
 | «cerca de nueve mil dólares» | M-46 | Con los costos por defecto, que son supuestos (K-22 a K-24) |
 | «sale [alto]» | — | Se elige en el ensayo el resultado que mejor se ve; con «alto» la duda total subió un poco en la prueba de las 12:05. Probar «bajo» |
 | «cuarenta camiones» | D-13 | Flota simulada |
@@ -113,7 +113,9 @@ Lo que **no** se dice en voz alta: ningún nombre de mina ni de empresa; «evita
 
 ## Si una tarjeta salió precalculada o no está (se decide a las 20:30)
 
-De cada tarjeta nueva se dice una de tres cosas, según lo que diga la tabla «Los cinco casos» del tablero:
+De cada tarjeta nueva se dice una de tres cosas, según lo que diga la tabla «Los cinco casos» del tablero.
+
+**Con D-38 (13:10) el método lento va al final**, así que «precalculada» ya no es el punto de partida de ninguna tarjeta: solo queda así la que no pasó su sello y cuyo método lento se adelantó y convergió. Lo esperable a las 18:00 es que `flotacion` y `taludes` respondan con su red, y que `flota` y `sismicidad` (que validan a las 18:15) estén fuera del inicio o precalculadas, según lo que una persona decida a las 17:30; pueden sumarse con su red hasta las 20:30.
 
 | La tarjeta | En pantalla | Se dice |
 |---|---|---|
@@ -153,7 +155,7 @@ Las respuestas completas están en `WORKPLAN.md`, sección 5. Las cinco que hay 
 
 | Corchete | Cifra | Quién y cuándo |
 |---|---|---|
-| Segundos de «¿Dónde perforo?» en el banco, sin nada entrenando | M-44 | PC 2, A-22 |
+| Segundos de «¿Dónde perforo?» en el banco, sin nada entrenando | M-44 | Medido en PC 3: 1,3 s. Falta en el computador que presenta (PC 2, A-22, o el ensayo) |
 | Qué resultado se elige en el pin A | — | Ensayo, S-26 |
 | Quién responde cada tarjeta nueva | M-52 | PC 2 y PC 3, 20:30 |
 | Cuánto tardó el método lento en una tarjeta precalculada | M-50 | PC 2, sellos |

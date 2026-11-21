@@ -18,6 +18,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 13:20 · Entorno de entrenamiento listo: `uv sync --group entrenar` hecho, las 8 pruebas pasan y no hay ningún proceso de entrenamiento (`pgrep -fl "motor.*entrenar"` vacío; `jerarquico` ya no corre).
 - sáb 13:27 · S-24 terminada (la parte que no depende de PC 2): un archivo de prueba por caso para subir en el chat, `datos/demo/subida_<caso>.csv` con su `_verdad.csv`, para `leyes`, `taludes`, `flotacion`, `flota` y `sismicidad`. Simulados con el mismo generador de cada caso, otra semilla (2027), otro tamaño y otros nombres de columnas y unidades (minutos, porcentaje, hierro en ppm); el calce esperado de cada uno está en la cabecera de `datos/preparar/subida.py`. Un comando: `uv run python datos/preparar/subida.py`. Verificado: `api.analizar_archivo("espacial", subida_leyes.csv, {x: este_m, y: norte_m, valor: arsenico_ppm, umbral: 500})` responde verde en 0,09 s; los otros cuatro quedan dentro de los rangos de tamaño de su motor (20 sectores con 66 a 71 lecturas; 5 líneas con 3 a 5 celdas medidas; 24 camiones con 4 a 10 muestras; 5 sectores con 13 a 32 sismos). Pendiente de A-25, A-27 y A-28: mirarlos contra cada simulador.
 - sáb 13:27 · S-23, verificado: el archivo real de sondajes con cobre (`datos/demo/leyes_cobre_real.csv`, 91 sondajes, Zenodo 7051975, CC BY 4.0) responde verde con la red por `analizar_archivo` (x, y, valor = `cu_pct`). Con límite 0,5% deja 954 de 1.024 bloques en «no sabemos»: son sondajes de exploración separados por cientos de metros, no un banco. No se agregó a la tarjeta: sirve como archivo real para subir, y como ejemplo de «sabe cuánto no sabe» con datos reales. El archivo real de taludes (`taludes_real.csv`, 52 prismas con 52 a 130 lecturas) cabe en los rangos de `deformacion`; falta probarlo cuando exista el motor.
+- sáb 13:30 · S-26, la parte que no exige a una persona: `pitch/GUION.md` al día con D-38 (qué se dice de cada tarjeta nueva cuando el método lento va al final) y M-44 medido aquí sin nada entrenando. Falta leerlo en voz alta con cronómetro (una persona).
 
 ## En curso
 
@@ -55,5 +56,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
+| `leyes`: «¿Dónde perforo?», 480 análisis rehechos (M-44) | 1,3 s (cinco corridas: 1,30 a 1,48) | `api.donde_medir("leyes")` con la red, MacBook Air M3, sin nada entrenando | 13:27 |
+| `leyes`: un análisis completo | 0,007 a 0,008 s | `api.analizar("leyes")`, cinco corridas, lo mismo | 13:27 |
 | Extraños que repiten la idea, prueba 1 (guion minero) | pendiente: de 3 | S-29 | — |
 | Extraños que repiten la idea, prueba 2 | pendiente: de 3 | sáb 19:00 | — |
