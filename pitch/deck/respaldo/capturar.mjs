@@ -1,4 +1,4 @@
-// Respaldo estático del deck: una imagen PNG por lámina (su estado final) y un PDF con todas.
+// Respaldo estático del deck: una imagen JPG por lámina (su estado final). Con ellas se arma el PDF.
 // Abre index.html por file://, sin internet, en modo ?estatico (sin movimiento, semilla fija).
 //
 //   npm install --no-save playwright-core            (no se versiona)
@@ -26,8 +26,8 @@ for (let i = 1; i <= laminas; i++) {
   await page.goto('about:blank');
   await page.goto(deck + '?estatico#' + i + '.9');          // .9: el último paso de la lámina
   await page.waitForTimeout(900);
-  const nombre = String(i).padStart(2, '0') + '.png';
-  await page.screenshot({ path: join(aqui, nombre) });
+  const nombre = String(i).padStart(2, '0') + '.jpg';
+  await page.screenshot({ path: join(aqui, nombre), type: 'jpeg', quality: 90 });
   console.log(nombre);
 }
 await browser.close();
