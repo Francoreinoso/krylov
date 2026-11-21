@@ -36,8 +36,8 @@ en_palabras:
   # Hasta tres frases, en este orden, solo las que apliquen.
   hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y saber más no cambiaría la decisión."
   hay_actuar_una: "En 1 {unidad_singular}, {actuar_min}, y saber más no cambiaría la decisión."      # cuando n_actuar == 1
-  hay_en_duda: "En {n_en_duda} {unidad_plural} los datos no alcanzan para decidir: {en_duda_min}."
-  hay_en_duda_una: "En 1 {unidad_singular} los datos no alcanzan para decidir: {en_duda_min}."      # cuando n_en_duda == 1
+  hay_en_duda: "En {n_en_duda} {unidad_plural} los datos no alcanzan para decidir."
+  hay_en_duda_una: "En 1 {unidad_singular} los datos no alcanzan para decidir."      # cuando n_en_duda == 1
   factor_seguro: "Lo que más pesa es {factor_min}."
   factor_no_se_sabe: "{factor}: con estos datos no se puede saber si sube o baja el riesgo."
   # Motor espacial (`leyes`, y `terreno`): reemplazan a las anteriores. Son genéricas: lo propio de cada caso sale
