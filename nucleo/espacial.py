@@ -179,6 +179,16 @@ def _theta_mcmc(clave: str, cuantas: int) -> np.ndarray:
     return theta[np.sort(elegidas)]
 
 
+def theta_del_mcmc() -> bool:
+    """`KRYLOV_ESPACIAL_THETA=mcmc`: con la implementación `red`, el mapa sale de la cabeza de mapa y θ del MCMC precalculado.
+
+    Es el salvavidas del plan para el caso en que la cabeza de mapa pasa su validación y la de flujo no: «qué
+    manda en el terreno» se lee entonces del MCMC de referencia del archivo del caso, y la respuesta lo dice.
+    """
+    import os
+    return os.environ.get("KRYLOV_ESPACIAL_THETA", "red").strip().lower() == "mcmc"
+
+
 def inferir(canales: np.ndarray, cuenta: np.ndarray, impl: str, clave: str, muestras: int = MUESTRAS_POSTERIOR) -> dict:
     """El predictivo del mapa y el posterior de θ para un lote de grillas, con la red o con el MCMC precalculado.
 
@@ -192,8 +202,11 @@ def inferir(canales: np.ndarray, cuenta: np.ndarray, impl: str, clave: str, mues
         sesion, pesos_flujo = _cargar_red()
         entrada = canales[:, : sesion.get_inputs()[0].shape[1]]
         media, log_desv, resumen = sesion.run(None, {"canales": entrada})
-        ruido = flujo_numpy.ruido(0, muestras, len(NOMBRES_THETA))
-        theta = flujo_numpy.muestrear(pesos_flujo, resumen[:, None, :], np.broadcast_to(ruido, (len(canales),) + ruido.shape))
+        if theta_del_mcmc():                          # salvavidas: mapa de la red, parámetros del MCMC precalculado
+            theta = _theta_mcmc(clave, muestras)
+        else:
+            ruido = flujo_numpy.ruido(0, muestras, len(NOMBRES_THETA))
+            theta = flujo_numpy.muestrear(pesos_flujo, resumen[:, None, :], np.broadcast_to(ruido, (len(canales),) + ruido.shape))
         return {"media": media.astype(np.float64), "desviacion": np.exp(log_desv.astype(np.float64)), "theta": theta.astype(np.float64)}
 
     theta = _theta_mcmc(clave, muestras)
@@ -257,7 +270,7 @@ def _examen(caso: dict, terreno: dict, impl: str, sin_tendencia: bool) -> dict |
     suma, cuenta = acumular_por_bloque(terreno["fila"][visibles], terreno["columna"][visibles], valor_t[visibles])
     canales, media, escala = canales_de(suma, cuenta, terreno["raiz_dist"])
     try:
-        r = inferir(canales[None], cuenta[None], impl, _clave(caso, sin_tendencia, "__examen"))
+        r = inferir(canales[None], cuenta[None], impl, _clave(caso, sin_tendencia, "" if impl == "red" else "__examen"))
     except ErrorKrylov:
         return None                                   # con `mcmc`, el examen necesita su propia corrida precalculada
     theta = r["theta"].reshape(-1, len(NOMBRES_THETA))
@@ -302,7 +315,8 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
         "costo_total": float(d["duda"][dentro].sum()),
         "factores": que_manda(theta, terreno["raiz_dist"], dentro, hay_tendencia=bool(canales[2].any())),
         "examen": _examen(caso, terreno, impl, sin_tendencia) if not mediciones else None,
-        "registro": [f"{n} mediciones", f"grilla de {LADO} por {LADO} bloques", f"{int(dentro.sum())} bloques dentro del terreno"],
+        "registro": [f"{n} mediciones", f"grilla de {LADO} por {LADO} bloques", f"{int(dentro.sum())} bloques dentro del terreno"]
+                    + (["qué manda en el terreno: precalculado con el método lento"] if impl == "red" and theta_del_mcmc() else []),
     }
 
 
