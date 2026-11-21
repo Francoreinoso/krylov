@@ -17,7 +17,7 @@ EJEMPLOS = Path(__file__).resolve().parent.parent / "contratos" / "ejemplos"
 def test_casos_con_la_forma_del_ejemplo_y_el_orden_del_inicio():
     ejemplo = json.loads((EJEMPLOS / "casos.json").read_text(encoding="utf-8"))["casos"]
     tarjetas = api.casos()["casos"]
-    assert [t["nombre"] for t in tarjetas] == ["rotacion", "terreno", "inasistencias", "credito"]
+    assert [t["nombre"] for t in tarjetas] == ["leyes", "taludes", "flotacion", "flota", "sismicidad"]
     assert all(set(t) == set(ejemplo[0]) for t in tarjetas)
     assert {t["nombre"]: t["motor"] for t in tarjetas} == {e["nombre"]: e["motor"] for e in ejemplo}
 

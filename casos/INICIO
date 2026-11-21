@@ -2,12 +2,12 @@
 # Una tarjeta que a las 17:30 del sábado no tenga respuesta de su motor se borra (o se comenta) de esta lista.
 # No van aquí: `leyes_pocos` (el archivo que no alcanza, tecla M, marcado `oculto`) ni `terreno` (el examen con datos reales del motor espacial).
 leyes
-# Las cuatro de abajo se descomentan cuando PC 2 registre su motor en `nucleo/casos.py` (tarea A-21);
-# hasta entonces la web las pinta desde `contratos/ejemplos/casos.json`, rotuladas «ejemplo».
-# taludes
-# flotacion
-# flota
-# sismicidad
+# Las cuatro de abajo tienen su motor registrado en `nucleo/casos.py` (A-21). Mientras un motor no responda,
+# `analizar` devuelve `no_disponible` y la web pinta el ejemplo fijo, rotulado «ejemplo».
+taludes
+flotacion
+flota
+sismicidad
 # Retirados por D-37. Siguen en esta lista, marcados `oculto: true` (no se ven en el inicio), solo para que
 # `nucleo/api.py` encuentre el caso base de sus motores hasta que PC 2 los retire (tarea A-32). Ahí se borran estas líneas.
 rotacion
