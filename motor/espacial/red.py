@@ -29,6 +29,8 @@ from motor.comun.flujo import FlujoCondicional
 from motor.espacial.simular import DIM_THETA
 
 DIM_RESUMEN = 128
+ANCHOS = (32, 64, 128)     # canales del codificador en las escalas 32, 16 y 8. Medido en la GPU del M4:
+                           # ~520 terrenos/s al entrenar, contra ~300 con (48, 96, 192)
 LOG_DESV_MIN, LOG_DESV_MAX = -5.0, 3.0
 
 
@@ -48,7 +50,7 @@ class BloqueResidual(nn.Module):
 class Codificador(nn.Module):
     """Codificador convolucional en tres escalas (32, 16, 8). Devuelve las características de cada una."""
 
-    def __init__(self, canales_entrada: int = 3, anchos: tuple[int, int, int] = (48, 96, 192)):
+    def __init__(self, canales_entrada: int = 3, anchos: tuple[int, int, int] = ANCHOS):
         super().__init__()
         a1, a2, a3 = anchos
         self.entrada = nn.Conv2d(canales_entrada, a1, 3, padding=1)
@@ -68,7 +70,7 @@ class Codificador(nn.Module):
 class CabezaMapa(nn.Module):
     """Decodificador con saltos: de las tres escalas a media y log-desviación de y(s) por bloque."""
 
-    def __init__(self, anchos: tuple[int, int, int] = (48, 96, 192)):
+    def __init__(self, anchos: tuple[int, int, int] = ANCHOS):
         super().__init__()
         a1, a2, a3 = anchos
         self.subir2 = nn.Conv2d(a3, a2, 3, padding=1)
@@ -92,7 +94,7 @@ class Resumidor(nn.Module):
     estándar sobre el espacio. Sus pesos los entrena solo la pérdida NPE.
     """
 
-    def __init__(self, anchos: tuple[int, int, int] = (48, 96, 192), ancho: int = 96, dim_resumen: int = DIM_RESUMEN):
+    def __init__(self, anchos: tuple[int, int, int] = ANCHOS, ancho: int = 96, dim_resumen: int = DIM_RESUMEN):
         super().__init__()
         self.ramas = nn.ModuleList([
             nn.Sequential(nn.Conv2d(a, ancho, 3, stride=2, padding=1), nn.SiLU(), nn.Conv2d(ancho, ancho, 3, padding=1), nn.SiLU())
@@ -112,11 +114,11 @@ class Resumidor(nn.Module):
 class RedMapa(nn.Module):
     """Lo que se exporta a ONNX: canales → (media, log_desv, resumen). Sin el flujo."""
 
-    def __init__(self, canales_entrada: int = 3):
+    def __init__(self, canales_entrada: int = 3, anchos: tuple[int, int, int] = ANCHOS):
         super().__init__()
-        self.codificador = Codificador(canales_entrada)
-        self.cabeza_mapa = CabezaMapa()
-        self.resumidor = Resumidor()
+        self.codificador = Codificador(canales_entrada, anchos)
+        self.cabeza_mapa = CabezaMapa(anchos)
+        self.resumidor = Resumidor(anchos)
 
     def forward(self, canales: Tensor) -> tuple[Tensor, Tensor, Tensor]:
         c1, c2, c3 = self.codificador(canales)
@@ -132,10 +134,10 @@ class RedEspacial(nn.Module):
     Con `canales_entrada=2` es la red del salvavidas: sin el canal de tendencia.
     """
 
-    def __init__(self, canales_entrada: int = 3):
+    def __init__(self, canales_entrada: int = 3, anchos: tuple[int, int, int] = ANCHOS):
         super().__init__()
-        self.canales_entrada = canales_entrada
-        self.mapa = RedMapa(canales_entrada)
+        self.canales_entrada, self.anchos = canales_entrada, tuple(anchos)
+        self.mapa = RedMapa(canales_entrada, self.anchos)
         self.flujo = FlujoCondicional(DIM_THETA, DIM_RESUMEN)
 
     def forward(self, canales: Tensor) -> tuple[Tensor, Tensor, Tensor]:

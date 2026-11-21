@@ -18,7 +18,7 @@ from pathlib import Path
 import torch
 
 from motor.comun.entrenar import elegir_dispositivo, entrenar
-from motor.espacial.exportar import configuracion
+from motor.espacial.exportar import configuracion, red_desde_config
 from motor.espacial.red import RedEspacial
 from motor.espacial.simular import Prior, simular
 
@@ -30,10 +30,10 @@ def main() -> None:
     p.add_argument("--minutos", type=float, default=None, help="presupuesto en minutos")
     p.add_argument("--hasta", type=str, default=None, help="entrenar hasta esta hora, HH:MM")
     p.add_argument("--dispositivo", default="auto", choices=("auto", "cpu", "mps"))
-    p.add_argument("--lote", type=int, default=128)
+    p.add_argument("--lote", type=int, default=64)
     p.add_argument("--canales", type=int, default=3, choices=(2, 3), help="2 = salvavidas sin canal de tendencia")
     p.add_argument("--guardar-cada-min", type=float, default=10.0)
-    p.add_argument("--tasa", type=float, default=1e-3)
+    p.add_argument("--tasa", type=float, default=5e-4)
     p.add_argument("--carpeta", type=Path, default=CARPETA)
     p.add_argument("--semilla", type=int, default=0)
     p.add_argument("--nuevo", action="store_true", help="ignora el punto de guardado y parte de cero")
@@ -45,12 +45,15 @@ def main() -> None:
     pasos_previos = 0
     if retomar:   # la arquitectura la manda el punto de guardado, no la línea de comandos
         previo = torch.load(a.carpeta / "ultimo.pt", map_location="cpu", weights_only=False)
-        a.canales, pasos_previos = previo["config"]["canales_entrada"], previo["pasos"]
+        red, pasos_previos = red_desde_config(previo["config"]), previo["pasos"]
+        a.canales = red.canales_entrada
+    else:
+        torch.manual_seed(a.semilla)
+        red = RedEspacial(a.canales)
 
     # Al retomar cambia la semilla: los terrenos que vienen no repiten los de la corrida anterior.
     torch.manual_seed(a.semilla + pasos_previos)
     gen = torch.Generator().manual_seed(a.semilla + pasos_previos)
-    red = RedEspacial(a.canales)
     if not retomar:
         # Estandarización de θ' para el flujo: media y desviación bajo el prior, con 8.192 terrenos simulados.
         red.flujo.fijar_escala(simular(8192, prior, gen, con_tendencia=a.canales == 3)["theta"])
@@ -59,7 +62,7 @@ def main() -> None:
     def perdida_de_lote():
         lote = simular(a.lote, prior, gen, dispositivo, con_tendencia=a.canales == 3)
         partes = red.perdidas(lote)
-        return partes["mapa"] + partes["flujo"], {k: float(v) for k, v in partes.items()}
+        return partes["mapa"] + partes["flujo"], {k: float(v.detach()) for k, v in partes.items()}
 
     config = configuracion(a.canales, prior, {"lote": a.lote, "dispositivo": str(dispositivo), "tasa": a.tasa, "semilla": a.semilla})
     print(f"[espacial] dispositivo={dispositivo} lote={a.lote} canales={a.canales} retomar={retomar} carpeta={a.carpeta}", flush=True)

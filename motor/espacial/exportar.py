@@ -22,7 +22,7 @@ import torch
 
 from motor.comun.codificador import comparar_con_onnxruntime, exportar_onnx
 from motor.comun.entrenar import cargar_punto
-from motor.espacial.red import RedEspacial
+from motor.espacial.red import ANCHOS, RedEspacial
 from motor.espacial.simular import DIM_THETA, NOMBRES_THETA, Prior, simular
 from nucleo import flujo as flujo_numpy
 from nucleo.preproceso import LADO, VERSION
@@ -60,11 +60,17 @@ def exportar(red: RedEspacial, carpeta: Path, config: dict) -> dict:
     return medido
 
 
+def red_desde_config(config: dict) -> RedEspacial:
+    """La red con la arquitectura que dice un `config` (el de un punto de guardado o el de los artefactos)."""
+    return RedEspacial(config["canales_entrada"], tuple(config.get("anchos", ANCHOS)))
+
+
 def configuracion(canales_entrada: int, prior: Prior, extra: dict | None = None) -> dict:
     return {
         "motor_id": "espacial", "preproceso": VERSION, "lado": LADO, "canales_entrada": canales_entrada,
+        "anchos": list(ANCHOS),
         "nombres_theta": list(NOMBRES_THETA), "prior": prior.a_dict(),
-        "arquitectura": "codificador convolucional con saltos (48, 96, 192) + cabeza de mapa + NPE con flujo de "
+        "arquitectura": "codificador convolucional con saltos en tres escalas + cabeza de mapa + NPE con flujo de "
                         "acoplamiento afín (8 capas) sobre un resumen de 128, con el gradiente cortado",
         **(extra or {}),
     }
@@ -85,7 +91,7 @@ def main() -> None:
     else:
         estado = torch.load(a.punto, map_location="cpu", weights_only=False)
         config = estado["config"]
-        red, salida = RedEspacial(config["canales_entrada"]), a.salida
+        red, salida = red_desde_config(config), a.salida
         cargar_punto(a.punto, red)
         config = {**config, "entrenada": True, "pasos": estado["pasos"], "datasets_simulados": estado["datasets_simulados"],
                   "minutos_entrenamiento": round(estado["segundos"] / 60, 1)}

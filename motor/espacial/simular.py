@@ -53,7 +53,7 @@ class Prior:
     log_tau_media: float = math.log(0.35)       # ruido de medición, relativo a σ ≈ 1
     log_tau_desv: float = 0.7
     beta0_desv: float = 1.0
-    beta1_desv: float = 3.0
+    beta1_desv: float = 4.0                     # ancho: en el terreno real la tendencia domina (correlación −0,80 con √dist)
     prob_sin_tendencia: float = 0.2
     n_min: int = 30
     n_max: int = 400

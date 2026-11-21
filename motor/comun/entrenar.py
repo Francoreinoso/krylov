@@ -5,6 +5,8 @@ la pérdida y actualiza la red. El bucle se ocupa de lo que no depende del motor
 
 - **Puntos de guardado** cada `guardar_cada_min` minutos y al detenerse (Ctrl-C o `kill`),
   escritos de forma atómica en `carpeta/ultimo.pt`. Con `retomar=True` sigue desde ahí.
+  Cada `conservar_cada_min` queda además una copia numerada (`paso_0012345.pt`), por si
+  una corrida larga se estropea después de un punto bueno.
 - **Conteo de datasets simulados**: la cifra «practicó con N millones» sale de aquí.
 - Presupuesto por reloj (`minutos` o `hasta` una hora HH:MM), con tasa de aprendizaje
   en coseno sobre la fracción de tiempo transcurrida.
@@ -19,6 +21,7 @@ import datetime as dt
 import json
 import math
 import os
+import shutil
 import signal
 import time
 from pathlib import Path
@@ -71,6 +74,7 @@ def entrenar(
     minutos: float | None = None,
     hasta: str | None = None,
     guardar_cada_min: float = 10.0,
+    conservar_cada_min: float = 30.0,
     tasa: float = 1e-3,
     tasa_final: float = 0.05,
     norma_maxima: float = 5.0,
@@ -116,7 +120,7 @@ def entrenar(
         signal.signal(senal, _pedir_parada)
 
     modulo.train()
-    inicio = ultimo_guardado = ultimo_registro = time.time()
+    inicio = ultimo_guardado = ultimo_conservado = ultimo_registro = time.time()
     pasos_al_registrar, seguidos_malos, media_movil = progreso["pasos"], 0, None
     estado = None
     while not detener["pedido"]:
@@ -147,7 +151,7 @@ def entrenar(
 
         if progreso["pasos"] % registrar_cada == 0:
             ahora = time.time()
-            valor = float(perdida)
+            valor = float(perdida.detach())
             media_movil = valor if media_movil is None else 0.9 * media_movil + 0.1 * valor
             linea = {
                 "paso": progreso["pasos"], "datasets": progreso["datasets_simulados"],
@@ -164,5 +168,8 @@ def entrenar(
         if time.time() - ultimo_guardado >= guardar_cada_min * 60:
             estado = punto("periódico")
             ultimo_guardado = time.time()
+            if ultimo_guardado - ultimo_conservado >= conservar_cada_min * 60:
+                shutil.copyfile(ruta, carpeta / f"paso_{progreso['pasos']:07d}.pt")
+                ultimo_conservado = ultimo_guardado
 
     return punto("parada pedida" if detener["pedido"] else "fin del presupuesto")
