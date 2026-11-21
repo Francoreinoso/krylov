@@ -1,7 +1,7 @@
 {
  "caso": "leyes",
  "implementacion": "red",
- "precalculado": false,
+ "precalculado": true,
  "candidatas": [
   {
    "puesto": 1,
@@ -48,5 +48,5 @@
  ],
  "mensaje_parada": null,
  "analisis_rehechos": 480,
- "tiempo_ms": 3358
+ "tiempo_ms": 2869
 }

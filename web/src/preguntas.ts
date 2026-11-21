@@ -20,13 +20,13 @@ export const MOTOR_EN_PALABRAS: Record<string, string> = {
   sismico: 'Cada sismo sube por un rato la probabilidad del siguiente',
 }
 
-// `dondeMedir` es el rótulo del caso («¿Dónde perforo?»), que llega con la primera respuesta.
+// `dondeMedir` es el rótulo del caso («¿Dónde perforo?»); sin él, la pregunta no se ofrece.
 export function preguntasDe(caso: Caso, dondeMedir?: string): Pregunta[] {
   const espacial = caso.motor === 'espacial'
   return [
     { intencion: 'decidir', texto: caso.titulo },
     { intencion: 'costo', texto: '¿Cuánto me cuesta no saber?' },
-    ...(espacial ? [{ intencion: 'donde_medir' as const, texto: dondeMedir ?? '¿Dónde conviene medir?' }] : []),
+    ...(espacial && dondeMedir ? [{ intencion: 'donde_medir' as const, texto: dondeMedir }] : []),
     { intencion: 'que_pesa', texto: '¿Qué pesa?' },
     { intencion: 'examen', texto: '¿Qué tan bien le fue a Krylov?' },
   ]

@@ -143,7 +143,11 @@ function Candidatas({ donde, moneda, alPerforar, ocupado, hechas, columna = fals
       {donde.analisis_rehechos && (
         <p className="dato mb-2">
           Para elegirlos, Krylov rehízo el análisis completo {donde.analisis_rehechos.toLocaleString('es-CL')} veces
-          {donde.tiempo_ms ? ` en ${(donde.tiempo_ms / 1000).toLocaleString('es-CL', { maximumFractionDigits: 1 })} s` : ''}
+          {donde.precalculado
+            ? ' · precalculado'
+            : donde.tiempo_ms
+              ? ` en ${(donde.tiempo_ms / 1000).toLocaleString('es-CL', { maximumFractionDigits: 1 })} s`
+              : ''}
         </p>
       )}
       <ol className={`grid gap-2 ${columna ? '' : 'sm:grid-cols-3'}`}>
@@ -343,7 +347,7 @@ export function CuerpoRespuesta({ datos, d, grande = false, alPerforar, ocupado 
             {donde?.candidatas[0] && (
               <p className="titular text-3xl">
                 Una muestra más cuesta {plata(donde.candidatas[0].costo_medicion, moneda)}.{' '}
-                <span className="text-oro">{analisis.rotulos.donde_medir ?? '¿Dónde conviene medir?'}</span>
+                {analisis.rotulos.donde_medir && <span className="text-oro">{analisis.rotulos.donde_medir}</span>}
               </p>
             )}
             {candidatas(true)}

@@ -44,7 +44,8 @@ def exportar() -> int:
     shutil.rmtree(DESTINO, ignore_errors=True)
     lista = respuestas.casos()
     _escribir("casos", lista)
-    n = 1
+    _escribir("textos", respuestas.textos())
+    n = 2
     for c in lista["casos"]:
         nombre = c["nombre"]
         n += _analisis(nombre, respuestas.analizar(nombre))
@@ -53,7 +54,8 @@ def exportar() -> int:
             n += 1
         if c["motor"] == "espacial":
             donde = respuestas.donde_medir(nombre)
-            _escribir(f"donde-medir/{nombre}", donde)
+            # En vivo tarda más de 2 s (regla 7): se sirve precalculado, con el tiempo medido al generarlo.
+            _escribir(f"donde-medir/{nombre}", {**donde, "precalculado": True})
             n += 1
             # «¿Dónde perforo?»: el mapa rehecho con la muestra simulada en cada pin (su resultado medio).
             for p in donde.get("candidatas", []):

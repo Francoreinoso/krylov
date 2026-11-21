@@ -26,7 +26,11 @@ function Deslizador({ costo, valor, moneda, alCambiar }: { costo: Costo; valor: 
         max={costo.max}
         step={paso}
         value={valor}
-        onChange={(e) => alCambiar(Number(e.target.value))}
+        onChange={(e) => {
+          // Imán al valor del caso: no cae en la cuadrícula del paso y si no, no se podría volver a él.
+          const v = Number(e.target.value)
+          alCambiar(Math.abs(v - costo.valor) <= paso / 2 ? costo.valor : v)
+        }}
         />
         <span className="w-28 shrink-0 text-right font-mono text-sm whitespace-nowrap">{plata(valor, moneda)}</span>
       </span>

@@ -88,6 +88,7 @@ export default function Chat() {
   const fijaYVisible = disposicion === 'oxido' && enEscritorio
   const [casos, setCasos] = useState<Caso[]>([])
   const [quien, setQuien] = useState<Record<string, Quien>>({})
+  const [rotulosMedir, setRotulosMedir] = useState<Record<string, string>>({}) // «¿Dónde perforo?» de cada caso
   const [estado, setEstado] = useState(() => {
     const c = nueva()
     return { conversaciones: [c], activa: c.id }
@@ -118,7 +119,11 @@ export default function Chat() {
         for (const c of r.datos.casos) {
           api
             .analizar(c.nombre)
-            .then((a) => setQuien((q) => ({ ...q, [c.nombre]: rotuloQuien(a.datos) })))
+            .then((a) => {
+              setQuien((q) => ({ ...q, [c.nombre]: rotuloQuien(a.datos) }))
+              const medir = a.datos.rotulos.donde_medir
+              if (medir) setRotulosMedir((m) => ({ ...m, [c.nombre]: medir }))
+            })
             .catch(() => {})
         }
       })
@@ -180,12 +185,14 @@ export default function Chat() {
         decirRespuesta(id, { intencion, analisis, nube: null, donde: null, clave: null })
         return
       }
-      const r = await api.analizar(caso.nombre)
-      const analisis = r.datos
-      const [nube, donde] = await Promise.all([
-        analisis.semaforo.estado === 'rojo_modelo' ? api.nube(caso.nombre).then((n) => n.datos) : null,
-        intencion === 'donde_medir' && analisis.mapa ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
+      // «¿Dónde perforo?» se pide a la par del análisis; la nube depende de él (solo en rojo_modelo).
+      const [r, pedidoDonde] = await Promise.all([
+        api.analizar(caso.nombre),
+        intencion === 'donde_medir' ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
       ])
+      const analisis = r.datos
+      const nube = analisis.semaforo.estado === 'rojo_modelo' ? (await api.nube(caso.nombre)).datos : null
+      const donde = analisis.mapa ? pedidoDonde : null
       setOrigen(r.origen)
       decirRespuesta(id, { intencion, analisis, nube, donde, clave: caso.nombre })
     } catch (e) {
@@ -195,14 +202,15 @@ export default function Chat() {
     }
   }
 
-  // «¿Dónde perforo?»: simula la muestra en el pin elegido (su resultado medio) y rehace el análisis.
+  // «¿Dónde perforo?»: simula una sola muestra en el pin elegido (su resultado medio) sobre el
+  // análisis original y lo rehace. Así A, B y C se comparan en cualquier orden, con o sin servidor.
   const perforar = async (desde: DatosRespuesta, c: Candidata) => {
     const caso = conv.caso
     const valor = c.resultados_posibles?.medio
     if (!caso || valor === undefined || pensando !== null) return
     const id = conv.id
     const medicion: MedicionNueva = { x: c.x, y: c.y, valor, etiqueta: c.etiqueta }
-    const nuevas = [...desde.nuevas, medicion]
+    const nuevas = [medicion]
     decir(id, { de: 'tu', texto: `Perforar en ${c.etiqueta}` })
     setPensando(id)
     try {
@@ -216,7 +224,7 @@ export default function Chat() {
         clave: claveEstatica(caso.nombre, [], nuevas),
         nuevas,
         perforacion: { candidata: c, valor },
-        antes: desde.analisis.costo_de_no_saber?.valor ?? null,
+        antes: desde.antes ?? desde.analisis.costo_de_no_saber?.valor ?? null, // antes de cualquier muestra
       })
     } catch (e) {
       decir(id, { de: 'krylov', tipo: 'texto', texto: `No pude simular esa muestra: ${(e as Error).message}` })
@@ -272,10 +280,12 @@ export default function Chat() {
     responder(id, caso, intencion, columnas && conv.archivo ? { archivo: conv.archivo, columnas } : null)
   }
 
-  // El rótulo de medir del caso («¿Dónde perforo?») llega con la primera respuesta.
+  // El rótulo de medir del caso («¿Dónde perforo?»): el de la última respuesta o, antes de la
+  // primera, el del análisis que se pidió al cargar.
   const rotuloMedir = (c: Conversacion) => {
     const r = c.mensajes.findLast((m) => m.de === 'krylov' && m.tipo === 'respuesta')
-    return r?.de === 'krylov' && r.tipo === 'respuesta' ? r.datos.analisis.rotulos.donde_medir : undefined
+    const deRespuesta = r?.de === 'krylov' && r.tipo === 'respuesta' ? r.datos.analisis.rotulos.donde_medir : undefined
+    return deRespuesta ?? (c.caso ? rotulosMedir[c.caso.nombre] : undefined)
   }
 
   // Qué hacer con una pregunta, una vez que hay modelo.

@@ -9,10 +9,8 @@ export default function Pie({ analisis }: { analisis: Analisis }) {
   return (
     <footer className="mt-6 flex flex-wrap gap-x-6 gap-y-1 border-t border-linea pt-3 text-sm text-tinta-suave">
       <span>{quien}</span>
-      <span>
-        {analisis.origen_datos}
-        {analisis.sintetico && '. Datos sintéticos'}
-      </span>
+      <span>{analisis.origen_datos}</span>
+      {analisis.sintetico && <span>Datos simulados.</span>}
       {analisis.sello_resumen.frase && <span>{analisis.sello_resumen.frase}</span>}
     </footer>
   )

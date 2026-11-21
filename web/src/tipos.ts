@@ -143,6 +143,7 @@ export interface DondeMedir {
   candidatas: Candidata[]
   analisis_rehechos?: number
   tiempo_ms?: number
+  precalculado?: boolean // se sirve desde el estático: tarda más de 2 s en vivo
 }
 
 // Una muestra simulada en un pin de «¿Dónde perforo?».

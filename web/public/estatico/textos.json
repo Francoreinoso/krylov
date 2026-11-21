@@ -1,0 +1,11 @@
+{
+ "curva": {
+  "titulo": "Lo medido y lo que Krylov cree que viene",
+  "medido": "Medido",
+  "ahora": "Ahora",
+  "abanico": "Rango creíble de lo que viene (9 de cada 10 futuros simulados caen aquí)",
+  "limite": "Límite",
+  "falta": "Faltan entre {bajo} y {alto} {unidad_tiempo}.",
+  "sin_curva": "Esta unidad no tiene curva."
+ }
+}

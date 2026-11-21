@@ -97,6 +97,11 @@ def sello(motor: str):
     return respuestas.sello(motor)
 
 
+@app.get("/api/textos")
+def textos():
+    return respuestas.textos()
+
+
 async def _leer_archivo(archivo: UploadFile) -> bytes:
     contenido = await archivo.read(MAX_BYTES + 1)
     if len(contenido) > MAX_BYTES:

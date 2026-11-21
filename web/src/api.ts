@@ -126,6 +126,15 @@ export function despertarApi(): void {
   if (API_URL && !forzarEstatico) fetch(`${API_URL}/api/salud`).catch(() => {})
 }
 
+// En vivo tarda más de 2 s (AGENTS.md, regla 7): para un caso del demo manda el precalculado.
+async function dondeMedir(caso: string): Promise<Respuesta<DondeMedir>> {
+  try {
+    return { datos: await desdeEstatico<DondeMedir>(`donde-medir/${clave(caso)}`), origen: 'estatico' }
+  } catch {
+    return pedir<DondeMedir>('donde-medir', `donde-medir/${clave(caso)}`, { caso, mediciones: [] }, TOPE_DONDE_MEDIR_MS)
+  }
+}
+
 export const api = {
   casos: () => pedir<Casos>('casos', 'casos'),
   analizar: (caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []) =>
@@ -142,5 +151,5 @@ export const api = {
   analizarArchivo: (archivo: File, motor: string, columnas: ColumnasConfirmadas) =>
     conArchivo<Analisis>('analizar_archivo', { archivo, motor_id: motor, columnas: JSON.stringify(columnas) }),
   interpretar,
-  dondeMedir: (caso: string) => pedir<DondeMedir>('donde-medir', `donde-medir/${clave(caso)}`, { caso, mediciones: [] }, TOPE_DONDE_MEDIR_MS),
+  dondeMedir,
 }

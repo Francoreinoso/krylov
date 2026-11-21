@@ -54,5 +54,5 @@
  "sintetico": true,
  "origen_datos": "Banco de tronadura simulado, con solo 12 de sus 340 pozos. No son datos de ninguna mina.",
  "mapa": null,
- "tiempo_ms": 6
+ "tiempo_ms": 4
 }
