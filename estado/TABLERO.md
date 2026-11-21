@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 14:00 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 14:43 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ (todavía muestra las cuatro tarjetas anteriores; cambia con P-21 y P-22).
 
@@ -26,9 +26,9 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🔴 atrasado | P-21 lleva más del doble de su tiempo (tope 13:10) y no hay estado nuevo desde las 12:40. Recorte: subir lo que haya y pasar a P-22, que es lo que exige H4 |
+| producto (PC 1) | 🟡 atrasado | P-21 subida (commit `cc97fdc`), una hora después de su tope. Ahora P-22, que es lo que exige H4 y ya pasó su tope (13:50) |
 | amortizacion (PC 2) | 🟢 adelantado | A-21 a A-29 hechas salvo dos pruebas de humo (`desgaste`, `sismico`); `cinetica` entrena desde las 13:38, cerca de 8.700 datasets por segundo |
-| seguimiento (PC 3) | 🟢 entrenando | `deformacion` corre desde las 13:44 (GPU del Mac, 410 a 540 datasets por segundo). Valida a las 16:10 |
+| seguimiento (PC 3) | 🟡 entrenando | `deformacion` corre desde las 13:44. El ritmo cayó a menos de la mitad y a las 14:40 se relanzó con lote 64 desde su punto de guardado (977.664 datasets hasta ahí). Valida a las 16:10 |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 

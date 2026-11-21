@@ -23,6 +23,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 14:00 · Pedidos de PC 2 hechos: `casos/taludes.yaml` (etiqueta `falta_para_ceder` en vez de `velocidad_fondo`, y `ruido` con su sentido nuevo); `WORKPLAN.md` 11.2 (tres locales continuos más z_j; modo común AR(1) que no se infiere), 11.4 («hoy» es la última muestra; mantención de 50 a 1.000 horas; segundo local log(X_hoy + 0,01); el camión que falló se sortea entero; 16 sorteos) y 11.5 (se descarta el dataset con un sector sobre 300 sismos; tensores de 16 × 301; α bajo 0,95·b·ln 10); `pitch/CIFRAS.md` M-54 y M-55 (examen de `leyes` por color y por tramos). Verificado: `pytest nucleo motor/cinetica motor/desgaste motor/sismico -q` pasa.
 - sáb 14:00 · `ventana: 6` en `casos/sismicidad.yaml`: **no aplicado**. Con esa línea falla `motor/sismico/prueba_sismico.py::test_fuera_del_rango_es_rojo_datos` (sin ella pasan las 5): `analizar_archivo` hereda la `ventana` del caso base, así que un archivo subido de 0,3 horas se trata como si cubriera 6. Ver pedido a PC 2.
 - sáb 13:59 · Ritmo de `deformacion` revisado a los 15 minutos: entre 410 y 540 datasets por segundo (partió en 539; caída cerca de 15%, bajo el 30% que obliga a relanzar). Primer punto de guardado a las 13:53: 276.480 datasets, pérdida de 10,2 a 4,3.
+- sáb 14:40 · `deformacion` relanzado desde su punto de guardado con lote 64 (sin `--nuevo`). El ritmo había caído de 539 a entre 206 y 249 datasets por segundo (más de 50%; la regla era relanzar si caía más de 30%). Se detuvo con `pkill -INT` (guardó: paso 7.638, 977.664 datasets en 56,7 min, pérdida media de 9,6 a 2,1). Con lote 64 volvió a cerca de 490 datasets por segundo en el primer minuto. A las 14:40 el Mac estaba **con batería, no enchufado** (88%): avisado a la persona. El registro del primer tramo quedó en `motor/checkpoints/deformacion/entrenar_lote128.log`.
 
 ## En curso
 
@@ -34,7 +35,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 | Qué | Valor |
 |---|---|
 | Motor | `deformacion` (ronda 1), en PC 3 |
-| Comando exacto | `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 128 --guardar-cada-min 10 --nuevo`, con la salida en `motor/checkpoints/deformacion/entrenar.log` |
+| Comando exacto | Desde las 14:40: `caffeinate -dims uv run python -m motor.deformacion.entrenar --hasta 16:10 --dispositivo mps --lote 64 --guardar-cada-min 10` (retomó desde `ultimo.pt`). De 13:44 a 14:40 corrió con `--lote 128 --nuevo`, con la salida en `motor/checkpoints/deformacion/entrenar.log` |
 | Dónde corre | En el worktree `.claude/worktrees/pc3-seguimiento-tableros-d4cd0b` de este computador, con el Python de `~/Downloads/krylov/.venv` |
 | Puntos de guardado | `motor/checkpoints/deformacion/ultimo.pt`, cada 10 minutos (no se versionan) |
 | Para retomar si se cae | El mismo comando sin `--nuevo`: retoma solo desde `ultimo.pt` |
