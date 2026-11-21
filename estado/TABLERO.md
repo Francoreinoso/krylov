@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 18:31 · **Producto terminado (H6): tag `congelado` puesto a las 18:40** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 18:31 · **Producto terminado (H6): tag `congelado` puesto a las 18:32** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **sigue con las tarjetas de antes del pivote: Vercel limitó los despliegues por 24 horas (17:58).** El código y el estático están en `main`. Lo decide una persona: otra cuenta o proyecto de Vercel. Sin eso, el QR lleva a la app antigua.
 
@@ -34,7 +34,7 @@ Verificado en PC 3 a las 18:30, corriendo: `pytest nucleo motor servicio`, 98 pa
 
 - **PC 1 · producto:** ahora **P-30**: exportar el estático con las cuatro redes (`sismicidad` incluida, y la frase del sello corregida) y cerrar **P-29**. El despliegue espera a que una persona resuelva Vercel.
 - **PC 2 · amortizacion:** ahora **A-34** (veredicto de `desgaste`) y avisar a PC 1 si pasa. Después **A-35** (README técnico) y **A-36** (método lento de `espacial`, `cinetica` y `desgaste`, sin nada entrenando).
-- **PC 3 · seguimiento:** H6 corrido y tag `congelado` puesto (18:40). Ahora ensayo con una persona (18:30), prueba con extraños (19:00, una persona) y **A-36** aquí para `deformacion` y `sismico` cuando PC 2 suba su `mcmc.py`.
+- **PC 3 · seguimiento:** H6 corrido y tag `congelado` puesto (18:32). Ahora ensayo con una persona (18:30), prueba con extraños (19:00, una persona) y **A-36** aquí para `deformacion` y `sismico` cuando PC 2 suba su `mcmc.py`.
 
 ## Qué cambió respecto del plan
 

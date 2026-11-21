@@ -282,7 +282,7 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Cómo se repite:** `uv run python -m motor.<id>.validar` (2.000 datasets nuevos, semilla fija). La latencia de un sello revalidado con un entrenamiento corriendo se vuelve a medir a las 18:15.
 · Análisis y propuesta de PC 2 (17:05); la acepta Rodrigo. Lo escribe PC 2 por encargo directo; PC 3 queda avisado en `estado/amortizacion.md`.
 
-**H6 · sáb 21-nov 18:40 · Producto terminado, con tag `congelado`: tres tarjetas responden con su red en la app y una cuarta tiene su red validada; la URL pública no se pudo actualizar.** Punto de control corrido por PC 3.
+**H6 · sáb 21-nov 18:32 · Producto terminado, con tag `congelado`: tres tarjetas responden con su red en la app y una cuarta tiene su red validada; la URL pública no se pudo actualizar.** Punto de control corrido por PC 3.
 
 - **Lo que pasa el criterio.** El recorrido en modo estático, en local y sin servidor (`?estatico=1`, la web de `main`): inicio con las tarjetas que responden, `leyes` con su mapa (147, 309 y 568 bloques; US$ 1.577.707) y «¿Dónde perforo?» (480 análisis), `taludes` (5, 2 y 29 sectores) y `flotacion` (2, 3 y 3 líneas), las tres rotuladas «responde la red». `pytest nucleo motor servicio`: 98 pasan.
 - **Lo que no.** (1) La URL pública sigue mostrando la app de antes del pivote: Vercel limitó los despliegues por 24 horas (17:58). Lo resuelve una persona con otra cuenta o proyecto; mientras tanto el QR no se muestra. (2) El recorrido lo hizo un agente una vez, no una persona dos veces: queda para el ensayo de las 18:30.
