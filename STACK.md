@@ -65,7 +65,7 @@ npm install tailwindcss @tailwindcss/vite  # solo si se elige Tailwind (2.3)
 npm install -g vercel                      # solo si hace falta desplegar por línea de comandos (2.6)
 ```
 
-Variables de entorno, en un archivo `.env` que **no** se sube: una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. No hay clave de Anthropic: la capa de lenguaje se cortó (2.8).
+Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANTHROPIC_API_KEY` desde D-34): una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. No hay clave de Anthropic: la capa de lenguaje se cortó (2.8).
 
 ### 2.2 Framework de la web
 
@@ -146,9 +146,9 @@ De cada motor llegan dos archivos: `codificador.onnx` y `flujo.npz` (sección 3.
 
 ### 2.8 Capa de lenguaje (Claude)
 
-> **Cortada por la decisión D-26.** No hay capa de lenguaje en la app: «Sube tus datos» (P-12) y la ruta `/api/proponer` salieron, porque cada motor responde una familia de archivos y no un CSV cualquiera. `en_palabras` sale de plantillas y no se instala el paquete `anthropic`. Anthropic aparece solo como la herramienta con que se construyó el producto (Claude Code). La tabla queda como registro de lo que se evaluó.
+> **Vuelve con la decisión D-34 (sáb 07:12), solo para interpretar.** El modelo de lenguaje recibe el JSON de una respuesta y escribe un texto corto (`POST /api/interpretar`). **No propone columnas** (el usuario las asigna con el selector) ni elige el motor, y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON y, si no, o sin clave o sin internet, usa la plantilla de `casos/textos.yaml`. Se instala el SDK `anthropic` **solo en `servicio/`** (nunca en `nucleo/` ni en `web/`); la clave va en `ANTHROPIC_API_KEY`, variable de entorno de Render, y nunca entra al repositorio. Antes (D-26) la capa estaba cortada.
 
-Una sola llamada por archivo subido (proponer columnas) y una por respuesta (tres frases). Se usa el SDK oficial `anthropic` de Python con salida estructurada. **Antes de escribir este código, el agente carga la skill `claude-api`**: varios parámetros que eran habituales ya no existen (temperatura, presupuesto de razonamiento, forzar una herramienta), y de memoria se escribe mal.
+Una sola llamada por respuesta (la interpretación). Para los archivos del demo se precalcula y se guarda en `web/public/estatico/interpretar/`. Se usa el SDK oficial `anthropic` de Python con salida estructurada. **Antes de escribir este código, el agente carga la skill `claude-api`**: varios parámetros que eran habituales ya no existen (temperatura, presupuesto de razonamiento, forzar una herramienta), y de memoria se escribe mal.
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
@@ -156,7 +156,7 @@ Una sola llamada por archivo subido (proponer columnas) y una por respuesta (tre
 | `claude-haiku-5-5` | El más rápido y barato | Menos criterio en archivos raros | Se cambia a este si la llamada medida pasa de 3 segundos |
 | Sin modelo: reglas fijas | Funciona sin internet | No «entiende» nada | Es el respaldo que se construye igual |
 
-Ninguna de las dos llamadas está en el camino del escenario: las tarjetas usan frases de plantilla si la capa no responde.
+La llamada no está en el camino del escenario: los números salen primero, la interpretación del demo está precalculada y, si la capa no responde, se usa la plantilla.
 
 ### 2.9 Lo que no se instala
 

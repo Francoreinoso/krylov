@@ -50,7 +50,21 @@ def cartera(caso: str) -> dict: ...
 def donde_medir(caso: str, mediciones: list[dict] = ()) -> dict: ...
 def nube(caso: str, transformaciones: list[str] = ()) -> dict: ...
 def sello(motor_id: str) -> dict: ...
+# Desde D-34 (sáb 07:12):
+def papeles(motor_id: str) -> dict: ...
+def analizar_archivo(motor_id: str, tabla: "pandas.DataFrame | bytes", columnas: dict,
+                     costos: dict | None = None, mediciones: list[dict] = ()) -> dict: ...
 ```
+
+**`papeles(motor_id)` (D-34).** Los papeles de columna que recibe la red del motor, con cantidad y tipo, y el caso base de donde salen rótulos, unidad y costos por omisión:
+
+```json
+{"motor_id": "supervivencia", "caso_base": "rotacion",
+ "papeles": [{"papel": "tiempo", "cantidad": 1, "tipo": "entero", "texto": "Años en la empresa"},
+             {"papel": "efectos", "cantidad": 3, "tipo": "numero", "texto": "Factores"}]}
+```
+
+**`analizar_archivo(...)` (D-34).** Misma forma que `analizar()`. Arma un caso en memoria con el caso base del motor, `columnas` (papel → nombre de columna) en lugar de las del YAML y la tabla subida, y llama al `analizar` del motor. Si el archivo no calza (faltan papeles, cantidades distintas o valores fuera de rango) devuelve `semaforo.estado = "rojo_datos"` o `"rojo_modelo"` con su motivo; nunca lanza un error al usuario. Los dos detectores de la nube corren también sobre el archivo subido.
 
 - `mediciones` es una lista de `{x, y, valor}` que se agregan a los datos del caso antes de responder. Así se simula «medí aquí y salió esto».
 - Todas llevan semilla fija: misma entrada, misma salida.
@@ -142,7 +156,9 @@ Reglas: `cifra` es el id de una fila de `pitch/CIFRAS.md`. `min` y `max` son los
 
 ## 5. Capa de lenguaje
 
-No hay (decisión D-26): «Sube tus datos» se cortó, porque cada motor responde una familia de archivos y no un CSV cualquiera. `en_palabras` sale de plantillas escritas por `seguimiento`, llenadas con los números del JSON. `columnas.elegidas_por` es siempre `equipo`. En el pitch, Anthropic aparece solo como la herramienta con que se construyó el producto (Claude Code).
+**Desde D-34 (sáb 07:12), el modelo de lenguaje solo interpreta.** `servicio/` lo llama con el JSON de una respuesta (`POST /api/interpretar`) y devuelve un texto corto. No elige el motor, no calcula y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON; si alguno no está, o si no hay clave (`ANTHROPIC_API_KEY`, variable de entorno de Render, nunca en el repositorio) o no hay internet, devuelve la plantilla. `titular` y `en_palabras` siguen saliendo de las plantillas de `casos/textos.yaml`, escritas por `seguimiento` y llenadas con los números del JSON: son el respaldo y lo que se ve primero. Para los cuatro archivos del demo la interpretación se precalcula en `web/public/estatico/` y va rotulada. `columnas.elegidas_por` es `equipo` en los casos del demo y `usuario` en un archivo subido.
+
+*Antes (D-26): no había capa de lenguaje y «Sube tus datos» estaba cortado.*
 
 ## 6. API HTTP y modo estático (backend → frontend)
 
@@ -158,6 +174,9 @@ Base `/api`. Errores: `{"error": "frase en español", "codigo": "..."}` con esta
 | `POST /api/donde-medir` | Vista 2, casos espaciales | `donde-medir/<clave>.json` | `donde_medir.json` |
 | `POST /api/nube` | Vista 4 | `nube/<clave>.json` | `nube.json` |
 | `GET /api/sello?motor=` | Pie y panel | `sello/<motor>.json` | `sello.json` (espacial), `sello_<motor>.json` (los de tabla, sin medir) |
+| `GET /api/papeles/{motor_id}` (D-34) | Chat | `papeles/<motor_id>.json` | — |
+| `POST /api/analizar_archivo` (D-34) | Chat, archivo propio | — (exige la API; si no responde, el chat lo dice) | misma forma que `analizar_tabla.json` |
+| `POST /api/interpretar` (D-34) | Chat | `interpretar/<clave>.json` para los archivos del demo, rotulado | — |
 
 `<clave>` = nombre del caso, más `__` y cada transformación o medición en orden (`rotacion_malo__quitar_factor-fecha_salida`, `terreno__A-alto`). `exportar_estatico` escribe todas las claves que el recorrido del demo puede pedir: cada caso, el arco rojo → verde, y para el caso espacial las tres mejores candidatas con sus tres resultados posibles.
 
@@ -275,6 +294,11 @@ Petición `{ "caso": "rotacion_malo", "transformaciones": [] }`. Respuesta (`eje
 Respuesta (`ejemplos/sello.json`): el contenido de `motor/artefactos/<motor_id>/sello.json` más `frases`, una lista de oraciones sin jerga.
 
 **Un sello por motor.** Campos de `sello.json`: `motor_id`, `implementacion`, `simulaciones_entrenamiento`, `entrenamiento_min`, `casos_validacion` (datasets simulados nuevos del SBC), `cobertura_90`, `cobertura_90_peor_grupo`, `peor_grupo`, `sbc_pasa`, `cobertura_90_metodo_rapido`, `latencia_ms`, `mcmc_datasets_comparados`, `mcmc_s_por_dataset`, `mcmc_diferencia_media` (diferencia de medias entre la red y el MCMC, en desviaciones estándar del posterior), `amortizacion` (`que_se_compara`, `mcmc_s`, `red_s`), `nube_malo_cae_fuera`, `minutos_de_punta_a_punta`, `fecha`, `maquina`, `limitaciones`. Un campo sin medir va en `null` y la interfaz lo omite.
+
+### `POST /api/analizar_archivo` y `POST /api/interpretar` (D-34)
+
+- `POST /api/analizar_archivo`: multipart con `archivo`, `motor_id`, `columnas` (JSON, papel → columna), `costos` (JSON, opcional). Responde como `POST /api/analizar`.
+- `POST /api/interpretar`: el JSON de una respuesta → `{"texto": str, "origen": "modelo" | "plantilla"}`. Los números de la respuesta se muestran antes; el texto llega después y no los bloquea.
 
 ## 7. Artefactos de un motor
 
