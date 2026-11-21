@@ -54,12 +54,16 @@
     return salida;
   }
 
+  // Los mismos mapas sirven al cierre: se preparan una sola vez.
+  let listos = null;
+  K.mapasRafaga = function () { return listos || (listos = preparar()); };
+
   K.registrar('rafaga', {
     tQuieto: 14,
     crear: function (L) {
       this.cv = L.querySelector('#lienzo-rafaga');
       this.ctx = this.cv.getContext('2d');
-      this.bancos = preparar();
+      this.bancos = K.mapasRafaga();
       this.contador = L.querySelector('#rafaga-n');
       this.lento = L.querySelector('#rafaga-lento');
       this.riel = L.querySelector('#rafaga-riel');

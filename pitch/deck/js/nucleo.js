@@ -192,6 +192,7 @@
   }
   K.ir = ir;
   K.siguiente = function () {
+    if (!K.partida) K.partida = performance.now();          // la primera pulsación: ahí empieza el pitch
     if (paso < pasosDe(actual) - 1) aplicar(paso + 1, false);
     else if (actual < laminas.length - 1 && !laminas[actual + 1].dataset.respaldo) ir(actual + 1, 0, false);
   };
@@ -281,6 +282,7 @@
   K.enlazarDatos = function () {
     const d = K.datos;
     d.terreno.n_puntos = d.terreno.puntos.length;
+    d.terreno.partes = d.terreno.colores.actuar + d.terreno.colores.en_duda + d.terreno.colores.no_actuar;
     d.real.examen_dentro = Math.round(d.real.examen.paso * d.real.examen.n);
     d.real.n_puntos = d.real.puntos.length;
     d.sello.analisis_medidos = Math.round(d.sello.amortizacion.mcmc_s / d.sello.mcmc_s_por_dataset);
@@ -304,6 +306,7 @@
   };
 
   K.arrancar = function () {
+    K.cargado = performance.now();
     curvasDeNivel();
     ajustar();
     const m = leerMarca();

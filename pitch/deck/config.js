@@ -10,6 +10,6 @@ window.KRYLOV_CONFIG = {
   equipo: [],
   // Tiempos del guion (pitch/PITCH_v2.md), para las notas de cada lámina.
   tiempos: {
-    mina: '0:00 a 0:29', rafaga: '0:29 a 0:48', mundos: '0:48 a 1:05', vision: '1:05 a 1:14', leyes: '1:14 a 1:37', taludes: '1:37 a 1:46', flotacion: '1:46 a 1:55', flota: '1:55 a 2:03', sismicidad: '2:03 a 2:12', nube: '2:12 a 2:24', cierre: '2:24 a 2:34',
+    valor: '0:00 a 0:16', rafaga: '0:16 a 0:36', mundos: '0:36 a 0:53', vision: '0:53 a 1:02', leyes: '1:02 a 1:24', taludes: '1:24 a 1:34', flotacion: '1:34 a 1:44', flota: '1:44 a 1:52', sismicidad: '1:52 a 2:03', cierre: '2:03 a 2:16',
   },
 };
