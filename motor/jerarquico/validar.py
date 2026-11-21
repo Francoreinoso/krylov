@@ -5,7 +5,8 @@
 SBC (calibración basada en simulación): para cada dataset simulado con θ conocido se sacan L
 muestras de q(θ | D) y se cuenta cuántas quedan bajo el valor verdadero; si el posterior
 amortizado está calibrado, ese rango es uniforme. Por parámetro: rango medio (0,5 sin sesgo), χ²
-de uniformidad en 10 tramos, cobertura del intervalo de 90% y contracción respecto del prior.
+de uniformidad en 10 tramos, cobertura del intervalo de 90%, contracción y recuperación (correlación entre el
+valor verdadero y la media del posterior) respecto del prior.
 La cobertura se da también por grupos: pocos y muchos barrios, pocas y muchas citas.
 Además, lo que se decide: la probabilidad de no llegar de las citas por decidir (muestras de θ
 pasadas por la cuadratura anidada) contra lo que pasó en la simulación.
@@ -37,6 +38,7 @@ def sbc(red: RedJerarquico, datasets: int, muestras: int = 99, semilla: int = 10
     red = red.cpu().eval()
     reales = simular.leer_real()
     rangos, dentro, anchos, citas_de, barrios_de, calibracion = [], [], [], [], [], []
+    medias, verdades = [], []
     for inicio in range(0, datasets, 10):                         # de a 10 datasets, cada tanda con su tamaño
         b = min(10, datasets - inicio)
         citas, barrios = simular.muestrear_tamano(rng)
@@ -47,6 +49,7 @@ def sbc(red: RedJerarquico, datasets: int, muestras: int = 99, semilla: int = 10
         rangos.append((posterior < verdad).sum(0))
         dentro.append(dentro_del_rango(rangos[-1], muestras))            # cobertura del 90% por rangos: exacta con 99 muestras
         anchos.append(posterior.var(0))
+        medias.append(posterior.mean(0)), verdades.append(verdad)
         citas_de += [citas] * b
         barrios_de += [barrios] * b
         if inicio % 50 == 0:                                      # lo que se decide, en un dataset de cada cinco tandas
@@ -54,6 +57,7 @@ def sbc(red: RedJerarquico, datasets: int, muestras: int = 99, semilla: int = 10
             p = nucleo_jq.paso_local(posterior[:32, 0].astype(np.float64), d["z"], d["respuesta"], d["paciente"], d["barrio_del_paciente"]).mean(axis=1)
             falta = np.isnan(d["respuesta"])
             calibracion.append(np.c_[p[falta], d["respuesta_real"][falta]])
+    medias, verdades = np.concatenate(medias), np.concatenate(verdades)
     rangos, dentro, anchos = np.concatenate(rangos), np.concatenate(dentro), np.concatenate(anchos)
     citas_de, barrios_de, calibracion = np.array(citas_de), np.array(barrios_de), np.concatenate(calibracion)
 
@@ -63,7 +67,8 @@ def sbc(red: RedJerarquico, datasets: int, muestras: int = 99, semilla: int = 10
         chi2 = float(((tramos - datasets / 10) ** 2 / (datasets / 10)).sum())
         por_parametro[nombre] = {"rango_medio": round(float(rangos[:, j].mean() / muestras), 3), "chi2_uniformidad": round(chi2, 1),
                                  "uniforme_al_99": chi2 < CHI2_99_GL9, "cobertura_90": round(float(dentro[:, j].mean()), 3),
-                                 "contraccion": round(float(1 - anchos[:, j].mean() / simular.DESVS[j] ** 2), 3)}
+                                 "contraccion": round(float(1 - anchos[:, j].mean() / simular.DESVS[j] ** 2), 3),
+                                 "recuperacion": round(float(np.corrcoef(verdades[:, j], medias[:, j])[0, 1]), 3)}
     tramos_p = []
     for bajo, alto in ((0, 0.1), (0.1, 0.2), (0.2, 0.35), (0.35, 0.6), (0.6, 1.01)):
         en = (calibracion[:, 0] >= bajo) & (calibracion[:, 0] < alto)

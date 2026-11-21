@@ -184,6 +184,7 @@ def main() -> None:
         "casos_validacion": a.sbc, "cobertura_90": cobertura_p, "cobertura_90_parametros": cobertura_theta,
         "cobertura_90_peor_grupo": grupos[peor], "peor_grupo": {"n_menor_1000": "carteras de menos de 1.000 clientes", "n_1000_o_mas": "carteras de 1.000 clientes o más"}[peor],
         "sbc_pasa": sbc_pasa, "sbc_parametros_que_fallan": fallan,
+        "recuperacion": validacion.recuperacion(informe["sbc"]["theta"]),
         "cobertura_90_metodo_rapido": informe["unidades"]["cobertura_90_metodo_rapido"], "latencia_ms": informe["real"]["analizar_ms"],
         "mcmc_datasets_comparados": informe["mcmc"]["datasets"], "mcmc_s_por_dataset": informe["mcmc"]["s_por_dataset"],
         "mcmc_diferencia_media": informe["mcmc"]["diferencia_media"], "mcmc_r_hat_max": informe["mcmc"]["r_hat_max"],

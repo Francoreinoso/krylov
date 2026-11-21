@@ -47,6 +47,17 @@ def sbc_sin_sesgo(por_parametro: dict, tolerancia_rango: float = 0.03) -> tuple[
     return not fallan, fallan
 
 
+def recuperacion(por_parametro: dict) -> dict:
+    """Recuperación de parámetros para el sello: correlación entre el valor verdadero y la media del posterior, en las simulaciones del SBC.
+
+    Cerca de 1, los datos identifican el parámetro y la red lo recupera; cerca de 0, el posterior se queda en el
+    prior (el parámetro no se puede saber con un dataset de ese tamaño, o la red no lo aprendió: lo distingue el MCMC).
+    """
+    valores = {nombre: v["recuperacion"] for nombre, v in por_parametro.items()}
+    return {"media": round(sum(valores.values()) / len(valores), 3), "minima": min(valores.values()),
+            "parametro_de_la_minima": min(valores, key=valores.get), "por_parametro": valores}
+
+
 def comparar_posteriores(de_la_red: np.ndarray, del_mcmc: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Posterior amortizado contra el de referencia, parámetro por parámetro. Entradas: (muestras, d).
 

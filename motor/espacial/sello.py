@@ -31,6 +31,7 @@ import numpy as np
 import torch
 
 from motor.comun.entrenar import cargar_punto
+from motor.comun.validacion import recuperacion
 from motor.espacial import mcmc
 from motor.espacial.exportar import ARTEFACTOS, PUNTO, exportar, red_desde_config
 from motor.espacial.simular import Prior, simular
@@ -179,6 +180,7 @@ def main() -> None:
         "simulaciones_entrenamiento": estado["datasets_simulados"], "entrenamiento_min": round(estado["segundos"] / 60),
         "casos_validacion": a.sbc, "cobertura_90": cobertura_mapa, "cobertura_90_parametros": cobertura_theta,
         "cobertura_90_peor_grupo": coberturas[peor], "peor_grupo": peor, "sbc_pasa": sbc_pasa,
+        "recuperacion": recuperacion(theta),
         "cobertura_90_metodo_rapido": informe["metodo_rapido_cobertura_90"], "latencia_ms": lat["analizar_ms"], "latencia_lote_500_ms": lat["lote_500_ms"],
         "mcmc_datasets_comparados": informe["mcmc"]["datasets"], "mcmc_s_por_dataset": informe["mcmc"]["s_por_dataset"],
         "mcmc_diferencia_media": informe["mcmc"]["diferencia_media"],

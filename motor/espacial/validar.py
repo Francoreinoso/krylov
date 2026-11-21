@@ -55,6 +55,7 @@ def sbc(red, n_terrenos: int, muestras: int = 99, semilla: int = 12345) -> dict:
             "cobertura_90": round(float(dentro[:, j].mean()), 3),
             "z_media": round(float(z[:, j].mean()), 2), "z_desv": round(float(z[:, j].std()), 2),
             "contraccion": round(float(contraccion[j]), 3),
+            "recuperacion": round(float(np.corrcoef(verdad[:, j].numpy(), posterior.mean(0)[:, j].numpy())[0, 1]), 3),
         }
 
     # Cabeza de mapa, en los bloques sin medición.
