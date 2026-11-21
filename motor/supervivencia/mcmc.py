@@ -102,10 +102,13 @@ def punto_inicial(n: int, prior: dict) -> dict:
             "s_c": jnp.array(0.6 * prior["s_c_escala"]), "u_crudo": jnp.zeros(CARGOS_MAX), "z": jnp.zeros(n)}
 
 
-def correr(datos: dict, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0) -> dict:
-    """Corre NUTS y devuelve las muestras de θ sin restricciones (muestras·cadenas, 32), los segundos y los diagnósticos."""
+def correr(datos: dict, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0, profundidad: int = 10) -> dict:
+    """Corre NUTS y devuelve las muestras de θ sin restricciones (muestras·cadenas, 32), los segundos y los diagnósticos.
+
+    `profundidad` es el máximo de duplicaciones del árbol de NUTS por paso (10 es el de NumPyro; menos, solo para ensayar el programa).
+    """
     args = argumentos(datos)
-    nuts = NUTS(modelo, init_strategy=init_to_value(values=punto_inicial(len(datos["tiempo"]), args[-1])), target_accept_prob=0.85)
+    nuts = NUTS(modelo, init_strategy=init_to_value(values=punto_inicial(len(datos["tiempo"]), args[-1])), target_accept_prob=0.85, max_tree_depth=profundidad)
     mcmc = MCMC(nuts, num_warmup=calentamiento, num_samples=muestras, num_chains=cadenas, chain_method="vectorized", progress_bar=False)
     inicio = time.time()
     mcmc.run(jax.random.PRNGKey(semilla), *args)
