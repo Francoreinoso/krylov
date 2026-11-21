@@ -158,6 +158,10 @@
   function reloj(el, texto) { if (el._h !== texto) { el.textContent = texto; el._h = texto; } }
 
   // ============================== 8 · Taludes: la pared de la mina ==============================
+  // La pared del rajo, vista desde el otro lado: ocho escalones de roca, partida en los 36 sectores del archivo.
+  // Cada sector se abulta y se enciende lo que el radar midió a esa hora (el movimiento está exagerado para que se vea):
+  // de roca fría a cobre, a rojo y a blanco donde más se movió. Abajo, el radar y sus haces barren la pared una y otra vez.
+  // En la columna de texto, la curva de dos sectores de esa misma pared: el que más se movió y el que menos.
   K.registrar('taludes', {
     tres: null, tQuieto: 14,
     crear: function (L) {
@@ -165,69 +169,113 @@
       llenar(L, S);
       this.reloj = L.querySelector('.reloj .num');
       this.horas = 0; this.maximo = 0;
-      S.unidades.forEach(function (un) { un.puntos.forEach(function (p) { this.horas = Math.max(this.horas, p[0]); this.maximo = Math.max(this.maximo, p[1]); }, this); }, this);
+      S.unidades.forEach(function (un) { un.puntos.forEach(function (q) { this.horas = Math.max(this.horas, q[0]); this.maximo = Math.max(this.maximo, q[1]); }, this); }, this);
       L.querySelector('.reloj .dato').textContent = 'de ' + Math.round(this.horas) + ' horas de radar';
+      // los dos sectores que más se movieron, que no estén pegados; y el que menos, para la curva
+      const finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (x, y) { return y[0] - x[0]; });
+      this.marcados = [finales[0][1]];
+      for (let i = 1; i < finales.length && this.marcados.length < 2; i++) if (Math.abs(finales[i][1] - this.marcados[0]) >= 3) this.marcados.push(finales[i][1]);
+      this.calmo = finales[finales.length - 1][1];
+      this.cv = L.querySelector('canvas.curva');
+      if (S.respuesta) this.cv.hidden = true; else this.ctx = this.cv.getContext('2d');
       if (!K.gl.ok) return;
-      const B = (this.B = base(30)), azar = K.azar(11), ANCHO = 18, ALTO = 7, BANCOS = 6;
-      // La pared: se curva como un anfiteatro y sube por escalones (cada escalón es un piso de la mina).
+      const B = (this.B = base(30)), azar = K.azar(11), ANCHO = 22, ALTO = 9, BANCOS = 8, PIE = 0.36;
+      // un ruido suave, para que la roca no sea una lámina lisa
+      const G = 32, grano = [];
+      for (let i = 0; i < G * G; i++) grano.push(azar() - 0.5);
+      const ruido = function (x, y) {
+        const x0 = Math.floor(x), y0 = Math.floor(y), fx = K.suave(x - x0), fy = K.suave(y - y0);
+        const g = function (i, j) { return grano[((((j % G) + G) % G) * G) + (((i % G) + G) % G)]; };
+        return K.mezcla(K.mezcla(g(x0, y0), g(x0 + 1, y0), fx), K.mezcla(g(x0, y0 + 1), g(x0 + 1, y0 + 1), fx), fy);
+      };
+      // La pared: se curva como un anfiteatro y sube por escalones. En cada escalón, primero el piso y después la cara de roca.
       const pared = (this.pared = function (ux, v) {
-        const b = Math.min(BANCOS - 1, Math.floor(v * BANCOS)), r = v * BANCOS - b, lado = (ux - 0.5) * 2;
-        return [(ux - 0.5) * ANCHO, -ALTO / 2 + ((b + K.suave((r - 0.42) / 0.58)) / BANCOS) * ALTO, 2.6 * lado * lado + 3.2 - 6.4 * v];
+        const lado = (ux - 0.5) * 2, r0 = ruido(ux * 9, v * 6), r1 = ruido(ux * 31 + 5, v * 23 + 9);
+        const vv = K.acotar(v + r0 * 0.014, 0, 0.9999), b = Math.min(BANCOS - 1, Math.floor(vv * BANCOS)), r = vv * BANCOS - b;
+        return [(lado * ANCHO) / 2, -ALTO / 2 + ((b + K.suave((r - PIE) / (1 - PIE))) / BANCOS) * ALTO, 3.6 * lado * lado + 4.3 - 8.6 * v + r0 * 0.55 + r1 * 0.16];
       });
-      const pos = [], au = [], ar = [], tinte = [];
+      const pos = [], au = [], as = [], tinte = [];
+      const poner3 = function (ux, v, luz, marca, col) { const q = pared(ux, v); pos.push(q[0], q[1], q[2]); au.push(ux, v); as.push(luz, azar(), marca); tinte.push(col[0], col[1], col[2]); };
       for (let s = 0; s < n; s++) {
         const col = tinteDe(S, S.unidades[s].id, ROJO);
-        for (let c = 0; c < 14; c++) for (let f = 0; f < 72; f++) {
-          const ux = (s + (c + azar()) / 14) / n, v = (f + azar() * 0.9) / 72, p = pared(ux, v);
-          pos.push(p[0], p[1], p[2]); au.push(ux, v); ar.push(azar()); tinte.push(col[0], col[1], col[2]);
+        for (let c = 0; c < 16; c++) for (let f = 0; f < 104; f++) {
+          const ux = (s + (c + azar()) / 16) / n, v = (f + azar()) / 104, r = (v * BANCOS) % 1;
+          // la cara de roca recibe la luz; el piso de cada escalón queda en sombra
+          poner3(ux, v, r < PIE ? 0.16 + 0.1 * azar() : 0.5 + 0.5 * K.acotar(0.5 + 1.6 * ruido(ux * 40, v * 30), 0, 1), 0, col);
         }
+        for (let b = 0; b < BANCOS; b++) for (let k = 0; k < 26; k++) poner3((s + azar()) / n, (b + 0.985 + azar() * 0.014) / BANCOS, 1.25, 0, col);      // el borde de cada escalón
       }
-      // cuánto se ha movido cada sector ahora: una textura de una fila, que el sombreador interpola a lo largo de la pared
+      // las divisiones entre sectores, tenues; las de los sectores marcados, encendidas
+      const marcados = this.marcados;
+      for (let s = 0; s <= n; s++) {
+        const fuerte = marcados.some(function (m) { return s === m || s === m + 1; }) ? 2 : 1;
+        for (let k = 0; k < 150; k++) poner3(Math.min(0.9999, s / n), (k + 0.5) / 150, 1, fuerte, [0, 0, 0]);
+      }
+      // cuánto se ha movido cada sector ahora: una fila de textura. R: lo medido (color). G: lo mismo, suavizado entre vecinos (forma).
       this.mov = new Uint8Array(n * 4);
       this.tex = new THREE.DataTexture(this.mov, n, 1, THREE.RGBAFormat);
       this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
       this.tex.needsUpdate = true;
       this.barre = { value: -1 };
-      B.puntos({ position: [pos, 3], aU: [au, 2], aR: [ar, 1], aTinte: [tinte, 3] }, `
-        attribute vec2 aU;
-        attribute float aR;
+      B.puntos({ position: [pos, 3], aU: [au, 2], aS: [as, 3], aTinte: [tinte, 3] }, `
+        attribute vec2 aU;             // dónde está en la pared: a lo largo (0 a 1) y hacia arriba (0 a 1)
+        attribute vec3 aS;             // luz, azar, y si es una división entre sectores (1) o la de un sector marcado (2)
         attribute vec3 aTinte;
         uniform sampler2D uMov;
         uniform float uBarre;
         uniform float uResp;
         void main() {
-          float d = texture2D(uMov, vec2(aU.x, 0.5)).r;                    // de 0 a 1: milímetros sobre el máximo del archivo
-          float dv = (aU.y - 0.52) / 0.32;
-          float cuanto = d * (0.3 + 0.7 * exp(-dv * dv));                  // el centro de la pared se mueve más que el borde
-          vec3 p = position + vec3(0.0, -0.32, 1.0) * cuanto * 2.5;
-          float dr = (aU.x - uBarre) / 0.011;
-          float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.07) : 0.0);     // la franja del radar y su estela
-          float k = smoothstep(0.05, 0.5, cuanto);
+          vec4 m = texture2D(uMov, vec2(aU.x, 0.5));
+          float d = m.r, g = m.g, lado = (aU.x - 0.5) * 2.0;
+          float dv = (aU.y - 0.36) / 0.36;
+          float afuera = g * (0.3 + 0.7 * exp(-dv * dv));                  // la parte baja se abulta hacia el rajo
+          float baja = g * (0.2 + 0.8 * aU.y);                             // la parte alta se hunde
+          vec3 p = position + vec3(-lado * 0.3, 0.0, 1.0) * afuera * 1.15 + vec3(0.0, -0.5, 0.0) * baja;
+          float dr = (aU.x - uBarre) / 0.008;
+          float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.06) : 0.0);    // la franja del radar y su estela
+          float k = smoothstep(0.04, 0.42, d);
+          vec3 caliente = mix(mix(COBRE, ROJO, smoothstep(0.18, 0.55, d)), vec3(1.0, 0.88, 0.74), smoothstep(0.6, 1.0, d));
+          vec3 color = mix(mix(ARENA * 0.92, aTinte, uResp * 0.7), mix(caliente, aTinte, uResp), k);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          vColor = mix(mix(ARENA, aTinte, uResp * 0.7), aTinte, k) + ORO * radar * 0.85;
-          vA = 0.44 + 0.75 * k + 0.2 * uResp + radar * 0.75;
-          gl_PointSize = (0.056 + 0.06 * k + 0.05 * radar + 0.03 * aR) * uEsc / -mv.z;
+          float marca = aS.z;
+          vColor = marca > 0.5 ? vec3(0.96, 0.93, 0.88) : color + ORO * radar * 0.85;
+          vA = marca > 0.5 ? (marca > 1.5 ? 0.55 : 0.07) : (0.07 + 0.3 * aS.x) * (1.0 + 1.6 * k) + radar * 0.6;
+          gl_PointSize = (marca > 0.5 ? 0.028 : 0.03 + 0.016 * aS.y + 0.022 * k + 0.035 * radar) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, { uMov: { value: this.tex }, uBarre: this.barre, uResp: { value: S.respuesta ? 1 : 0 } });
-      // dónde estaba la pared: el borde de cada escalón, y una marca por sector en el pie
-      const guia = [];
-      for (let b = 0; b <= BANCOS; b++) for (let k = 0; k < 72; k++) {
-        const v = Math.min(0.999, b / BANCOS), a = pared(k / 72, v), c = pared((k + 1) / 72, v);
-        guia.push(a[0], a[1], a[2], c[0], c[1], c[2]);
-      }
-      for (let s = 0; s <= n; s++) { const a = pared(s / n, 0); guia.push(a[0], a[1], a[2], a[0], a[1] - 0.22, a[2] + 0.1); }
-      B.cordon(guia, 0.06, 0x8a7f70, 0.26, 0.03);
-      // los dos sectores que más se movieron, que no estén pegados
-      const finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (a, b) { return b[0] - a[0]; });
-      this.marcados = [finales[0][1]];
-      for (let i = 1; i < finales.length && this.marcados.length < 2; i++) if (Math.abs(finales[i][1] - this.marcados[0]) >= 3) this.marcados.push(finales[i][1]);
+
+      // el radar, al otro lado del rajo: se ubica una vez, donde la cámara lo ve abajo a la derecha
+      this.encuadre = { az: 0.5, el: 0.2, R: 37, c: [1.0, 3.1, 0.6], dx: -420 };
+      B.mirar(this.encuadre.az, this.encuadre.el, this.encuadre.R, this.encuadre.c, this.encuadre.dx);
+      const rayo = new THREE.Vector3(0.34, -0.66, 0.5).unproject(B.camera).sub(B.camera.position).normalize();
+      const R = (this.radar = B.camera.position.clone().add(rayo.multiplyScalar(15)).toArray());
+      const pr = [];
+      for (let k = 0; k < 26; k++) pr.push(R[0], R[1] - 1.3 + (k / 25) * 1.3, R[2]);                          // el poste
+      for (let k = 0; k < 44; k++) { const a = (k / 44) * 6.2832; pr.push(R[0] + Math.cos(a) * 0.34, R[1] + Math.sin(a) * 0.34, R[2]); }   // la antena
+      for (let k = 0; k < 30; k++) { const a = azar() * 6.2832, q = Math.sqrt(azar()) * 0.32; pr.push(R[0] + Math.cos(a) * q, R[1] + Math.sin(a) * q, R[2]); }
+      B.puntos({ position: [pr, 3] }, `
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vColor = ORO;
+          vA = 0.8;
+          gl_PointSize = 0.05 * uEsc / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`);
+      const HACES = (this.HACES = 40), TRAMOS = (this.TRAMOS = 46), fh = [];
+      for (let i = 0; i < HACES * TRAMOS; i++) fh.push(((i % TRAMOS) + 0.5) / TRAMOS);
+      this.haces = B.puntos({ position: [new Array(HACES * TRAMOS * 3).fill(0), 3], aF: [fh, 1] }, `
+        attribute float aF;            // de 0 (en el radar) a 1 (en la pared)
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vColor = ORO;
+          vA = 0.05 + 0.3 * aF;
+          gl_PointSize = (0.02 + 0.03 * aF) * uEsc / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`);
+      this.etqRadar = etiquetas(L, 1, 'chica')[0];
       this.etq = etiquetas(L, this.marcados.length, 'nota');
       const primero = this.marcados[0];
       this.etq.forEach(function (e, i) { if (i) e.classList.add(this.marcados[i] < primero ? 'izq' : 'alta'); }, this);
-      // en la columna de texto: lo que midió el radar en dos sectores de la misma pared, el que más se movió y el que menos
-      this.calmo = finales[finales.length - 1][1];
-      this.cv = L.querySelector('canvas.curva');
-      if (S.respuesta) this.cv.hidden = true; else this.ctx = this.cv.getContext('2d');
       this.tres = B.tres;
     },
     alAjustar: function () {
@@ -264,23 +312,38 @@
       }
     },
     cuadro: function (t) {
-      const S = this.S, h = recorrido(t - 0.8, 13, 4.5) * this.horas;
+      const S = this.S, n = this.n, h = recorrido(t - 0.8, 13, 4.5) * this.horas;
       reloj(this.reloj, Math.floor(h) + ' h');
       const ahora = [];
-      for (let s = 0; s < this.n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
+      for (let s = 0; s < n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
       if (this.ctx) this.curva(h, ahora);
       if (!this.tres) return;
-      const B = this.B;
-      for (let s = 0; s < this.n; s++) this.mov[s * 4] = Math.round(K.acotar(ahora[s] / this.maximo, 0, 1) * 255);
+      const B = this.B, E = this.encuadre;
+      let crudo = ahora.map(function (v) { return K.acotar(v / this.maximo, 0, 1); }, this), liso = crudo;
+      for (let vez = 0; vez < 4; vez++) liso = liso.map(function (v, s, lista) { return (lista[Math.max(0, s - 1)] + 2 * v + lista[Math.min(n - 1, s + 1)]) / 4; });
+      for (let s = 0; s < n; s++) { this.mov[s * 4] = Math.round(crudo[s] * 255); this.mov[s * 4 + 1] = Math.round(liso[s] * 255); }
       this.tex.needsUpdate = true;
       B.u.uT.value = t;
-      this.barre.value = ((t * 0.21) % 1.2) - 0.1;                          // el barrido del radar
-      // la cámara se acerca a medida que la pared se mueve
+      const ux = (this.barre.value = ((t * 0.2) % 1.25) - 0.12);              // el barrido del radar
+      // la cámara se acerca un poco a medida que la pared se mueve
       const cerca = h / this.horas;
-      B.mirar(-0.5 + Math.sin(t * 0.17) * 0.07, 0.3, 36 - 4.5 * cerca, [0.3 + 1.0 * cerca, 1.9 - 0.2 * cerca, 0.6], -430);
+      B.mirar(E.az + Math.sin(t * 0.17) * 0.035, E.el, E.R - 2.5 * cerca, E.c, E.dx);
+      const ph = this.haces.geometry.attributes.position, R = this.radar;
+      this.haces.visible = ux >= 0 && ux <= 1;
+      if (this.haces.visible) {
+        for (let i = 0; i < this.HACES; i++) {
+          const q = this.pared(ux, (i + 0.5) / this.HACES);
+          for (let j = 0; j < this.TRAMOS; j++) {
+            const f = (j + 0.5) / this.TRAMOS, o = (i * this.TRAMOS + j) * 3;
+            ph.array[o] = K.mezcla(R[0], q[0], f); ph.array[o + 1] = K.mezcla(R[1], q[1], f); ph.array[o + 2] = K.mezcla(R[2], q[2], f);
+          }
+        }
+        ph.needsUpdate = true;
+      }
+      poner(this.etqRadar, B.camera, R[0] + 0.5, R[1], R[2], '<b>Radar</b>', true);
       for (let i = 0; i < this.etq.length; i++) {
-        const s = this.marcados[i], p = this.pared((s + 0.5) / this.n, 0.999), mm = ahora[s];
-        poner(this.etq[i], B.camera, p[0], p[1] + 0.15, p[2], '<b>' + nombre(S.unidades[s].id) + '</b>se movió ' + K.coma(Math.max(0, mm), 1) + ' mm', mm > 0.22 * this.maximo);
+        const s = this.marcados[i], q = this.pared((s + 0.5) / n, 0.999), mm = ahora[s];
+        poner(this.etq[i], B.camera, q[0], q[1] + 0.15, q[2], '<b>' + nombre(S.unidades[s].id) + '</b>se movió ' + K.coma(Math.max(0, mm), 1) + ' mm', mm > 0.22 * this.maximo);
       }
     },
   });
