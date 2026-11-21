@@ -146,15 +146,15 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Predictivo a priori contra el archivo del demo: ningún camión fuera del rango 0,1% a 99,9% y a lo más 2 de 40 fuera del 2% a 98% (`motor/desgaste/prueba_desgaste.py`)
 - [x] Red: el andamio de series, sin entrenar; exporta y responde `analizar("flota")` con la forma del contrato
 - [ ] Prueba de humo
-- [x] Entrenamiento: 9.182.976 flotas simuladas en 101 min (PC 2, hasta las 18:15). Retomado a las 18:28 con tasa de aprendizaje más baja, hasta las 19:35
-- [ ] SBC global: no pasa con el sello de las 18:16 (criterio de D-32): fallan `mu_nu` y `log_sigma_eps` (χ² 35,4 los dos). Está en el borde; se revalida una vez después del retome
-- [x] SBC por unidad: pasa (D-39); tamaño de la desviación 0,040 y 0,007, límite 0,1; cobertura del 90%, 0,902 (sello de las 18:16)
-- [x] Cobertura de lo que se decide, por tamaño: 0,899; peor tramo 0,897 (flotas de 20 a 48 camiones) (sello de las 18:16)
-- [x] Examen con la verdad escondida: de 31 camiones con cerca de 2% de riesgo falló el 3%; de 3 con 22%, el 33%; de 6 con 75%, el 83%. Se informa y no decide (D-39). Datos simulados
-- [ ] Exportación y app: exportada en local (un análisis en 149 ms); no se sube ni se activa mientras el sello no pase
+- [x] Entrenamiento: 15.241.472 flotas simuladas en 168 min, en PC 2 (GPU del Mac); los últimos 66 min, retomado con tasa de aprendizaje más baja
+- [x] SBC global: pasa (D-32); χ² entre 8,3 y 15,2, falla desde 26,06; cobertura del 90% de los parámetros, 0,902 (2.000 flotas nuevas)
+- [x] SBC por unidad: pasa (D-39); tamaño de la desviación 0,020 y 0,006, límite 0,1; cobertura del 90%, 0,901
+- [x] Cobertura de lo que se decide, por tamaño: 0,898; peor tramo 0,896 (flotas de 20 a 48 camiones)
+- [x] Examen con la verdad escondida: de 31 camiones con cerca de 2% de riesgo falló el 3%; de 3 con 22%, el 33%; de 6 con 74%, el 83%. Se informa y no decide (D-39). Datos simulados
+- [ ] Exportación y app: exportada a `motor/artefactos/desgaste/` (un análisis en 155 ms); falta que PC 1 la active con `KRYLOV_MOTOR_DESGASTE=red`
 - [ ] Método lento
 
-**Falta ahora:** que termine el retome (19:35), exportar y validar una sola vez con la semilla oficial antes de las 20:30. Si pasa, `flota` entra con su red; si no, queda el sello de las 18:16 y decide Rodrigo. El método lento, al final (A-36).
+**Falta ahora:** que PC 1 active la tarjeta (`KRYLOV_MOTOR_DESGASTE=red`) y la exporte antes de las 20:30; el método lento, al final (A-36).
 
 ## `sismico` · caso `sismicidad`
 

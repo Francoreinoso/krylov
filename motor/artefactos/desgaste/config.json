@@ -1,0 +1,59 @@
+{
+ "motor_id": "desgaste",
+ "nombres_eta": [
+  "mu_nu",
+  "log_sigma_nu",
+  "beta",
+  "log_c",
+  "log_sigma_eps"
+ ],
+ "nombres_lam": [
+  "log_nu",
+  "log_desgaste_hoy"
+ ],
+ "canales": 4,
+ "dim_cov": 4,
+ "dim_tam": 2,
+ "con_clase": false,
+ "max_unidades": 120,
+ "max_lecturas": 20,
+ "diseno": {
+  "unidades": [
+   8,
+   120
+  ],
+  "lecturas": [
+   3,
+   20
+  ],
+  "miles_de_horas_hoy": [
+   0.5,
+   3.0
+  ],
+  "miles_de_horas_a_mantencion": [
+   0.05,
+   1.0
+  ]
+ },
+ "prior": {
+  "mu_nu_media": -0.6931471805599453,
+  "mu_nu_desv": 0.5,
+  "sigma_nu_escala": 0.5,
+  "beta_media": 0.3,
+  "beta_desv": 0.3,
+  "c_media": -1.2039728043259361,
+  "c_desv": 0.4,
+  "sigma_eps_media": -3.2188758248682006,
+  "sigma_eps_desv": 0.5
+ },
+ "arquitectura": "codificador por unidad (convoluciones 1D con máscara) + atención sobre unidades + flujo de acoplamiento afín global (8 capas) y local compartido (6 capas); NPE factorizada",
+ "entrenada": true,
+ "pasos": 47704,
+ "simulaciones_entrenamiento": 15241472,
+ "entrenamiento_min": 167.9,
+ "diferencias_exportacion": {
+  "onnx": 2.980232238769531e-07,
+  "flujo_numpy": 9.5367431640625e-07,
+  "flujo_local_numpy": 3.5762786865234375e-07
+ }
+}

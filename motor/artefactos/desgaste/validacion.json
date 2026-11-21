@@ -1,0 +1,110 @@
+{
+ "datasets": 2000,
+ "muestras": 99,
+ "globales": {
+  "mu_nu": {
+   "chi2_uniformidad": 10.12,
+   "desviacion_w": 0.0711,
+   "rango_medio": 0.5007,
+   "cobertura_90": 0.894,
+   "recuperacion": 0.909,
+   "n": 2000
+  },
+  "log_sigma_nu": {
+   "chi2_uniformidad": 9.5,
+   "desviacion_w": 0.0689,
+   "rango_medio": 0.4994,
+   "cobertura_90": 0.9,
+   "recuperacion": 0.721,
+   "n": 2000
+  },
+  "beta": {
+   "chi2_uniformidad": 8.3,
+   "desviacion_w": 0.0644,
+   "rango_medio": 0.5068,
+   "cobertura_90": 0.9125,
+   "recuperacion": 0.905,
+   "n": 2000
+  },
+  "log_c": {
+   "chi2_uniformidad": 9.95,
+   "desviacion_w": 0.0705,
+   "rango_medio": 0.4995,
+   "cobertura_90": 0.895,
+   "recuperacion": 0.93,
+   "n": 2000
+  },
+  "log_sigma_eps": {
+   "chi2_uniformidad": 15.2,
+   "desviacion_w": 0.0872,
+   "rango_medio": 0.4985,
+   "cobertura_90": 0.9085,
+   "recuperacion": 0.993,
+   "n": 2000
+  }
+ },
+ "locales": {
+  "log_nu": {
+   "chi2_uniformidad": 33.81,
+   "desviacion_w": 0.0196,
+   "rango_medio": 0.503,
+   "cobertura_90": 0.8989,
+   "recuperacion": 0.896,
+   "n": 88080
+  },
+  "log_desgaste_hoy": {
+   "chi2_uniformidad": 3.34,
+   "desviacion_w": 0.0062,
+   "rango_medio": 0.4991,
+   "cobertura_90": 0.9029,
+   "recuperacion": 0.979,
+   "n": 88080
+  }
+ },
+ "sbc_global_pasa": true,
+ "sbc_global_fallan": [],
+ "sbc_local_pasa": true,
+ "sbc_local_fallan": [],
+ "cobertura_90_parametros": 0.902,
+ "cobertura_90_locales": 0.9009,
+ "cobertura_90_decision": 0.8978,
+ "por_tramo": [
+  {
+   "tramo": "8 a 19 unidades",
+   "datasets": 540,
+   "unidades": 6740,
+   "cobertura_90_parametros": 0.9037,
+   "cobertura_90_decision": 0.9131
+  },
+  {
+   "tramo": "20 a 48 unidades",
+   "datasets": 740,
+   "unidades": 23620,
+   "cobertura_90_parametros": 0.8957,
+   "cobertura_90_decision": 0.8961
+  },
+  {
+   "tramo": "49 a 120 unidades",
+   "datasets": 720,
+   "unidades": 57720,
+   "cobertura_90_parametros": 0.9072,
+   "cobertura_90_decision": 0.8967
+  },
+  {
+   "tramo": "unidades con pocas lecturas",
+   "datasets": null,
+   "unidades": 49021,
+   "cobertura_90_parametros": null,
+   "cobertura_90_decision": 0.8982
+  },
+  {
+   "tramo": "unidades con muchas lecturas",
+   "datasets": null,
+   "unidades": 39059,
+   "cobertura_90_parametros": null,
+   "cobertura_90_decision": 0.8973
+  }
+ ],
+ "peor_grupo": "20 a 48 unidades",
+ "cobertura_90_peor_grupo": 0.8961
+}
