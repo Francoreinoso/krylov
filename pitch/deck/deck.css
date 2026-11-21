@@ -115,6 +115,7 @@ html, body {
 /* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
 .sin-gl .lamina[data-gl] { background: center / cover no-repeat; }
 .sin-gl .lamina[data-gl] > :not(aside) { visibility: hidden; }
+.sin-gl #l-valor { background-image: url(respaldo/01.jpg); }
 .sin-gl #l-mundos { background-image: url(respaldo/04.jpg); }
 .sin-gl #l-vision { background-image: url(respaldo/06.jpg); }
 .sin-gl #l-leyes { background-image: url(respaldo/07.jpg); }
@@ -149,16 +150,45 @@ html, body {
 .zona { display: grid; }
 .zona > * { grid-area: 1 / 1; }
 
-/* Lo que Krylov entrega para una decisión, siempre en el mismo orden: respuesta, incertidumbre y valor. */
-.salida { display: grid; }
-.salida .fila { display: grid; grid-template-columns: 228px 1fr; align-items: center; column-gap: 18px; border-top: 1.5px solid var(--linea); padding: 15px 0 13px; }
-.salida .rot { font-family: var(--titulo); font-weight: 700; font-size: 38px; line-height: 1; color: var(--suave); }
-.salida .cont { display: grid; gap: 8px; }
-.salida .item { display: flex; align-items: center; gap: 16px; font-size: 29px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
-.salida .item .muestra { flex: none; width: 40px; height: 26px; }
-.salida .item .num { font-size: 60px; line-height: .95; min-width: 92px; text-align: right; }
-.salida .valor .item { flex-wrap: wrap; column-gap: 20px; row-gap: 2px; color: var(--suave); }
-.salida .valor .item .num { font-size: 84px; color: var(--cobre); min-width: 0; text-align: left; }
+/* Lo que Krylov entrega para una decisión: cuántas unidades hay en cada color, y el valor. */
+.salida { display: grid; gap: 12px; }
+.salida .colores { display: flex; flex-wrap: wrap; gap: 8px 30px; }
+.salida .item { display: flex; align-items: center; gap: 12px; font-size: 25px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
+.salida .item .muestra { flex: none; width: 30px; height: 20px; }
+.salida .item .num { font-size: 44px; line-height: 1; }
+.salida .valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 20px; font-size: 27px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 12px; }
+.salida .valor .num { font-size: 74px; line-height: .95; color: var(--cobre); }
+.p.entrega b { color: var(--cobre); font-weight: 650; }
+
+/* El gráfico de intervalos de credibilidad (js/intervalos.js): una fila por unidad. La barra es el intervalo de 90%;
+   la marca clara, la estimación; el anillo, lo que pasó de verdad (cuando se muestra); la línea vertical, el límite. */
+.intervalos { --nom: 168px; --val: 168px; --alto: 36px; display: grid; }
+.intervalos.sin-nombres { --nom: 0px; --alto: 17px; }
+.intervalos.sin-valores { --val: 0px; }
+.intervalos .fila, .intervalos .eje { display: grid; grid-template-columns: var(--nom) 1fr var(--val); align-items: center; }
+.intervalos .fila { height: var(--alto); }
+.intervalos .nom { font-size: 25px; font-weight: 520; color: var(--tinta); white-space: nowrap; }
+.intervalos .val { font-family: var(--mono); font-size: 21px; color: var(--suave); text-align: right; white-space: nowrap; }
+.intervalos .riel { position: relative; height: 100%; }
+.intervalos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -1px; background: var(--linea); }
+.intervalos .fila .riel::after { content: ""; position: absolute; left: var(--limite); top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #f4efe6; }
+.intervalos .barra { position: absolute; top: 50%; height: 14px; margin-top: -7px; transform: scaleX(0); transition: transform .7s cubic-bezier(.2, .8, .2, 1) var(--d, 0s); }
+.intervalos.sin-nombres .barra { height: 9px; margin-top: -4.5px; }
+.visto .intervalos .barra, .intervalos.visto .barra { transform: none; }
+.quieto .intervalos .barra { transition: none; }
+.intervalos .barra.actuar { background: var(--actuar); }
+.intervalos .barra.no-actuar { background: var(--no-actuar); }
+.intervalos .barra.en-duda { background-color: var(--en-duda); background-image: repeating-linear-gradient(-45deg, transparent 0 4px, #0b0a0999 4px 7px); }
+.intervalos .punto { position: absolute; top: 50%; width: 4px; height: 22px; margin: -11px 0 0 -2px; background: #f4efe6; }
+.intervalos.sin-nombres .punto { height: 13px; margin-top: -6.5px; width: 3px; }
+.intervalos .real { position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3.5px solid #fff; background: var(--fondo); opacity: 0; transition: opacity .5s ease 1.4s; }
+.visto .intervalos .real, .intervalos.visto .real { opacity: 1; }
+.quieto .intervalos .real { transition: none; }
+.intervalos .eje { height: 30px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
+.intervalos .eje .izq { position: absolute; left: 0; top: 6px; }
+.intervalos .eje .der { position: absolute; right: 0; top: 6px; }
+.intervalos .eje .lim { position: absolute; left: var(--limite); top: 6px; transform: translateX(-50%); color: var(--tinta); white-space: nowrap; background: var(--fondo); padding: 0 8px; }
+
 .pie-dato { position: absolute; left: 110px; bottom: 92px; }
 
 /* ---------- Cromo ---------- */
@@ -306,9 +336,10 @@ html, body {
 #l-arquitectura .b .caja { stroke: var(--oxido); }
 #l-arquitectura .red .caja { stroke: var(--tinta); stroke-width: 2.5; fill: #1b1815; }
 #l-arquitectura text { font-family: var(--texto); fill: var(--tinta); font-size: 30px; font-weight: 600; text-anchor: middle; }
-#l-arquitectura text.sub { font-family: var(--mono); font-size: 18px; font-weight: 450; fill: var(--suave); letter-spacing: .03em; }
+#l-arquitectura text { font-size: 34px; }
+#l-arquitectura text.sub { font-family: var(--texto); font-size: 23px; font-weight: 450; fill: var(--suave); }
 #l-arquitectura text.zona { font-family: var(--titulo); font-weight: 800; font-size: 58px; text-anchor: start; }
-#l-arquitectura text.zona-sub { font-family: var(--mono); font-size: 21px; font-weight: 450; text-anchor: start; fill: var(--suave); letter-spacing: .06em; }
+#l-arquitectura text.zona-sub { font-family: var(--texto); font-size: 29px; font-weight: 450; text-anchor: start; fill: var(--suave); }
 #l-arquitectura .a text.zona { fill: var(--cobre); }
 #l-arquitectura .b text.zona { fill: var(--oxido); }
 #l-arquitectura path.hilo { fill: none; stroke-width: 2.5; }
@@ -338,8 +369,6 @@ html, body {
 #l-rafaga .lado .dato { margin-top: 6px; font-size: 20px; white-space: nowrap; }
 #l-rafaga .lado .riel { position: relative; height: 5px; background: var(--linea); margin-top: 16px; width: 280px; }
 #l-rafaga .lado .riel i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--suave); }
-#l-rafaga .golpe { padding: 26px 0; }
-#l-rafaga .golpe .t3 { font-size: 64px; line-height: 1.12; }
 
 /* =====================================================================
    5 · Leyes: «¿Dónde perforo?»
@@ -347,9 +376,10 @@ html, body {
 
 #l-leyes .lateral { top: 452px; }
 #l-leyes .lateral .partes { font-size: 30px; color: var(--tinta); margin-bottom: 14px; }
-#l-leyes .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 22px; }
-#l-leyes .columna .t2 { font-size: 86px; }
-#l-leyes .uno .p { font-size: 33px; margin-bottom: 18px; }
+#l-leyes .columna { left: 110px; top: 88px; width: 800px; display: flex; flex-direction: column; gap: 16px; }
+#l-leyes .columna .t2 { font-size: 78px; }
+#l-leyes .uno { display: grid; gap: 16px; align-content: start; }
+#l-leyes .uno .p.entrega { font-size: 31px; }
 #l-leyes .perforo .t3 { font-size: 92px; }
 #l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
 #l-leyes .perforo .p b { color: var(--tinta); }
@@ -362,10 +392,12 @@ html, body {
    1 · El valor, a primera vista
    ===================================================================== */
 
-#l-valor .portada { left: 110px; top: 0; bottom: 0; width: 1500px; display: flex; flex-direction: column; justify-content: center; gap: 0; padding-bottom: 40px; }
-#l-valor .portada .t1 { font-size: 330px; letter-spacing: .02em; }
-#l-valor .portada .t3 { font-size: 92px; margin-top: 10px; }
-#l-valor .portada .p { font-size: 44px; color: var(--tinta); width: 1240px; margin-top: 46px; }
+#l-valor .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09e6 38%, #0b0a0966 52%, transparent 64%); }
+#l-valor .portada { left: 110px; top: 0; bottom: 0; width: 1000px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 30px; }
+/* la «y» de Krylov baja mucho: su línea es alta y lo que sigue queda bien separado */
+#l-valor .portada .t1 { font-size: 310px; line-height: 1.16; letter-spacing: .02em; margin-top: -40px; }
+#l-valor .portada .t3 { font-size: 88px; line-height: 1.1; margin-top: 12px; }
+#l-valor .portada .p { font-size: 40px; color: var(--tinta); width: 860px; margin-top: 44px; }
 
 /* =====================================================================
    8 a 11 · Las otras cuatro decisiones, cada una con su escena
@@ -378,12 +410,12 @@ html, body {
 /* cuando la red respondió, el gráfico de la pared va arriba a la derecha: un sector que conviene cerrar y cuánto le falta */
 #l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 640px; height: 290px; }
 #l-taludes.con-respuesta .reloj { display: none; }
-.sobre-serie .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 22px; }
-.sobre-serie .columna .t2 { font-size: 84px; }
-.sobre-serie .columna > .p { font-size: 33px; width: 770px; }
+.sobre-serie .columna { left: 110px; top: 88px; width: 800px; display: flex; flex-direction: column; gap: 16px; }
+.sobre-serie .columna .t2 { font-size: 78px; }
+.sobre-serie .columna > .p { font-size: 31px; width: 780px; }
 /* el reloj del recorrido: chico, al pie de la columna (lo que se ve es el archivo pasando en el tiempo) */
 .sobre-serie .reloj { display: flex; align-items: baseline; gap: 14px; margin-top: 6px; }
-.sobre-serie .reloj .num { font-size: 46px; color: var(--suave); }
+.sobre-serie .reloj .num { font-size: 36px; color: var(--tenue); }
 .sobre-serie .reloj .dato { font-size: 19px; }
 
 /* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */
@@ -445,15 +477,12 @@ html, body {
    ===================================================================== */
 
 #l-confianza canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#l-confianza .columna { left: 110px; top: 92px; width: 840px; display: flex; flex-direction: column; gap: 26px; }
+#l-confianza .columna { left: 110px; top: 92px; width: 840px; display: flex; flex-direction: column; gap: 34px; }
 #l-confianza .columna .t2 { font-size: 88px; }
-#l-confianza .grande { display: flex; align-items: center; gap: 34px; }
-#l-confianza .grande .num { font-size: 250px; color: var(--cobre); }
-#l-confianza .grande .p { font-size: 37px; color: var(--tinta); }
-#l-confianza .filas { display: grid; gap: 0; }
-#l-confianza .filas .fila { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 26px; border-top: 1.5px solid var(--linea); padding: 12px 0; font-size: 30px; line-height: 1.25; color: var(--suave); }
-#l-confianza .filas .fila .num { font-size: 66px; color: var(--tinta); }
-#l-confianza .remate { font-size: 33px; color: var(--tinta); font-weight: 600; }
+#l-confianza .medida { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 34px; border-top: 1.5px solid var(--linea); padding-top: 30px; }
+#l-confianza .medida .num { font-size: 190px; color: var(--cobre); }
+#l-confianza .medida .t3 { font-size: 46px; }
+#l-confianza .medida .p { font-size: 29px; margin-top: 10px; }
 
 /* =====================================================================
    Las láminas de preguntas (fuera del recorrido): Q, A, L, M
@@ -461,41 +490,52 @@ html, body {
 
 .pregunta .hoja { left: 110px; right: 110px; top: 84px; bottom: 96px; display: flex; flex-direction: column; gap: 40px; }
 .pregunta .hoja > .pie { margin-top: auto; }
-.pregunta .cabeza .t2 { font-size: 80px; }
+.pregunta .cabeza .t2 { font-size: 78px; }
 .pregunta .cabeza .p { margin-top: 18px; font-size: 35px; width: 1500px; }
 .pregunta .pie .p { font-size: 34px; color: var(--suave); }
 
-#l-quien .roles .fila { display: grid; grid-template-columns: 700px 1fr; align-items: baseline; gap: 30px; border-top: 1.5px solid var(--linea); padding: 20px 0 16px; }
-#l-quien .roles .t3 { font-size: 56px; }
-#l-quien .roles .p { font-size: 34px; }
+/* Q: las cinco figuras de la lámina 6, con quién decide cada cosa */
+#l-quien .cabeza, #l-llm .cabeza { left: 110px; top: 84px; width: 1700px; }
+#l-quien .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
+#l-quien .cinco { position: absolute; left: 110px; right: 110px; bottom: 120px; display: grid; grid-template-columns: repeat(5, 1fr); }
+#l-quien .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
+#l-quien .cinco .t3 { font-size: 46px; }
+#l-quien .cinco .p { font-size: 27px; color: var(--cobre); margin-top: 10px; }
 
-#l-archivo .tablas { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; }
-#l-archivo .rotulo { font-size: 30px; margin-bottom: 18px; }
-#l-archivo .tablas { align-items: end; }
-#l-archivo table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: 25px; }
-#l-archivo th { text-align: left; font-weight: 600; padding: 0 14px 10px 0; vertical-align: bottom; border-bottom: 2px solid var(--tenue); }
-#l-archivo th i { display: block; font-family: var(--texto); font-style: normal; font-size: 21px; font-weight: 600; color: var(--cobre); margin-bottom: 4px; }
-#l-archivo th.no, #l-archivo td.no { color: #5f584e; }
-#l-archivo th.no i { color: #5f584e; font-weight: 450; }
-#l-archivo td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--linea); color: var(--tinta); }
-#l-archivo td.mas { color: var(--tenue); border-bottom: 0; font-family: var(--texto); font-size: 23px; }
+/* A: el archivo que pide el modelo de cada decisión */
+#l-archivo .modelos { display: grid; }
+#l-archivo .modelos .fila { display: grid; grid-template-columns: 290px 350px 1fr; column-gap: 34px; align-items: center; border-top: 1.5px solid var(--linea); padding: 12px 0 10px; }
+#l-archivo .modelos .t3 { font-size: 50px; }
+#l-archivo .modelos .p { font-size: 27px; line-height: 1.22; }
+#l-archivo .modelos .p .grupos { display: block; color: var(--tinta); }
+#l-archivo .modelos .p b { color: var(--cobre); }
+#l-archivo .modelos .cols { grid-column: 3; font-family: var(--mono); font-size: 19px; color: var(--tenue); margin-top: 4px; white-space: pre-wrap; }
+#l-archivo svg.niveles { width: 350px; height: 68px; grid-row: span 2; }
+#l-archivo svg.niveles circle { fill: var(--cobre); }
+#l-archivo svg.niveles circle.fila { fill: #b9b0a1; }
+#l-archivo svg.niveles path { fill: none; stroke: #e2854a80; stroke-width: 1.5; }
 
-#l-llm .prueba .fila { display: grid; grid-template-columns: 520px 1fr 1fr 1fr; gap: 26px; align-items: center; border-top: 1.5px solid var(--linea); padding: 16px 0 12px; }
-#l-llm .prueba .fila.cab { border-top: 0; padding-bottom: 6px; }
-#l-llm .prueba .t3 { font-size: 44px; color: var(--suave); }
-#l-llm .prueba .t3.cobre { color: var(--cobre); }
-#l-llm .prueba .p { font-size: 29px; line-height: 1.22; }
-#l-llm .prueba .p.fuerte { color: var(--tinta); font-weight: 600; }
-#l-llm .prueba .num { font-size: 62px; color: var(--suave); }
-#l-llm .prueba .num.cobre { color: var(--cobre); }
-#l-llm .pie .p { font-size: 33px; }
+/* L: dos nubes en 3D, cada una con su tiempo */
+#l-llm .lado { top: 650px; width: 640px; }
+#l-llm .lado.izq { left: 150px; }
+#l-llm .lado.der { left: 1130px; }
+#l-llm .lado .t3 { font-size: 56px; color: var(--suave); }
+#l-llm .lado .t3.cobre { color: var(--cobre); }
+#l-llm .lado .p { font-size: 29px; margin-top: 6px; }
+#l-llm .lado .num { font-size: 104px; color: var(--suave); margin-top: 14px; }
+#l-llm .lado .num.cobre { color: var(--cobre); }
+#l-llm .lado .dato { margin-top: 2px; }
+#l-llm .pie { left: 150px; right: 150px; bottom: 96px; }
+#l-llm .pie .p { font-size: 27px; color: var(--tenue); }
 
-#l-produccion .controles .fila { display: grid; grid-template-columns: 520px 1fr; gap: 40px; align-items: center; border-top: 1.5px solid var(--linea); padding: 24px 0 20px; }
-#l-produccion .controles .t3 { font-size: 60px; display: flex; flex-direction: column; gap: 6px; }
-#l-produccion .controles .t3 .num { font-size: 84px; color: var(--cobre); }
-#l-produccion .controles .p { font-size: 34px; }
-#l-produccion .luces { display: flex; gap: 14px; margin-bottom: 8px; }
-#l-produccion .luz { width: 44px; height: 44px; border-radius: 50%; }
-#l-produccion .luz.verde { background: var(--no-actuar); }
-#l-produccion .luz.ambar { background: var(--en-duda); }
-#l-produccion .luz.roja { background: var(--actuar); }
+/* M: los intervalos, y lo que de verdad pasó */
+#l-produccion .intervalos { --nom: 190px; --val: 190px; --alto: 56px; }
+#l-produccion .intervalos .nom { font-size: 33px; }
+#l-produccion .intervalos .val { font-size: 27px; }
+#l-produccion .intervalos .barra { height: 20px; margin-top: -10px; }
+#l-produccion .intervalos .punto { height: 32px; margin-top: -16px; }
+#l-produccion .pie .p { font-size: 29px; }
+#l-produccion .clave { display: inline-block; vertical-align: middle; margin: 0 12px 0 0; }
+#l-produccion .clave.barra { width: 54px; height: 16px; background: var(--no-actuar); }
+#l-produccion .clave.punto { width: 4px; height: 28px; background: #f4efe6; margin-left: 30px; }
+#l-produccion .clave.real { width: 18px; height: 18px; border-radius: 50%; border: 3.5px solid #fff; margin-left: 30px; }

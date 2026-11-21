@@ -1,85 +1,86 @@
-/* 12 · «¿Y cómo sé que acierta?»: un número de 0 a 1, y el rango a la vista.
-   A la derecha, el examen que Krylov se toma con el archivo de `leyes` (nucleo/espacial._examen): esconde 68 muestras,
-   responde con las otras 272 y dice, para cada escondida, entre qué valores puede estar (rango de 90%). Cada barra es
-   ese rango; el punto es lo que de verdad había. Lo calcula generar.py con la red (datos.js → examen_puntos).
-   A la izquierda, tres veces la misma pregunta («cuando dio un rango, ¿la respuesta cayó adentro?»):
-   con este archivo, en los 2.000 casos de validación del sello, y con datos reales públicos (sello: examen_5_particiones). */
+/* 12 · «¿Y cómo sé que acierta?»: dos medidas de accuracy, de 0 a 1, cada una con su dibujo.
+   - Las decisiones (arriba): el examen del terreno de `leyes` contra su verdad escondida (nucleo/espacial.examen_de_bloques).
+     De las partes donde Krylov decidió («conviene apartar» o «puede ir a la planta»), en cuántas acertó. Un cuadrado por
+     decisión. Las partes que dejó «en duda» no cuentan: ahí dijo que no sabía.
+   - Los intervalos (abajo): el examen que se toma con cada archivo (nucleo/espacial._examen): esconde 68 muestras, responde
+     con las demás y da un intervalo de credibilidad de 90% para cada una. Cada barra es un intervalo; el punto, lo que había.
+   Todo viene de datos.js (terreno.examen_bloques y examen_puntos), generado con la red. El terreno es simulado. */
 (function () {
   'use strict';
   const K = window.K;
-  const X0 = 1040, X1 = 1810, Y0 = 860, Y1 = 200;
-  const MONO = '"JetBrains Mono", monospace', TEXTO = '"Instrument Sans", sans-serif';
+  const X0 = 1010, X1 = 1810, MONO = '"JetBrains Mono", monospace', TEXTO = '"Instrument Sans", sans-serif';
 
   K.registrar('confianza', {
-    tQuieto: 9,
+    tQuieto: 12,
     crear: function (L) {
-      const E = (this.E = K.datos.examen_puntos), S = K.datos.sello, R = S.examen_5_particiones;
-      this.cv = L.querySelector('canvas');
-      this.ctx = this.cv.getContext('2d');
+      const C = K.datos.terreno.examen_bloques.colores, E = (this.E = K.datos.examen_puntos), dos = function (x) { return K.coma(x, 2); };
+      const buenasA = C.actuar.sobre_el_limite, buenasN = C.no_actuar.bloques - C.no_actuar.sobre_el_limite;
+      this.decididas = C.actuar.bloques + C.no_actuar.bloques;
+      this.correctas = buenasA + buenasN;
+      // qué cuadrados son errores: repartidos al azar (con semilla) dentro de su grupo
+      const azar = K.azar(5), malas = {};
+      const repartir = function (desde, cuantos, errores) { while (errores > 0) { const i = desde + Math.floor(azar() * cuantos); if (!malas[i]) { malas[i] = 1; errores--; } } };
+      repartir(0, C.actuar.bloques, C.actuar.bloques - buenasA);
+      repartir(C.actuar.bloques, C.no_actuar.bloques, C.no_actuar.sobre_el_limite);
+      this.malas = malas;
+      this.cols = 55; this.filas = Math.ceil(this.decididas / this.cols);
       this.pts = E.puntos.slice().sort(function (a, b) { return a[0] - b[0]; });
       let lo = Infinity, hi = 0;
       this.pts.forEach(function (p) { lo = Math.min(lo, p[1], p[3]); hi = Math.max(hi, p[2], p[3]); });
       this.lo = Math.log(lo * 0.85); this.hi = Math.log(hi * 1.12);
-      const dos = function (x) { return K.coma(x, 2); };
-      L.querySelector('#conf-numero').textContent = dos(S.cobertura_90);
-      const filas = [
-        [dos(E.dentro / E.n), 'Con este archivo: escondimos <span class="nb">' + E.n + ' muestras</span> y <span class="nb">' + E.dentro + ' cayeron</span> dentro de su rango.'],
-        [dos(S.cobertura_90), 'En <span class="nb">' + K.miles(S.casos_validacion) + ' casos</span> nuevos, que nunca había visto.'],
-      ];
-      if (R) filas.push([dos(R.dentro_del_rango_de_90 / R.mediciones_escondidas), 'Con datos reales públicos: <span class="nb">' + R.dentro_del_rango_de_90 + ' de ' + R.mediciones_escondidas + '</span> mediciones escondidas.']);
-      L.querySelector('#conf-filas').innerHTML = filas.map(function (f) { return '<div class="fila"><span class="num">' + f[0] + '</span><span>' + f[1] + '</span></div>'; }).join('');
+      const poner = function (id, v) { L.querySelector(id).innerHTML = v; };
+      poner('#conf-decisiones', dos(this.correctas / this.decididas));
+      poner('#conf-decisiones-texto', 'Decidió en <span class="nb">' + K.miles(this.decididas) + ' partes</span> del terreno y acertó en <span class="nb">' + K.miles(this.correctas) + '</span>. En las otras <span class="nb">' + C.en_duda.bloques + '</span> dijo «no sabemos».');
+      poner('#conf-intervalos', dos(E.dentro / E.n));
+      poner('#conf-intervalos-texto', 'Escondimos <span class="nb">' + E.n + ' valores</span>: <span class="nb">' + E.dentro + ' cayeron</span> dentro de su intervalo de credibilidad de 90%.');
+      this.cv = L.querySelector('canvas');
+      this.ctx = this.cv.getContext('2d');
     },
     alAjustar: function () {
       const r = (this.r = K.razon(1.5));
       this.cv.width = Math.round(1920 * r);
       this.cv.height = Math.round(1080 * r);
     },
-    y: function (ppm) { return Y0 - ((Math.log(ppm) - this.lo) / (this.hi - this.lo)) * (Y0 - Y1); },
     cuadro: function (t) {
-      const ctx = this.ctx, r = this.r, E = this.E, n = this.pts.length, paso = (X1 - X0) / n;
+      const ctx = this.ctx, r = this.r, E = this.E;
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);
-      // el eje: partes por millón, en escala de multiplicar
-      ctx.font = '450 19px ' + MONO; ctx.textAlign = 'right';
-      [100, 200, 500, 1000, 2000].forEach(function (v) {
-        const y = this.y(v);
-        if (y < Y1 - 10 || y > Y0 + 10) return;
-        ctx.fillStyle = '#2d2924'; ctx.fillRect(X0, y, X1 - X0, 1.5);
-        ctx.fillStyle = '#7d7568'; ctx.fillText(K.miles(v), X0 - 16, y + 6);
-      }, this);
-      ctx.textAlign = 'left'; ctx.fillStyle = '#7d7568'; ctx.fillText(E.unidad.toUpperCase(), X0, Y1 - 26);
-      // el límite con que se decide
-      const yL = this.y(E.limite);
+
+      // ---- arriba: un cuadrado por decisión ----
+      const paso = (X1 - X0) / this.cols, lado = paso - 2.4, y0 = 330, vistos = K.acotar((t - 0.5) / 1.6, 0, 1) * this.decididas;
+      for (let i = 0; i < this.decididas && i < vistos; i++) {
+        ctx.fillStyle = this.malas[i] ? '#ff7a50' : '#2fbf8f';
+        ctx.fillRect(X0 + (i % this.cols) * paso, y0 + Math.floor(i / this.cols) * paso, lado, lado);
+      }
+      const yPie = y0 + this.filas * paso + 34;
+      ctx.font = '500 25px ' + TEXTO; ctx.textAlign = 'left';
+      ctx.fillStyle = '#2fbf8f'; ctx.fillRect(X0, yPie - 19, 20, 20); ctx.fillStyle = '#f4efe6'; ctx.fillText('decisión correcta', X0 + 32, yPie);
+      ctx.fillStyle = '#ff7a50'; ctx.fillRect(X0 + 280, yPie - 19, 20, 20); ctx.fillStyle = '#f4efe6'; ctx.fillText('decisión equivocada', X0 + 312, yPie);
+
+      // ---- abajo: un intervalo por valor escondido, y lo que de verdad había ----
+      const Y0 = 930, Y1 = 660, n = this.pts.length, ancho = (X1 - X0) / n, lo = this.lo, hi = this.hi;
+      const Y = function (ppm) { return Y0 - ((Math.log(ppm) - lo) / (hi - lo)) * (Y0 - Y1); };
+      const yL = Y(E.limite);
       ctx.strokeStyle = '#f4efe6'; ctx.lineWidth = 2; ctx.setLineDash([10, 8]);
       ctx.beginPath(); ctx.moveTo(X0, yL); ctx.lineTo(X1, yL); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '600 22px ' + TEXTO; ctx.textAlign = 'left';
-      ctx.fillText('límite: ' + K.miles(E.limite) + ' ppm', X0 + 6, yL - 12);                 // a la izquierda, donde las barras quedan por debajo
-
-      let adentro = 0, afuera = 0;
+      ctx.fillStyle = '#7d7568'; ctx.font = '450 19px ' + MONO; ctx.fillText('LÍMITE: ' + K.miles(E.limite) + ' PPM', X0, yL - 12);
       for (let i = 0; i < n; i++) {
-        const p = this.pts[i], x = X0 + (i + 0.5) * paso;
-        const crece = K.fuera((t - 0.4 - i * 0.022) / 0.5), cae = K.acotar((t - 2.1 - i * 0.02) / 0.3, 0, 1);
+        const p = this.pts[i], x = X0 + (i + 0.5) * ancho;
+        const crece = K.fuera((t - 2.3 - i * 0.02) / 0.5), cae = K.acotar((t - 4.0 - i * 0.02) / 0.3, 0, 1);
         if (crece <= 0) continue;
-        const ye = this.y(p[0]), ya = K.mezcla(ye, this.y(p[2]), crece), yb = K.mezcla(ye, this.y(p[1]), crece), ok = p[3] >= p[1] && p[3] <= p[2];
+        const ye = Y(p[0]), ya = K.mezcla(ye, Y(p[2]), crece), yb = K.mezcla(ye, Y(p[1]), crece), ok = p[3] >= p[1] && p[3] <= p[2];
         ctx.fillStyle = cae > 0 && !ok ? 'rgba(228,96,60,0.55)' : 'rgba(185,176,161,0.42)';
-        ctx.fillRect(x - 3, ya, 6, yb - ya);                                 // el rango que dio
-        ctx.fillStyle = '#b9b0a1'; ctx.fillRect(x - 5, ye - 1, 10, 2);       // su estimación
-        if (cae > 0) {                                                       // lo que de verdad había
-          if (ok) adentro++; else afuera++;
+        ctx.fillRect(x - 3, ya, 6, yb - ya);
+        if (cae > 0) {
           ctx.globalAlpha = cae;
-          ctx.fillStyle = ok ? '#36c2ae' : '#ff7a50';
-          ctx.beginPath(); ctx.arc(x, this.y(p[3]), 5.2 + (1 - cae) * 6, 0, 6.2832); ctx.fill();
+          ctx.fillStyle = ok ? '#2fbf8f' : '#ff7a50';
+          ctx.beginPath(); ctx.arc(x, Y(p[3]), 5.2 + (1 - cae) * 6, 0, 6.2832); ctx.fill();
           ctx.globalAlpha = 1;
         }
       }
-      // la leyenda, que cuenta mientras caen los puntos
-      ctx.textAlign = 'left'; ctx.font = '500 25px ' + TEXTO;
-      ctx.fillStyle = 'rgba(185,176,161,0.6)'; ctx.fillRect(X0, Y0 + 46, 6, 28);
-      ctx.fillStyle = '#b9b0a1'; ctx.fillText('el rango que dio Krylov', X0 + 18, Y0 + 69);
-      ctx.fillStyle = '#36c2ae'; ctx.beginPath(); ctx.arc(X0 + 334, Y0 + 60, 6, 0, 6.2832); ctx.fill();
-      ctx.fillStyle = '#f4efe6'; ctx.fillText('lo que había: ' + adentro + ' adentro', X0 + 350, Y0 + 69);
-      ctx.fillStyle = '#ff7a50'; ctx.beginPath(); ctx.arc(X0 + 640, Y0 + 60, 6, 0, 6.2832); ctx.fill();
-      ctx.fillStyle = '#f4efe6'; ctx.fillText(afuera + ' afuera', X0 + 656, Y0 + 69);
+      ctx.font = '500 25px ' + TEXTO; ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(185,176,161,0.6)'; ctx.fillRect(X0 + 7, Y0 + 32, 6, 28); ctx.fillStyle = '#f4efe6'; ctx.fillText('el intervalo que dio', X0 + 32, Y0 + 55);
+      ctx.fillStyle = '#2fbf8f'; ctx.beginPath(); ctx.arc(X0 + 300, Y0 + 46, 7, 0, 6.2832); ctx.fill(); ctx.fillStyle = '#f4efe6'; ctx.fillText('lo que había', X0 + 318, Y0 + 55);
     },
   });
 })();

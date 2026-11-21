@@ -124,19 +124,18 @@
   }
 
   // Lo que dice la columna de texto: cuántas unidades trae el archivo y, si el motor responde, su decisión.
-  // La columna de texto de cada decisión: lo que Krylov entrega, siempre en el mismo orden.
-  //   Respuesta: cuántas unidades conviene actuar y en cuántas no hace falta.
-  //   Incertidumbre: en cuántas no se sabe todavía.
-  //   Valor: lo que cuesta no saber, que es lo que vale despejar esa duda.
+  // La columna de texto de cada decisión: lo que Krylov entrega.
+  //   El gráfico: la estimación de cada unidad con su intervalo de credibilidad de 90% (js/intervalos.js).
+  //   Los colores: en cuántas unidades conviene actuar, en cuántas no se sabe y en cuántas no hace falta.
+  //   El valor: lo que cuesta no saber, que es lo que vale despejar esa duda.
   // Los números aparecen solo si el motor del caso respondió (series.<caso>.respuesta); si no, quedan los rótulos.
-  function llenar(L, S) {
-    const R = S.respuesta, rot = S.rotulos;
+  function llenar(L, S, caso) {
+    const R = S.respuesta, rot = S.rotulos, grafico = L.querySelector('.grafico');
+    if (R && K.filasDe[caso]) K.intervalos(grafico, K.filasDe[caso]()); else grafico.hidden = true;
     const item = function (clase, n, texto) { return '<span class="item"><i class="muestra ' + clase + '"></i>' + (n == null ? '' : '<b class="num">' + n + '</b>') + '<span>' + texto + '</span></span>'; };
     L.querySelector('.salida').innerHTML =
-      '<div class="fila"><span class="rot">Respuesta</span><span class="cont">' + item('actuar', R ? R.colores.actuar : null, rot.actuar) + item('no-actuar', R ? R.colores.no_actuar : null, rot.no_actuar) + '</span></div>' +
-      '<div class="fila"><span class="rot">Incertidumbre</span><span class="cont">' + item('en-duda', R ? R.colores.en_duda : null, rot.en_duda) + '</span></div>' +
-      '<div class="fila valor"><span class="rot">Valor</span><span class="cont"><span class="item">' +
-      (R && R.costo_de_no_saber != null ? '<b class="num">US$&nbsp;' + K.miles(R.costo_de_no_saber) + '</b><span>lo que vale despejar esa duda</span>' : '<span>Lo que vale despejar esa duda, en dólares</span>') + '</span></span></div>';
+      '<div class="colores">' + item('actuar', R ? R.colores.actuar : null, rot.actuar) + item('en-duda', R ? R.colores.en_duda : null, rot.en_duda) + item('no-actuar', R ? R.colores.no_actuar : null, rot.no_actuar) + '</div>' +
+      (R && R.costo_de_no_saber != null ? '<div class="valor"><b class="num">US$&nbsp;' + K.miles(R.costo_de_no_saber) + '</b><span>lo que vale despejar esa duda</span></div>' : '');
     L.classList.toggle('con-respuesta', !!R);
   }
   function tinteDe(S, id, sinRespuesta) {
@@ -165,6 +164,54 @@
   function nombre(id) { return id.replace(/^S-0?/, 'Sector ').replace(/^L-0?/, 'Línea ').replace(/^CAEX-/, 'Camión '); }
   function reloj(el, texto) { if (el._h !== texto) { el.textContent = texto; el._h = texto; } }
 
+  // Un camión minero hecho de puntos sobre su carrocería (x hacia adelante). P son posiciones; Q es (tipo, brillo, ángulo, radio).
+  // Tipo 1: rueda, que gira. Tipo 2: foco. Lo usan la lámina de la flota y la portada.
+  function camionDePuntos(azar, RUEDA) {
+      const P = [], Q = [];
+      const pt = function (x, y, z, tipo, brillo, ang, radio) { P.push(x, y, z); Q.push(tipo || 0, brillo == null ? 0.4 : brillo, ang || 0, radio || 0); };
+      const caja = function (x0, x1, y0, y1, z0, z1, cuantos, brillo) {
+        for (let i = 0; i < cuantos; i++) {
+          const cara = Math.floor(azar() * 3), u = azar(), v = azar(), lado = azar() < 0.5;
+          if (cara === 0) pt(lado ? x0 : x1, K.mezcla(y0, y1, u), K.mezcla(z0, z1, v), 0, brillo);
+          else if (cara === 1) pt(K.mezcla(x0, x1, u), lado ? y0 : y1, K.mezcla(z0, z1, v), 0, brillo);
+          else pt(K.mezcla(x0, x1, u), K.mezcla(y0, y1, v), lado ? z0 : z1, 0, brillo);
+        }
+        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].forEach(function (q, i, lista) {                 // sus aristas, más brillantes
+          const r = lista[(i + 1) % 4], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
+          for (let k = 0; k <= largo * 16; k++) { const f = k / (largo * 16); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z0, 0, 0.9); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z1, 0, 0.9); }
+        });
+      };
+      // la tolva, de lado: piso inclinado, pared del frente y la visera que tapa la cabina
+      const perfil = [[-2.95, 1.98], [0.15, 1.42], [0.55, 2.86], [2.8, 3.0], [2.8, 3.17], [-3.1, 2.8]];
+      const adentro = function (x, y) {
+        let si = false;
+        for (let i = 0, j = perfil.length - 1; i < perfil.length; j = i++) {
+          const a = perfil[i], b = perfil[j];
+          if ((a[1] > y) !== (b[1] > y) && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) si = !si;
+        }
+        return si;
+      };
+      for (let i = 0; i < 1500; i++) { let x, y; do { x = -3.1 + azar() * 5.9; y = 1.42 + azar() * 1.75; } while (!adentro(x, y)); pt(x, y, azar() < 0.5 ? -1.56 : 1.56, 0, 0.5); }
+      perfil.forEach(function (q, i) {
+        const r = perfil[(i + 1) % perfil.length], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
+        for (let k = 0; k < largo * 46; k++) { const f = azar(); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), (azar() - 0.5) * 3.12, 0, 0.3); }
+        for (let k = 0; k <= largo * 20; k++) { const f = k / (largo * 20); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), -1.56, 0, 1); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), 1.56, 0, 1); }
+      });
+      caja(-2.5, 2.45, 0.98, 1.42, -0.95, 0.95, 320, 0.4);                                       // chasis
+      caja(1.0, 2.05, 1.42, 2.62, -1.5, 1.5, 420, 0.5);                                          // cabina y plataforma, bajo la visera
+      caja(2.05, 2.72, 0.95, 2.25, -1.3, 1.3, 380, 0.5);                                         // frente: radiador y parachoques
+      // seis neumáticos enormes: dos adelante, cuatro atrás
+      [[1.62, -1.32, 0.56], [1.62, 1.32, 0.56], [-1.38, -0.86, 0.5], [-1.38, -1.44, 0.5], [-1.38, 0.86, 0.5], [-1.38, 1.44, 0.5]].forEach(function (w) {
+        for (let i = 0; i < 170; i++) pt(w[0], RUEDA, w[1] + (azar() - 0.5) * w[2], 1, 0.9, azar() * 6.2832, RUEDA);                                  // la banda
+        for (let i = 0; i < 200; i++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.55, azar() * 6.2832, RUEDA * (0.42 + 0.58 * Math.sqrt(azar())));   // el costado
+        for (let k = 0; k < 6; k++) for (let j = 0; j < 5; j++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.9, (k / 6) * 6.2832, RUEDA * (0.08 + 0.07 * j));   // los rayos de la llanta: se ve que gira
+      });
+      pt(2.74, 1.55, -0.9, 2, 1); pt(2.74, 1.55, 0.9, 2, 1);                                      // focos
+      return { P: P, Q: Q };
+  }
+  K.camionDePuntos = camionDePuntos;
+  K.base3d = base;
+
   // ============================== 8 · Taludes: la pared de la mina ==============================
   // La pared del rajo, vista desde el otro lado: ocho escalones de roca, partida en los 36 sectores del archivo.
   // Cada sector se abulta y se enciende lo que el radar midió a esa hora (el movimiento está exagerado para que se vea):
@@ -174,7 +221,7 @@
     tres: null, tQuieto: 14,
     crear: function (L) {
       const S = (this.S = K.datos.series.taludes), n = (this.n = S.unidades.length);
-      llenar(L, S);
+      llenar(L, S, 'taludes');
       this.reloj = L.querySelector('.reloj .num');
       this.horas = 0; this.maximo = 0;
       S.unidades.forEach(function (un) { un.puntos.forEach(function (q) { this.horas = Math.max(this.horas, q[0]); this.maximo = Math.max(this.maximo, q[1]); }, this); }, this);
@@ -420,7 +467,7 @@
     tres: null, tQuieto: 20,
     crear: function (L) {
       const S = (this.S = K.datos.series.flotacion), n = (this.n = S.unidades.length);
-      llenar(L, S);
+      llenar(L, S, 'flotacion');
       this.reloj = L.querySelector('.reloj .num');
       let celdas = 0, minutos = 0, salto = 0;
       S.unidades.forEach(function (un) {
@@ -543,7 +590,7 @@
     tres: null, tQuieto: 17,
     crear: function (L) {
       const S = (this.S = K.datos.series.flota), n = (this.n = S.unidades.length);
-      llenar(L, S);
+      llenar(L, S, 'flota');
       this.reloj = L.querySelector('.reloj .num');
       this.horas = 0;
       S.unidades.forEach(function (un) { this.horas = Math.max(this.horas, un.puntos[un.puntos.length - 1][0]); }, this);
@@ -553,47 +600,7 @@
       const ESC = (this.ESC = 0.62), NIVELES = (this.NIVELES = 4), LARGO = (this.LARGO = 48), RUEDA = 0.92, VEL = (this.VEL = 1.0);
       this.nivel = function (k) { return { y: -3.6 + k * 2.0, z: 6.0 - k * 5.2, dir: k % 2 ? -1 : 1 }; };
 
-      // ---- un camión (x hacia adelante): P son posiciones; Q es (tipo, brillo, ángulo, radio). Tipo 1: rueda, que gira. Tipo 2: foco.
-      const P = [], Q = [];
-      const pt = function (x, y, z, tipo, brillo, ang, radio) { P.push(x, y, z); Q.push(tipo || 0, brillo == null ? 0.4 : brillo, ang || 0, radio || 0); };
-      const caja = function (x0, x1, y0, y1, z0, z1, cuantos, brillo) {
-        for (let i = 0; i < cuantos; i++) {
-          const cara = Math.floor(azar() * 3), u = azar(), v = azar(), lado = azar() < 0.5;
-          if (cara === 0) pt(lado ? x0 : x1, K.mezcla(y0, y1, u), K.mezcla(z0, z1, v), 0, brillo);
-          else if (cara === 1) pt(K.mezcla(x0, x1, u), lado ? y0 : y1, K.mezcla(z0, z1, v), 0, brillo);
-          else pt(K.mezcla(x0, x1, u), K.mezcla(y0, y1, v), lado ? z0 : z1, 0, brillo);
-        }
-        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].forEach(function (q, i, lista) {                 // sus aristas, más brillantes
-          const r = lista[(i + 1) % 4], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
-          for (let k = 0; k <= largo * 16; k++) { const f = k / (largo * 16); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z0, 0, 0.9); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), z1, 0, 0.9); }
-        });
-      };
-      // la tolva, de lado: piso inclinado, pared del frente y la visera que tapa la cabina
-      const perfil = [[-2.95, 1.98], [0.15, 1.42], [0.55, 2.86], [2.8, 3.0], [2.8, 3.17], [-3.1, 2.8]];
-      const adentro = function (x, y) {
-        let si = false;
-        for (let i = 0, j = perfil.length - 1; i < perfil.length; j = i++) {
-          const a = perfil[i], b = perfil[j];
-          if ((a[1] > y) !== (b[1] > y) && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) si = !si;
-        }
-        return si;
-      };
-      for (let i = 0; i < 1500; i++) { let x, y; do { x = -3.1 + azar() * 5.9; y = 1.42 + azar() * 1.75; } while (!adentro(x, y)); pt(x, y, azar() < 0.5 ? -1.56 : 1.56, 0, 0.5); }
-      perfil.forEach(function (q, i) {
-        const r = perfil[(i + 1) % perfil.length], largo = Math.hypot(r[0] - q[0], r[1] - q[1]);
-        for (let k = 0; k < largo * 46; k++) { const f = azar(); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), (azar() - 0.5) * 3.12, 0, 0.3); }
-        for (let k = 0; k <= largo * 20; k++) { const f = k / (largo * 20); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), -1.56, 0, 1); pt(K.mezcla(q[0], r[0], f), K.mezcla(q[1], r[1], f), 1.56, 0, 1); }
-      });
-      caja(-2.5, 2.45, 0.98, 1.42, -0.95, 0.95, 320, 0.4);                                       // chasis
-      caja(1.0, 2.05, 1.42, 2.62, -1.5, 1.5, 420, 0.5);                                          // cabina y plataforma, bajo la visera
-      caja(2.05, 2.72, 0.95, 2.25, -1.3, 1.3, 380, 0.5);                                         // frente: radiador y parachoques
-      // seis neumáticos enormes: dos adelante, cuatro atrás
-      [[1.62, -1.32, 0.56], [1.62, 1.32, 0.56], [-1.38, -0.86, 0.5], [-1.38, -1.44, 0.5], [-1.38, 0.86, 0.5], [-1.38, 1.44, 0.5]].forEach(function (w) {
-        for (let i = 0; i < 170; i++) pt(w[0], RUEDA, w[1] + (azar() - 0.5) * w[2], 1, 0.9, azar() * 6.2832, RUEDA);                                  // la banda
-        for (let i = 0; i < 200; i++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.55, azar() * 6.2832, RUEDA * (0.42 + 0.58 * Math.sqrt(azar())));   // el costado
-        for (let k = 0; k < 6; k++) for (let j = 0; j < 5; j++) pt(w[0], RUEDA, w[1] + (w[1] < 0 ? -1 : 1) * w[2] / 2, 1, 0.9, (k / 6) * 6.2832, RUEDA * (0.08 + 0.07 * j));   // los rayos de la llanta: se ve que gira
-      });
-      pt(2.74, 1.55, -0.9, 2, 1); pt(2.74, 1.55, 0.9, 2, 1);                                      // focos
+      const modelo = camionDePuntos(azar, RUEDA), P = modelo.P, Q = modelo.Q;
       const porCamion = P.length / 3, pos = [], aq = [], ac = [], tt = [];
       for (let i = 0; i < n; i++) {
         const col = tinteDe(S, S.unidades[i].id, null) || [0, 0, 0];
@@ -687,7 +694,7 @@
     tres: null, tQuieto: 16,
     crear: function (L) {
       const S = (this.S = K.datos.series.sismicidad), n = (this.n = S.unidades.length);
-      llenar(L, S);
+      llenar(L, S, 'sismicidad');
       this.reloj = L.querySelector('.reloj .num');
       this.horas = S.horizonte || 6;
       this.fuerte = S.umbral == null ? 1 : S.umbral;

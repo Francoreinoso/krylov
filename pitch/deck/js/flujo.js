@@ -1,117 +1,92 @@
 /* 3 · En el pasado vs. hoy: el flujo de trabajo de un data scientist contra el de Bayesian Amortized Inference.
-   Una carrera con un solo reloj, el tiempo de cómputo, que corre de 0 a 7 h 25 min:
-   - En el pasado, cada dataset repite los tres pasos (elegir el modelo, entrenar con ese dataset, inferir):
-     117 s por dataset con el método lento (M-25). En 7 h 25 min salen 228 (M-08, M-10).
-   - Hoy, los pasos se hacen una sola vez (elegir el modelo del problema, simular datasets con él, pre-entrenar la red):
-     280 minutos (M-02). Después, inferir es un forward pass de 10 ms (latencia_ms del sello).
-   Todo sale de motor/artefactos/espacial/sello.json. Lo que cuenta la fila de «Hoy» después de entrenar es una cuenta
-   (segundos que quedan ÷ 10 ms), no una corrida. Los tres pasos del pasado se dibujan del mismo ancho: el archivo
-   mide el total por dataset, no cuánto toma cada paso. */
+   Dos pasos, para que se mire una cosa a la vez:
+   - Paso 0, «En el pasado»: tres pasos que se repiten con cada dataset (elegir el modelo, entrenar con ese dataset,
+     inferir). Cada vuelta responde un dataset. Con el método lento son 117 s por dataset (M-25): «2 minutos cada uno».
+   - Paso 1, «Hoy»: los tres primeros pasos se hacen una sola vez (elegir el modelo, simular datasets, pre-entrenar la
+     red) y después inferir es un forward pass de 10 ms (latencia_ms del sello) por dataset.
+   Los dos tiempos por dataset son mediciones del sello del motor espacial. Los contadores cuentan lo que la animación
+   muestra (una vuelta, un dataset; un pulso, un dataset): dan la forma del trabajo, no son una medición.
+   El ancho de cada caja es el de su texto, así ningún texto se sale de su caja. */
 (function () {
   'use strict';
   const K = window.K;
-  const X0 = 110, X1 = 1810, HUECO = 8, A1 = 424, A2 = 408, A3 = 352;      // el ancho de cada paso: el que pide su texto
-  const MONO = '"JetBrains Mono", monospace', TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
+  const X0 = 110, ALTO = 84, HUECO = 10;
+  const TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
   const ELEGIR = '54,194,174', SIMULAR = '238,194,90', ENTRENAR = '226,133,74', INFERIR = '244,239,230';
-  const DURA = 8, ESPERA = 6;
-
-  function horas(s) { const min = Math.round(s / 60), h = Math.floor(min / 60), m = min - h * 60; return h + ' h ' + (m < 10 ? '0' : '') + m + ' min'; }
+  const VUELTA = 2.4, PULSO = 0.05;                    // en pantalla: segundos por dataset en el pasado, y por dataset hoy
 
   K.registrar('flujo', {
-    tQuieto: 100,
+    tQuieto: 30,
     crear: function (L) {
       const S = K.datos.sello;
       this.cv = L.querySelector('canvas');
       this.ctx = this.cv.getContext('2d');
-      this.total = S.amortizacion.mcmc_s;                                  // 26.699 s
-      this.porDataset = S.mcmc_s_por_dataset;                              // 117 s
-      this.n = Math.round(this.total / this.porDataset);                   // 228
-      this.entrena = S.entrenamiento_min * 60;                             // 280 min
-      this.ms = S.latencia_ms;                                             // 10 ms
-      this.minutos = Math.round(this.porDataset / 60);
+      this.minutos = Math.round(S.mcmc_s_por_dataset / 60);
+      this.ms = S.latencia_ms;
     },
     alAjustar: function () {
       const r = (this.r = K.razon(1.5));
       this.cv.width = Math.round(1920 * r);
       this.cv.height = Math.round(1080 * r);
     },
-    // un paso del flujo: una caja con su color; «lleno» de 0 a 1 la va pintando de izquierda a derecha
-    caja: function (ctx, x, y, ancho, color, texto, lleno, luz) {
-      ctx.fillStyle = 'rgba(' + color + ',0.13)'; ctx.fillRect(x, y, ancho, 64);
-      if (lleno > 0) { ctx.fillStyle = 'rgba(' + color + ',' + (0.3 + 0.3 * (luz || 0)) + ')'; ctx.fillRect(x, y, ancho * lleno, 64); }
-      ctx.fillStyle = 'rgb(' + color + ')'; ctx.fillRect(x, y, 7, 64);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '600 27px ' + TEXTO; ctx.textAlign = 'left';
-      ctx.fillText(texto, x + 26, y + 41);
+    entrar: function () { this.etapa = 0; this.t1 = 1e9; },
+    paso: function (p, inst) {                           // el segundo paso muestra «Hoy»
+      if (p >= 1 && this.etapa < 1) this.t1 = inst ? -100 : K.t - this._t0;
+      this.etapa = p;
+    },
+    // una caja del flujo: su ancho sale de su texto. «lleno» (0 a 1) la pinta de izquierda a derecha
+    caja: function (ctx, x, y, color, texto, lleno) {
+      ctx.font = '600 31px ' + TEXTO;
+      const ancho = Math.ceil(ctx.measureText(texto).width) + 64;
+      ctx.fillStyle = 'rgba(' + color + ',0.12)'; ctx.fillRect(x, y, ancho, ALTO);
+      if (lleno > 0) { ctx.fillStyle = 'rgba(' + color + ',0.42)'; ctx.fillRect(x, y, ancho * Math.min(1, lleno), ALTO); }
+      ctx.fillStyle = 'rgb(' + color + ')'; ctx.fillRect(x, y, 8, ALTO);
+      ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'left'; ctx.fillText(texto, x + 34, y + ALTO / 2 + 11);
+      return x + ancho + HUECO;
+    },
+    cuenta: function (ctx, x, y, n, color, texto) {
+      ctx.textAlign = 'left'; ctx.fillStyle = color; ctx.font = '800 120px ' + TITULO;
+      const s = K.miles(n);
+      ctx.fillText(s, x, y);
+      const ancho = ctx.measureText(s).width;
+      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 34px ' + TEXTO; ctx.fillText(texto, x + ancho + 26, y - 8);
     },
     cuadro: function (t) {
-      const ctx = this.ctx, r = this.r, n = this.n, paso = (X1 - X0) / n;
+      const ctx = this.ctx, r = this.r;
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);
-      const ciclo = DURA + ESPERA, u = K.quieto ? DURA + 1 : (((t - 0.9) % ciclo) + ciclo) % ciclo;
-      const avance = t < 0.9 && !K.quieto ? 0 : (u > ciclo - 0.7 ? 1 - K.suave((u - (ciclo - 0.7)) / 0.7) : Math.min(1, u / DURA));
-      const reloj = avance * this.total, listo = reloj >= this.entrena;
-      const desdeListo = listo ? (K.quieto ? 9 : (avance - this.entrena / this.total) * DURA + (avance >= 1 ? u - DURA : 0)) : 0;
+      const hoy = this.etapa >= 1;
 
-      // el reloj que comparten las dos filas
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#7d7568'; ctx.font = '500 20px ' + MONO; ctx.fillText('TIEMPO DE CÓMPUTO', X1, 112);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '800 92px ' + TITULO; ctx.fillText(horas(reloj), X1, 198);
+      // ---------- En el pasado: la vuelta completa, con cada dataset ----------
+      let y = 330;
+      ctx.globalAlpha = hoy ? 0.45 : 1;
+      ctx.textAlign = 'left'; ctx.fillStyle = '#b9b0a1'; ctx.font = '800 64px ' + TITULO; ctx.fillText('En el pasado', X0, y);
+      const u = K.quieto ? 2.5 : Math.max(0, t - 0.6) / VUELTA, vuelta = Math.floor(u), f = (u - vuelta) * 3;       // en qué caja va
+      let x = X0;
+      x = this.caja(ctx, x, y + 34, ELEGIR, 'Elegir el modelo', f);
+      x = this.caja(ctx, x, y + 34, ENTRENAR, 'Entrenar con ese dataset', f - 1);
+      x = this.caja(ctx, x, y + 34, INFERIR, 'Inferir', f - 2);
+      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 34px ' + TEXTO; ctx.fillText('↻  con cada dataset', x + 16, y + 34 + ALTO / 2 + 12);
+      this.cuenta(ctx, X0, y + 250, vuelta, '#b9b0a1', 'datasets respondidos · ' + this.minutos + ' minutos cada uno');
+      ctx.globalAlpha = 1;
+      if (!hoy) return;
 
-      // ---------- En el pasado ----------
-      let y = 300;
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '800 54px ' + TITULO; ctx.fillText('En el pasado', X0, y);
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 29px ' + TEXTO; ctx.fillText('un data scientist repite todo el trabajo, con cada dataset', X0 + 290, y - 4);
-      const turno = avance >= 1 || avance <= 0 ? -1 : Math.floor((t * 2.6) % 3);                 // la luz que recorre los tres pasos, una y otra vez
-      const x2 = X0 + A1 + HUECO, x3 = x2 + A2 + HUECO, xi = x3 + A3 + HUECO + 14;
-      this.caja(ctx, X0, y + 30, A1, ELEGIR, 'Elegir el modelo', turno === 0 ? 1 : 0, 1);
-      this.caja(ctx, x2, y + 30, A2, ENTRENAR, 'Entrenar con ese dataset', turno === 1 ? 1 : 0, 1);
-      this.caja(ctx, x3, y + 30, A3, INFERIR, 'Inferir', turno === 2 ? 1 : 0, 1);
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 29px ' + TEXTO;
-      ctx.fillText('↻  y de nuevo: ' + this.minutos + ' minutos por dataset', xi + 8, y + 71);
-      const hechosA = Math.min(n, reloj / this.porDataset);
-      for (let i = 0; i < n; i++) {
-        ctx.fillStyle = i < Math.floor(hechosA) ? '#b9b0a1' : '#2d2924';
-        ctx.fillRect(X0 + i * paso, y + 126, paso - 1.6, 26);
-      }
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '800 60px ' + TITULO;
-      const cuentaA = K.miles(Math.floor(hechosA));
-      ctx.fillText(cuentaA, X0, y + 214);
-      const anchoA = ctx.measureText(cuentaA).width;
-      ctx.font = '500 29px ' + TEXTO; ctx.fillText('datasets respondidos', X0 + anchoA + 18, y + 210);
-
-      // ---------- Hoy ----------
-      y = 626;
-      ctx.fillStyle = '#e2854a'; ctx.font = '800 54px ' + TITULO; ctx.fillText('Hoy', X0, y);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '500 29px ' + TEXTO; ctx.fillText('Bayesian Amortized Inference: se pre-entrena una vez, para todos los datasets', X0 + 100, y - 4);
-      const una = Math.min(1, reloj / this.entrena);
-      this.caja(ctx, X0, y + 30, A1, ELEGIR, 'Elegir el modelo del problema', una > 0 ? 1 : 0);
-      this.caja(ctx, x2, y + 30, A2, SIMULAR, 'Simular millones de datasets', una);
-      this.caja(ctx, x3, y + 30, A3, ENTRENAR, 'Pre-entrenar la red con ellos', una);
-      const luz = listo ? 0.4 + 0.6 * Math.exp(-desdeListo * 1.2) : 0;
-      this.caja(ctx, xi, y + 30, X1 - xi, INFERIR, 'Inferir: un forward pass', listo ? 1 : 0, luz);
-      ctx.font = '500 25px ' + TEXTO;
-      ctx.fillStyle = '#b9b0a1'; ctx.fillText('Una sola vez: ' + horas(this.entrena) + '. Lo hace Krylov, antes de que llegue tu dataset.', X0, y + 130);
-      ctx.fillStyle = listo ? '#f4efe6' : '#7d7568'; ctx.fillText(this.ms + ' milisegundos por dataset', xi, y + 130);
-      const barrido = listo ? K.acotar(desdeListo / 0.4, 0, 1) * n : 0;
-      for (let i = 0; i < n; i++) {
-        ctx.fillStyle = i < barrido ? '#e2854a' : '#2d2924';
-        ctx.fillRect(X0 + i * paso, y + 156, paso - 1.6, 26);
-      }
-      const hechosB = listo ? Math.floor((reloj - this.entrena) / (this.ms / 1000)) : 0;
-      ctx.fillStyle = '#e2854a'; ctx.font = '800 92px ' + TITULO;
-      const cuentaB = K.miles(hechosB);
-      ctx.fillText(cuentaB, X0, y + 274);
-      const anchoB = ctx.measureText(cuentaB).width;
-      ctx.fillStyle = '#f4efe6'; ctx.font = '500 29px ' + TEXTO; ctx.fillText('datasets respondidos', X0 + anchoB + 22, y + 268);
-
-      // el remate, cuando el reloj llega al final
-      if (avance >= 1) {
-        ctx.globalAlpha = K.quieto ? 1 : K.acotar((u - DURA) / 0.6, 0, 1);
-        ctx.textAlign = 'left'; ctx.fillStyle = '#f4efe6'; ctx.font = '600 33px ' + TEXTO;
-        ctx.fillText('El mismo tiempo de cómputo: ' + K.miles(n) + ' datasets en el pasado. Hoy, ' + (hechosB >= 950000 ? 'casi un millón.' : K.miles(hechosB) + '.'), X0, y + 338);
-        ctx.globalAlpha = 1;
-      }
+      // ---------- Hoy: se pre-entrena una vez; después, cada dataset es un instante ----------
+      y = 700;
+      const v = K.quieto ? 9 : t - this.t1, una = K.suave(v / 2.6), listo = v > 2.9;
+      ctx.globalAlpha = K.acotar(v / 0.5, 0, 1);
+      ctx.fillStyle = '#e2854a'; ctx.font = '800 64px ' + TITULO; ctx.fillText('Hoy', X0, y);
+      x = X0;
+      x = this.caja(ctx, x, y + 34, ELEGIR, 'Elegir el modelo', una * 3);
+      x = this.caja(ctx, x, y + 34, SIMULAR, 'Simular datasets', una * 3 - 1);
+      x = this.caja(ctx, x, y + 34, ENTRENAR, 'Pre-entrenar la red', una * 3 - 2);
+      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 34px ' + TEXTO; ctx.textAlign = 'left';
+      const nota = 'una sola vez', xi = x + 16;
+      ctx.fillText(nota, xi, y + 34 + ALTO / 2 + 12);
+      const pulsos = listo ? Math.floor((v - 2.9) / PULSO) : 0, late = listo ? 0.55 + 0.45 * Math.abs(Math.sin(v * 31)) : 0;
+      this.caja(ctx, xi + ctx.measureText(nota).width + 40, y + 34, INFERIR, 'Inferir: un forward pass', late);
+      this.cuenta(ctx, X0, y + 250, pulsos, '#e2854a', 'datasets respondidos · ' + this.ms + ' milisegundos cada uno');
+      ctx.globalAlpha = 1;
     },
   });
 })();

@@ -1,46 +1,43 @@
-/* 0 · Cómo funciona (respaldo): la arquitectura en dos mitades. A la izquierda, lo que se hace una sola vez
-   (reglas → simulador → casos → la red se pre-entrena). A la derecha, lo que pasa con cada archivo (la misma red responde).
-   Es la inferencia bayesiana amortizada de siempre, dibujada con las palabras del producto y los nombres técnicos debajo. */
+/* 0 · Cómo funciona (fuera del recorrido): Bayesian Amortized Inference en dos mitades, solo el diagrama.
+   A la izquierda, lo que se hace una sola vez: el modelo bayesiano, el simulador, los datasets simulados, y la red que se
+   pre-entrena con ellos. A la derecha, lo que pasa con cada dataset: entra, la misma red entrega la posteriori, y de ahí
+   sale la decisión. Sin fórmulas: todo dicho en palabras. */
 (function () {
   'use strict';
   const K = window.K;
+  const ANCHO = 420, ALTO = 120;
 
-  function caja(clase, x, y, w, h, titulo, sub) {
-    return '<g class="' + clase + '"><rect class="caja" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '"/>' +
-      '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 - (sub ? 8 : -10)) + '">' + titulo + '</text>' +
-      (sub ? '<text class="sub" x="' + (x + w / 2) + '" y="' + (y + h / 2 + 26) + '">' + sub + '</text>' : '') + '</g>';
+  function caja(clase, x, y, w, titulo, sub) {
+    return '<g class="' + clase + '"><rect class="caja" x="' + x + '" y="' + y + '" width="' + w + '" height="' + ALTO + '"/>' +
+      '<text x="' + (x + w / 2) + '" y="' + (y + 52) + '">' + titulo + '</text>' +
+      '<text class="sub" x="' + (x + w / 2) + '" y="' + (y + 90) + '">' + sub + '</text></g>';
   }
 
   K.registrar('arquitectura', {
     tQuieto: 3,
     crear: function (L) {
-      const s = K.datos.sello;
+      const xa = 160, xb = 1340, xr = 760, wr = 400, ya = [340, 530, 720], yr = 520;
       const hilos = [
-        ['a', 'M 330 434 L 330 500'],                                  // reglas → simulador
-        ['a', 'M 330 604 L 330 670'],                                  // simulador → casos
-        ['a', 'M 510 382 C 660 382 660 488 795 488'],                  // reglas → red (la respuesta correcta, θ)
-        ['a', 'M 510 722 C 660 722 660 548 795 548'],                  // casos → red (lo que la red ve, x)
-        ['b', 'M 1410 382 C 1260 382 1260 488 1125 488'],              // tu archivo → red
-        ['b', 'M 1125 548 C 1260 548 1260 552 1410 552'],              // red → respuesta
-        ['b', 'M 1590 604 L 1590 670'],                                // respuesta → decisión
+        ['a', 'M ' + (xa + ANCHO / 2) + ' ' + (ya[0] + ALTO) + ' L ' + (xa + ANCHO / 2) + ' ' + ya[1]],                                   // modelo → simulador
+        ['a', 'M ' + (xa + ANCHO / 2) + ' ' + (ya[1] + ALTO) + ' L ' + (xa + ANCHO / 2) + ' ' + ya[2]],                                   // simulador → datasets
+        ['a', 'M ' + (xa + ANCHO) + ' ' + (ya[2] + ALTO / 2) + ' C 690 ' + (ya[2] + ALTO / 2) + ' 650 ' + (yr + ALTO / 2) + ' ' + xr + ' ' + (yr + ALTO / 2)],   // datasets → red
+        ['b', 'M ' + xb + ' ' + (ya[0] + ALTO / 2) + ' C 1250 ' + (ya[0] + ALTO / 2) + ' 1270 ' + (yr + 36) + ' ' + (xr + wr) + ' ' + (yr + 36)],                // tu dataset → red
+        ['b', 'M ' + (xr + wr) + ' ' + (yr + 88) + ' C 1250 ' + (yr + 88) + ' 1260 ' + (ya[1] + ALTO / 2) + ' ' + xb + ' ' + (ya[1] + ALTO / 2)],               // red → posteriori
+        ['b', 'M ' + (xb + ANCHO / 2) + ' ' + (ya[1] + ALTO) + ' L ' + (xb + ANCHO / 2) + ' ' + ya[2]],                                   // posteriori → decisión
       ];
       let svg = '<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">' +
-        '<rect class="zona-a" x="110" y="190" width="820" height="640"/>' +
-        '<rect class="zona-b" x="990" y="190" width="820" height="640"/>' +
-        '<g class="a"><text class="zona" x="150" y="262">Antes</text><text class="zona-sub" x="318" y="258">SE HACE UNA SOLA VEZ</text></g>' +
-        '<g class="b"><text class="zona" x="1030" y="262">En vivo</text><text class="zona-sub" x="1228" y="258">CON CADA ARCHIVO</text></g>';
+        '<rect class="zona-a" x="110" y="200" width="840" height="700"/>' +
+        '<rect class="zona-b" x="970" y="200" width="840" height="700"/>' +
+        '<g class="a"><text class="zona" x="160" y="278">Antes</text><text class="zona-sub" x="334" y="274">Se hace una sola vez</text></g>' +
+        '<g class="b"><text class="zona" x="1020" y="278">En vivo</text><text class="zona-sub" x="1226" y="274">Con cada dataset</text></g>';
       hilos.forEach(function (h, i) { svg += '<g class="' + h[0] + '"><path class="hilo" id="hilo-' + i + '" d="' + h[1] + '"/></g>'; });
-      svg += caja('a', 150, 330, 360, 104, 'Las reglas del modelo', 'modelo generativo · prior p(θ)') +
-        caja('a', 150, 500, 360, 104, 'Simulador', 'p(x | θ)') +
-        caja('a', 150, 670, 360, 104, 'Casos simulados', K.miles(s.simulaciones_entrenamiento) + ' terrenos') +
-        caja('b', 1410, 330, 360, 104, 'Tu archivo', 'datos reales · x') +
-        caja('b', 1410, 500, 360, 104, 'Respuesta con su rango', 'posterior q(θ | x)') +
-        caja('b', 1410, 670, 360, 104, 'Decisión', 'colores · costo · dónde medir') +
-        caja('red', 795, 446, 330, 144, 'La red', 'codificador + flujo (NPE)') +
-        '<g class="a"><text class="sub" x="672" y="398" style="fill:#e2854a">θ: la respuesta</text>' +
-        '<text class="sub" x="672" y="706" style="fill:#e2854a">x: lo que se ve</text></g>' +
-        '<text class="sub" x="960" y="640">se pre-entrena aquí · responde allá</text>' +
-        '<text class="sub" x="960" y="672">comprobada con SBC y contra MCMC</text>';
+      svg += caja('a', xa, ya[0], ANCHO, 'El modelo bayesiano', 'Las reglas del problema') +
+        caja('a', xa, ya[1], ANCHO, 'El simulador', 'Genera datasets con esas reglas') +
+        caja('a', xa, ya[2], ANCHO, 'Datasets simulados', 'Millones, con su respuesta conocida') +
+        caja('red', xr, yr, wr, 'La red', 'Se pre-entrena con ellos') +
+        caja('b', xb, ya[0], ANCHO, 'Tu dataset', 'Datos reales') +
+        caja('b', xb, ya[1], ANCHO, 'La posteriori', 'La respuesta, con su intervalo') +
+        caja('b', xb, ya[2], ANCHO, 'La decisión', 'Qué conviene hacer, y cuánto vale');
       hilos.forEach(function (h, i) { for (let k = 0; k < 3; k++) svg += '<g class="' + h[0] + '"><circle class="gota" r="6" data-hilo="' + i + '" data-fase="' + (k / 3) + '"/></g>'; });
       svg += '</svg>';
       L.querySelector('#plano-arquitectura').innerHTML = svg;

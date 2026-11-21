@@ -80,7 +80,7 @@ def mapa_con_rango(nombre: str, mediciones: list[dict]) -> dict:
     def a_unidades(v):
         return espacial._a_unidades_del_caso(v, float(media), float(escala), terreno["transformacion"]).reshape(-1)
 
-    centro, alto = a_unidades(mu), a_unidades(mu + Z90 * desv)
+    centro, alto, bajo = a_unidades(mu), a_unidades(mu + Z90 * desv), a_unidades(mu - Z90 * desv)
     dentro = [i for i, v in enumerate(m["media"]) if v is not None]
     assert np.allclose([m["media"][i] for i in dentro], centro[dentro], rtol=2e-4, atol=0.06), "la media no coincide con la de la API"
 
@@ -91,6 +91,7 @@ def mapa_con_rango(nombre: str, mediciones: list[dict]) -> dict:
         "respuesta": r, "dentro": dentro,
         "media": [round(float(centro[i])) for i in dentro],
         "alto": [round(float(alto[i])) for i in dentro],
+        "bajo": [round(float(bajo[i])) for i in dentro],         # el otro extremo del intervalo de credibilidad de 90%
         "p": [m["p"][i] for i in dentro],
         "estado": [ESTADO[e] for e in estado],
         "colores": r["resumen_colores"],
@@ -110,7 +111,7 @@ def ficha(nombre: str, c: dict) -> dict:
         "caso": nombre, "titulo": casos.cargar_caso(nombre)["tarjeta"]["titulo"],
         "nx": m["nx"], "ny": m["ny"], "x0": m["x0"], "y0": m["y0"], "lado": m["lado"],
         "umbral": m["umbral"], "unidad_valor": m["unidad_valor"], "punto_de_corte": r["punto_de_corte"],
-        "dentro": c["dentro"], **capa(c),
+        "dentro": c["dentro"], **capa(c), "bajo": c["bajo"],
         "puntos": [[p["x"], p["y"], p["valor"]] for p in m["puntos"]],
         "orilla": orilla_del_rio(nombre),
         "costos": {k: v["valor"] for k, v in r["costos"].items()},
@@ -222,6 +223,10 @@ def serie(nombre: str) -> dict:
     with open(RAIZ / caso["dataset"]) as f:
         for fila in csv.DictReader(f):
             unidades.setdefault(fila[col["unidad"]], []).append([round(float(fila[col["tiempo"]]), 3), round(float(fila[col["valor"]]), 3)])
+    verdad = {}
+    if caso.get("verdad") and (RAIZ / caso["verdad"]).exists():
+        with open(RAIZ / caso["verdad"]) as f:
+            verdad = {fila[col["unidad"]] if col["unidad"] in fila else fila["unidad"]: fila for fila in csv.DictReader(f)}
     respuesta = None
     # Si la red de ese motor ya está exportada (motor/artefactos/<motor>/codificador.onnx), responde ella, haya pasado
     # o no su sello: el deck muestra lo que la red dice hoy, y guarda `sello_pasa` para que las notas lo digan.
@@ -240,6 +245,13 @@ def serie(nombre: str) -> dict:
             "sello": {k: sello.get(k) for k in ("simulaciones_entrenamiento", "entrenamiento_min", "cobertura_90", "latencia_ms", "criterios")} if sello else None,
             "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "curva": u.get("curva")} for u in r["unidades"]},
         }
+        # El examen de las decisiones: de las unidades donde decidió (actuar o no actuar), en cuántas acertó según la
+        # verdad escondida del archivo simulado. Las que dejó «en duda» no cuentan: ahí dijo que no sabía.
+        if verdad and caso.get("verdad_columna"):
+            si = lambda v: str(v).strip().lower() in ("1", "true", "sí", "si")  # noqa: E731
+            decididas = [u for u in r["unidades"] if u["estado"] != "en_duda" and u["id"] in verdad]
+            correctas = sum((u["estado"] == "actuar") == si(verdad[u["id"]][caso["verdad_columna"]]) for u in decididas)
+            respuesta["aciertos"] = {"decididas": len(decididas), "correctas": int(correctas)}
     return {
         "caso": nombre, "titulo": caso["tarjeta"]["titulo"], "pregunta": caso["pregunta"], "unidad": caso["unidad"],
         "rotulos": caso["rotulos"], "umbral": col.get("umbral"), "horizonte": col.get("horizonte"),
@@ -247,7 +259,26 @@ def serie(nombre: str) -> dict:
         "eje_tiempo": col.get("eje_tiempo"), "eje_valor": col.get("eje_valor"),
         "unidades": [{"id": k, "puntos": v} for k, v in unidades.items()],
         "lecturas": sum(len(v) for v in unidades.values()), "respuesta": respuesta,
+        "verdad": {k: {c: v for c, v in fila.items() if c != "unidad"} for k, fila in verdad.items()},
+        "tiempo_final": col.get("tiempo_final"),
     }
+
+
+def modelo_de(nombre: str) -> dict:
+    """Qué archivo pide el modelo de un caso: sus columnas, con el papel de cada una, y cuántas unidades y filas trae el de demo.
+    Sale de casos/<caso>.yaml: el formato del archivo lo define el modelo bayesiano de esa decisión."""
+    caso = casos.cargar_caso(nombre)
+    col = caso["columnas"]
+    with open(RAIZ / caso["dataset"]) as g:
+        filas = list(csv.DictReader(g))
+    papeles = [(col[k], k) for k in ("unidad", "x", "y", "tiempo", "valor") if k in col]
+    papeles += [(c, "covariable") for c in col.get("covariables", [])]
+    if col.get("horizonte_por_unidad"):
+        papeles.append((col["horizonte_por_unidad"], "horizonte"))
+    return {"caso": nombre, "motor": caso["motor"], "archivo": caso["dataset"].split("/")[-1], "filas": len(filas),
+            "unidades": len({f[col["unidad"]] for f in filas}) if "unidad" in col else None,
+            "unidad": caso["unidad"], "columnas": [{"nombre": n, "papel": q} for n, q in papeles],
+            "primera": {n: filas[0][n] for n, _ in papeles}}
 
 
 def examen_de_puntos(nombre: str) -> dict:
@@ -296,6 +327,8 @@ def main() -> None:
     inicio = time.time()
     base = mapa_con_rango(CASO, [])
     r = base["respuesta"]
+    caso_base = casos.cargar_caso(CASO)
+    examen_bloques = espacial.examen_de_bloques(caso_base, {k: v["valor"] for k, v in r["costos"].items()})
 
     donde = api.donde_medir(CASO)
     assert donde["implementacion"] == "red" and not donde["precalculado"]
@@ -316,7 +349,7 @@ def main() -> None:
     datos = {
         "generado": time.strftime("%Y-%m-%d %H:%M"),
         "comando": "uv run python pitch/deck/datos/generar.py",
-        "terreno": ficha(CASO, base),
+        "terreno": {**ficha(CASO, base), "examen_bloques": examen_bloques},
         "donde": {
             "candidatas": donde["candidatas"], "analisis_rehechos": donde["analisis_rehechos"],
             "lugares": lugares_con_valor(CASO, donde["candidatas"]), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
@@ -334,7 +367,7 @@ def main() -> None:
         "series": {nombre: serie(nombre) for nombre in SERIES},
         "sello": sello,
         "examen_puntos": examen_de_puntos(CASO),
-        "archivos": {"mapa": archivo_de("leyes"), "series": archivo_de("flota")},
+        "modelos": [modelo_de(n) for n in (CASO,) + SERIES],
         "prueba_llm": prueba_llm(),
     }
     salida = Path(__file__).with_name("datos.js")
