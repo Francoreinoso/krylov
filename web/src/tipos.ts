@@ -108,3 +108,18 @@ export interface Analisis {
   sintetico: boolean
   origen_datos: string
 }
+
+export interface Candidata {
+  puesto: number
+  etiqueta: string
+  x: number
+  y: number
+  valor_de_medir: number
+  costo_medicion: number
+  valor_neto: number
+}
+
+export interface DondeMedir {
+  caso: string
+  candidatas: Candidata[]
+}

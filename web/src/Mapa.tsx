@@ -1,7 +1,7 @@
 // El terreno como mapa: cada bloque en el color de su decisión (la duda achurada) y las mediciones
 // reales como puntos.
 
-import { COLOR } from './colores'
+import { COLOR, token } from './colores'
 import type { Decision } from './decision'
 import { trama, useLienzo } from './lienzo'
 import type { Mapa as DatosMapa } from './tipos'
@@ -17,7 +17,7 @@ export default function Mapa({ mapa, bloques }: Props) {
       const { nx, ny, x0, y0, lado } = mapa
       const w = ancho / nx
       const h = alto / ny
-      const duda = trama(ctx, COLOR.en_duda, 'rgba(13,31,43,0.45)')
+      const duda = trama(ctx, COLOR.en_duda, token('--color-trama'))
 
       // `p` viene fila por fila desde abajo a la izquierda.
       bloques.forEach((b, i) => {
@@ -33,10 +33,10 @@ export default function Mapa({ mapa, bloques }: Props) {
         const py = alto - ((m.y - y0) / (ny * lado)) * alto
         ctx.beginPath()
         ctx.arc(px, py, 3.5, 0, Math.PI * 2)
-        ctx.fillStyle = '#e9eff2'
+        ctx.fillStyle = token('--color-tinta')
         ctx.fill()
         ctx.lineWidth = 1.5
-        ctx.strokeStyle = '#0d1f2b'
+        ctx.strokeStyle = token('--color-fondo')
         ctx.stroke()
       }
     },

@@ -1,7 +1,7 @@
 // La nube: las empresas simuladas con que Krylov practicó, en dos ejes con nombre, y el archivo
 // del usuario encima. Si cae afuera, Krylov no responde.
 
-import { COLOR } from './colores'
+import { COLOR, token } from './colores'
 import { useLienzo } from './lienzo'
 import type { Nube as DatosNube } from './tipos'
 
@@ -17,11 +17,11 @@ export default function Nube({ nube }: { nube: DatosNube }) {
       const py = (v: number) => MARGEN.arr + h - ((v - ejes.y.min) / (ejes.y.max - ejes.y.min)) * h
 
       // Ejes
-      ctx.strokeStyle = '#24414f'
+      ctx.strokeStyle = token('--color-linea')
       ctx.lineWidth = 1
       ctx.strokeRect(MARGEN.izq, MARGEN.arr, w, h)
-      ctx.fillStyle = '#8da3af'
-      ctx.font = '13px "Archivo Variable", sans-serif'
+      ctx.fillStyle = token('--color-tinta-suave')
+      ctx.font = `13px ${token('--font-sans')}`
       ctx.textAlign = 'center'
       ctx.fillText(ejes.x.nombre, MARGEN.izq + w / 2, alto - 10)
       ctx.fillText(String(ejes.x.min), MARGEN.izq, MARGEN.arr + h + 16)
@@ -37,7 +37,7 @@ export default function Nube({ nube }: { nube: DatosNube }) {
       ctx.restore()
 
       // Simulaciones
-      ctx.fillStyle = 'rgba(141,163,175,0.35)'
+      ctx.fillStyle = token('--color-tinta-suave') + '59'
       for (const [x, y] of puntos) {
         ctx.fillRect(px(x) - 1.25, py(y) - 1.25, 2.5, 2.5)
       }
@@ -55,7 +55,7 @@ export default function Nube({ nube }: { nube: DatosNube }) {
       ctx.fillStyle = color
       ctx.fill()
       ctx.lineWidth = 2
-      ctx.strokeStyle = '#e9eff2'
+      ctx.strokeStyle = token('--color-tinta')
       ctx.stroke()
     },
     [nube],

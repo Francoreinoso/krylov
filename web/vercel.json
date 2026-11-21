@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/clasico", "destination": "/index.html" }]
+}

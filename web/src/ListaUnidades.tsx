@@ -3,7 +3,7 @@
 // Cuando los puntos caen a los dos lados de la línea, la decisión está en duda.
 
 import { memo } from 'react'
-import { COLOR } from './colores'
+import { COLOR_SVG } from './colores'
 import type { Decision } from './decision'
 import type { Estado, Unidad } from './tipos'
 
@@ -24,7 +24,7 @@ const Fila = memo(function Fila({ unidad, estado, tope }: { unidad: Unidad; esta
       <span className="text-sm">{unidad.etiqueta}</span>
       <svg className="h-3 w-full overflow-visible" aria-hidden>
         {unidad.muestras_p.map((s, i) => (
-          <circle key={i} cx={x(s)} cy={6} r={3} fill={COLOR[estado]} fillOpacity={0.6} className="transition-[fill] duration-150" />
+          <circle key={i} cx={x(s)} cy={6} r={3} fill={COLOR_SVG[estado]} fillOpacity={0.6} className="transition-[fill] duration-150" />
         ))}
         <line x1={x(unidad.p)} x2={x(unidad.p)} y1={-1} y2={13} stroke="var(--color-tinta)" strokeWidth={2} />
       </svg>

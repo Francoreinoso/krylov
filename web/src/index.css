@@ -11,11 +11,79 @@
   --color-actuar: #e5534b;
   --color-en-duda: #f0b429;
   --color-no-actuar: #3daa74;
+  --color-acento: #f0b429;
+  --color-sobre-acento: #0d1f2b;
+}
+
+/* Tokens que no generan utilidades: radio de las cajas, sombra, fuente y ancho de los titulares,
+   y el color de las rayas del achurado (lo lee también el canvas). */
+:root {
+  --radio: 6px;
+  --sombra: none;
+  --fuente-titular: var(--font-sans);
+  --ancho-titular: 72%;
+  --color-trama: #0d1f2b73;
 }
 
 html {
   font-size: 18px;
   color-scheme: dark;
+}
+
+/* Diseños para comparar (selector abajo a la derecha). «Puente» es el de arriba. */
+:root[data-diseno="tablas"] {
+  --color-fondo: #f4efe4;
+  --color-superficie: #ebe4d4;
+  --color-linea: #cfc4ad;
+  --color-tinta: #1d1a16;
+  --color-tinta-suave: #6b6253;
+  --color-actuar: #b8322a;
+  --color-en-duda: #c98a00;
+  --color-no-actuar: #2e7d4f;
+  --color-acento: #1d1a16;
+  --color-sobre-acento: #f4efe4;
+  --color-trama: #f4efe48c;
+  --radio: 0px;
+  --fuente-titular: ui-serif, Georgia, "Times New Roman", serif;
+  --ancho-titular: 100%;
+  color-scheme: light;
+}
+
+:root[data-diseno="sonar"] {
+  --font-sans: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  --color-fondo: #070b09;
+  --color-superficie: #0d1612;
+  --color-linea: #1d3328;
+  --color-tinta: #b8f5c8;
+  --color-tinta-suave: #5f8f72;
+  --color-actuar: #ff5f56;
+  --color-en-duda: #ffb000;
+  --color-no-actuar: #39d98a;
+  --color-acento: #39d98a;
+  --color-sobre-acento: #070b09;
+  --color-trama: #070b0980;
+  --radio: 0px;
+  --ancho-titular: 100%;
+  font-size: 16px;
+}
+
+:root[data-diseno="estudio"] {
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Roboto, sans-serif;
+  --color-fondo: #f7f7fb;
+  --color-superficie: #ffffff;
+  --color-linea: #e3e4ee;
+  --color-tinta: #1b1c2a;
+  --color-tinta-suave: #6b6e85;
+  --color-actuar: #d93f3f;
+  --color-en-duda: #e0a100;
+  --color-no-actuar: #1f9d61;
+  --color-acento: #5b5bd6;
+  --color-sobre-acento: #ffffff;
+  --color-trama: #ffffff80;
+  --radio: 18px;
+  --sombra: 0 1px 2px #1b1c2a14, 0 8px 24px #1b1c2a0f;
+  --ancho-titular: 100%;
+  color-scheme: light;
 }
 
 body {
@@ -25,13 +93,27 @@ body {
 
 /* Titulares y número grande: Archivo en ancho condensado. */
 .condensado {
-  font-stretch: 72%;
+  font-family: var(--fuente-titular);
+  font-stretch: var(--ancho-titular);
+}
+
+/* Cursor de terminal del diseño «Sonar». */
+@keyframes parpadeo {
+  50% {
+    opacity: 0;
+  }
+}
+.cursor::after {
+  content: "▍";
+  margin-left: 2px;
+  color: var(--color-acento);
+  animation: parpadeo 1s steps(1) infinite;
 }
 
 /* La duda se ve como trama, no solo como color. */
 .achurado {
   background-color: var(--color-en-duda);
-  background-image: repeating-linear-gradient(-45deg, transparent 0 3px, rgb(13 31 43 / 0.45) 3px 5px);
+  background-image: repeating-linear-gradient(-45deg, transparent 0 3px, var(--color-trama) 3px 5px);
 }
 
 .desliza-lista {
@@ -85,4 +167,9 @@ body {
   * {
     transition: none !important;
   }
+}
+
+/* La caja del chat marca el foco en su borde, no en el campo. */
+.compositor input:focus-visible {
+  outline: none;
 }
