@@ -433,8 +433,8 @@ html, body {
 #l-flujo .cabeza { left: 110px; top: 84px; width: 1260px; }
 #l-flujo .cabeza .t2 { font-size: 74px; }
 
-/* en la lámina de los camiones la escena ocupa todo el alto: el reloj va en la columna de texto */
-#l-flota .reloj { left: 110px; right: auto; top: auto; bottom: 104px; text-align: left; }
+/* en las láminas de los camiones y de los túneles la escena ocupa todo el alto: el reloj va en la columna de texto */
+#l-flota .reloj, #l-sismicidad .reloj { left: 110px; right: auto; top: auto; bottom: 104px; text-align: left; }
 
 /* =====================================================================
    12 · ¿Y cómo sé que acierta?

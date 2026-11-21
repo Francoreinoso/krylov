@@ -66,6 +66,27 @@
         l.frustumCulled = false; scene.add(l);
         return l;
       },
+      // un trazo hecho de puntos seguidos: una línea de un píxel casi no se ve en una pantalla de alta densidad
+      cordon: function (v, paso, color, alfa, grosor) {
+        const pts = [];
+        for (let i = 0; i < v.length; i += 6) {
+          const largo = Math.hypot(v[i + 3] - v[i], v[i + 4] - v[i + 1], v[i + 5] - v[i + 2]), n = Math.max(1, Math.ceil(largo / paso));
+          for (let k = 0; k <= n; k++) pts.push(K.mezcla(v[i], v[i + 3], k / n), K.mezcla(v[i + 1], v[i + 4], k / n), K.mezcla(v[i + 2], v[i + 5], k / n));
+        }
+        const uni = { uColor: { value: new THREE.Color(color) }, uAlfa: { value: alfa } };
+        const obj = B.puntos({ position: [pts, 3] }, `
+          uniform vec3 uColor;
+          uniform float uAlfa;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vColor = uColor;
+            vA = uAlfa;
+            gl_PointSize = ${grosor.toFixed(3)} * uEsc / -mv.z;
+            gl_Position = projectionMatrix * mv;
+          }`, uni);
+        obj.color = uni.uColor.value; obj.alfa = uni.uAlfa;
+        return obj;
+      },
       ajustar: function () { u.uEsc.value = (K.gl.renderer.getPixelRatio() * 1080) / (2 * Math.tan((fov * Math.PI) / 360)); },
       // la cámara gira alrededor de un punto; dx corre la escena a la derecha del texto
       mirar: function (az, el, R, c, dx) {
@@ -195,7 +216,7 @@
         guia.push(a[0], a[1], a[2], c[0], c[1], c[2]);
       }
       for (let s = 0; s <= n; s++) { const a = pared(s / n, 0); guia.push(a[0], a[1], a[2], a[0], a[1] - 0.22, a[2] + 0.1); }
-      B.lineas(guia, 0x8a7f70, 0.42);
+      B.cordon(guia, 0.06, 0x8a7f70, 0.26, 0.03);
       // los dos sectores que más se movieron, que no estén pegados
       const finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (a, b) { return b[0] - a[0]; });
       this.marcados = [finales[0][1]];
@@ -299,8 +320,8 @@
           }
         }
       }
-      B.lineas(medidas, 0x8a7f70, 0.55);
-      B.lineas(sin, 0x8a7f70, 0.2);
+      B.cordon(medidas, 0.06, 0x8a7f70, 0.34, 0.026);
+      B.cordon(sin, 0.06, 0x8a7f70, 0.13, 0.026);
       this.minuto = { value: 0 };
       B.puntos({ position: [pos, 3], aB: [ab, 4] }, `
         attribute vec4 aB;        // ritmo, fase, cobre que flotó en este estanque, minuto en que se midió (-1: sin medir)
@@ -362,7 +383,7 @@
       // la meta de la planta, a la misma altura en las ocho columnas
       const meta = [], yM = Y0 + this.meta * GH;
       for (let k = 0; k < 40; k++) { const z = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, k / 40), z2 = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
-      B.lineas(meta, 0xffffff, 0.95);
+      B.cordon(meta, 0.04, 0xffffff, 0.9, 0.04);
       this.etq = etiquetas(L, n, 'chica');
       this.etqMeta = etiquetas(L, 1, 'chica')[0];
       this.etqMeta.classList.add('meta');
@@ -376,7 +397,7 @@
       const B = this.B;
       B.u.uT.value = t;
       this.minuto.value = m;
-      B.mirar(-0.66 + Math.sin(t * 0.15) * 0.06, 0.5, 37, [2.0, 1.0, 0.4], -330);
+      B.mirar(-0.66 + Math.sin(t * 0.15) * 0.05, 0.5, 46, [1.2, 1.0, 0.4], -415);
       for (let l = 0; l < this.n; l++) {
         const pts = S.unidades[l].puntos, r = m < 0.4 ? 0 : leer(pts, m, 0);
         this.rec.value[l] = r;
@@ -555,7 +576,7 @@
       const principal = [];
       for (let k = 0; k <= 22; k++) arco(principal, -9 + k * 0.82, -0.5, 0, 0.82, true);
       principal.push(-9, -0.5, -0.82, 9.04, -0.5, -0.82, -9, -0.5, 0.82, 9.04, -0.5, 0.82);
-      B.lineas(principal, 0x8a7f70, 0.75);
+      B.cordon(principal, 0.045, 0x8a7f70, 0.42, 0.034);
       this.sector = [];
       const pe = [], dir = [], ev = [];
       this.eventos = [];
@@ -563,7 +584,7 @@
         const x = -6.6 + Math.floor(k / 2) * 4.4, lado = k % 2 ? 1 : -1, v = [];
         for (let j = 0; j <= 7; j++) arco(v, x, -0.5, lado * (0.95 + j * (LARGO / 7)), 0.7, false);
         v.push(x - 0.7, -0.5, lado * 0.95, x - 0.7, -0.5, lado * (0.95 + LARGO), x + 0.7, -0.5, lado * 0.95, x + 0.7, -0.5, lado * (0.95 + LARGO));
-        const tunel = B.lineas(v, 0x8a7f70, 0.5), tinte = tinteDe(S, S.unidades[k].id, null);
+        const tunel = B.cordon(v, 0.045, 0x8a7f70, 0.5, 0.04), tinte = tinteDe(S, S.unidades[k].id, null);
         this.sector.push({ x: x, lado: lado, fin: lado * (0.95 + LARGO), linea: tunel, tinte: tinte, horas: [] });
         S.unidades[k].puntos.forEach(function (p) {
           const a = azar() * 6.2832, r = 0.95 + azar() * 1.35, c = [x + Math.cos(a) * r * 1.15, 0.1 + Math.sin(a) * r * 0.85, lado * (1.3 + azar() * (LARGO - 0.7))];
@@ -594,7 +615,7 @@
           float onda = aE.z;
           vColor = mix(mix(COBRE, ORO, exp(-edad * 1.6)), ROJO, fuerte);
           vA = nace * mix(0.62 + 0.5 * mag + 0.6 * fuerte + 1.2 * exp(-edad * 1.4), (0.45 + 0.7 * mag + fuerte) * exp(-edad * (1.9 - 1.1 * fuerte)), onda);
-          gl_PointSize = mix((0.13 + 0.26 * mag + 0.22 * fuerte) * (1.0 + 1.5 * exp(-edad * 3.0)), 0.07 + 0.07 * mag + 0.08 * fuerte, onda) * uEsc / -mv.z;
+          gl_PointSize = mix((0.15 + 0.3 * mag + 0.24 * fuerte) * (1.0 + 1.5 * exp(-edad * 3.0)), 0.07 + 0.07 * mag + 0.08 * fuerte, onda) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, tiempos);
       // la explosión que lo empieza todo, en el frente del túnel principal
@@ -631,16 +652,16 @@
       B.u.uT.value = t;
       this.hora.value = h;
       this.extra.value = K.quieto ? 0.5 : (k >= 1 ? x - DURA : 0);          // en el final, las ondas siguen apagándose
-      B.mirar(0.42 + Math.sin(t * 0.16) * 0.1, 0.55, 47, [0.6, 0.9, 0], -330);
+      B.mirar(0.42 + Math.sin(t * 0.16) * 0.07, 0.55, 40, [0.2, 0.0, 0], -410);
       const segPorHora = DURA / this.horas;
       for (let i = 0; i < this.n; i++) {
         const s = this.sector[i];
         let cuenta = 0, actividad = 0;
         for (let j = 0; j < s.horas.length; j++) if (s.horas[j] <= h) { cuenta++; actividad += Math.exp(-((h - s.horas[j]) * segPorHora + this.extra.value) / 1.1); }
         const a = K.acotar(actividad, 0, 1);
-        if (s.tinte) s.linea.material.color.setRGB(s.tinte[0], s.tinte[1], s.tinte[2]);
-        else s.linea.material.color.copy(this.gris).lerp(this.vivo, a);
-        s.linea.material.opacity = 0.7 + 0.3 * a;
+        if (s.tinte) s.linea.color.setRGB(s.tinte[0], s.tinte[1], s.tinte[2]);
+        else s.linea.color.copy(this.gris).lerp(this.vivo, a);
+        s.linea.alfa.value = 0.4 + 0.5 * a;
         poner(this.etq[i], B.camera, s.x, -0.5, s.fin + s.lado * 0.55, '<b>' + S.unidades[i].id + '</b> ' + cuenta, h > 0);
       }
       for (let i = 0; i < this.etqFuerte.length; i++) {
