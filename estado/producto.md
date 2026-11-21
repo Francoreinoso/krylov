@@ -17,14 +17,18 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 - sáb 05:04 · **P-N1** en `main`: `web/src/decision.ts` (copia de `nucleo/decision.py`) y `web/pruebas/decision.test.ts`. Ver: `cd web && npm run prueba` (45 de 45 pasan, con `node --test`, sin dependencias nuevas). Deslizadores de costos que recalculan colores, número grande y titular en el navegador.
 - sáb 05:04 · **P-N2** (mapa del terreno en canvas: bloques en tres colores, la duda achurada, mediciones como puntos) y **P-N3** (nube en canvas: simulaciones, ejes con nombre, archivo en rojo) en `main`. Se ven con `?caso=terreno` y `?caso=rotacion_malo`.
 - sáb 05:04 · **Rediseño acordado con la persona de PC 1**: tema oscuro; colores de decisión rojo, verde y ámbar achurado (como dice el guion); la respuesta cabe en una sola pantalla de 1280×720, en tres columnas (número, colores y deslizadores / lista, mapa o nube / qué pesa y examen); cada persona dibujada como sus 32 versiones creíbles con una sola línea del punto de corte; inicio con la frase de Krylov. Verificado con capturas a 1280×720 y 390 px. Desplegado.
+- sáb 10:05 · **Chat (D-34) en `main`**: inicio tipo chat con barra lateral, selector de modelo y adjunto; respuesta dentro del chat con «Pantalla completa». El inicio de tarjetas sigue en `/clasico`. Diseño **Estudio** (claro) elegido por la persona de PC 1; fuera el selector de diseños, las otras nueve paletas y sus fuentes.
+- sáb 10:03 · **P-12 (a)** en `main` (8887951): `GET /api/papeles/{motor}` (llama a `nucleo.api.papeles`) y `GET /api/calce/{caso}` (calce de los archivos del demo, sacado del YAML, `origen: "equipo"`, `precalculado: true`); copias en `estatico/papeles/` y `estatico/calce/`. En el chat, antes de la primera respuesta, Krylov muestra qué columna cumple cada papel, editable; al confirmar, analiza y el calce queda plegado en una línea. Ver: `/?estatico=1`, elegir «¿A quién conviene retener?» y una pregunta. Verificado con capturas en un navegador sin interfaz (1280×800, sin errores en consola); `npm run prueba` 45 de 45.
+- sáb 10:04 · Arreglos del tablero: en rojo el pie dice «Krylov no respondió con este archivo» (no «Respondió la red»); ejes de la nube más grandes y en tinta. Ver: `/clasico?estatico=1&caso=rotacion_malo`.
 
 ## En curso
 
-- sáb 05:04 · Sigue (adelantado, D-29): P-07 (tecla `M` y botón de corrección), P-09 («¿Dónde mido?» con los pines sobre el mapa), P-08, P-05 (usar `nucleo.api` cuando cada motor responda; si no, el ejemplo fijo).
+- sáb 10:13 · **P-12 (b)**, tope 14:30: API en Render, `POST /api/analizar_archivo` (archivo propio), `POST /api/calce` y `POST /api/interpretar`. Hoy un calce editado responde con las columnas del caso y lo dice. Después, P-09 («¿Dónde mido?») y P-07.
+- sáb 10:13 · Contrato: `calce` del demo agrega `origen: "equipo"` (el contrato dice `modelo` o `regla`), `caso`, `motor_id`, `columnas` y `precalculado`. Campos nuevos que no rompen nada.
 
 ## Bloqueos
 
-- (ninguno)
+- sáb 10:10 · **Vercel en el límite diario de despliegues del plan gratuito** («Deployment rate limited — retry in 24 hours» en los commits del espejo). Los tres computadores empujaron 147 commits en 24 h y cada uno gastaba un despliegue. Es una ventana móvil: algunos commits igual salen (ecc53df, Estudio, salió). La URL pública muestra el diseño Estudio pero todavía no el calce. Hecho: `web/vercel.json` con `ignoreCommand` para no construir cuando el commit no toca `web/` (6f00963). Lo próximo que empuje en `web/` reintenta.
 
 ## Pedidos a otros
 
@@ -32,6 +36,8 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 - sáb 05:04 · **A PC 3, aviso:** la web pasó a tema oscuro y los colores ahora son rojo, verde y ámbar, como dice el guion del momento 4. Si las láminas usan colores de la app, conviene que calcen.
 - sáb 07:01 · **A PC 3 y PC 2:** propuesta para pasar a un chat sobre las redes amortizadas (el usuario elige el modelo, sube un archivo y un modelo de lenguaje interpreta), en `estado/producto_propuesta_chat.md`. PC 3: registrarla en DECISIONES (D-34) y poner al día AGENTS, GLOSARIO, WORKPLAN y CONTRATO, si el equipo la aprueba. PC 2: `papeles` y `analizar_archivo` en `nucleo/api.py`, sin tocar los entrenamientos.
 - sáb 07:40 · **A PC 2, urgente (D-35):** papeles opcionales con máscara de presencia en el simulador de `jerarquico` antes de su lanzamiento de las 08:30 (o avisar a PC 3 que espera), y en `estados`; `minimo`, `maximo` y `texto_largo` en `PAPELES`; transformaciones de la lista cerrada en `nucleo/preproceso.py`. Forma exacta en `contratos/CONTRATO.md` (D-35). Aviso también por Discord.
+
+- sáb 10:13 · **Al dueño de `Silent-math` (Vercel), hoy:** revisar en el proyecto de Vercel si conviene activar «saltar despliegues sin cambios» en la raíz `web/`, o pasar el plan a Pro por el día, para que el redespliegue de H2 (12:15) no quede esperando un cupo.
 
 ## Direcciones
 
