@@ -78,7 +78,7 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Bloqueos
 
-- sáb 04:02 · **PC 2 está con batería, no enchufado** (`pmset -g batt`: 48%, descargando, 4:21 estimadas). El entrenamiento dura hasta las 08:30: hay que enchufarlo ya. Lo tiene que hacer la persona. Si se apaga, se retoma con el mismo comando desde el último punto de guardado (a lo más 10 min perdidos).
+- (ninguno) · sáb 04:07: resuelto lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
 
 ## Pedidos a otros
 
