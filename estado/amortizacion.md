@@ -55,6 +55,8 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
   - sáb 05:50 · A-N2 (paso local y NumPyro de `supervivencia`) estuvo detenido desde las 04:00: la sesión B había terminado su turno. **Resuelto a las 05:52:** Rodrigo abre dos sesiones nuevas (ver «Relevo»). De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15.
   - sáb 05:52 · Resuelto: `analizar` ya trae `unidad` (`{"singular", "plural"}`, copiado del YAML del caso). Lo aprobó Rodrigo a las 05:52; es un campo nuevo y no cambia ninguno de los que había.
   - sáb 04:07 · Resuelto: lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
+- sáb 07:31 · **A-M3 hecha, con Rodrigo presente: `espacial` sigue hasta las 08:30.** Validación intermedia sin detenerlo (punto de las 07:20, paso 90.243, 5.775.552 terrenos): cobertura de θ 0,905 y del mapa 0,901; los 7 parámetros pasan el χ² de uniformidad; la pérdida sigue bajando (no está plana), así que no se cumple la condición para detenerlo antes. Detalle en «Números medidos». Queda sin mirar hasta las 08:30 la diferencia con el MCMC (no se corre encima del entrenamiento).
+- sáb 07:31 · **D-34 (chat con archivo propio), reparto en PC 2:** el tablero le da A-19 a la sesión B. `nucleo/api.py` es de la sesión A: **la sesión B puede agregar ahí `papeles` y `analizar_archivo` (solo agregar)**; la sesión A no toca `api.py` hasta ver ese commit. La sesión A hace el lado de sus tres motores (ver «En curso»).
 
 ## A las 08:30: validar `espacial` (A-08), con una persona
 
@@ -120,8 +122,8 @@ Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transf
 
 ## En curso
 
-- sáb 06:13 · Sesión A (nueva): lista de la madrugada terminada (sellos, método rápido, nube, README técnico, pedidos). Sigue: mirar `espacial` a las 07:10; con la persona, A-M3 a las 07:30 y A-08 a las 08:30. Mientras tanto, repaso del código de `sello.py` de `espacial` contra lo aprendido hoy (sin tocar el entrenamiento).
-- sáb 06:30 · Sesión B (nueva): las seis tareas del relevo están en `main` (paso local, NumPyro, `analizar`, cartera, nube, sello). Lo que falta de `supervivencia` espera a la red de PC 3 y a una ventana sin entrenamiento: correr `motor.supervivencia.sello` (MCMC incluido), medir tiempos sin nada entrenando y pasar el motor a `red` si pasa.
+- sáb 07:31 · Sesión A: lado de los motores para D-34, tope 08:15: que `estados`, `jerarquico` y `espacial` lean la tabla subida (`caso["tabla"]`, un diccionario columna → lista de textos, en vez de `caso["dataset"]`) y respondan rojo con motivo si no calza; y la lista de papeles de los tres. A las 08:10, mirar `espacial`; a las 08:30, con Rodrigo, A-08.
+- sáb 07:31 · Sesión B: A-19 (`papeles` y `analizar_archivo` en `nucleo/api.py`), tope 10:30; a las 08:30, sello de `supervivencia` (D-33).
 
 ## Lanzar `supervivencia` en PC 3 (sesión B → la persona de PC 3)
 
@@ -268,6 +270,9 @@ Cambios de interfaz se anotan aquí, con hora.
 | Krylov en esos dos exámenes | sin medir: pendiente de las redes entrenadas (lo escribe cada `sello.py` en `examen` y `examen_metodo_rapido`) | — | — |
 | Sello de `estados`, ensayo del programa (red de 2 min, MCMC de 20 pasos: **no es resultado**) | De punta a punta en 27 s; `analizar` de crédito 42 ms con `espacial` entrenando al lado (**no sirve para el guion**); exportación: 2,5e-6 contra `torch` | `uv run python -m motor.estados.sello --ensayo` | sáb 06:12 |
 | Sello de `jerarquico`, ensayo del programa (ídem) | Corre de punta a punta (tiempo total sin anotar); `analizar` de inasistencias 590 ms con `espacial` al lado (**no sirve para el guion**); exportación: 3,8e-6 | `uv run python -m motor.jerarquico.sello --ensayo` | sáb 06:12 |
+| `espacial` · validación intermedia A-M3 (paso 90.243, 210 min, 5.775.552 terrenos; 200 terrenos nuevos, 99 muestras) | Cobertura del 90%: θ 0,905 (de 0,865 en `anis_1` a 0,945 en `log_tau`), mapa 0,901 (peor grupo 0,898). Los 7 parámetros pasan el χ². Rango medio lejos de 0,5 en `anis_2` (0,427) y `log_tau` (0,464); con 200 terrenos el error típico es 0,02: **`anis_2` es lo que hay que mirar con 2.000**. Recuperación: de 0,65 (`anis_1`) a 0,92 (`beta0`). Con la cobertura por rangos | `uv run python -m motor.espacial.validar --sbc 200`, con el entrenamiento corriendo | sáb 07:29 |
+| `espacial` · pérdida de mapa contra su piso (60 terrenos, mismo punto) | Trivial 1,416 · red 0,829 · piso (kriging con θ verdadero) 0,766: cerró el 90% del camino (84% a los 10 min). RECM en bloques sin medir: 1,007 · 0,691 · 0,671 | `uv run python -m motor.espacial.piso_kriging` | sáb 07:29 |
+| `espacial` · ¿sigue bajando la pérdida? | Promedios por tramo de 20 min (mapa · NPE): 140-160 min 0,827 · 2,00; 160-180 0,823 · 1,93; 180-200 0,812 · 1,82; 200-225 0,814 · 1,80. La de NPE baja todavía; la de mapa, casi plana | `registro.jsonl` | sáb 07:29 |
 | Predictivo a priori contra el terreno real | 135 bloques medidos (percentil 57 de lo simulado), correlación con √dist −0,805 (percentil 4,7), semivarianza entre vecinos 0,354 (percentil 63), 117 pares de vecinos (percentil 75) | `uv run python -m motor.espacial.predictivo`, 4.000 terrenos simulados | sáb 03:49 |
 | Sello de `espacial` | sin medir | `validar-motor` | — |
 | «¿Dónde mido?»: análisis rehechos y segundos, con la red | sin medir | A-11 | — |
