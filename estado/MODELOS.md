@@ -113,10 +113,10 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] SBC por unidad: pasa con el criterio de D-39 (tamaño de la desviación 0,072 en log k y 0,022 en el tope de recuperación; límite 0,1; 17.960 líneas). Con la prueba anterior no pasaba (χ² 92,2 en log k). Queda un corrimiento chico en log k, anotado en las limitaciones del sello
 - [x] Cobertura de lo que se decide, por tamaño: 0,905; peor tramo 0,904 (líneas con pocas lecturas)
 - [x] Examen con la verdad escondida: de 3 líneas con cerca de 1% de riesgo ninguna quedó bajo la meta; de 3 con cerca de 28%, ninguna; de 2 con cerca de 93%, las 2 (datos simulados, 8 líneas)
-- [ ] Exportación y app: exportada a `motor/artefactos/cinetica/`; el sello dice «pasa» (sáb 17:09) y `analizar("flotacion")` responde con la red en 64 ms (medido con otro entrenamiento corriendo; 37 ms sin nada). Falta que PC 1 active `KRYLOV_MOTOR_CINETICA=red` y vuelva a exportar
+- [x] Exportación y app: la tarjeta `flotacion` responde con la red en la app y en el estático (sáb 17:32, PC 1): «Responde la red · en 0,24 s»; un archivo propio da verde en 238 ms. Sin desplegar todavía (H6)
 - [ ] Método lento
 
-**Falta ahora:** que PC 1 active la red en la tarjeta (`KRYLOV_MOTOR_CINETICA=red`); volver a medir la latencia a las 18:15, sin nada entrenando; y el método lento al final (A-36).
+**Falta ahora:** volver a medir la latencia a las 18:15, sin nada entrenando; Render con `KRYLOV_MOTOR_CINETICA=red` al desplegar; y el método lento al final (A-36).
 
 ## `desgaste` · caso `flota`
 
