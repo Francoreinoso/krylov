@@ -181,3 +181,95 @@ def log_verosimilitud(libre, datos: dict, impago, xp=np):
 def probabilidad_de_impago(libre, datos: dict) -> np.ndarray:
     """`muestras_p`: P(impago el mes siguiente | historial, θ_s) por cliente y por muestra del posterior. (n, S)"""
     return np.moveaxis(filtro_forward(np.atleast_2d(np.asarray(libre, dtype=np.float64)), datos)[2], 0, -1)
+
+
+# =========================================================================================
+# La respuesta de un caso de crédito
+# =========================================================================================
+
+from functools import cache                                   # noqa: E402
+
+from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
+from nucleo.casos import ErrorKrylov, implementacion, leer_columnas          # noqa: E402
+
+VARIABLES = ("nivel", "uso", "pago_cero", "log_pago", "x")
+
+
+def leer_caso(caso: dict) -> dict:
+    """Las variables del modelo del archivo de un caso, más `impago` (NaN = por decidir) e `id`."""
+    col, t = caso["columnas"], leer_columnas(caso["dataset"])
+    def numeros(nombres):
+        return np.array([[float(v) for v in t[n]] for n in nombres]).T
+    datos = variables_del_modelo(numeros(col["atraso"]), numeros(col["saldo"]), numeros(col["pago"]),
+                                 numeros([col["cupo"]])[:, 0], numeros(col["transiciones"]))
+    datos["impago"] = np.array([float(v) if v != "" else np.nan for v in t[col["objetivo"]]])
+    datos["id"] = t[col["id"]]
+    return datos
+
+
+@cache
+def _red(carpeta: str, _version: float):
+    import onnxruntime
+    opciones = onnxruntime.SessionOptions()
+    opciones.log_severity_level = 3
+    return (onnxruntime.InferenceSession(f"{carpeta}/codificador.onnx", opciones, providers=["CPUExecutionProvider"]),
+            flujo_numpy.cargar(f"{carpeta}/flujo.npz"))
+
+
+def posterior(filas: np.ndarray, impl: str, clave: str, muestras: int = tabla.MUESTRAS) -> np.ndarray:
+    """Muestras del posterior de θ, (muestras, 33): del flujo condicionado en s(D) (`red`) o del MCMC precalculado (`mcmc`)."""
+    carpeta = _casos.ARTEFACTOS / "estados"
+    if impl == "red":
+        if not (carpeta / "codificador.onnx").exists():
+            raise ErrorKrylov("La red de crédito todavía no está exportada.", "no_disponible")
+        sesion, pesos = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+        resumen = sesion.run(None, {"x": filas[None], "mascara": np.ones((1, len(filas)), dtype=np.float32)})[0][0]
+        return flujo_numpy.muestrear(pesos, resumen, flujo_numpy.ruido(0, muestras, DIM_THETA)).astype(np.float64)
+    ruta = carpeta / "mcmc" / f"{clave}.npz"
+    if not ruta.exists():
+        raise ErrorKrylov("Este análisis de crédito todavía no está precalculado.", "no_disponible")
+    with np.load(ruta) as z:
+        theta = z["theta"].astype(np.float64)
+    return theta[np.sort(np.random.default_rng(0).choice(len(theta), size=min(muestras, len(theta)), replace=False))]
+
+
+def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
+    """A qué clientes por decidir conviene no aprobar: p de impago por muestra del posterior, decisión, qué pesa y examen."""
+    col = caso["columnas"]
+    del_modelo = set(col["atraso"]) | set(col["saldo"]) | set(col["pago"]) | set(col["transiciones"]) | {col["cupo"]}
+    for t in transformaciones:
+        if t.removeprefix("quitar_factor:") in del_modelo:
+            raise ErrorKrylov("Ese factor es parte del modelo de crédito y no se puede quitar.", "no_disponible")
+    impl = implementacion("estados")
+    datos = leer_caso(caso)
+    por_decidir = np.isnan(datos["impago"])
+    conocidos = datos["impago"][~por_decidir]
+    n = len(datos["impago"])
+    if n < 200:
+        return {"implementacion": impl, **tabla.rojo_datos(f"Hay {n} clientes y hacen falta al menos 200.")}
+    if conocidos.sum() < 10 or (1 - conocidos).sum() < 10:
+        return {"implementacion": impl, **tabla.rojo_datos("Casi todos los clientes tienen la misma respuesta: no hay de dónde aprender.")}
+    if n > 2000:                                            # el contrato: con más filas, una muestra con semilla fija
+        elegidos = np.sort(np.random.default_rng(0).choice(n, size=2000, replace=False))
+        datos = {k: (np.asarray(v)[elegidos] if k != "id" else [v[i] for i in elegidos]) for k, v in datos.items()}
+        por_decidir = np.isnan(datos["impago"])
+
+    filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"])
+    clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)
+    theta = posterior(filas, impl, clave)
+    muestras_p = probabilidad_de_impago(theta, {k: datos[k][por_decidir] for k in VARIABLES})
+    ids = [i for i, falta in zip(datos["id"], por_decidir) if falta]
+    lista = tabla.unidades(ids, muestras_p, costos)
+
+    etiquetas = caso.get("etiquetas", {})
+    psi = theta[:, 8:11]                                    # efecto de cada covariable sobre empeorar de estado
+    factores = [decision.factor(nombre, etiquetas.get(nombre, nombre), psi[:, j]) for j, nombre in enumerate(col["transiciones"])]
+    return {
+        "implementacion": impl, "unidades": lista,
+        "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
+        "columnas": {"usadas": list(col["atraso"]) + list(col["saldo"]) + list(col["pago"]) + list(col["transiciones"]),
+                     "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},
+        "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
+        "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(por_decidir)} en el archivo",
+                     f"{len(theta)} versiones creíbles"],
+    }

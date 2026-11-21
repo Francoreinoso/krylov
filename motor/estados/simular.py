@@ -155,16 +155,9 @@ def resumenes(nivel, uso, pago_cero, log_pago, impago) -> dict[str, np.ndarray]:
 
 
 def variables_del_caso(caso: str = "credito") -> dict:
-    """Las variables del modelo del archivo real de un caso, más `impago` (NaN = por decidir) e `id`."""
-    from nucleo.casos import cargar_caso, leer_columnas
-    c = cargar_caso(caso)
-    col, tabla = c["columnas"], leer_columnas(c["dataset"])
-    numeros = lambda nombres: np.array([[float(v) for v in tabla[n]] for n in nombres]).T          # noqa: E731
-    datos = nucleo_es.variables_del_modelo(numeros(col["atraso"]), numeros(col["saldo"]), numeros(col["pago"]),
-                                           numeros([col["cupo"]])[:, 0], numeros(col["transiciones"]))
-    datos["impago"] = np.array([float(v) if v != "" else np.nan for v in tabla[col["objetivo"]]])
-    datos["id"] = tabla[col["id"]]
-    return datos
+    """Las variables del modelo del archivo real de un caso: la misma lectura que hace el servicio."""
+    from nucleo.casos import cargar_caso
+    return nucleo_es.leer_caso(cargar_caso(caso))
 
 
 def revisar(carteras: int = 2000, semilla: int = 0) -> dict:
