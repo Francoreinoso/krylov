@@ -23,6 +23,7 @@
   --fuente-titular: var(--font-sans);
   --ancho-titular: 72%;
   --color-trama: #0d1f2b73;
+  --degradado: linear-gradient(var(--color-acento), var(--color-acento));
 }
 
 html {
@@ -67,23 +68,45 @@ html {
   font-size: 16px;
 }
 
+:root[data-diseno="estudio"],
+:root[data-diseno="estudio-noche"] {
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Roboto, "Helvetica Neue", sans-serif;
+  --radio: 20px;
+  --ancho-titular: 100%;
+  --degradado: linear-gradient(100deg, #5b5bd6 0%, #9a5fd8 45%, #e0844a 100%);
+}
+
 :root[data-diseno="estudio"] {
-  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Roboto, sans-serif;
-  --color-fondo: #f7f7fb;
-  --color-superficie: #ffffff;
-  --color-linea: #e3e4ee;
-  --color-tinta: #1b1c2a;
-  --color-tinta-suave: #6b6e85;
+  --color-fondo: #ffffff;
+  --color-superficie: #f4f4f7;
+  --color-linea: #e5e5ec;
+  --color-tinta: #1a1b25;
+  --color-tinta-suave: #6b6d80;
   --color-actuar: #d93f3f;
   --color-en-duda: #e0a100;
   --color-no-actuar: #1f9d61;
   --color-acento: #5b5bd6;
   --color-sobre-acento: #ffffff;
   --color-trama: #ffffff80;
-  --radio: 18px;
-  --sombra: 0 1px 2px #1b1c2a14, 0 8px 24px #1b1c2a0f;
-  --ancho-titular: 100%;
+  --sombra: 0 1px 2px #1a1b2512, 0 6px 24px #1a1b250d;
   color-scheme: light;
+}
+
+:root[data-diseno="estudio-noche"] {
+  --color-fondo: #1e1f24;
+  --color-superficie: #2a2b31;
+  --color-linea: #393a43;
+  --color-tinta: #ececf1;
+  --color-tinta-suave: #9a9cab;
+  --color-actuar: #f06b63;
+  --color-en-duda: #f2b630;
+  --color-no-actuar: #3fbf82;
+  --color-acento: #9191f8;
+  --color-sobre-acento: #14141a;
+  --color-trama: #1e1f2480;
+  --sombra: 0 1px 2px #00000040, 0 8px 28px #00000038;
+  --degradado: linear-gradient(100deg, #9191f8 0%, #c084fc 45%, #f2a36b 100%);
+  color-scheme: dark;
 }
 
 body {
@@ -97,18 +120,6 @@ body {
   font-stretch: var(--ancho-titular);
 }
 
-/* Cursor de terminal del diseño «Sonar». */
-@keyframes parpadeo {
-  50% {
-    opacity: 0;
-  }
-}
-.cursor::after {
-  content: "▍";
-  margin-left: 2px;
-  color: var(--color-acento);
-  animation: parpadeo 1s steps(1) infinite;
-}
 
 /* La duda se ve como trama, no solo como color. */
 .achurado {
@@ -170,6 +181,50 @@ body {
 }
 
 /* La caja del chat marca el foco en su borde, no en el campo. */
-.compositor input:focus-visible {
+.compositor textarea:focus-visible {
   outline: none;
+}
+
+/* Saludo del inicio en degradado. */
+.texto-degradado {
+  background: var(--degradado);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* «Calculando…»: un brillo que recorre el texto. */
+@keyframes brillo {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+.brillo {
+  background: linear-gradient(90deg, var(--color-tinta-suave) 0%, var(--color-tinta-suave) 40%, var(--color-tinta) 50%, var(--color-tinta-suave) 60%, var(--color-tinta-suave) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brillo 1.6s linear infinite;
+}
+
+/* Lo que llega después del titular aparece suave. */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.aparecer {
+  animation: aparecer 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brillo,
+  .aparecer {
+    animation: none;
+  }
 }

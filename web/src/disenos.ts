@@ -1,23 +1,21 @@
-// Diseños para comparar en local: cada uno redefine los tokens del CSS (index.css) y elige cómo se
-// envuelven los mensajes del chat. Se elige con ?diseno=<id>, lo guardado o el primero.
+// Diseños para comparar en local: cada uno redefine los tokens del CSS (index.css).
+// Se elige con ?diseno=<id>, lo guardado o el primero.
 
 import { useSyncExternalStore } from 'react'
-
-export type EstiloChat = 'burbujas' | 'documento' | 'terminal'
 
 export interface Diseno {
   id: string
   nombre: string
   descripcion: string
-  chat: EstiloChat
   muestra: [fondo: string, tinta: string, acento: string]
 }
 
 export const DISENOS: Diseno[] = [
-  { id: 'puente', nombre: 'Puente', descripcion: 'Oscuro, de proyector', chat: 'burbujas', muestra: ['#0d1f2b', '#e9eff2', '#f0b429'] },
-  { id: 'tablas', nombre: 'Tablas de Krylov', descripcion: 'Papel impreso, serif', chat: 'documento', muestra: ['#f4efe4', '#1d1a16', '#b8322a'] },
-  { id: 'sonar', nombre: 'Sonar', descripcion: 'Terminal de fósforo', chat: 'terminal', muestra: ['#070b09', '#b8f5c8', '#39d98a'] },
-  { id: 'estudio', nombre: 'Estudio', descripcion: 'Claro, de asistente', chat: 'burbujas', muestra: ['#f7f7fb', '#1b1c2a', '#5b5bd6'] },
+  { id: 'estudio', nombre: 'Estudio', descripcion: 'Claro, de asistente', muestra: ['#ffffff', '#1a1b25', '#5b5bd6'] },
+  { id: 'estudio-noche', nombre: 'Estudio noche', descripcion: 'Oscuro, de asistente', muestra: ['#1e1f24', '#ececf1', '#9191f8'] },
+  { id: 'puente', nombre: 'Puente', descripcion: 'Oscuro, de proyector', muestra: ['#0d1f2b', '#e9eff2', '#f0b429'] },
+  { id: 'tablas', nombre: 'Tablas de Krylov', descripcion: 'Papel impreso, serif', muestra: ['#f4efe4', '#1d1a16', '#b8322a'] },
+  { id: 'sonar', nombre: 'Sonar', descripcion: 'Terminal de fósforo', muestra: ['#070b09', '#b8f5c8', '#39d98a'] },
 ]
 
 const CLAVE = 'krylov.diseno'

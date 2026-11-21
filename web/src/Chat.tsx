@@ -1,49 +1,64 @@
-// Inicio tipo chat: se elige un modelo, se sube un archivo y se pregunta. No hay modelo de lenguaje:
-// las preguntas son plantillas (preguntas.ts) y cada respuesta sale del JSON del motor.
-// Por ahora el archivo propio solo se lee; la respuesta usa el archivo de ejemplo del caso y lo dice.
+// Inicio tipo chat. No hay modelo de lenguaje: las preguntas son plantillas (preguntas.ts) y cada
+// respuesta sale del JSON del motor. Por ahora el archivo propio solo se lee; la respuesta usa el
+// archivo de ejemplo del caso y lo dice.
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api, despertarApi, type Origen } from './api'
+import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
-import { useDiseno, type EstiloChat } from './disenos'
-import { elegirCaso, interpretar, MOTOR_EN_PALABRAS, normalizar, preguntasDe, type Intencion, type Pregunta } from './preguntas'
+import Lateral, { IconoLateral } from './Lateral'
+import Marca from './Marca'
+import { elegirCaso, interpretar, MOTOR_EN_PALABRAS, preguntasDe, type Intencion } from './preguntas'
 import Respuesta from './Respuesta'
 import RespuestaEnChat, { type DatosRespuesta } from './RespuestaEnChat'
+import TarjetaArchivo from './TarjetaArchivo'
 import { lineaDelCaso } from './textos'
 import type { Caso } from './tipos'
 
-type Mensaje =
-  | { id: number; de: 'krylov'; tipo: 'texto'; texto: string; nota?: string }
-  | { id: number; de: 'tu'; tipo: 'texto'; texto: string }
-  | { id: number; de: 'tu'; tipo: 'archivo'; info: InfoCsv }
-  | { id: number; de: 'krylov'; tipo: 'respuesta'; datos: DatosRespuesta }
+type Contenido =
+  | { de: 'tu'; texto: string; adjunto?: InfoCsv }
+  | { de: 'krylov'; tipo: 'texto'; texto: string; nota?: string; accion?: 'modelos' | 'preguntas' }
+  | { de: 'krylov'; tipo: 'respuesta'; datos: DatosRespuesta }
 
-type NuevoMensaje = Mensaje extends infer M ? (M extends Mensaje ? Omit<M, 'id'> : never) : never
+type Mensaje = Contenido & { id: number; creado: number }
 
-type Paso = 'motor' | 'archivo' | 'pregunta'
+interface Conversacion {
+  id: number
+  caso: Caso | null
+  archivo: InfoCsv | null // el archivo propio que se subió en esta conversación
+  pendiente: string | null // la pregunta que espera a que se elija un modelo
+  mensajes: Mensaje[]
+}
 
-const SALUDO = 'Sé cuánto no sé, y te digo cuánto vale averiguarlo. ¿Con qué modelo trabajamos?'
+const FRASE = 'Sé cuánto no sé, y te digo cuánto vale averiguarlo.'
 const SIN_ARCHIVO_PROPIO = 'Todavía no analizo archivos propios: respondo con el archivo de ejemplo del caso.'
+const ESCRITORIO = '(min-width: 1024px)'
 
 let siguienteId = 0
+const nueva = (caso: Caso | null = null): Conversacion => ({ id: siguienteId++, caso, archivo: null, pendiente: null, mensajes: [] })
+
+const tituloDe = (c: Conversacion) => {
+  const primero = c.mensajes.find((m) => m.de === 'tu')
+  return (primero?.de === 'tu' && (primero.texto || primero.adjunto?.nombre)) || c.caso?.titulo || 'Nuevo análisis'
+}
 
 export default function Chat() {
-  const estilo = useDiseno().chat
   const [casos, setCasos] = useState<Caso[]>([])
-  const [mensajes, setMensajes] = useState<Mensaje[]>([{ id: siguienteId++, de: 'krylov', tipo: 'texto', texto: SALUDO }])
-  const [paso, setPaso] = useState<Paso>('motor')
-  const [caso, setCaso] = useState<Caso | null>(null)
-  const [archivoPropio, setArchivoPropio] = useState(false)
-  const [pensando, setPensando] = useState(false)
+  const [estado, setEstado] = useState(() => {
+    const c = nueva()
+    return { conversaciones: [c], activa: c.id }
+  })
   const [texto, setTexto] = useState('')
+  const [adjunto, setAdjunto] = useState<InfoCsv | null>(null)
+  const [pensando, setPensando] = useState<number | null>(null)
   const [arrastrando, setArrastrando] = useState(false)
   const [completa, setCompleta] = useState<DatosRespuesta | null>(null)
   const [origen, setOrigen] = useState<Origen | null>(null)
-  const final = useRef<HTMLDivElement>(null)
+  const [lateral, setLateral] = useState(() => window.matchMedia(ESCRITORIO).matches)
+  const ultimaPregunta = useRef<HTMLLIElement>(null)
   const selectorArchivo = useRef<HTMLInputElement>(null)
 
-  const decir = (...nuevos: NuevoMensaje[]) =>
-    setMensajes((m) => [...m, ...nuevos.map((n) => ({ ...n, id: siguienteId++ }) as Mensaje)])
+  const conv = estado.conversaciones.find((c) => c.id === estado.activa)!
 
   useEffect(() => {
     despertarApi()
@@ -53,66 +68,44 @@ export default function Chat() {
         setCasos(r.datos.casos)
         setOrigen(r.origen)
       })
-      .catch((e: Error) => decir({ de: 'krylov', tipo: 'texto', texto: `No pude cargar los modelos: ${e.message}` }))
+      .catch(() => setOrigen('estatico'))
   }, [])
 
+  // Como en los chats conocidos: la última pregunta sube al borde de arriba y la respuesta llega debajo.
   useEffect(() => {
-    final.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
-  }, [mensajes, pensando])
+    ultimaPregunta.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [conv.mensajes.length, conv.id])
 
-  const preguntas: Pregunta[] = caso ? preguntasDe(caso) : []
-
-  const elegir = (c: Caso) => {
-    setCaso(c)
-    setPaso('archivo')
-    decir(
-      { de: 'tu', tipo: 'texto', texto: `${c.titulo} (${lineaDelCaso(c)})` },
-      {
-        de: 'krylov',
-        tipo: 'texto',
-        texto: `Uso el modelo de ${MOTOR_EN_PALABRAS[c.motor]?.toLowerCase() ?? c.motor}. Sube tu archivo en CSV o usa el de ejemplo del caso.`,
-        nota: c.origen_datos,
-      },
-    )
+  const cerrarLateralEnTelefono = () => {
+    if (!window.matchMedia(ESCRITORIO).matches) setLateral(false)
   }
 
-  const subir = async (archivo: File | undefined) => {
-    if (!archivo) return
-    if (!caso) {
-      decir({ de: 'krylov', tipo: 'texto', texto: 'Primero elige con qué modelo trabajamos.' })
-      return
-    }
-    try {
-      const info = await leerCsv(archivo)
-      setArchivoPropio(true)
-      setPaso('pregunta')
-      decir(
-        { de: 'tu', tipo: 'archivo', info },
-        {
-          de: 'krylov',
-          tipo: 'texto',
-          texto: `Leí ${info.nombre}: ${info.filas.toLocaleString('es-CL')} filas y ${info.columnas.length} columnas. ¿Qué quieres saber?`,
-          nota: SIN_ARCHIVO_PROPIO,
-        },
-      )
-    } catch (e) {
-      decir({ de: 'krylov', tipo: 'texto', texto: `No pude leer el archivo: ${(e as Error).message}` })
-    }
+  const modificar = (id: number, cambio: (c: Conversacion) => Conversacion) =>
+    setEstado((s) => ({ ...s, conversaciones: s.conversaciones.map((c) => (c.id === id ? cambio(c) : c)) }))
+
+  const decir = (id: number, ...contenidos: Contenido[]) =>
+    modificar(id, (c) => ({
+      ...c,
+      mensajes: [...c.mensajes, ...contenidos.map((m) => ({ ...m, id: siguienteId++, creado: Date.now() }))],
+    }))
+
+  // Abre una conversación vacía, o reusa la actual si todavía no tiene mensajes.
+  const empezar = (caso: Caso | null = null) => {
+    setEstado((s) => {
+      const actual = s.conversaciones.find((c) => c.id === s.activa)
+      if (actual && actual.mensajes.length === 0) {
+        return { ...s, conversaciones: s.conversaciones.map((c) => (c.id === actual.id ? { ...c, caso } : c)) }
+      }
+      const c = nueva(caso)
+      return { conversaciones: [c, ...s.conversaciones], activa: c.id }
+    })
+    setTexto('')
+    setAdjunto(null)
+    cerrarLateralEnTelefono()
   }
 
-  const usarEjemplo = () => {
-    setArchivoPropio(false)
-    setPaso('pregunta')
-    decir(
-      { de: 'tu', tipo: 'texto', texto: 'Usa el archivo de ejemplo.' },
-      { de: 'krylov', tipo: 'texto', texto: 'Listo, uso el archivo de ejemplo del caso. ¿Qué quieres saber?' },
-    )
-  }
-
-  const preguntar = async (intencion: Intencion, pregunta: string) => {
-    if (!caso) return
-    decir({ de: 'tu', tipo: 'texto', texto: pregunta })
-    setPensando(true)
+  const responder = async (id: number, caso: Caso, intencion: Intencion, archivoPropio: boolean) => {
+    setPensando(id)
     try {
       const r = await api.analizar(caso.nombre)
       const analisis = r.datos
@@ -121,54 +114,85 @@ export default function Chat() {
         intencion === 'donde_medir' ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
       ])
       setOrigen(r.origen)
-      decir({ de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube, donde, archivoPropio } })
+      decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube, donde, archivoPropio } })
     } catch (e) {
-      decir({ de: 'krylov', tipo: 'texto', texto: `No pude responder: ${(e as Error).message}` })
+      decir(id, { de: 'krylov', tipo: 'texto', texto: `No pude responder: ${(e as Error).message}` })
     } finally {
-      setPensando(false)
+      setPensando(null)
     }
   }
 
-  const enviar = () => {
-    const escrito = texto.trim()
-    if (!escrito || pensando) return
+  // Qué hacer con una pregunta, una vez que hay modelo.
+  const atender = (id: number, caso: Caso, pregunta: string, archivo: InfoCsv | null, recienElegido: boolean) => {
+    const intencion = interpretar(pregunta, preguntasDe(caso))
+    if (intencion) {
+      responder(id, caso, intencion, archivo !== null)
+      return
+    }
+    decir(id, {
+      de: 'krylov',
+      tipo: 'texto',
+      texto: recienElegido
+        ? `Listo, trabajo con el modelo de ${MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor}. ¿Qué quieres saber?`
+        : 'Con este modelo sé responder estas preguntas. Elige una o escribe su número.',
+      nota: recienElegido ? caso.origen_datos : undefined,
+      accion: 'preguntas',
+    })
+  }
+
+  const enviar = (escrito = texto, casoElegido: Caso | null = null) => {
+    const pregunta = escrito.trim()
+    if ((!pregunta && !adjunto) || pensando !== null) return
+    const id = conv.id
+    const adj = adjunto
+    const archivo = adj ?? conv.archivo
+    const reconocido = conv.caso ? null : (casoElegido ?? (pregunta ? elegirCaso(pregunta, casos) : null))
+    const caso = conv.caso ?? reconocido
     setTexto('')
-    if (paso === 'motor') {
-      const c = elegirCaso(escrito, casos)
-      if (c) elegir(c)
-      else {
-        decir({ de: 'tu', tipo: 'texto', texto: escrito }, { de: 'krylov', tipo: 'texto', texto: 'No reconocí el modelo. Elige uno de la lista o escribe su número.' })
-      }
-    } else if (paso === 'archivo') {
-      if (/ejemplo|^(si|dale|ok|usa)/.test(normalizar(escrito).trim())) usarEjemplo()
-      else {
-        decir({ de: 'tu', tipo: 'texto', texto: escrito }, { de: 'krylov', tipo: 'texto', texto: 'Sube un CSV con el botón del clip, o escribe «ejemplo».' })
-      }
+    setAdjunto(null)
+    modificar(id, (c) => ({ ...c, caso, archivo, pendiente: caso ? null : pregunta }))
+    decir(id, { de: 'tu', texto: pregunta, adjunto: adj ?? undefined })
+
+    if (!caso) {
+      decir(id, { de: 'krylov', tipo: 'texto', texto: '¿Con qué modelo lo vemos?', accion: 'modelos' })
+    } else if (!pregunta && adj) {
+      decir(id, {
+        de: 'krylov',
+        tipo: 'texto',
+        texto: `Leí ${adj.nombre}: ${adj.filas.toLocaleString('es-CL')} filas y ${adj.columnas.length} columnas. ¿Qué quieres saber?`,
+        nota: SIN_ARCHIVO_PROPIO,
+        accion: 'preguntas',
+      })
     } else {
-      const intencion = interpretar(escrito, preguntas)
-      if (intencion) preguntar(intencion, escrito)
-      else {
-        decir({ de: 'tu', tipo: 'texto', texto: escrito }, { de: 'krylov', tipo: 'texto', texto: 'Con estos datos sé responder estas preguntas. Elige una o escribe su número.' })
-      }
+      atender(id, caso, pregunta, archivo, reconocido !== null && !casoElegido)
     }
   }
 
-  const reiniciar = () => {
-    setMensajes([{ id: siguienteId++, de: 'krylov', tipo: 'texto', texto: SALUDO }])
-    setPaso('motor')
-    setCaso(null)
-    setArchivoPropio(false)
-    setTexto('')
+  // Elegir un modelo desde las tarjetas que ofrece Krylov retoma la pregunta que quedó esperando.
+  const elegirModelo = (caso: Caso) => {
+    const { id, pendiente, archivo } = conv
+    modificar(id, (c) => ({ ...c, caso, pendiente: null }))
+    decir(id, { de: 'tu', texto: caso.titulo })
+    atender(id, caso, pendiente ?? '', archivo, true)
+  }
+
+  const adjuntar = async (archivo: File | undefined) => {
+    if (!archivo) return
+    try {
+      setAdjunto(await leerCsv(archivo))
+    } catch (e) {
+      decir(conv.id, { de: 'krylov', tipo: 'texto', texto: `No pude leer el archivo: ${(e as Error).message}` })
+    }
   }
 
   if (completa) {
     return (
       <div className="mx-auto flex min-h-dvh max-w-[90rem] flex-col px-4 py-5 sm:px-8 md:h-dvh md:min-h-0">
-        <header className="mb-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <button onClick={() => setCompleta(null)} className="text-tinta-suave hover:text-tinta">
+        <header className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+          <button onClick={() => setCompleta(null)} className="rounded-full border border-linea px-4 py-1.5 text-sm hover:bg-superficie">
             ← Volver al chat
           </button>
-          {caso && <p className="text-tinta-suave">{lineaDelCaso(caso)}</p>}
+          {conv.caso && <p className="text-tinta-suave">{lineaDelCaso(conv.caso)}</p>}
         </header>
         <main className="flex min-h-0 flex-1 flex-col pb-10 lg:pb-0">
           <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} />
@@ -177,247 +201,233 @@ export default function Chat() {
     )
   }
 
-  const opciones: { clave: string; contenido: ReactNode; alElegir: () => void }[] =
-    paso === 'motor'
-      ? casos.map((c) => ({
-          clave: c.nombre,
-          contenido: <OpcionCaso caso={c} />,
-          alElegir: () => elegir(c),
-        }))
-      : paso === 'archivo'
-        ? [
-            { clave: 'subir', contenido: 'Subir un CSV', alElegir: () => selectorArchivo.current?.click() },
-            { clave: 'ejemplo', contenido: 'Usar el archivo de ejemplo', alElegir: usarEjemplo },
-          ]
-        : preguntas.map((p) => ({ clave: p.intencion, contenido: p.texto, alElegir: () => preguntar(p.intencion, p.texto) }))
+  const vacia = conv.mensajes.length === 0
+  const ultimo = conv.mensajes.at(-1)
+  const ultimaDelUsuario = conv.mensajes.findLast((m) => m.de === 'tu')
+  const preguntas = conv.caso ? preguntasDe(conv.caso) : []
+  const seguimiento =
+    ultimo?.de === 'krylov' && pensando === null && (ultimo.tipo === 'respuesta' || ultimo.accion === 'preguntas')
+      ? preguntas.filter((p) => ultimo.tipo !== 'respuesta' || p.intencion !== ultimo.datos.intencion)
+      : []
+  const recientes = estado.conversaciones.filter((c) => c.mensajes.length > 0).map((c) => ({ id: c.id, titulo: tituloDe(c) }))
 
-  // Número de cada párrafo de Krylov (diseño «documento»).
-  const numeros = mensajes.reduce<number[]>((acc, m) => [...acc, (acc.at(-1) ?? 0) + (m.de === 'krylov' ? 1 : 0)], [])
+  const compositor = (
+    <Compositor
+      texto={texto}
+      adjunto={adjunto}
+      casos={casos}
+      caso={conv.caso}
+      ocupado={pensando !== null}
+      placeholder={conv.caso ? 'Pregúntale algo a tus datos' : 'Elige un modelo o escribe qué quieres saber'}
+      alEscribir={setTexto}
+      alEnviar={() => enviar()}
+      alAdjuntar={() => selectorArchivo.current?.click()}
+      alQuitarAdjunto={() => setAdjunto(null)}
+      alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c }))}
+    />
+  )
+
+  const aviso = (
+    <p className="mt-2.5 text-center text-xs text-tinta-suave" title={origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}>
+      Krylov practicó con casos simulados. Los costos son supuestos y los números, de ejemplo.
+    </p>
+  )
+
   return (
     <div
-      className="mx-auto flex h-dvh max-w-3xl flex-col px-4 sm:px-6"
+      className="flex h-dvh"
       onDragOver={(e) => {
         e.preventDefault()
         setArrastrando(true)
       }}
       onDragLeave={(e) => {
-        if (e.currentTarget === e.target) setArrastrando(false)
+        if (e.relatedTarget === null) setArrastrando(false)
       }}
       onDrop={(e) => {
         e.preventDefault()
         setArrastrando(false)
-        subir(e.dataTransfer.files[0])
+        adjuntar(e.dataTransfer.files[0])
       }}
     >
-      <header className="flex items-baseline justify-between gap-4 py-4">
-        <button onClick={reiniciar} className="condensado text-2xl font-bold">
-          Krylov
-        </button>
-        <nav className="flex gap-4 text-sm text-tinta-suave">
-          <button onClick={reiniciar} className="hover:text-tinta">
-            Empezar de nuevo
-          </button>
-          <a href={`/clasico${window.location.search}`} className="hover:text-tinta">
-            Vista clásica
-          </a>
-        </nav>
-      </header>
+      {lateral && (
+        <>
+          <div className="fixed inset-0 z-30 bg-tinta/20 lg:hidden" onClick={() => setLateral(false)} />
+          <div className="fixed inset-y-0 left-0 z-40 lg:static">
+            <Lateral
+              casos={casos}
+              recientes={recientes}
+              activa={conv.id}
+              alNuevo={() => empezar()}
+              alElegirModelo={(c) => empezar(c)}
+              alAbrir={(id) => {
+                setEstado((s) => ({ ...s, activa: id }))
+                cerrarLateralEnTelefono()
+              }}
+              alCerrar={() => setLateral(false)}
+            />
+          </div>
+        </>
+      )}
 
-      <main className="desliza-lista min-h-0 flex-1 overflow-y-auto" aria-live="polite">
-        <ol className={estilo === 'terminal' ? 'space-y-3 py-2' : 'space-y-6 py-4'}>
-          {mensajes.map((m, i) => (
-            <li key={m.id}>
-              <Envoltura estilo={estilo} de={m.de} numero={numeros[i]} ancho={m.tipo === 'respuesta'}>
-                <ContenidoMensaje mensaje={m} alAbrir={setCompleta} />
-              </Envoltura>
-            </li>
-          ))}
-          {pensando && (
-            <li>
-              <Envoltura estilo={estilo} de="krylov" numero={(numeros.at(-1) ?? 0) + 1} ancho={false}>
-                <span className={`text-tinta-suave ${estilo === 'terminal' ? 'cursor' : ''}`}>
-                  {estilo === 'terminal' ? 'calculando' : 'Calculando…'}
-                </span>
-              </Envoltura>
-            </li>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-14 shrink-0 items-center gap-2 px-3">
+          {!lateral && (
+            <>
+              <button onClick={() => setLateral(true)} title="Abrir la barra" aria-label="Abrir la barra" className="rounded-lg p-1.5 text-tinta-suave hover:bg-superficie hover:text-tinta">
+                <IconoLateral />
+              </button>
+              <button onClick={() => empezar()} className="rounded-lg px-2 py-1 text-lg font-semibold hover:bg-superficie">
+                Krylov
+              </button>
+            </>
           )}
-        </ol>
-        <div ref={final} />
-      </main>
+          {!vacia && <p className="min-w-0 flex-1 truncate text-center text-sm text-tinta-suave">{tituloDe(conv)}</p>}
+        </header>
 
-      <footer className="pt-2 pb-14 lg:pb-4">
-        <Opciones estilo={estilo} opciones={opciones} grande={paso === 'motor'} />
-        <Compositor
-          estilo={estilo}
-          texto={texto}
-          alEscribir={setTexto}
-          alEnviar={enviar}
-          alAdjuntar={() => selectorArchivo.current?.click()}
-          placeholder={
-            paso === 'motor' ? 'Escribe el número o el nombre del modelo' : paso === 'archivo' ? 'Escribe «ejemplo» o sube un CSV' : 'Pregúntale algo a tus datos'
-          }
-        />
-        <input
-          ref={selectorArchivo}
-          type="file"
-          accept=".csv,text/csv"
-          className="hidden"
-          onChange={(e) => {
-            subir(e.target.files?.[0])
-            e.target.value = ''
-          }}
-        />
-        <p className="mt-2 text-xs text-tinta-suave/70">
-          {origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}. Ejemplo fijo: números inventados.
-        </p>
-      </footer>
+        {vacia ? (
+          <main className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pb-16">
+            <div className="my-auto flex w-full max-w-3xl flex-col items-center py-6">
+              <Marca grande />
+              <h1 className="texto-degradado mt-5 pb-1 text-center text-4xl font-semibold tracking-tight sm:text-5xl">¿Qué quieres saber?</h1>
+              <p className="mt-2 text-center text-tinta-suave">
+                {conv.caso ? `${MOTOR_EN_PALABRAS[conv.caso.motor] ?? conv.caso.motor} · ${lineaDelCaso(conv.caso)}` : FRASE}
+              </p>
+              <div className="mt-8 w-full">{compositor}</div>
+              <div className="mt-5 w-full">
+                {conv.caso ? (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {preguntas.map((p) => (
+                      <Chip key={p.intencion} texto={p.texto} alElegir={() => enviar(p.texto)} />
+                    ))}
+                  </div>
+                ) : (
+                  <TarjetasModelo casos={casos} alElegir={(c) => enviar(c.titulo, c)} />
+                )}
+              </div>
+              {aviso}
+            </div>
+          </main>
+        ) : (
+          <>
+            <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-4" aria-live="polite">
+              <ol className="mx-auto max-w-3xl space-y-8 py-6">
+                {conv.mensajes.map((m) => (
+                  <li key={m.id} ref={m === ultimaDelUsuario ? ultimaPregunta : undefined} className="scroll-mt-4">
+                    {m.de === 'tu' ? (
+                      <MensajeTu texto={m.texto} adjunto={m.adjunto} />
+                    ) : (
+                      <MensajeKrylov>
+                        {m.tipo === 'respuesta' ? (
+                          <RespuestaEnChat datos={m.datos} creado={m.creado} alAbrir={() => setCompleta(m.datos)} />
+                        ) : (
+                          <>
+                            <p className="leading-relaxed">{m.texto}</p>
+                            {m.nota && <p className="mt-1 text-sm text-tinta-suave">{m.nota}</p>}
+                            {m.accion === 'modelos' && (
+                              <div className="mt-4">
+                                <TarjetasModelo casos={casos} alElegir={elegirModelo} desactivadas={conv.caso !== null} />
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {m === ultimo && seguimiento.length > 0 && (
+                          <div className="aparecer mt-5 flex flex-wrap gap-2">
+                            {seguimiento.map((p) => (
+                              <Chip key={p.intencion} texto={p.texto} alElegir={() => enviar(p.texto)} />
+                            ))}
+                          </div>
+                        )}
+                      </MensajeKrylov>
+                    )}
+                  </li>
+                ))}
+                {pensando === conv.id && (
+                  <li>
+                    <MensajeKrylov pensando>
+                      <p className="brillo">Calculando con el modelo…</p>
+                    </MensajeKrylov>
+                  </li>
+                )}
+              </ol>
+            </main>
+            <footer className="relative shrink-0 px-4 pb-14 lg:pb-3">
+              <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-fondo" />
+              <div className="mx-auto max-w-3xl">
+                {compositor}
+                {aviso}
+              </div>
+            </footer>
+          </>
+        )}
+      </div>
+
+      <input
+        ref={selectorArchivo}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={(e) => {
+          adjuntar(e.target.files?.[0])
+          e.target.value = ''
+        }}
+      />
 
       {arrastrando && (
-        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center bg-fondo/80">
-          <p className="rounded-(--radio) border-2 border-dashed border-acento px-8 py-6 text-xl">Suelta tu CSV aquí</p>
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-fondo/85 backdrop-blur-sm">
+          <div className="rounded-3xl border-2 border-dashed border-acento px-10 py-8 text-center">
+            <p className="text-xl font-semibold">Suelta tu CSV</p>
+            <p className="mt-1 text-sm text-tinta-suave">Queda adjunto a tu próxima pregunta</p>
+          </div>
         </div>
       )}
     </div>
   )
 }
 
-function OpcionCaso({ caso }: { caso: Caso }) {
+function MensajeTu({ texto, adjunto }: { texto: string; adjunto?: InfoCsv }) {
   return (
-    <span className="block">
-      <span className="block font-semibold">{caso.titulo}</span>
-      <span className="block text-sm text-tinta-suave">
-        {MOTOR_EN_PALABRAS[caso.motor] ?? caso.motor} · {lineaDelCaso(caso)}
-      </span>
-    </span>
-  )
-}
-
-function ContenidoMensaje({ mensaje: m, alAbrir }: { mensaje: Mensaje; alAbrir: (d: DatosRespuesta) => void }) {
-  if (m.tipo === 'respuesta') return <RespuestaEnChat datos={m.datos} alAbrir={() => alAbrir(m.datos)} />
-  if (m.tipo === 'archivo') {
-    const { nombre, filas, columnas } = m.info
-    const vistas = columnas.slice(0, 6)
-    return (
-      <span className="block">
-        <span className="block font-semibold">📎 {nombre}</span>
-        <span className="block text-sm opacity-80">
-          {filas.toLocaleString('es-CL')} filas · {vistas.join(', ')}
-          {columnas.length > vistas.length && ` y ${columnas.length - vistas.length} más`}
-        </span>
-      </span>
-    )
-  }
-  return (
-    <span className="block">
-      {m.texto}
-      {m.de === 'krylov' && m.nota && <span className="mt-1 block text-sm text-tinta-suave">{m.nota}</span>}
-    </span>
-  )
-}
-
-// La forma de cada mensaje según el diseño: burbuja, párrafo numerado o línea de terminal.
-function Envoltura({ estilo, de, numero, ancho, children }: { estilo: EstiloChat; de: 'krylov' | 'tu'; numero: number; ancho: boolean; children: ReactNode }) {
-  if (estilo === 'terminal') {
-    return (
-      <div className="flex gap-3">
-        <span className={`w-14 shrink-0 text-right ${de === 'krylov' ? 'text-acento' : 'text-tinta-suave'}`}>{de === 'krylov' ? 'krylov:' : '›'}</span>
-        <div className={`min-w-0 flex-1 ${de === 'tu' ? 'text-tinta-suave' : ''}`}>{children}</div>
-      </div>
-    )
-  }
-  if (estilo === 'documento') {
-    return de === 'krylov' ? (
-      <section className="border-l-2 border-tinta pl-5">
-        <p className="mb-1 text-xs tracking-[0.2em] text-tinta-suave uppercase">§ {numero} · Krylov</p>
-        <div className="condensado text-lg leading-relaxed">{children}</div>
-      </section>
-    ) : (
-      <div className="pl-5 text-tinta-suave italic">— {children}</div>
-    )
-  }
-  return de === 'krylov' ? (
-    <div className="flex gap-3">
-      <span className="condensado flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-acento font-bold text-sobre-acento" aria-hidden>
-        K
-      </span>
-      <div className={`min-w-0 rounded-(--radio) bg-superficie px-4 py-3 shadow-(--sombra) ${ancho ? 'flex-1' : 'max-w-[85%]'}`}>{children}</div>
-    </div>
-  ) : (
-    <div className="flex justify-end">
-      <div className="max-w-[80%] rounded-(--radio) bg-acento px-4 py-2.5 text-sobre-acento">{children}</div>
+    <div className="flex flex-col items-end gap-2">
+      {adjunto && <TarjetaArchivo info={adjunto} />}
+      {texto && <p className="max-w-[80%] rounded-3xl bg-superficie px-5 py-2.5 leading-relaxed whitespace-pre-wrap">{texto}</p>}
     </div>
   )
 }
 
-function Opciones({ estilo, opciones, grande }: { estilo: EstiloChat; opciones: { clave: string; contenido: ReactNode; alElegir: () => void }[]; grande: boolean }) {
-  if (opciones.length === 0) return null
-  if (estilo === 'terminal' || estilo === 'documento') {
-    return (
-      <ol className="mb-3 space-y-1">
-        {opciones.map((o, i) => (
-          <li key={o.clave}>
-            <button onClick={o.alElegir} className="group flex gap-3 text-left">
-              <span className="text-tinta-suave">{estilo === 'terminal' ? `[${i + 1}]` : `${i + 1}.`}</span>
-              <span className={estilo === 'terminal' ? 'group-hover:text-acento' : 'underline decoration-linea underline-offset-4 group-hover:decoration-tinta'}>{o.contenido}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-    )
-  }
+function MensajeKrylov({ children, pensando = false }: { children: ReactNode; pensando?: boolean }) {
   return (
-    <ul className={`mb-3 ${grande ? 'grid gap-2 sm:grid-cols-2' : 'flex flex-wrap gap-2'}`}>
-      {opciones.map((o) => (
-        <li key={o.clave}>
+    <div className="flex gap-4">
+      <span className={`mt-0.5 ${pensando ? 'animate-pulse' : ''}`}>
+        <Marca />
+      </span>
+      <div className="min-w-0 flex-1 pt-0.5">{children}</div>
+    </div>
+  )
+}
+
+function Chip({ texto, alElegir }: { texto: string; alElegir: () => void }) {
+  return (
+    <button onClick={alElegir} className="rounded-full border border-linea px-4 py-2 text-sm hover:bg-superficie">
+      {texto}
+    </button>
+  )
+}
+
+function TarjetasModelo({ casos, alElegir, desactivadas = false }: { casos: Caso[]; alElegir: (c: Caso) => void; desactivadas?: boolean }) {
+  return (
+    <ul className="grid gap-3 sm:grid-cols-2">
+      {casos.map((c) => (
+        <li key={c.nombre}>
           <button
-            onClick={o.alElegir}
-            className={`border border-linea bg-superficie text-left shadow-(--sombra) hover:border-acento ${grande ? 'h-full w-full rounded-(--radio) px-4 py-3' : 'rounded-full px-3.5 py-1.5 text-sm'}`}
+            onClick={() => alElegir(c)}
+            disabled={desactivadas}
+            className="h-full w-full rounded-2xl border border-linea p-4 text-left transition-colors hover:bg-superficie disabled:opacity-50 disabled:hover:bg-transparent"
           >
-            {o.contenido}
+            <span className="block font-medium">{c.titulo}</span>
+            <span className="mt-1 block text-sm text-tinta-suave">{MOTOR_EN_PALABRAS[c.motor] ?? c.motor}</span>
+            <span className="mt-2 block text-xs text-tinta-suave">{lineaDelCaso(c)}</span>
           </button>
         </li>
       ))}
     </ul>
-  )
-}
-
-interface PropsCompositor {
-  estilo: EstiloChat
-  texto: string
-  placeholder: string
-  alEscribir: (t: string) => void
-  alEnviar: () => void
-  alAdjuntar: () => void
-}
-
-function Compositor({ estilo, texto, placeholder, alEscribir, alEnviar, alAdjuntar }: PropsCompositor) {
-  const marco =
-    estilo === 'terminal'
-      ? 'border-t border-linea pt-2'
-      : estilo === 'documento'
-        ? 'border-t-2 border-tinta pt-2'
-        : 'rounded-(--radio) border border-linea bg-superficie px-2 py-1.5 shadow-(--sombra) focus-within:border-acento'
-  return (
-    <form
-      className={`compositor flex items-center gap-2 ${marco}`}
-      onSubmit={(e) => {
-        e.preventDefault()
-        alEnviar()
-      }}
-    >
-      <button type="button" onClick={alAdjuntar} title="Subir un CSV" aria-label="Subir un CSV" className="px-2 py-1 text-lg text-tinta-suave hover:text-tinta">
-        {estilo === 'terminal' ? '+' : '📎'}
-      </button>
-      {estilo === 'terminal' && <span className="text-acento">›</span>}
-      <input
-        value={texto}
-        onChange={(e) => alEscribir(e.target.value)}
-        placeholder={placeholder}
-        className={`min-w-0 flex-1 bg-transparent py-1.5 caret-acento outline-none placeholder:text-tinta-suave/70 ${estilo === 'documento' ? 'condensado italic' : ''}`}
-      />
-      <button type="submit" className={estilo === 'burbujas' ? 'rounded-(--radio) bg-acento px-4 py-1.5 font-semibold text-sobre-acento' : 'px-2 py-1 font-semibold text-acento'}>
-        {estilo === 'terminal' ? '⏎' : 'Enviar'}
-      </button>
-    </form>
   )
 }

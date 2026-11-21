@@ -59,7 +59,7 @@ export default function SelectorDiseno() {
         className="ml-auto flex items-center gap-2 rounded-(--radio) border border-linea bg-superficie px-2.5 py-1.5 shadow-(--sombra)"
       >
         <Muestra diseno={actual} />
-        <span className="hidden sm:inline">{actual.nombre}</span>
+        <span className="hidden xl:inline">{actual.nombre}</span>
       </button>
     </div>
   )
