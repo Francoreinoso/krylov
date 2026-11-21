@@ -19,6 +19,9 @@ from nucleo import supervivencia as nucleo_sv
 ARQUITECTURA = {"dim_oculta": 128, "dim_resumen": 128, "capas_flujo": 8, "cargos_max": simular.CARGOS_MAX}
 
 
+ESCALA_COVARIANZA = 4.0     # las covarianzas entre columnas son del orden de 0,1: se llevan a orden 1
+
+
 def _mlp(entrada: int, oculta: int, salida: int) -> nn.Sequential:
     return nn.Sequential(nn.Linear(entrada, oculta), nn.ReLU(), nn.Linear(oculta, salida), nn.ReLU())
 
@@ -31,6 +34,10 @@ class CodificadorSupervivencia(nn.Module):
     - Por cargo: promedio de sus filas y su tamaño, pasados por psi. De ahí sale la dispersión
       entre cargos (σ_u), que un promedio global no ve.
     - Dos poolings de atención hacia el dataset: uno sobre las filas y otro sobre los cargos.
+    - Atajo de segundo orden: el promedio y la matriz de covarianza de las 11 columnas del dataset
+      entran directo a rho. Los efectos β y λ y las cargas de las encuestas se identifican por
+      covarianzas entre columnas (horas extra × renuncia, encuesta × encuesta); sin el atajo, phi
+      tiene que descubrir cada producto y en las pruebas de 11 minutos no lo lograba.
     - rho junta todo, con log(n) y el número de cargos, en el resumen s(D).
     """
 
@@ -41,7 +48,8 @@ class CodificadorSupervivencia(nn.Module):
         self.psi = _mlp(dim_oculta + 1, dim_oculta, dim_oculta)
         self.pooling_filas = PoolingAtencion(dim_oculta)
         self.pooling_cargos = PoolingAtencion(dim_oculta)
-        entrada_rho = self.pooling_filas.dim_salida + self.pooling_cargos.dim_salida + 2
+        momentos = nucleo_sv.DIM_FILA + nucleo_sv.DIM_FILA**2
+        entrada_rho = self.pooling_filas.dim_salida + self.pooling_cargos.dim_salida + momentos + 2
         self.rho = nn.Sequential(nn.Linear(entrada_rho, 2 * dim_oculta), nn.ReLU(), nn.Linear(2 * dim_oculta, dim_resumen))
 
     def forward(self, filas: Tensor, grupo: Tensor) -> Tensor:
@@ -55,8 +63,13 @@ class CodificadorSupervivencia(nn.Module):
         hay_cargo = (tamano > 0).to(h.dtype)
         todas = pertenece.sum(dim=-1)              # (B, n): 1 en cada fila con cargo válido
         n = tamano.sum(dim=1, keepdim=True)
+        promedio_columnas = filas.mean(dim=1, keepdim=True)                        # (B, 1, 11)
+        centradas = filas - promedio_columnas
+        covarianza = (centradas.transpose(1, 2) @ centradas) / n.unsqueeze(-1)     # (B, 11, 11)
         junto = torch.cat(
             [
+                promedio_columnas.squeeze(1),
+                ESCALA_COVARIANZA * covarianza.flatten(start_dim=1),
                 self.pooling_filas(h, todas),
                 self.pooling_cargos(h_cargo, hay_cargo),
                 torch.log(n) - 6.5,
