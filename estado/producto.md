@@ -9,10 +9,12 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 
 - sáb 03:00 · Plan final recibido. Nada construido todavía.
 - sáb 03:55 · Arranque: clon con push a los dos repositorios, rol declarado. Espejo `Silent-math/krylov` público (verificado 03:47).
+- sáb 03:53 · Instalado según STACK 2.1: `uv sync` (base, sin `entrenar`), Vite + React + TS, Tailwind 4. Node 24.21 en vez de 26: Vite corre igual y no actualizo con la memoria justa.
+- sáb 03:53 · **P-01** en `main`: API con las 7 rutas del contrato sobre los ejemplos fijos (`servicio/fijos.py`, una sola tabla para la API y el modo estático), `exportar_estatico` escribe 15 archivos en `web/public/estatico/`, y la web pinta el inicio (4 tarjetas) y la respuesta (titular, número grande, tres colores, unidades, banda roja, rótulo «precalculado»). Pie: «API» o «modo estático». Verificación: `curl -XPOST localhost:8010/api/analizar -d '{"caso":"credito"}'` y `npm run build` sin errores; `/?estatico=1` lee solo archivos.
 
 ## En curso
 
-- (vacío) · Primera tarea: P-01, esqueleto que pinta los ejemplos fijos. Meta de la noche: URL pública con el esqueleto antes de las 04:15.
+- sáb 03:53 · **P-02**: el dueño de `Silent-math` importa el espejo en Vercel (Root Directory `web`, Vite, `npm run build`, `dist`, `VITE_API_URL` vacía). Este PC no es admin del espejo. Render (API) va después: el recorrido no depende de ella.
 
 ## Bloqueos
 
@@ -28,8 +30,8 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 |---|---|
 | URL pública de la web (Vercel) | sin desplegar |
 | URL pública de la API (Render) | sin desplegar |
-| Comando para correr todo en local | — |
-| Herramientas elegidas de `STACK.md` y por qué | — |
+| Comando para correr todo en local | `uv run uvicorn servicio.app:app --port 8010 --reload` y `cd web && npm run dev` (en este PC el 8000 está ocupado; la web en dev apunta a `localhost:8010`) |
+| Herramientas elegidas de `STACK.md` y por qué | Vite+React+TS: una página con estado en memoria, sale estática. Tailwind 4: pantallas ordenadas rápido, sin configuración. Canvas para mapa y nube, SVG para barras y lista: rendimiento y control. FastAPI: envuelve `nucleo/api.py` en pocas líneas. Web en Vercel y API en Render (pendiente): sponsors, y el modo estático cubre la URL pública. onnxruntime: no aplica en este PC, lo usa `nucleo/` |
 
 ## Números medidos
 
