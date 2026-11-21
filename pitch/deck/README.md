@@ -106,7 +106,7 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 
 ## Pedidos a otros
 
-- **A `amortizacion` (PC 2):** avisar cuando `deformacion`, `cinetica`, `desgaste` o `sismico` respondan en `api.analizar`, para regenerar `datos.js` y el respaldo. Y M-44, el tiempo limpio de los 480 análisis.
+- **A `amortizacion` (PC 2):** avisar cuando `deformacion`, `cinetica`, `desgaste` o `sismico` respondan en `api.analizar`, para regenerar `datos.js` y el respaldo.
 - **A `seguimiento`:** `GUION.md` y `LAMINAS.md` describen otro pitch (abre con el barco, entra a la app, siete láminas). Hay que dejar uno solo.
 - **A `producto` (PC 1):** si cambia la dirección del producto, avisar para `config.js`.
 - **A una persona del equipo:** confirmar los nombres del cierre; abrir el deck en Safari y con el proyector antes del ensayo.
