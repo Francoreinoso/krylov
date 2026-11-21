@@ -159,3 +159,32 @@ def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 
         peso_u /= peso_u.sum(axis=1, keepdims=True)                               # p(u_j | datos del barrio)
         salida[:, s] = (dado_u * peso_u[barrio_del_paciente[paciente]]).sum(axis=1)
     return salida
+
+
+# =========================================================================================
+# La respuesta de un caso de inasistencias
+# =========================================================================================
+
+from nucleo.casos import leer_columnas          # noqa: E402
+
+_SI = {"yes": 1.0, "si": 1.0, "sí": 1.0, "1": 1.0, "1.0": 1.0, "no": 0.0, "0": 0.0, "0.0": 0.0}
+
+
+def leer_caso(caso: dict) -> dict:
+    """El archivo de un caso por columnas del modelo, con pacientes y barrios como índices.
+
+    Devuelve `espera`, `dia`, `sms`, `edad`, `binarias` (n, 4), `respuesta` (1 = no llegó, NaN = por decidir), `id`,
+    `paciente` (n,) en 0..P−1, `barrio` (n,) y `barrio_del_paciente` (P,) en 0..G−1.
+    """
+    col, t = caso["columnas"], leer_columnas(caso["dataset"])
+    def numeros(nombre):
+        return np.array([float(v) for v in t[nombre]])
+    _, paciente = np.unique(np.array(t[col["paciente"]]), return_inverse=True)
+    _, barrio = np.unique(np.array(t[col["grupo"]]), return_inverse=True)
+    barrio_del_paciente = np.zeros(paciente.max() + 1, dtype=int)
+    barrio_del_paciente[paciente] = barrio
+    efectos = col["efectos"]
+    return {"espera": numeros(col["suave"]), "dia": numeros(col["categoria"]).astype(int), "sms": numeros(col["tratamiento"]),
+            "edad": numeros(efectos[0]), "binarias": np.stack([numeros(e) for e in efectos[1:]], axis=1),
+            "respuesta": np.array([_SI[v.strip().lower()] if v.strip() else np.nan for v in t[col["objetivo"]]]),
+            "id": t[col["id"]], "paciente": paciente, "barrio": barrio, "barrio_del_paciente": barrio_del_paciente}
