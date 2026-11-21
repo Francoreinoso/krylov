@@ -1,0 +1,80 @@
+{
+ "motor_id": "sismico",
+ "implementacion": "red",
+ "pasa": true,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "sbc_local_sin_sesgo": true,
+  "cobertura_parametros_entre_85_y_95": true,
+  "cobertura_decision_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "analisis_bajo_1_s": true
+ },
+ "simulaciones_entrenamiento": 3723712,
+ "entrenamiento_min": 120,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.8947,
+ "cobertura_90_parametros": 0.8984,
+ "cobertura_90_locales": 0.901,
+ "cobertura_90_peor_grupo": 0.8914,
+ "peor_grupo": "2 a 3 unidades",
+ "peor_grupo_de": "tamaño del archivo",
+ "sbc_pasa": true,
+ "sbc_local_pasa": true,
+ "recuperacion": {
+  "media": 0.705,
+  "minima": 0.408,
+  "parametro_de_la_minima": "log_sigma_mu",
+  "por_parametro": {
+   "mu_mu": 0.764,
+   "log_sigma_mu": 0.408,
+   "logit_n": 0.798,
+   "log_alfa": 0.462,
+   "log_omega": 0.912,
+   "log_b": 0.883
+  }
+ },
+ "rangos": {
+  "unidades": [
+   2,
+   16
+  ],
+  "lecturas": [
+   1,
+   301
+  ],
+  "ventana_horas": [
+   2.0,
+   24.0
+  ]
+ },
+ "latencia_ms": 48,
+ "examen": {
+  "tipo": "verdad_escondida",
+  "n": 8,
+  "frase": "Cuando dijimos cerca de 6% de riesgo, tuvo un temblor fuerte el 25%.",
+  "tramos": [
+   {
+    "dijimos": 0.064,
+    "paso": 0.25,
+    "n": 8
+   }
+  ]
+ },
+ "mcmc_datasets_comparados": null,
+ "mcmc_s_por_dataset": null,
+ "mcmc_diferencia_media": null,
+ "mcmc_r_hat_max": null,
+ "amortizacion": null,
+ "fecha": "2026-11-21",
+ "hora": "18:15",
+ "ensayo": false,
+ "limitaciones": [
+  "Entre 2 y 16 sectores, observados de 2 a 24 horas desde la tronadura, con hasta 300 sismos por sector",
+  "La probabilidad de un sismo fuerte usa una aproximación de Poisson sobre el número esperado (forma cerrada del núcleo exponencial)",
+  "Solo el tiempo: no usa la ubicación de cada sismo dentro del sector",
+  "Los sectores no se gatillan entre sí",
+  "Apoya la decisión del especialista sobre el reingreso; no la reemplaza",
+  "Sin comparación todavía con el método lento"
+ ]
+}

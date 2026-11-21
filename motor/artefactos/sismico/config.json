@@ -1,0 +1,60 @@
+{
+ "motor_id": "sismico",
+ "nombres_eta": [
+  "mu_mu",
+  "log_sigma_mu",
+  "logit_n",
+  "log_alfa",
+  "log_omega",
+  "log_b"
+ ],
+ "nombres_lam": [
+  "log_mu",
+  "log_A"
+ ],
+ "canales": 5,
+ "dim_cov": 3,
+ "dim_tam": 3,
+ "con_clase": false,
+ "max_unidades": 16,
+ "max_lecturas": 301,
+ "diseno": {
+  "unidades": [
+   2,
+   16
+  ],
+  "lecturas": [
+   1,
+   301
+  ],
+  "ventana_horas": [
+   2.0,
+   24.0
+  ]
+ },
+ "prior": {
+  "mu_mu_media": -0.6931471805599453,
+  "mu_mu_desv": 0.7,
+  "sigma_mu_escala": 0.6,
+  "n_a": 3.0,
+  "n_b": 4.0,
+  "alfa_media": 0.0,
+  "alfa_desv": 0.3,
+  "omega_media": 0.4054651081081644,
+  "omega_desv": 0.5,
+  "b_media": 0.0,
+  "b_desv": 0.15,
+  "A_media": 2.0794415416798357,
+  "A_desv": 0.6
+ },
+ "arquitectura": "codificador por unidad (convoluciones 1D con máscara) + atención sobre unidades + flujo de acoplamiento afín global (8 capas) y local compartido (6 capas); NPE factorizada",
+ "entrenada": true,
+ "pasos": 58183,
+ "simulaciones_entrenamiento": 3723712,
+ "entrenamiento_min": 120.4,
+ "diferencias_exportacion": {
+  "onnx": 1.0954681783914566e-07,
+  "flujo_numpy": 4.172325134277344e-07,
+  "flujo_local_numpy": 4.76837158203125e-07
+ }
+}
