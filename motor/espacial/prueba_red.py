@@ -54,3 +54,26 @@ def test_exporta_sin_entrenar_y_coincide(tmp_path):
         medido = exportar(red, tmp_path / str(canales), configuracion(canales, Prior()))
         assert max(medido.values()) < 1e-3, medido
         assert all((tmp_path / str(canales) / f).exists() for f in ("codificador.onnx", "flujo.npz", "pesos.pt", "config.json"))
+
+
+def test_cabeza_de_flujo_con_atajo_sobre_el_codificador_congelado(tmp_path):
+    """El atajo solo toca la cabeza de flujo: el mapa es idéntico al de origen, y la red nueva exporta."""
+    from motor.espacial.red import DIM_MOMENTOS, momentos_espaciales
+    origen, lote = _red_y_lote()
+    nueva = RedEspacial(3, origen.anchos, atajo_flujo=True)
+    nueva.cargar_mapa_de(origen.state_dict())
+    nueva.flujo.fijar_escala(simular(512, Prior(), torch.Generator().manual_seed(1))["theta"])
+    assert momentos_espaciales(lote["canales"]).shape == (8, DIM_MOMENTOS) and torch.isfinite(momentos_espaciales(lote["canales"])).all()
+    with torch.no_grad():
+        assert torch.equal(nueva(lote["canales"])[0], origen(lote["canales"])[0])           # mismo mapa
+    perdida = nueva.perdida_solo_flujo(lote)
+    perdida.backward()
+    assert all(p.grad is None for p in nueva.mapa.codificador.parameters())
+    assert any(p.grad is not None and p.grad.abs().sum() > 0 for p in nueva.mapa.resumidor.atajo.parameters())
+    # La pendiente por mínimos cuadrados del atajo sigue a la tendencia verdadera en los terrenos simulados.
+    grande = simular(400, Prior(), torch.Generator().manual_seed(2))
+    con = grande["tiene_tendencia"] == 1
+    pendiente = 4.0 * momentos_espaciales(grande["canales"])[:, 4]
+    assert torch.corrcoef(torch.stack([pendiente[con], grande["theta"][con, 6]]))[0, 1] > 0.8
+    medido = exportar(nueva, tmp_path, configuracion(3, Prior(), {"atajo_flujo": True}))
+    assert max(medido.values()) < 1e-3, medido

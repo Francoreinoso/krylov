@@ -41,6 +41,11 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 3. Si pasa: subir `motor/artefactos/espacial/` y avisar a PC 1 que `KRYLOV_MOTOR_ESPACIAL=red`. Si no pasa pero «cabeza de mapa: pasa», lo decide PC 3 (orden de corte: la cabeza de flujo es lo último). Si no, la tarjeta sale con `mcmc`: las muestras ya quedaron en `mcmc/terreno.npz`.
 4. Recién después se lanza `estados` (sección de abajo).
 
+**Si la cabeza de mapa pasa y la de flujo no** (es lo que insinúa el ensayo), hay dos salidas ya escritas y probadas, sáb 05:41:
+
+- **Rápida, sin entrenar nada:** `KRYLOV_ESPACIAL_THETA=mcmc` junto con `KRYLOV_MOTOR_ESPACIAL=red`. El mapa, los colores y «¿Dónde mido?» salen de la red; «qué manda en el terreno» sale del MCMC precalculado del archivo (`mcmc/terreno.npz`) y la respuesta lo dice en `registro`. Qué rótulo lleva la tarjeta lo decide PC 3.
+- **Reentrenar solo la cabeza de flujo** sobre el codificador congelado, como prevé WORKPLAN 11.5: `caffeinate -dims uv run python -m motor.espacial.entrenar --solo-flujo --dispositivo mps --minutos 30`, y después `uv run python -m motor.espacial.sello --punto motor/checkpoints/espacial_flujo/ultimo.pt`. La cabeza nueva recibe además estadísticos clásicos (regresión sobre √dist y variograma de los residuos). El mapa queda idéntico al de la corrida larga (prueba). Cuenta como un entrenamiento: va antes de lanzar `estados`, no a la vez.
+
 Lo que el ensayo de las 05:31 mostró y **no es resultado** (60 terrenos, 40 pasos de MCMC, red de 100 min, con el entrenamiento corriendo al lado): la diferencia con el MCMC salió alta (0,55 desviaciones de promedio, 0,87 en el archivo real), el lote de 500 grillas tardó 2,3 s (el criterio es 2 s) y «¿Dónde mido?» 1,4 s para 240 análisis. Son las tres cosas que mirar primero en la corrida de verdad.
 
 ## `jerarquico`: listo para lanzar en PC 3 a las 08:30 (o antes, si `supervivencia` se detiene)
@@ -136,6 +141,8 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Cosas que la validación de las 08:30 tiene que mirar (sesión A)
 
+- **La cabeza de flujo de `espacial` difiere del MCMC en el archivo real, en la tendencia (sáb 05:41; indicio, no resultado).** Con el punto de las 05:35 (paso 43.902) la red da β0' = 2,27 ± 0,36 y β1' = −4,38 ± 0,66; un MCMC corto (40 + 40 pasos, 4 cadenas, r̂ 1,02) da 1,58 ± 0,24 y −3,67 ± 0,48: casi 3 desviaciones en β0'. En alcance, anisotropía, σ y τ coinciden (menos de 0,5). En el terreno simulado del mismo ensayo la tendencia coincidió (0,07 y 0,04). El terreno real no está en la cola del prior (11% de los simulados tiene β1' más negativo). Lectura mía: la red convolucional todavía no resuelve bien la regresión sobre √dist con la forma del terreno real. No toca al mapa: el examen en cinco particiones dio 136 de 155 mediciones escondidas dentro del rango de 90% (0,877).
+
 - **Cuadratura de Gauss-Hermite con los nodos del prior: falla en grupos grandes (sáb 05:26).** En `jerarquico`, con el archivo real, 12 y 15 nodos daban probabilidades distintas hasta en 0,17. Un barrio con decenas de pacientes deja el posterior de su efecto mucho más angosto que el prior y cae entre dos nodos. Arreglo: cuadratura adaptativa en el nivel del barrio (se ubica el posterior con una grilla gruesa y una parábola, y los nodos se centran ahí); el error máximo contra una referencia fina bajó a 0,0004. **Sesión B: `supervivencia` integra el efecto del cargo, que junta hasta cientos de personas; conviene la misma prueba (comparar 12 nodos con 30 en el archivo real) antes de confiar en `muestras_p`.** El código está en `nucleo.jerarquico.paso_local`.
 
 - **El MCMC de referencia marginaliza la estandarización.** La red ve los datos estandarizados con la media y la escala de lo medido, así que la referencia correcta trata esa media y esa escala como incógnitas, con el jacobiano s^(n−2). Está derivado en el encabezado de `motor/espacial/mcmc.py`. No está corrido todavía: **no verificado** que red y MCMC coincidan.
@@ -200,6 +207,7 @@ Cambios de interfaz se anotan aquí, con hora.
 | `jerarquico`: prueba de humo de 2 min en procesador (4 hilos, lote 16) | 471 pasos, 7.536 datasets, 4 pasos/s; pérdida NPE de 14,1 a 12,1. Con `espacial` entrenando al lado | `entrenar --minutos 2 --hilos 4` | sáb 05:20 |
 | `jerarquico`: SBC chico tras 2 min (100 datasets) | Cobertura del 90%: 0,875 de promedio; los 20 parámetros pasan el χ²; contracción media 0,10. Corre y mejora; **no es una validación** | `validar --sbc 100` | sáb 05:21 |
 | `jerarquico`: presupuesto del paso local (1.980 citas, 32 muestras de θ del prior) | 0,54 s con 8 nodos de barrio (adaptativos) y 20 de paciente; error máximo 0,0004 contra 30 × 60 nodos. `analizar` completo: 524 ms. Con `espacial` entrenando al lado: **se repite sin nada entrenando** | `nucleo.jerarquico.paso_local` con el archivo real | sáb 05:26 |
+| `espacial`: cabeza de flujo con atajo sobre el codificador congelado (mecánica, en procesador, lote 16) | Pérdida NPE 3,67 a los 200 pasos (3.200 terrenos); la corrida larga tardó cerca de 3.000 pasos de 64 en llegar ahí. 7 pasos/s en procesador con `espacial` entrenando al lado. Prueba de 0,7 min, **no es una validación** | `entrenar --solo-flujo --dispositivo cpu --minutos 0.7 --lote 16` | sáb 05:41 |
 | Predictivo a priori contra el terreno real | 135 bloques medidos (percentil 57 de lo simulado), correlación con √dist −0,805 (percentil 4,7), semivarianza entre vecinos 0,354 (percentil 63), 117 pares de vecinos (percentil 75) | `uv run python -m motor.espacial.predictivo`, 4.000 terrenos simulados | sáb 03:49 |
 | Sello de `espacial` | sin medir | `validar-motor` | — |
 | «¿Dónde mido?»: análisis rehechos y segundos, con la red | sin medir | A-11 | — |

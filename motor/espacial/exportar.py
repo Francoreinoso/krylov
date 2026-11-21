@@ -62,7 +62,7 @@ def exportar(red: RedEspacial, carpeta: Path, config: dict) -> dict:
 
 def red_desde_config(config: dict) -> RedEspacial:
     """La red con la arquitectura que dice un `config` (el de un punto de guardado o el de los artefactos)."""
-    return RedEspacial(config["canales_entrada"], tuple(config.get("anchos", ANCHOS)))
+    return RedEspacial(config["canales_entrada"], tuple(config.get("anchos", ANCHOS)), bool(config.get("atajo_flujo", False)))
 
 
 def configuracion(canales_entrada: int, prior: Prior, extra: dict | None = None) -> dict:
