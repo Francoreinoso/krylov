@@ -119,3 +119,29 @@ Una fila por motor y por medida. `sup` = rotación, `jer` = inasistencias, `est`
 | A-01 | SAP y Prior Labs | compromiso de invertir «más de 1.000 millones de euros en los próximos cuatro años». No es el precio de compra | fuente | Anuncio de SAP, 4-may-2026 | |
 
 **Fuera del pitch:** la meta de ingresos del primer año (se veía ingenua) y la cita de la prueba pública de 2024 sobre agentes de análisis de datos (está vieja). Las reemplaza la prueba propia M-15.
+
+## Revisión de fuentes (S-N2, sáb 04:50)
+
+La hizo un agente abriendo cada enlace de `WORKPLAN.md`, sección 12. **No es una firma:** la columna «Verificó» de arriba la llena una persona en S-10. Aquí va lo que dice cada página hoy.
+
+| Id | Página consultada | Qué dice hoy | ¿Coincide? |
+|---|---|---|---|
+| N-01 | Wikipedia en inglés (Aleksey Krylov) | No da los años 1902 y 1903. Dice que sus tablas de inundación se usaron en todo el mundo, y atribuye a Makarov la idea de inundar compartimentos sanos | En parte: confirma el uso, no las fechas |
+| N-01 | Biografía de divulgación (plam.ru; el certificado HTTPS está vencido, carga por HTTP) | Presentó las tablas en octubre de 1902 y de nuevo en 1903; con ellas el comandante decidía rápido y sin error qué compartimento inundar. **La Marina no las adoptó en ese momento** | Sí en fechas; ojo con la adopción |
+| N-02 | Wikipedia en inglés y en ruso; MacTutor | Trabajo de 1931 | Sí |
+| J-01, J-02, J-03 | Bases del evento | Pesos 15/20/20/25/20; final solo con demostración funcional; revisión automatizada del código posible | Sí |
+| J-05 | — | No hay enlace en la sección 12 | No se pudo verificar |
+| D-01, D-03 | Kaggle | La página necesita un navegador; no se pudo leer | No se pudo abrir (los conteos se recalcularon sobre el archivo en PC 3) |
+| D-02 | UCI, dataset 350 | 30.000 instancias, CC BY 4.0, Taiwán, abril a septiembre de 2005 | Sí |
+| D-04, D-04b | rdrr.io (`meuse`, `meuse.grid`) | Zinc en mg/kg; `meuse.grid` con 3.103 filas de 40 m. No muestra la licencia GPL | Sí (la licencia no aparece en esa página) |
+| K-11 | Circular holandesa de remediación de suelos 2013, anexo 1 (copia en un sitio de terceros) | Zinc: 720 mg/kg de materia seca, suelo estándar | Sí |
+| C-02 | INE, demografía de empresas | 1.207.333 empresas activas en 2025; micro más pequeñas suman **91,8%**. El 96% no aparece | **No (el 96%)** |
+| P-01 | buk.mx y buk.cl | buk.mx ya no muestra «+10.000»; buk.cl dice «+6.000 empresas». Ya no hay conflicto | Corregir la fila: «+6.000» |
+| P-04 | Nota de prensa sobre AgendaPro | Más de 22.000 comercios en 17 países; la fecha sale solo de la URL | Sí |
+| A-01 | Anuncio de SAP | Adquisición pendiente de aprobación; compromiso de invertir más de 1.000 millones de euros en cuatro años; sin precio publicado | Sí |
+
+**Para una persona antes de S-10:**
+1. **C-02:** decir «91,8% micro o pequeñas» o precisar la definición; el 96% no está en la página.
+2. **P-01:** la cifra verificable hoy es «+6.000» (buk.cl). En voz alta sigue siendo «miles».
+3. **N-01 y la apertura del pitch:** las fechas salen solo de la biografía de divulgación, que además dice que la Marina no adoptó las tablas en ese momento. La frase «el capitán miraba una tabla y decidía en segundos» describe lo que las tablas permitían; no conviene decir que se usaban ya a comienzos del 1900.
+4. **D-01, D-03 y J-05:** abrir Kaggle en un navegador (filas y licencias) y buscar la fuente del «12 de 48». Ninguna de las tres está hoy en el guion.
