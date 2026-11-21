@@ -14,10 +14,13 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 
 - sáb 03:59 · **P-02**: web en Vercel desde `Silent-math/krylov` (importó el dueño del espejo). Página, JS y `/estatico/*.json` responden 200 en 0,3 a 0,7 s medidos con curl desde PC 1. El paquete es el mismo de la compilación local. Probada desde un teléfono a las 04:01: abre casi al instante, con `?estatico=1` y sin él.
 - sáb 04:37 · **P-03** en `main` y desplegado: el inicio muestra las preguntas en el orden de `casos/INICIO`. La respuesta trae titular, número grande, tres colores (la duda achurada), lista de mayor a menor riesgo con su rango creíble y una sola línea del punto de corte, «qué pesa» con la certeza en palabras y un pie que dice quién respondió. Fuente Archivo instalada en local (`@fontsource-variable/archivo`) para funcionar sin internet. `?caso=rotacion` abre la respuesta directo. Verificado con capturas a 1280×720 y 390 px: se lee completa en el proyector y en el teléfono. El examen queda para P-10.
+- sáb 05:04 · **P-N1** en `main`: `web/src/decision.ts` (copia de `nucleo/decision.py`) y `web/pruebas/decision.test.ts`. Ver: `cd web && npm run prueba` (45 de 45 pasan, con `node --test`, sin dependencias nuevas). Deslizadores de costos que recalculan colores, número grande y titular en el navegador.
+- sáb 05:04 · **P-N2** (mapa del terreno en canvas: bloques en tres colores, la duda achurada, mediciones como puntos) y **P-N3** (nube en canvas: simulaciones, ejes con nombre, archivo en rojo) en `main`. Se ven con `?caso=terreno` y `?caso=rotacion_malo`.
+- sáb 05:04 · **Rediseño acordado con la persona de PC 1**: tema oscuro; colores de decisión rojo, verde y ámbar achurado (como dice el guion); la respuesta cabe en una sola pantalla de 1280×720, en tres columnas (número, colores y deslizadores / lista, mapa o nube / qué pesa y examen); cada persona dibujada como sus 32 versiones creíbles con una sola línea del punto de corte; inicio con la frase de Krylov. Verificado con capturas a 1280×720 y 390 px. Desplegado.
 
 ## En curso
 
-- sáb 04:37 · Sigue: lista nocturna (P-N1 `decision.ts` y deslizadores, P-N2 mapa, P-N3 nube) a las 05:00.
+- sáb 05:04 · Sigue (adelantado, D-29): P-07 (tecla `M` y botón de corrección), P-09 («¿Dónde mido?» con los pines sobre el mapa), P-08, P-05 (usar `nucleo.api` cuando cada motor responda; si no, el ejemplo fijo).
 
 ## Bloqueos
 
@@ -25,7 +28,8 @@ Persona: Francoreinoso · Dueño de `servicio/` y `web/`. Instrucciones: `PC1_PR
 
 ## Pedidos a otros
 
-- (ninguno)
+- sáb 05:04 · **A PC 2:** que `analizar` traiga `unidad: {singular, plural}` del YAML. Es un campo nuevo que no rompe nada, pero el contrato está congelado: lo decides tú, con su entrada en DECISIONES. Mientras tanto la web saca el nombre de la unidad del titular («49 personas están…») para rehacerlo al mover los deslizadores.
+- sáb 05:04 · **A PC 3, aviso:** la web pasó a tema oscuro y los colores ahora son rojo, verde y ámbar, como dice el guion del momento 4. Si las láminas usan colores de la app, conviene que calcen.
 
 ## Direcciones
 
