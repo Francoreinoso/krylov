@@ -34,7 +34,7 @@ Verificado en PC 3 a las 13:20, corriendo: `pytest nucleo` pasa (34) y `leyes` r
 
 - **PC 1 · producto:** ahora **P-21** (cinco tarjetas mineras, cuatro con su ejemplo rotulado): subirla con lo que haya. Después **P-22**, tope 13:50: `leyes` real con la red y «¿Dónde perforo?» en la URL pública; es lo único que H4 exige de PC 1. Después **P-23** (`Curva`). Nuevo y opcional: `papeles()` trae `rangos` con una frase lista (D-38).
 - **PC 2 · amortizacion:** ahora la prueba de humo de `cinetica` (**A-24**) y **A-25** (`deformacion`: simulador con su a priori de tamaño y prueba de humo; subirla apenas pase, PC 3 la lanza). Después **A-22** (examen de `leyes` con la verdad escondida) y **A-26** (lanzar la ronda 1 cuando el equipo dé la partida; tope 14:30). Sin método lento antes.
-- **PC 3 · seguimiento:** ahora **S-22** (una persona confirma las decisiones de abajo). Después **S-24** (un archivo `subida_*.csv` por caso; probar el archivo real de taludes cuando exista el simulador), **S-25** (firmar cifras) y **S-26** (guion en voz alta). Con la partida y A-25 subida: `medir-rendimiento` y lanzar `deformacion` aquí hasta las 16:10.
+- **PC 3 · seguimiento:** ahora **S-22** (una persona confirma las decisiones de abajo). **S-24 terminada** (13:45): `datos/demo/subida_<caso>.csv` para los cinco casos; el de `leyes` ya responde verde. Después **S-26** (guion en voz alta) y **S-25** (firmar cifras). Con la partida y A-25 subida: `medir-rendimiento` y lanzar `deformacion` aquí hasta las 16:10.
 
 ## Qué cambió respecto del plan
 
