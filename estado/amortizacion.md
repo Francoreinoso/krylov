@@ -62,6 +62,7 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - sáb 08:14 · **D-35 en `jerarquico`: papeles opcionales, listo para lanzar.** Siete marcas de presencia (día de la semana, recordatorio y cada uno de los cinco factores de la persona). El simulador sortea en cada dataset qué papeles trae (la mitad trae todo; en el resto, cada uno con probabilidad 0,7); el papel ausente va en cero en la matriz de diseño, así los datos no dependen de su coeficiente y su posterior exacto es el prior; las marcas entran al codificador como 7 columnas más de cada fila (la fila pasa de 19 a 26 números; el ONNX conserva sus dos entradas). `leer_caso` acepta archivos sin esos papeles y `PAPELES` trae `minimo` y `maximo`. Obligatorios: id, objetivo, paciente, grupo y días de espera. Ver: `uv run pytest nucleo/prueba_jerarquico.py motor/jerarquico -q` (14 pasan). **No verificado:** que el posterior de un papel ausente salga igual al prior con la red entrenada, y el SBC por cantidad de papeles presentes; se miden al validar.
 - sáb 08:15 · **D-35 en `estados`: papeles opcionales, listo para lanzar después de A-08.** Tres marcas de presencia, una por cada dato del cliente del que dependen las transiciones (cupo, edad, educación en el archivo del caso); la ausente va en cero y su ψ queda en el prior. La fila pasa de 53 a 56 números. El historial de seis meses (atraso, saldo, pago), el cupo, el id y el objetivo son obligatorios: sacar un mes cambiaría la verosimilitud, no solo una columna. Ver: `uv run pytest nucleo/prueba_estados.py motor/estados -q` (15 pasan). **No verificado** con red entrenada.
 - sáb 08:15 · Consecuencia: los puntos de guardado de humo de `estados` y `jerarquico` (redes de 2 min, filas de 53 y 19) ya no calzan con las redes nuevas. `sello --ensayo` de esos dos motores necesita un punto nuevo (una prueba de humo de 2 min, sin nada entrenando) o el punto de la corrida larga. Los programas no cambiaron desde el ensayo de las 06:12, salvo `recuperacion`.
+- sáb 08:30 · **`espacial` terminó solo, como estaba previsto:** «punto de guardado · fin del presupuesto», paso 121.103, **7.750.592 terrenos simulados en 279,6 min**; `motor/checkpoints/espacial/ultimo.pt` de las 08:30. Ningún proceso de entrenamiento ni de MCMC corriendo en PC 2. **A-08 (el sello) espera a Rodrigo:** no lo corro por mi cuenta.
 
 ## A las 08:30: validar `espacial` (A-08), con una persona
 
@@ -129,8 +130,8 @@ Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transf
 
 ## En curso
 
-- sáb 07:32 · Sesión A: a las 08:10, mirar `espacial`; a las 08:30, con Rodrigo, A-08 (sección «A las 08:30») y después lanzar `estados`.
-- sáb 07:31 · Sesión B: A-19 (`papeles` y `analizar_archivo` en `nucleo/api.py`), tope 10:30; a las 08:30, sello de `supervivencia` (D-33).
+- sáb 08:30 · Sesión A: esperando a Rodrigo para A-08 (`uv run python -m motor.espacial.sello`, sin nada más corriendo en PC 2) y, después, lanzar `estados`. PC 2 está libre desde las 08:30: el sello de `supervivencia` (D-33, sesión B) y el de `espacial` no pueden correr a la vez, porque los dos miden tiempos y corren MCMC.
+- sáb 07:31 · Sesión B: A-19 (`papeles` y `analizar_archivo` en `nucleo/api.py`), tope 10:30; sello de `supervivencia` en PC 2 (D-33).
 
 ## Lanzar `supervivencia` en PC 3 (sesión B → la persona de PC 3)
 
