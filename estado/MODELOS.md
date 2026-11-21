@@ -180,10 +180,10 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 ### Estado
 
 - [x] Ecuaciones escritas: `WORKPLAN.md` 11.5
-- [ ] A priori de tamaño
-- [ ] Simulador
-- [ ] Predictivo a priori contra el archivo del demo
-- [ ] Red
+- [x] A priori de tamaño: 2 a 16 sectores, ventana de 2 a 24 horas, hasta 300 temblores por sector (`nucleo/sismico.py`, `DISENO`)
+- [x] Simulador: `motor/sismico/simular.py`, por ramificación; la forma cerrada de lo que se decide coincide con 20.000 simulaciones hacia adelante
+- [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/sismico/prueba_sismico.py`)
+- [x] Red: el andamio de series, sin entrenar; exporta y responde `analizar("sismicidad")` con la forma del contrato
 - [ ] Prueba de humo
 - [ ] Entrenamiento
 - [ ] SBC global
@@ -193,4 +193,4 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app
 - [ ] Método lento
 
-**Falta ahora:** su simulador con el a priori de tamaño, sobre el andamio que ya existe (A-28, ronda 2).
+**Falta ahora:** su prueba de humo de 3 minutos (en PC 3, en la ventana de las 16:10) y lanzarlo ahí en la ronda 2 (A-31).
