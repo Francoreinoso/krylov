@@ -54,6 +54,8 @@ def examen(caso: dict, ids: list[str], p: np.ndarray) -> dict | None:
     return {"tipo": "datos_reales_reservados", "n": int(len(pares)), "frase": "", "tramos": tramos}
 
 
-def rojo_datos(motivo: str) -> dict:
-    """La respuesta propia de un motor cuando faltan datos para responder."""
-    return {"unidades": None, "factores": None, "semaforo": {"estado": "rojo_datos", "motivo": motivo, "propuesta": None}}
+def rojo_datos(caso: dict, motivo: str, **numeros) -> dict:
+    """La respuesta propia de un motor cuando faltan datos: `motivo` es `pocas_filas` o `casi_ningun_si` (casos/textos.yaml)."""
+    from nucleo import textos
+    texto = textos.frase(f"semaforo.rojo_datos.{motivo}", unidad_plural=caso["unidad"]["plural"], **numeros) or ""
+    return {"unidades": None, "factores": None, "semaforo": {"estado": "rojo_datos", "motivo": texto, "propuesta": None}}

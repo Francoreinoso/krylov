@@ -23,9 +23,8 @@ import importlib
 import json
 import time
 
-from nucleo import decision
-from nucleo.casos import (ARTEFACTOS, MOTORES, ErrorKrylov, bloque_costos, cargar_caso, costos_numericos, en_plata,
-                          implementacion, nombres_del_inicio)
+from nucleo import decision, textos
+from nucleo.casos import ARTEFACTOS, MOTORES, ErrorKrylov, bloque_costos, cargar_caso, costos_numericos, implementacion, nombres_del_inicio
 
 
 def _motor(motor_id: str, funcion: str):
@@ -87,6 +86,7 @@ def analizar(caso: str, transformaciones: list[str] = (), costos: dict | None = 
     }
     respuesta.update(propio)
 
+    total = None
     if not respuesta["semaforo"]["estado"].startswith("rojo"):
         total = propio.get("costo_total")
         if total is None and respuesta["unidades"] is not None:
@@ -95,12 +95,13 @@ def analizar(caso: str, transformaciones: list[str] = (), costos: dict | None = 
             respuesta["resumen_colores"] = decision.resumen_colores([u["estado"] for u in respuesta["unidades"]])
         if total is not None:
             respuesta["costo_de_no_saber"] = {"valor": round(total), "moneda": c["moneda"]}
-            if respuesta["titular"] is None and respuesta["resumen_colores"] is not None:
-                n = respuesta["resumen_colores"]["en_duda"]
-                unidad = c["unidad"]["singular" if n == 1 else "plural"]
-                verbo = "está" if n == 1 else "están"
-                respuesta["titular"] = (f"{n} {unidad} {verbo} en duda. "
-                                        f"No saber te cuesta cerca de {en_plata(total, c['moneda'])}.")
+    # Los textos salen de las plantillas de casos/textos.yaml, llenadas con estos números. Lo que el motor ya trajo, se respeta.
+    if respuesta["titular"] is None:
+        respuesta["titular"] = textos.titular(c, respuesta["semaforo"], respuesta["resumen_colores"], total)
+    if not respuesta["en_palabras"]:
+        respuesta["en_palabras"] = textos.en_palabras(c, respuesta["resumen_colores"], respuesta["factores"])
+    if respuesta["examen"] and not respuesta["examen"].get("frase"):
+        respuesta["examen"]["frase"] = textos.examen(c, respuesta["examen"]) or ""
     respuesta.pop("costo_total", None)
     respuesta["tiempo_ms"] = round((time.perf_counter() - inicio) * 1000)
     return respuesta
@@ -138,30 +139,5 @@ def sello(motor_id: str) -> dict:
     if motor_id not in MOTORES or not ruta.exists():
         raise ErrorKrylov(f"El motor «{motor_id}» todavía no tiene sello.", "sin_sello")
     ficha = json.loads(ruta.read_text(encoding="utf-8"))
-    ficha.setdefault("frases", _frases_del_sello(ficha))
+    ficha.setdefault("frases", textos.sello(ficha))
     return ficha
-
-
-def _frases_del_sello(ficha: dict) -> list[str]:
-    """Oraciones sin jerga armadas con los números del sello. Un campo sin medir (None o ausente) no genera frase."""
-    def pct(v):
-        return f"{100 * v:.1f}".replace(".", ",") + "%"
-    frases = []
-    if ficha.get("simulaciones_entrenamiento"):
-        millones = ficha["simulaciones_entrenamiento"] / 1e6
-        cuanto = f"{millones:.1f}".replace(".", ",") + " millones de" if millones >= 1 else f"{round(ficha['simulaciones_entrenamiento'] / 1e3)} mil"
-        frases.append(f"Practicó con {cuanto} casos simulados.")
-    if ficha.get("cobertura_90") is not None:
-        frase = f"Cuando da un rango de 90%, acierta {pct(ficha['cobertura_90'])} en casos simulados nuevos."
-        if ficha.get("cobertura_90_metodo_rapido") is not None:
-            frase += f" El método rápido de siempre acierta {pct(ficha['cobertura_90_metodo_rapido'])}."
-        frases.append(frase)
-    if ficha.get("cobertura_90_peor_grupo") is not None:
-        frases.append(f"En el tipo de caso más difícil acierta {pct(ficha['cobertura_90_peor_grupo'])}.")
-    amortizacion = ficha.get("amortizacion") or {}
-    if amortizacion.get("mcmc_s") and amortizacion.get("red_s"):
-        def tiempo(segundos):
-            return f"{round(segundos / 60)} minutos" if segundos >= 90 else (f"{segundos:.1f}".replace(".", ",") + " segundos")
-        frases.append(f"Para {amortizacion.get('que_se_compara', 'el mismo trabajo')}, el método lento de siempre tarda "
-                      f"{tiempo(amortizacion['mcmc_s'])}; Krylov, {tiempo(amortizacion['red_s'])}.")
-    return frases

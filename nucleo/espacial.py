@@ -100,8 +100,6 @@ from nucleo.preproceso import (LADO, acumular_por_bloque, canal_tendencia, canal
 MUESTRAS_POSTERIOR = 32          # muestras de θ por análisis
 RESULTADOS_POR_LUGAR = 12        # resultados posibles de una medición, en «¿Dónde mido?»
 MAXIMO_DE_LUGARES = 40
-ETIQUETAS = {"tendencia": "Cercanía al río", "continuidad": "Lo que pasa en los bloques vecinos",
-             "ruido": "Error de cada medición"}
 _FILA, _COLUMNA = (m.reshape(-1).astype(np.float64) for m in np.meshgrid(np.arange(LADO), np.arange(LADO), indexing="ij"))
 
 
@@ -225,7 +223,7 @@ def probabilidad_de_superar(media: np.ndarray, desviacion: np.ndarray, umbral: n
     return 1.0 - _normal_acumulada((np.asarray(umbral)[..., None, None] - media) / desviacion)
 
 
-def que_manda(theta: np.ndarray, raiz_dist: np.ndarray, dentro: np.ndarray, hay_tendencia: bool) -> list[dict]:
+def que_manda(theta: np.ndarray, raiz_dist: np.ndarray, dentro: np.ndarray, hay_tendencia: bool, etiquetas: dict | None = None) -> list[dict]:
     """«Qué manda en el terreno»: qué parte de la variación explican el río, la continuidad entre vecinos y el ruido.
 
     Por muestra del posterior: varianza de la tendencia (β1²·Var(√dist) sobre el terreno), del campo (σ²) y del
@@ -241,7 +239,7 @@ def que_manda(theta: np.ndarray, raiz_dist: np.ndarray, dentro: np.ndarray, hay_
     for nombre, fraccion, signo in partes:
         if nombre == "tendencia" and not hay_tendencia:
             continue
-        filas.append({"nombre": nombre, "etiqueta": ETIQUETAS[nombre], "direccion": "sube" if np.mean(signo) > 0 else "baja",
+        filas.append({"nombre": nombre, "etiqueta": (etiquetas or {}).get(nombre, nombre), "direccion": "sube" if np.mean(signo) > 0 else "baja",
                       "efecto": round(float(fraccion.mean()), 3), "rango_bajo": round(float(np.quantile(fraccion, 0.05)), 3),
                       "rango_alto": round(float(np.quantile(fraccion, 0.95)), 3), "certeza": decision.certeza(signo)})
     return sorted(filas, key=lambda f: -f["efecto"])
@@ -279,8 +277,7 @@ def _examen(caso: dict, terreno: dict, impl: str, sin_tendencia: bool) -> dict |
     desv = np.sqrt(r["desviacion"][0][f, c] ** 2 + np.exp(2 * theta[:, 4]).mean())
     error = (valor_t[escondidas] - float(media)) / float(escala) - r["media"][0][f, c]
     aciertos = int((np.abs(error) < 1.645 * desv).sum())
-    return {"tipo": "puntos_reales_escondidos", "n": int(len(escondidas)),
-            "frase": f"Escondimos {len(escondidas)} mediciones reales y las adivinamos: {aciertos} cayeron dentro del rango que dimos.",
+    return {"tipo": "puntos_reales_escondidos", "n": int(len(escondidas)), "frase": "",          # la frase la llena nucleo/textos.py
             "tramos": [{"dijimos": 0.9, "paso": round(aciertos / len(escondidas), 3), "n": int(len(escondidas))}]}
 
 
@@ -313,7 +310,7 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
         "implementacion": impl, "mapa": mapa,
         "resumen_colores": decision.resumen_colores(d["estado"][dentro]),
         "costo_total": float(d["duda"][dentro].sum()),
-        "factores": que_manda(theta, terreno["raiz_dist"], dentro, hay_tendencia=bool(canales[2].any())),
+        "factores": que_manda(theta, terreno["raiz_dist"], dentro, bool(canales[2].any()), caso.get("etiquetas")),
         "examen": _examen(caso, terreno, impl, sin_tendencia) if not mediciones else None,
         "registro": [f"{n} mediciones", f"grilla de {LADO} por {LADO} bloques", f"{int(dentro.sum())} bloques dentro del terreno"]
                     + (["qué manda en el terreno: precalculado con el método lento"] if impl == "red" and theta_del_mcmc() else []),

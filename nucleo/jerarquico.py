@@ -278,9 +278,9 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     conocidas = datos["respuesta"][~por_decidir]
     n = len(por_decidir)
     if n < 200:
-        return {"implementacion": impl, **tabla.rojo_datos(f"Hay {n} citas y hacen falta al menos 200.")}
+        return {"implementacion": impl, **tabla.rojo_datos(caso, "pocas_filas", n=len(conocidas))}
     if conocidas.sum() < 10 or (1 - conocidas).sum() < 10:
-        return {"implementacion": impl, **tabla.rojo_datos("Casi todas las citas tienen la misma respuesta: no hay de dónde aprender.")}
+        return {"implementacion": impl, **tabla.rojo_datos(caso, "casi_ningun_si", k=int(conocidas.sum()), n=len(conocidas))}
 
     z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
     clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)

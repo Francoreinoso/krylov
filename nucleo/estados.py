@@ -246,9 +246,9 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     conocidos = datos["impago"][~por_decidir]
     n = len(datos["impago"])
     if n < 200:
-        return {"implementacion": impl, **tabla.rojo_datos(f"Hay {n} clientes y hacen falta al menos 200.")}
+        return {"implementacion": impl, **tabla.rojo_datos(caso, "pocas_filas", n=len(conocidos))}
     if conocidos.sum() < 10 or (1 - conocidos).sum() < 10:
-        return {"implementacion": impl, **tabla.rojo_datos("Casi todos los clientes tienen la misma respuesta: no hay de dónde aprender.")}
+        return {"implementacion": impl, **tabla.rojo_datos(caso, "casi_ningun_si", k=int(conocidos.sum()), n=len(conocidos))}
     if n > 2000:                                            # el contrato: con más filas, una muestra con semilla fija
         elegidos = np.sort(np.random.default_rng(0).choice(n, size=2000, replace=False))
         datos = {k: (np.asarray(v)[elegidos] if k != "id" else [v[i] for i in elegidos]) for k, v in datos.items()}

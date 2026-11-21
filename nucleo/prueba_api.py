@@ -8,7 +8,8 @@ from pathlib import Path
 import pytest
 
 from nucleo import api
-from nucleo.casos import bloque_costos, cargar_caso, costos_numericos, en_plata, implementacion
+from nucleo import textos
+from nucleo.casos import bloque_costos, cargar_caso, costos_numericos, implementacion
 
 EJEMPLOS = Path(__file__).resolve().parent.parent / "contratos" / "ejemplos"
 
@@ -36,7 +37,8 @@ def test_costos_del_caso_y_del_usuario():
     movidos = costos_numericos(caso, {"falso_si": 500, "falso_no": {"valor": 9000}})
     assert movidos == {"falso_si": 500.0, "falso_no": 9000.0}
     assert bloque_costos(caso, movidos)["falso_si"] == {"valor": 500, "min": 200, "max": 5000, "etiqueta": "Costo de un plan de retención"}
-    assert en_plata(18400, "USD") == "18 mil dólares" and en_plata(2656390, "USD") == "2,7 millones de dólares"
+    assert textos.plata(18400) == "cerca de 18 mil dólares" and textos.plata(2656390) == "cerca de 2,7 millones de dólares"
+    assert textos.plata(850) == "US$ 850" and textos.plata(0.2) == "nada"
 
 
 def test_errores_en_espanol_y_sin_traza():
@@ -68,7 +70,9 @@ def test_analizar_agrega_lo_comun(motor_de_juguete):
     assert r["motor_id"] == "estados" and r["implementacion"] == "mcmc" and r["precalculado"] is True
     assert r["resumen_colores"] == {"actuar": 1, "no_actuar": 1, "en_duda": 1}
     assert r["costo_de_no_saber"]["valor"] == round(sum(u["duda"] for u in r["unidades"])) > 0
-    assert r["titular"].startswith("1 cliente está en duda. No saber te cuesta cerca de ")
+    assert r["titular"].startswith("1 cliente está en duda. No saber te cuesta ")
+    assert r["en_palabras"] == ["En 1 clientes, mejor no aprobar, y saber más no cambiaría la decisión.",
+                                "En 1 clientes los datos no alcanzan para decidir: no sabemos si conviene."]
     assert 0 < r["punto_de_corte"] < 1 and "costo_total" not in r and isinstance(r["tiempo_ms"], int)
     json.dumps(r)                                                 # listo para JSON
 
@@ -82,6 +86,17 @@ def test_sello_con_frases(tmp_path, monkeypatch):
     (tmp_path / "espacial" / "sello.json").write_text(json.dumps(ejemplo), encoding="utf-8")
     monkeypatch.setattr(api, "ARTEFACTOS", tmp_path)
     ficha = api.sello("espacial")
-    assert ficha["frases"] == ["Practicó con 12,0 millones de casos simulados.",
-                               "Cuando da un rango de 90%, acierta 90,3% en casos simulados nuevos. El método rápido de siempre acierta 74,0%.",
-                               "Para rehacer 480 análisis completos para «¿Dónde mido?», el método lento de siempre tarda 360 minutos; Krylov, 0,9 segundos."]
+    assert ficha["frases"] == ["Practicó con 12,0 millones de terrenos simulados.", "Cuando da un rango de 90%, acierta 90,3%."]
+    ejemplo.update(cobertura_90_peor_grupo=0.871, mcmc_s_por_dataset=300.0)
+    assert textos.sello(ejemplo)[2:] == ["En el caso más difícil (muy pocas mediciones) acierta 87,1%.",
+                                         "Da lo mismo que el método lento de siempre, que tarda 5 minutos; Krylov tarda 60 milisegundos."]
+
+
+def test_textos_sin_numero_no_hay_frase():
+    assert textos.frase("examen.espacial", n=31, k=None) is None and textos.frase("no.existe") is None
+    caso = cargar_caso("rotacion")
+    bloque = {"tipo": "datos_reales_reservados", "n": 294, "tramos": [{"dijimos": 0.05, "paso": 0.04, "n": 110}, {"dijimos": 0.3, "paso": 0.28, "n": 158}]}
+    assert textos.examen(caso, bloque) == "De las personas a las que les dimos cerca de 30% de riesgo, se fue el 28%."
+    assert textos.examen(caso, None) is None
+    assert textos.titular(caso, {"estado": "rojo_datos"}, None, None) == "No respondo todavía: con estos datos no alcanza."
+    assert textos.titular(caso, {"estado": "verde"}, {"actuar": 3, "no_actuar": 9, "en_duda": 0}, 0.0).startswith("Ninguna duda que valga plata")

@@ -19,7 +19,6 @@ CARPETA_CASOS = RAIZ / "casos"
 # Los artefactos de cada motor. La variable sirve para probar con una exportación que no es la versionada.
 ARTEFACTOS = Path(os.environ.get("KRYLOV_ARTEFACTOS", RAIZ / "motor" / "artefactos"))
 MOTORES = ("supervivencia", "jerarquico", "estados", "espacial")
-MONEDAS = {"USD": "dólares", "CLP": "pesos"}
 
 
 class ErrorKrylov(Exception):
@@ -82,16 +81,6 @@ def bloque_costos(caso: dict, numeros: dict[str, float]) -> dict:
         valor = numeros[clave]
         salida[clave] = {"valor": int(valor) if valor == int(valor) else valor, **salida[clave]}
     return salida
-
-
-def en_plata(valor: float, moneda: str) -> str:
-    """Un monto dicho en palabras, redondeado: «18 mil dólares», «2,7 millones de dólares»."""
-    nombre = MONEDAS.get(moneda, moneda)
-    if valor >= 1e6:
-        return f"{valor / 1e6:.1f}".replace(".", ",") + f" millones de {nombre}"
-    if valor >= 1e3:
-        return f"{round(valor / 1e3)} mil {nombre}"
-    return f"{round(valor)} {nombre}"
 
 
 def leer_columnas(ruta: str | Path) -> dict[str, list[str]]:
