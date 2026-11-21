@@ -2,9 +2,9 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 07:26 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 08:16 (S-06) · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
-**⚠️ PC 3 sin cargador (07:15):** `supervivencia` sigue viva (9,1 millones de datasets, punto de guardado 07:05), pero el computador está a batería (98%, descargando). Enchufarlo antes de las 08:30.
+**La noche (S-06, 08:16):** ✅ `espacial` vivo en PC 2 (7,2 millones de terrenos, punto de guardado 08:10; validación intermedia de las 07:31: cobertura de θ 0,905 y del mapa 0,901, los 7 parámetros pasan el χ²). ✅ `supervivencia` vivo en PC 3 (12,0 millones de datasets, 25 puntos de guardado, el último a las 08:05; enchufado de nuevo). Los dos terminan solos a las 08:30. ✅ URL pública responde (página 0,57 s, `casos.json` 0,49 s). ⚠️ **PC 1: sin código en `web/` ni `servicio/` desde las 05:03** (solo diseño de D-34 y D-35); P-07, P-09 y P-12 pendientes.
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
@@ -14,15 +14,15 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟡 tarea nueva grande | P-01 a P-03 y P-N1 a P-N3 verificados. Último commit 07:02 (la propuesta de chat). Ahora P-12 (D-34) |
-| amortizacion (PC 2) | 🟢 adelantado | `supervivencia` lista salvo la red (A-N2, A-10, A-13 en código). `espacial` entrena desde las 03:50. Tarea nueva A-19 (D-34) |
-| seguimiento (PC 3) | 🟢 adelantado | `supervivencia` entrena aquí: 9,6 millones de datasets; de nuevo enchufado. Archivos de prueba para la subida listos (D-06). D-34 aplicada en el plan, el contrato y el guion |
+| producto (PC 1) | 🟡 tarea nueva grande | P-01 a P-03 y P-N1 a P-N3 verificados. Último código 05:03; después, diseño de D-34 y D-35 (07:35). Ahora P-12 (D-34) |
+| amortizacion (PC 2) | 🟢 adelantado | `supervivencia` lista salvo la red. D-34 y D-35 en `estados`, `jerarquico` y `espacial` (08:14). `espacial` termina 08:30 |
+| seguimiento (PC 3) | 🟢 adelantado | `supervivencia` entrena aquí: 12,0 millones de datasets. Pruebas de `jerarquico` con D-35: 11 pasan en PC 3. Archivos de prueba para la subida listos |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora **P-12 (a)**, tope 10:30: chat con los cuatro archivos del demo, selector de papeles y respuesta dentro del chat, también en modo estático. Después **P-12 (b)**, tope 14:30: desplegar la API en Render (no existe todavía), `analizar_archivo` e `interpretar` (SDK `anthropic` solo en `servicio/`, clave en Render que pone una persona). **Empuja lo que tengas antes de empezar.** Arreglos chicos pendientes: en rojo, el pie no dice «Respondió la red»; ejes de la nube más grandes.
-- **PC 2 · amortizacion:** **urgente D-35, antes de las 08:30:** papeles opcionales (máscara de presencia) en el simulador de `jerarquico`, o avisar a PC 3 que su lanzamiento espera. Sesión B: ahora **A-19** (D-34 y D-35), tope 10:30: `papeles` y `analizar_archivo`, con rojo y motivo si el archivo no calza y la nube sobre el archivo subido; confirmar los papeles de los cuatro motores y el tamaño de `codificador.onnx`. Sesión A: `espacial` a las 07:10, A-M3 a las 07:30, A-08 a las 08:30; sello de `supervivencia` en PC 2 (D-33). Pedido: recuperación por parámetro en cada `sello.json` (M-35).
-- **PC 3 · seguimiento:** 08:15 S-06; 08:30 S-06b (`git pull`, exportar y subir `supervivencia`, lanzar `jerarquico`). **Hecho:** archivos de prueba para la subida, `datos/demo/subida_rotacion_{ventas,investigacion,rrhh}.csv` (asignación de papeles en `estado/seguimiento.md`; RR. HH. tiene que dar «faltan datos»).
+- **PC 2 · amortizacion:** D-35 en `jerarquico` hecho (08:14). Sesión B: ahora **A-19** (D-34 y D-35), tope 10:30: `papeles` y `analizar_archivo`, con rojo y motivo si el archivo no calza y la nube sobre el archivo subido; confirmar los papeles de los cuatro motores y el tamaño de `codificador.onnx`. Sesión A: a las 08:30 A-08 (detener y validar `espacial`), después el sello de `supervivencia` (D-33) y recién entonces lanzar `estados`. Pedido: recuperación por parámetro en cada `sello.json` (M-35).
+- **PC 3 · seguimiento:** 08:30 S-06b: `git pull`, comprobar que `supervivencia` terminó, exportar y subir `motor/artefactos/supervivencia/`, y lanzar `jerarquico` (prueba de humo de 2 min con `--nuevo`, después la corrida hasta las 11:30 sin `--nuevo`). 08:45 H1. **Hecho:** archivos de prueba para la subida, `datos/demo/subida_rotacion_{ventas,investigacion,rrhh}.csv` (asignación de papeles en `estado/seguimiento.md`; RR. HH. tiene que dar «faltan datos»).
 
 ## Qué cambió respecto del plan
 

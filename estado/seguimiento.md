@@ -41,6 +41,8 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 
 - sáb 07:15 · Ronda nocturna S-N4: `supervivencia` viva, 9.136.000 datasets, punto de guardado 07:05, sin errores; pérdida media móvil −16. **El computador quedó a batería** (98%, descargando, unas 3,5 h): alcanza hasta las 08:30, pero hay que enchufarlo. `git pull --rebase` falló una vez por dos *fetch* a la vez desde dos sesiones en este clon (`FETCH_HEAD` duplicado); `git fetch` y `git rebase origin/main` lo resolvieron.
 
+- sáb 08:16 · **S-06, primera ronda del día.** Noche: `espacial` (PC 2) y `supervivencia` (PC 3) vivos toda la noche, con puntos de guardado hasta las 08:10 y 08:05 (25 en PC 3); los dos terminan a las 08:30. URL pública: 200 en 0,57 s. PC 2: A-N2, A-10, A-13, sellos, método rápido, D-34 y D-35 en código. PC 1: sin código desde las 05:03 (diseño de D-34 y D-35). `jerarquico` con D-35: `uv run pytest motor/jerarquico/prueba_jerarquico.py nucleo/prueba_jerarquico.py motor/jerarquico/prueba_analizar.py -q`: 11 pasan (13 s, baja prioridad). No hay punto de guardado viejo de `jerarquico` en PC 3.
+
 ## En curso
 
 - sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».
@@ -57,7 +59,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 | Mirar cómo va | `tail -n 1 motor/checkpoints/supervivencia/registro.jsonl` |
 | Si se cae | El mismo comando. La primera línea de `corrida.log` tiene que decir `[retomar] … paso N`. Nunca `--nuevo` |
 | Detener antes de las 08:30 | `pkill -INT -f "motor.supervivencia.entrenar"` (guarda y sale). A las 08:30 se detiene solo |
-| Siguiente entrenamiento (S-06b, 08:30) | `jerarquico`, hasta las 11:30: `git pull`, comprobar que `supervivencia` terminó (`pgrep -f motor.supervivencia.entrenar` no devuelve nada), y `nohup caffeinate -dims uv run python -m motor.jerarquico.entrenar --dispositivo cpu --hasta 11:30 --guardar-cada-min 10 > motor/checkpoints/jerarquico/corrida.log 2>&1 < /dev/null &` (crear antes `motor/checkpoints/jerarquico/`). Exportación probada en el M3 a las 06:05 |
+| Siguiente entrenamiento (S-06b, 08:30) | `jerarquico`, hasta las 11:30, **con D-35 (08:14): la primera vez con `--nuevo`**. `git pull`; comprobar que `supervivencia` terminó (`pgrep -f motor.supervivencia.entrenar` no devuelve nada); `mkdir -p motor/checkpoints/jerarquico`; prueba de humo `uv run python -m motor.jerarquico.entrenar --minutos 2 --nuevo` y `uv run python -m motor.jerarquico.validar --sbc 100`; después `nohup caffeinate -dims uv run python -m motor.jerarquico.entrenar --dispositivo cpu --hasta 11:30 --guardar-cada-min 10 > motor/checkpoints/jerarquico/corrida.log 2>&1 < /dev/null &` (sin `--nuevo`: retoma la prueba de humo) |
 | El sello de `supervivencia` (D-33) | Lo corre **PC 2**, sin nada entrenando, después del sello de `espacial`: `git pull` y `uv run python -m motor.supervivencia.sello`. PC 3 solo exporta y sube la red |
 | Después (S-06b, 08:30) | **Primero `git pull`** (desde las 05:11 `exportar_onnx` deja un solo `codificador.onnx`, con los pesos dentro). Después `uv run python -m motor.supervivencia.exportar` y subir `motor/artefactos/supervivencia/` (pasos 7 y 8 de `estado/amortizacion.md`) |
 
