@@ -41,7 +41,3 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 - Rodrigo: las tres de arriba, antes de las 12:15. Una persona: la clave de Anthropic para Render. El equipo: quién presenta.
 - H2: `espacial` y `supervivencia` 12:15; `jerarquico` 13:00; `estados` 14:00; tope 16:00.
-
-## Casos en el inicio
-
-`casos/INICIO`: rotación, terreno, inasistencias, crédito: los archivos del demo precargados en el chat. Inasistencias, solo en PC 2 y PC 3 (licencia no comercial).
