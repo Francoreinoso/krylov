@@ -138,6 +138,24 @@ def test_archivos_de_prueba_de_la_subida(con, monkeypatch, area, personas, por_d
     json.dumps(r)
 
 
+def test_un_archivo_con_otras_unidades_responde_lo_mismo_con_su_transformacion(con, monkeypatch):
+    """D-35: el mismo archivo con la antigüedad en meses, las encuestas de 1 a 7 y la renuncia como verdadero o falso,
+    calzado con `dividir`, `reescalar_ordinal` y `si_no_a_binario`, da las mismas probabilidades."""
+    con("red")
+    monkeypatch.setenv("KRYLOV_NUBE_SEGUNDO_DETECTOR", "aviso")                               # red sin entrenar: ver la prueba de arriba
+    tabla = casos.leer_columnas("datos/demo/subida_rotacion_ventas.csv")
+    otra = {**tabla, "meses": [str(12 * int(a) + 5) for a in tabla["anios_en_empresa"]],     # 5 meses después del último aniversario
+            "renuncio": [{"Sí": "verdadero", "No": "falso"}.get(r, r) for r in tabla["renuncio"]],
+            **{e: [str(2 * int(v) - 1) for v in tabla[e]] for e in SUBIDA["encuestas"]}}       # 1, 3, 5, 7
+    calce = {**SUBIDA, "tiempo": {"columnas": ["meses"], "transformacion": {"nombre": "dividir", "por": 12}},
+             "evento": {"columnas": ["renuncio"], "transformacion": {"nombre": "si_no_a_binario"}},
+             "encuestas": {"columnas": SUBIDA["encuestas"], "transformacion": {"nombre": "reescalar_ordinal", "de": [1, 7], "a": [1, 4]}}}
+    sin_reescalar = api.analizar_archivo("supervivencia", otra, {**calce, "encuestas": SUBIDA["encuestas"]})
+    assert sin_reescalar["semaforo"]["estado"] == "rojo_modelo" and "enc_" in sin_reescalar["semaforo"]["motivo"]   # una encuesta de 1 a 7 sin llevar a 1 a 4
+    transformado, directo = api.analizar_archivo("supervivencia", otra, calce), api.analizar_archivo("supervivencia", tabla, SUBIDA)
+    assert "error" not in transformado and transformado["unidades"] == directo["unidades"] and transformado["factores"] == directo["factores"]
+
+
 def test_un_archivo_subido_se_ubica_en_la_nube_de_su_tamano(artefactos, con, tmp_path):
     """La nube se simula con el n del archivo: uno subido usa la nube guardada del tamaño más cercano; el del demo, la suya."""
     import shutil

@@ -224,9 +224,12 @@ def _calzar(motor_id: str, base: dict, tabla: dict[str, list[str]], columnas: di
     `{"columnas": [...], "transformacion": {"nombre": ..., ...}}`. Las transformaciones son las de la lista cerrada de
     `nucleo/preproceso.py` (`TRANSFORMACIONES`: nombre → función de la columna, la tabla y sus parámetros); aquí solo se
     las llama. Un papel sin columnas bajo su mínimo es `rojo_datos`; con una cantidad que la red no practicó, `rojo_modelo`.
+
+    El terreno es aparte: la transformación del valor medido (`log` o ninguna) la aplica el motor, que pasa el umbral por
+    la misma y devuelve el mapa en las unidades del archivo. Ahí el calce no toca la tabla: fija `columnas.transformacion`.
     """
     from nucleo import preproceso
-    conocidas = getattr(preproceso, "TRANSFORMACIONES", {})
+    conocidas = preproceso.TRANSFORMACIONES
     tabla = dict(tabla)
     lista = _papeles(motor_id)
     de_papel = {p["papel"] for p in lista} | {"tendencia", "extra", "disponibles", "elegidas_por"}
@@ -247,15 +250,17 @@ def _calzar(motor_id: str, base: dict, tabla: dict[str, list[str]], columnas: di
         for nombre in presentes:
             lector.columna(tabla, nombre)
         nombre_t = (transformacion or {}).get("nombre")
-        if nombre_t not in _SIN_TRANSFORMAR:
+        if p["papel"] == "valor" and "transformacion" in col and isinstance(columnas.get("valor"), dict) and nombre_t in (*_SIN_TRANSFORMAR, "log"):
+            col["transformacion"] = None if nombre_t in _SIN_TRANSFORMAR else nombre_t
+        elif nombre_t not in _SIN_TRANSFORMAR:
             if nombre_t not in conocidas:
                 raise ArchivoNoCalza(f"La transformación «{nombre_t}» no está entre las que Krylov sabe aplicar.")
             parametros = {k: v for k, v in transformacion.items() if k != "nombre"}
             for nombre in presentes:
                 try:
                     tabla[nombre] = [_celda(v) for v in conocidas[nombre_t](tabla[nombre], tabla, **parametros)]
-                except (ValueError, TypeError, KeyError, ZeroDivisionError):
-                    raise ArchivoNoCalza(f"No se pudo aplicar «{nombre_t}» a la columna «{nombre}».") from None
+                except (ValueError, TypeError, KeyError, ZeroDivisionError, OverflowError):
+                    raise ArchivoNoCalza(f"No se pudo aplicar «{nombre_t}» a la columna «{nombre}»: revisa sus valores y los parámetros.") from None
         if presentes:
             col[p["papel"]] = presentes[0] if p["maximo"] == 1 else nombres
     extra = [n for n in columnas.get("extra") or [] if n]
