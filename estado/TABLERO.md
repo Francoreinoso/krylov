@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 16:22 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 16:36 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
 
@@ -28,7 +28,7 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 |---|---|---|
 | producto (PC 1) | 🔴 atrasado | La URL pública no cambió desde el pivote: H4 (14:30) no se cumplió. Sin estado nuevo desde las 12:40. Recorte: desplegar ya P-21 y sacar `leyes` real (P-22); `Curva` (P-23) y el chat (P-24) esperan |
 | amortizacion (PC 2) | 🟡 sin noticias | Sin estado ni commits desde las 13:57. Falta el veredicto de `cinetica` (16:10), lanzar `desgaste` y responder el pedido de `ventana` |
-| seguimiento (PC 3) | 🟡 entrenando | `sismico` corre desde las 16:14. `deformacion`: 1.684.160 muros en 146 min; pasa todo salvo el SBC por unidad. Sin método lento corrido |
+| seguimiento (PC 3) | 🟡 entrenando | Dos a la vez desde las 16:33, hasta las 18:15: `sismico` (364 datasets por segundo) y `deformacion` retomado (281), por decisión de su persona. El sello de `deformacion` de las 16:10 (no pasa) sigue vigente hasta revalidar |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
