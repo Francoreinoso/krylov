@@ -765,7 +765,7 @@ Observado:  t_i = ⌊min(T_i, C_i)⌋,  δ_i = 1[T_i ≤ C_i];  δ_i se borra en
 Datos por cita c del paciente i en el barrio b: días de espera, día de la semana, SMS, efectos x_c (edad, beca, hipertensión, diabetes, alcoholismo) y la respuesta (no llegó).
 
 ```
-Globales θ (22):
+Globales θ (22 en este plan; 20 en lo construido, ver la nota de abajo y D-31):
   α ~ Normal(-1.5, 1)
   f: B-spline cúbico de 6 coeficientes en log(1 + espera), con prior de suavidad (como en 11.2)
   κ ~ Normal(-1.5, 1)                      salto de «mismo día»
@@ -783,6 +783,8 @@ Respuesta:  logit P(no llega) = α + f(espera) + κ·1[mismo día] + d_día
 - **Muestra:** pacientes completos dentro de barrios elegidos (`casos/inasistencias.yaml`). Nunca filas sueltas.
 - **Rangos del simulador:** de 1.000 a 3.000 citas; de 10 a 40 barrios.
 - **Por qué el MCMC es lento:** dos niveles de efectos aleatorios, con cerca de mil latentes de paciente poco informados.
+
+**Nota de lo construido (D-31, sáb 05:26, PC 2):** θ tiene 20 parámetros y no 22. El primer coeficiente del spline de la espera va fijo en 0 (con el intercepto α, seis coeficientes libres dejaban una dirección sin identificar); el prior de suavidad es una caminata con escala fija, sin τ; todo el prior es normal independiente en el espacio sin restricciones (σ_v y σ_b en logaritmo); el cambio del efecto del SMS con la espera va centrado en log(1 + espera) = 2,5. El paso local usa cuadratura adaptativa en el nivel del barrio (error máximo 0,0004 contra una referencia fina).
 
 ### 11.4 `estados` (crédito)
 

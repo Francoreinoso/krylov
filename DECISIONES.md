@@ -107,6 +107,12 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Los casos traen un bloque opcional `etiquetas`** (nombre en pantalla de cada columna o factor), a pedido de PC 2. Es un campo nuevo y opcional: no cambia la forma de nada de lo que ya existe; si falta, se muestra el nombre de la columna. Ya está en los cinco YAML.
 · PC 2 (el modelo) y PC 3 (las etiquetas).
 
+**D-31 · sáb 21-nov 05:36 · Madrugada sin hora fija de dormir; `jerarquico` con 20 parámetros; `supervivencia` sigue hasta las 08:30.**
+- **Dormir a las 05:15 deja de ser obligatorio** (lo pidió Rodrigo a las 05:30 y ajustó A-05 y A-M1 a A-M3 en `WORKPLAN.md` 6.3). Cada persona decide cuándo duerme. Lo que no cambia: los dos entrenamientos siguen hasta las 08:30, no se corre MCMC encima de un entrenamiento, y las tareas de las 08:15 y 08:30 (S-06, S-06b, A-08) mantienen su hora. A las 05:36 la persona de PC 3 sigue despierta.
+- **`jerarquico` se aparta de `WORKPLAN.md` 11.3** (PC 2, 05:26): 20 parámetros y no 22, con el primer coeficiente del spline fijo en 0, prior de suavidad sin τ y prior normal independiente. Anotado en 11.3, en `pitch/LAMINAS.md` y en el borrador del README. Su predictivo a priori calza con el archivo real (corrido en PC 3: percentiles 30 a 64).
+- **`supervivencia` no se corta antes:** un SBC intermedio a las 05:35 (83 minutos, 3,9 millones de datasets) da cobertura del 90% en 0,904 y 0,898 en el peor grupo, contracción media 0,74, pero 15 de 32 parámetros con KS sobre el límite (cortes de las encuestas, λ, log k, μ_c): todavía no pasa. La pérdida sigue bajando y la tasa de aprendizaje recién empieza a bajar. `jerarquico` se lanza en PC 3 a las 08:30, como estaba.
+· PC 2 (horario y modelo) y PC 3 (verificación).
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
