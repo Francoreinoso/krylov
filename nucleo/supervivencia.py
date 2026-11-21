@@ -431,3 +431,209 @@ def paso_local_por_empresa(libre, datos: dict, nodos: int = NODOS_CARGO, nodos_p
     tanda = max(1, _ELEMENTOS_POR_TANDA // (n * nodos * nodos_persona))
     return np.concatenate([_integrar(a_restringido(libre[i:i + tanda]), {c: np.asarray(datos[c])[i:i + tanda] for c in _DATOS},
                                      nodos, nodos_persona, pasos) for i in range(0, E, tanda)], axis=0)
+
+
+# =========================================================================================
+# La respuesta de un caso de rotación: analizar, cartera y nube
+# =========================================================================================
+
+import hashlib                                                  # noqa: E402
+import os                                                       # noqa: E402
+from functools import cache                                     # noqa: E402
+
+from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
+from nucleo.casos import ErrorKrylov, implementacion           # noqa: E402
+
+NODOS_CARTERA = (4, 6)       # nodos de cargo y de persona en la cartera (WORKPLAN.md 11.6: menos nodos y 8 muestras)
+
+
+def leer_caso(caso: dict) -> dict:
+    """El archivo de un caso: columnas crudas (`leer_tabla`), variables del modelo y filas del codificador.
+
+    Con más de 2.000 filas se toma una muestra con semilla fija (contrato, sección 1); `elegidas` dice cuáles.
+    """
+    ruta = _casos.RAIZ / caso["dataset"]
+    if not ruta.exists():
+        raise ErrorKrylov(f"No encuentro el archivo de datos «{ruta.name}».", "sin_datos")
+    cruda = leer_tabla(ruta, caso["columnas"])
+    n = len(cruda["id"])
+    elegidas = np.sort(np.random.default_rng(0).choice(n, size=2000, replace=False)) if n > 2000 else np.arange(n)
+    cruda = {c: ([v[i] for i in elegidas] if c == "id" else v if c == "cargos" else v[elegidas]) for c, v in cruda.items()}
+    variables = variables_del_modelo(cruda)
+    filas = armar_filas(variables["x"], variables["w"], variables["encuestas"], variables["tiempo"], variables["evento"])
+    return {**cruda, "variables": variables, "filas": filas, "elegidas": elegidas}
+
+
+def factores_nube(cruda: dict, col: dict) -> dict[str, np.ndarray]:
+    """Los factores con nombre de una empresa para los ejes de la nube: los tres efectos, el sueldo y las cuatro encuestas.
+
+    La misma función sirve para el archivo del caso y para cada empresa simulada (`motor/supervivencia/nube.py`).
+    """
+    factores = {nombre: np.asarray(cruda["efectos"])[:, j] for j, nombre in enumerate(col["efectos"])}
+    factores[col["suave"]] = np.asarray(cruda["sueldo"])
+    factores.update({nombre: np.asarray(cruda["encuestas"])[:, j] for j, nombre in enumerate(col["encuestas"])})
+    return factores
+
+
+@cache
+def _red(carpeta: str, _version: float):
+    """La sesión de onnxruntime del codificador, los pesos del flujo y la huella del codificador (para saber si la nube es de esta red)."""
+    import onnxruntime
+    opciones = onnxruntime.SessionOptions()
+    opciones.log_severity_level = 3
+    ruta = f"{carpeta}/codificador.onnx"
+    with open(ruta, "rb") as archivo:
+        huella = hashlib.sha256(archivo.read()).hexdigest()
+    return onnxruntime.InferenceSession(ruta, opciones, providers=["CPUExecutionProvider"]), flujo_numpy.cargar(f"{carpeta}/flujo.npz"), huella
+
+
+def _red_exportada():
+    carpeta = _casos.ARTEFACTOS / "supervivencia"
+    if not (carpeta / "codificador.onnx").exists():
+        raise ErrorKrylov("La red de rotación todavía no está exportada.", "no_disponible")
+    return _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+
+
+def posterior(filas: np.ndarray, grupo: np.ndarray, impl: str, clave: str, muestras: int = tabla.MUESTRAS) -> np.ndarray:
+    """Muestras del posterior de θ, (muestras, 32): del flujo condicionado en s(D) (`red`) o del MCMC precalculado (`mcmc`)."""
+    if impl == "red":
+        sesion, pesos, _ = _red_exportada()
+        resumen = sesion.run(None, {"filas": filas[None], "grupo": grupo[None].astype(np.int64)})[0][0]
+        return flujo_numpy.muestrear(pesos, resumen, flujo_numpy.ruido(0, muestras, DIM_THETA)).astype(np.float64)
+    ruta = _casos.ARTEFACTOS / "supervivencia" / "mcmc" / f"{clave}.npz"
+    if not ruta.exists():
+        raise ErrorKrylov("Este análisis de rotación todavía no está precalculado.", "no_disponible")
+    with np.load(ruta) as archivo:
+        theta = archivo["theta"].astype(np.float64)
+    return theta[np.sort(np.random.default_rng(0).choice(len(theta), size=min(muestras, len(theta)), replace=False))]
+
+
+def _ubicar_en_la_nube(caso: dict, transformaciones: list[str], datos: dict) -> dict | None:
+    """Dónde cae el archivo respecto del predictivo a priori (`nube.npz`): la respuesta de `nube` y el mejor factor. None si no hay nube.
+
+    El segundo detector (distancia de Mahalanobis del resumen s(D)) solo corre si la nube se calculó con el
+    codificador que está exportado ahora: `nube.npz` guarda su huella. Con otra red, esas distancias no significan nada.
+    """
+    from nucleo import nube as comun
+    carpeta = _casos.ARTEFACTOS / "supervivencia"
+    if not (carpeta / "nube.npz").exists():
+        return None
+    simulada = comun.cargar(carpeta / "nube.npz")
+    extra = {nombre: valores[datos["elegidas"]] for nombre, valores in comun.columnas_extra(caso, transformaciones).items()}
+    x, y, mejor = comun.ejes_con_nombre({**factores_nube(datos, caso["columnas"]), **extra}, datos["evento"])
+    resumen = None
+    if (carpeta / "codificador.onnx").exists():
+        sesion, _, huella = _red_exportada()
+        if str(simulada.get("huella_codificador", "")) == huella:
+            resumen = sesion.run(None, {"filas": datos["filas"][None], "grupo": datos["variables"]["grupo"][None].astype(np.int64)})[0][0]
+    donde = comun.ubicar(simulada, x, y, mejor, resumen)
+    if resumen is None:
+        donde["detectores"]["resumenes_aprendidos"]["limite"] = None
+    return {"nube": donde, "mejor_factor": mejor, "es_extra": mejor in extra}
+
+
+def nube(caso: dict, transformaciones: list[str]) -> dict:
+    """Dónde cae la empresa del caso respecto de las simulaciones con que practicó la red: ejes con nombre y resumen s(D)."""
+    donde = _ubicar_en_la_nube(caso, transformaciones, leer_caso(caso))
+    if donde is None:
+        raise ErrorKrylov("La nube de rotación todavía no está calculada.", "no_disponible")
+    return {"caso": caso["nombre"], **donde["nube"]}
+
+
+def _semaforo(caso: dict, transformaciones: list[str], donde: dict | None) -> dict:
+    """El semáforo que sale de la nube. `rojo_modelo` si un detector marca; si lo que delata es una columna `extra`, propone quitarla.
+
+    `KRYLOV_NUBE_SEGUNDO_DETECTOR=aviso` deja en amarillo (responde, con el motivo) cuando solo marca el detector de
+    resúmenes aprendidos; por defecto es rojo, como dice el contrato.
+    """
+    from nucleo import textos
+    if donde is None or donde["nube"]["archivo"]["dentro"]:
+        corregido = any(t.removeprefix("quitar_factor:") in (caso["columnas"].get("extra") or []) for t in transformaciones)
+        motivo = (textos.frase("semaforo.despues_de_corregir") or "") if corregido and donde is not None else ""
+        return {"estado": "verde", "motivo": motivo, "propuesta": None}
+    con_nombre = donde["nube"]["detectores"]["ejes_con_nombre"]
+    if not con_nombre["dentro"] and donde["es_extra"]:
+        columna = donde["mejor_factor"]
+        return {"estado": "rojo_modelo", "motivo": textos.frase("semaforo.rojo_modelo.columna_delata", columna=columna) or con_nombre["motivo"],
+                "propuesta": {"transformacion": f"quitar_factor:{columna}",
+                              "texto": textos.frase("semaforo.propuesta.quitar_columna", columna=columna) or f"Quitar la columna «{columna}»."}}
+    motivo = textos.frase("semaforo.rojo_modelo.no_se_parece") or con_nombre["motivo"]
+    solo_el_segundo = con_nombre["dentro"]
+    if solo_el_segundo and os.environ.get("KRYLOV_NUBE_SEGUNDO_DETECTOR", "rojo").strip().lower() == "aviso":
+        return {"estado": "amarillo", "motivo": motivo, "propuesta": None}
+    return {"estado": "rojo_modelo", "motivo": motivo, "propuesta": None}
+
+
+def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
+    """A qué personas por decidir conviene retener: p de que ya haya renunciado por muestra del posterior, decisión, qué pesa y examen."""
+    col = caso["columnas"]
+    del_modelo = {col["tiempo"], col["grupo"], col["suave"], *col["efectos"], *col["encuestas"]}
+    quitadas = {t.removeprefix("quitar_factor:") for t in transformaciones if t.startswith("quitar_factor:")}
+    if quitadas & del_modelo:
+        raise ErrorKrylov("Ese factor es parte del modelo de rotación y no se puede quitar.", "no_disponible")
+    impl = implementacion("supervivencia")
+    datos = leer_caso(caso)
+    variables = datos["variables"]
+    por_decidir = np.isnan(variables["evento"])
+    conocidos = variables["evento"][~por_decidir]
+    n = len(por_decidir)
+    propio = {"implementacion": impl,
+              "columnas": {"usadas": [*col["efectos"], col["suave"], col["grupo"], *col["encuestas"], *[e for e in col.get("extra") or [] if e not in quitadas]],
+                           "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""}}
+    if n < 200:
+        return {**propio, **tabla.rojo_datos(caso, "pocas_filas", n=len(conocidos))}
+    if conocidos.sum() < 10 or (1 - conocidos).sum() < 10:
+        return {**propio, **tabla.rojo_datos(caso, "casi_ningun_si", k=int(conocidos.sum()), n=len(conocidos))}
+    registro = [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{n} en el archivo", f"{len(datos['cargos'])} cargos"]
+
+    semaforo = _semaforo(caso, transformaciones, _ubicar_en_la_nube(caso, transformaciones, datos))
+    if semaforo["estado"] == "rojo_modelo":
+        return {**propio, "unidades": None, "factores": None, "semaforo": semaforo, "registro": registro}
+
+    clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)
+    theta = posterior(datos["filas"], variables["grupo"], impl, clave)
+    muestras_p = paso_local(theta, variables)[por_decidir]
+    ids = [i for i, falta in zip(datos["id"], por_decidir) if falta]
+
+    etiquetas = caso.get("etiquetas", {})
+    def fila(nombre, muestras):
+        return decision.factor(nombre, etiquetas.get(nombre, nombre), muestras)
+    # Todo en la escala del riesgo (η): cada efecto por una desviación estándar de su columna; el sueldo, de una desviación bajo
+    # el promedio a una sobre el promedio, s(1) − s(−1), con el posterior del spline; el compromiso entra con −λ.
+    contraste = base_spline(1.0) - base_spline(-1.0)
+    factores = ([fila(nombre, theta[:, I_BETA][:, j]) for j, nombre in enumerate(col["efectos"])]
+                + [fila(col["suave"], theta[:, I_GAMMA] @ contraste), fila("compromiso", -theta[:, I_LAMBDA])])
+    return {**propio, "unidades": tabla.unidades(ids, muestras_p, costos), "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
+            "semaforo": semaforo, "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
+            "registro": registro + [f"{len(theta)} versiones creíbles"]}
+
+
+def cartera(caso: dict) -> dict:
+    """Mil empresas simuladas con el modelo generativo, analizadas en lote con la red (ver `nucleo/cartera.py`).
+
+    Cada lote de 50 empresas comparte tamaño y pasa de una vez por el codificador y por el flujo. El paso local
+    necesita a todas las personas de cada cargo (las que ya tienen respuesta ubican el efecto del cargo), pero solo
+    se devuelven las probabilidades de las personas por decidir. Las muestras de θ van en paralelo, una por hilo.
+    """
+    import importlib
+    from concurrent.futures import ThreadPoolExecutor
+
+    from nucleo import cartera as comun
+
+    def analizar_lotes(n_empresas: int, muestras: int):
+        sesion, pesos, _ = _red_exportada()
+        simular = importlib.import_module("motor.supervivencia.simular")     # el simulador es NumPy puro
+        config = simular.cargar_config()
+        rng = np.random.default_rng(2026)                                    # semilla fija: la cartera del demo es siempre la misma
+        ruido = flujo_numpy.ruido(0, muestras, DIM_THETA)
+        with ThreadPoolExecutor(max_workers=min(muestras, os.cpu_count() or 1)) as hilos:
+            for i, b in enumerate(comun.tamanos_de_lote(n_empresas)):
+                lote = simular.simular(rng, b, simular.muestrear_n(rng, config), config)       # covariables del generador paramétrico
+                resumen = sesion.run(None, {"filas": lote["filas"], "grupo": lote["grupo"]})[0]
+                theta = flujo_numpy.muestrear(pesos, resumen[None], np.broadcast_to(ruido[:, None, :], (muestras, b, DIM_THETA))).astype(np.float64)
+                variables = variables_del_modelo(lote)
+                p = np.stack(list(hilos.map(lambda th: paso_local_por_empresa(th, variables, *NODOS_CARTERA), theta)), axis=-1)   # (b, n, muestras)
+                falta = np.isnan(lote["evento"])
+                yield i, [p[e][falta[e]] for e in range(b)]
+
+    return comun.responder(caso, analizar_lotes)
