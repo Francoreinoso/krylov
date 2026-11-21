@@ -28,7 +28,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 ## Qué cambió respecto del plan
 
-- **D-29 (04:35): las horas del plan son topes, no horas de inicio.** Quien termina una tarea toma la siguiente de su lista sin esperar; lo que no tiene insumo se hace contra el ejemplo fijo y se anota. No se adelanta el MCMC ni se mide encima de un entrenamiento (`AGENTS.md`, regla 21).
+- **D-29 (04:36): solo en PC 2, las horas del plan son topes, no horas de inicio.** PC 2 adelanta sus tareas A en orden; PC 1 y PC 3 siguen igual que antes (`AGENTS.md`, regla 21).
 - D-26 sigue mandando donde un archivo choque. Pendientes de actualizar: `AGENTS.md`, `GLOSARIO.md`, `STACK.md`, `SKILLS.md`, skills, resto de `WORKPLAN.md` (uno o dos por ronda).
 - S-05 (crédito) se adelantó a las 03:28. El crudo de inasistencias ya está en PC 3: no hace falta copiar `datos_crudos/`.
 - PC 2 anotó en `pitch/VALIDACION.md` (carpeta de PC 3) las respuestas de la organización. Bien recibidas; la próxima vez, como pedido en su estado.

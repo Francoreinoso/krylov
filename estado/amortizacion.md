@@ -34,6 +34,20 @@ Persona: Rodrigo · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZA
 - **Se lanzó a las 03:50 y no a las 05:05**, porque todo lo mínimo estaba listo; el comando termina solo a las 08:30.
 - **`git pull --rebase --autostash`** en este computador: dos sesiones comparten el clon y `pull --rebase` falla si la otra tiene cambios sin commit. El autostash los guarda y los repone intactos (comprobado con `md5`).
 
+## Reparto de sesiones en PC 2 (D-29)
+
+Un dueño por motor. Antes de tomar un motor sin dueño, anótate aquí y súbelo; nadie edita los archivos de otro.
+
+| Qué | Archivos | Sesión | Desde |
+|---|---|---|---|
+| Lo compartido y `api.py` | `pyproject.toml`, `motor/comun/`, `nucleo/flujo.py`, `nucleo/preproceso.py`, `nucleo/decision.py`, `nucleo/api.py`, `nucleo/nube.py` | A | sáb 03:24 |
+| `espacial` | `motor/espacial/`, `nucleo/espacial.py` | A | sáb 03:24 |
+| `supervivencia` | `motor/supervivencia/`, `nucleo/supervivencia.py` | B | sáb 03:24 |
+| `jerarquico` | `motor/jerarquico/`, `nucleo/jerarquico.py` | sin dueño | — |
+| `estados` | `motor/estados/`, `nucleo/estados.py` | sin dueño | — |
+
+Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transformaciones, costos)` que devuelve el diccionario de `contratos/CONTRATO.md`; `nucleo/api.py` (sesión A) la llama. `estado/amortizacion.md` lo editan todas las sesiones: cambios chicos, `git pull --rebase --autostash` justo antes, y commit de inmediato.
+
 ## En curso
 
 - sáb 04:00 · Sesión B: A-B1 a A-B4 hechas en lo que toca a PC 2. Falta que PC 3 lance `supervivencia` (04:55). No se corre nada pesado de `supervivencia` en PC 2: `espacial` entrena aquí desde las 03:50. Sigue A-N2 (paso local y NumPyro) con la lista nocturna.

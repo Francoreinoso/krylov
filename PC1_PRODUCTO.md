@@ -69,7 +69,6 @@ Los dos últimos comandos tienen que dar el mismo identificador. Si uno falló (
 2. Haz la tarea contra su criterio de «listo cuando». Si lleva el doble de su duración, córtala o simplifícala y anótalo.
 3. Al terminar: skill `actualizar-estado`. Eso es lo que PC 3 lee.
 4. Si necesitas algo de PC 2 que todavía no existe, sigue con el ejemplo fijo de `contratos/ejemplos/`. Nunca esperes.
-5. **Las horas de la tabla son topes, no horas de inicio (D-29).** Empieza cada tarea apenas existan sus insumos y toma la siguiente al terminar. Si la tarea que nombra el tablero ya está hecha, sigue con la próxima de esta lista.
 
 ## Qué cambió con la decisión D-26 (léelo antes de P-01)
 
@@ -112,7 +111,7 @@ Después de las 18:00: solo textos, orden, tamaños y errores (`WORKPLAN.md`, se
 
 ## Lista nocturna (el agente trabaja solo de 05:15 a 08:30)
 
-Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC1_PRODUCTO.md y, cuando la termines, sigue adelantando las tareas de día en orden, contra los ejemplos fijos (D-29). Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
+Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC1_PRODUCTO.md. Solo eso. Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
 
 1. **P-N1.** `web/src/decision.ts`: la regla de `contratos/CONTRATO.md`, sección 3, con una prueba que lee `contratos/ejemplos/decision_prueba.json` y exige el mismo resultado. Deslizadores de costos en la vista 2 que recalculan colores, titular y número grande con las `muestras_p` de cada unidad, sin llamar a la API.
 2. **P-N2.** El mapa en canvas con `analizar_espacial.json`: bloques en tres colores según la misma regla, mediciones como puntos, leyenda en palabras.

@@ -170,14 +170,12 @@ Después de las 18:00 diriges la tarde (`WORKPLAN.md`, sección 6.6): ensayos a 
 
 ## Lista nocturna (el agente trabaja solo de 05:15 a 08:15)
 
-Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC3_SEGUIMIENTO.md y, cuando la termines, sigue adelantando las tareas de día que no exijan a una persona, en orden (D-29). No envíes nada a nadie. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
+Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC3_SEGUIMIENTO.md. Solo eso. No envíes nada a nadie. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
 
 1. **S-N1.** `datos/preparar/inasistencias.py`: calcula `dias_de_espera` y `dia_semana`, descarta edades y esperas negativas y los sábados, **elige 30 barrios con semilla fija y, dentro de ellos, pacientes completos (todas sus citas) hasta unas 2.000 citas**, cuidando que al menos un tercio de los pacientes tenga dos o más; deja vacío al azar el 20% de las respuestas y guarda la verdad aparte. Agrega el CSV a `.gitignore`: no se sube.
 2. **S-N2.** Abre cada fuente de `pitch/CIFRAS.md` (los enlaces están en `WORKPLAN.md`, sección 12) y anota en una columna aparte lo que dice la página hoy. No firmes «Verificó»: eso lo hace una persona en S-10.
 3. **S-N3.** Borrador de `project-description.md` y de la estructura del README, sin cifras que no estén registradas. No toques la línea del README dirigida a modelos de lenguaje: anótala como decisión pendiente.
 4. **S-N4.** Una ronda cada hora, solo de lectura: si PC 1 o PC 2 dejaron un bloqueo en su estado, déjalo destacado en el tablero para las 08:15.
-
-**Las horas de tu tabla son topes, no horas de inicio (D-29).** En cada ronda, el tablero nombra para cada rol la siguiente tarea **y la que viene después**, para que nadie espere una ronda; si un hito cumple sus criterios antes de su hora, se verifica y se pone el tag.
 
 Regla de la noche en este computador: no tocar el proceso de entrenamiento ni lanzar nada que le quite el procesador más de un par de minutos.
 
