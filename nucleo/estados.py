@@ -31,7 +31,11 @@ from __future__ import annotations
 import numpy as np
 
 ESTADOS, MESES, NIVELES = 3, 6, 5
-DIM_FILA = MESES * (NIVELES + 3) + 3 + 2          # 53: historial aplanado + covariables + respuesta y marca
+# Papeles opcionales (D-35): un archivo puede no traer alguno de los tres datos del cliente de los que dependen las
+# transiciones. Hay una marca de presencia por cada uno; el ausente va en cero, así x·ψ no depende de su coeficiente
+# y el posterior de ese ψ es el prior. El historial (atraso, saldo, pago) y el cupo son obligatorios.
+DIM_PRESENCIA = 3
+DIM_FILA = MESES * (NIVELES + 3) + 3 + DIM_PRESENCIA + 2      # 56: historial aplanado + covariables + presencia + respuesta y marca
 NOMBRES_THETA = (
     ["logit_pi_2", "logit_pi_3"] + [f"A_{j}{k}" for j in (1, 2, 3) for k in (1, 2, 3) if j != k]
     + ["psi_cupo", "psi_edad", "psi_educacion", "log_inc_m_2", "log_inc_m_3", "corte_1"]
@@ -75,40 +79,46 @@ def _logsumexp(x, eje, xp=np):
 
 # ------------------------------------------------------------------------------ preprocesamiento (uno solo)
 
-def variables_del_modelo(atraso_codigo, saldo, pago, cupo, covariables) -> dict:
+def variables_del_modelo(atraso_codigo, saldo, pago, cupo, covariables, presentes=None) -> dict:
     """De las columnas crudas del archivo a las variables del modelo. Solo datos reales.
 
     atraso_codigo: (n, 6) códigos −2 a 8, del mes más antiguo al más reciente. saldo, pago: (n, 6). cupo: (n,).
     covariables: (n, 3) cupo, edad y educación crudos; el cupo va en logaritmo y las tres se estandarizan.
+    presentes: (3,) marcas de las covariables que el archivo trae (None = las tres); la ausente queda en cero.
     """
     codigo = np.asarray(atraso_codigo, dtype=np.float64)
     nivel = np.where(codigo <= 0, np.clip(codigo, -2, 0) + 2, np.where(codigo <= 2, 3, 4)).astype(int)
     cupo = np.asarray(cupo, dtype=np.float64)[:, None]
     pago = np.asarray(pago, dtype=np.float64)
     x = np.asarray(covariables, dtype=np.float64).copy()
-    x[:, 0] = np.log(x[:, 0])
-    x = (x - x.mean(axis=0)) / np.maximum(x.std(axis=0), 1e-9)
+    presentes = np.ones(DIM_PRESENCIA) if presentes is None else np.asarray(presentes, dtype=np.float64)
+    if presentes[0]:
+        x[:, 0] = np.log(x[:, 0])
+    x = (x - x.mean(axis=0)) / np.maximum(x.std(axis=0), 1e-9) * presentes         # una covariable ausente va en cero
     return {"nivel": nivel, "uso": np.clip(np.asarray(saldo, dtype=np.float64) / cupo, -0.2, 1.5),
             "pago_cero": pago <= 0, "log_pago": np.where(pago > 0, np.log(np.maximum(pago, 1e-9) / cupo), 0.0), "x": x}
 
 
-def armar_filas(nivel, uso, pago_cero, log_pago, x, impago) -> np.ndarray:
-    """Una fila de 53 números por cliente: su historial aplanado, listo para el codificador de conjuntos.
+def armar_filas(nivel, uso, pago_cero, log_pago, x, impago, presentes=None) -> np.ndarray:
+    """Una fila de 56 números por cliente: su historial aplanado, listo para el codificador de conjuntos.
 
     Es el único preprocesamiento de `estados`: lo llaman el simulador (lote de datasets, ejes delanteros) y el servicio.
     Columnas: nivel de atraso en uno-de-cinco por mes (30) · uso (6) · pago cero (6) · log del pago centrado (6) ·
-    covariables (3) · impago observado (cero si está por decidir) · marca «por decidir».
+    covariables (3) · marcas de presencia de las covariables, iguales en toda la cartera (3) · impago observado
+    (cero si está por decidir) · marca «por decidir». `presentes`: (3,) o con ejes que se difundan; None = las tres.
     `impago` trae 1, 0 o NaN (vacío: el cliente está por decidir).
     """
     impago = np.asarray(impago, dtype=np.float64)
     por_decidir = np.isnan(impago)
     uno_de_cinco = (np.asarray(nivel)[..., None] == np.arange(NIVELES)).astype(np.float64)
+    presentes = np.ones(DIM_PRESENCIA) if presentes is None else np.asarray(presentes, dtype=np.float64)
     pago_cero = np.asarray(pago_cero, dtype=bool)
     return np.concatenate([
         uno_de_cinco.reshape(uno_de_cinco.shape[:-2] + (MESES * NIVELES,)),
         np.asarray(uso, dtype=np.float64), pago_cero.astype(np.float64),
         np.where(pago_cero, 0.0, (np.asarray(log_pago, dtype=np.float64) - CENTRO_PAGO) / ESCALA_PAGO),
-        np.asarray(x, dtype=np.float64), np.where(por_decidir, 0.0, impago)[..., None], por_decidir.astype(np.float64)[..., None],
+        np.asarray(x, dtype=np.float64), np.broadcast_to(presentes, impago.shape + (DIM_PRESENCIA,)),
+        np.where(por_decidir, 0.0, impago)[..., None], por_decidir.astype(np.float64)[..., None],
     ], axis=-1).astype(np.float32)
 
 
@@ -197,14 +207,17 @@ VARIABLES = ("nivel", "uso", "pago_cero", "log_pago", "x")
 
 # Los papeles de columna que recibe la red de `estados` (D-34): es el esquema con que se entrenó, y no cambia.
 PAPELES = [
-    {"papel": "id", "cantidad": 1, "tipo": "texto", "texto": "Identificador del cliente"},
-    {"papel": "objetivo", "cantidad": 1, "tipo": "si_no", "texto": "No pagó el mes siguiente (vacío en los clientes por decidir)"},
-    {"papel": "atraso", "cantidad": MESES, "tipo": "entero", "texto": "Atraso de cada mes, del más antiguo al más reciente (códigos de −2 a 8)"},
-    {"papel": "saldo", "cantidad": MESES, "tipo": "numero", "texto": "Saldo de cada mes, en el mismo orden"},
-    {"papel": "pago", "cantidad": MESES, "tipo": "numero", "texto": "Pago de cada mes, en el mismo orden"},
-    {"papel": "cupo", "cantidad": 1, "tipo": "numero", "texto": "Cupo de la tarjeta"},
-    {"papel": "transiciones", "cantidad": 3, "tipo": "numero", "texto": "Tres datos del cliente de los que depende que mejore o empeore; el primero se lee en logaritmo"},
+    {"papel": "id", "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Identificador del cliente"},
+    {"papel": "objetivo", "minimo": 1, "maximo": 1, "tipo": "si_no", "texto": "No pagó el mes siguiente (vacío en los clientes por decidir)"},
+    {"papel": "atraso", "minimo": MESES, "maximo": MESES, "tipo": "entero", "texto": "Atraso de cada mes, del más antiguo al más reciente (códigos de −2 a 8)"},
+    {"papel": "saldo", "minimo": MESES, "maximo": MESES, "tipo": "numero", "texto": "Saldo de cada mes, en el mismo orden"},
+    {"papel": "pago", "minimo": MESES, "maximo": MESES, "tipo": "numero", "texto": "Pago de cada mes, en el mismo orden"},
+    {"papel": "cupo", "minimo": 1, "maximo": 1, "tipo": "numero", "texto": "Cupo de la tarjeta"},
+    {"papel": "transiciones", "minimo": 0, "maximo": 3, "tipo": "numero",
+     "texto": "Hasta tres datos del cliente de los que depende que mejore o empeore, por posición; el primero se lee en logaritmo. Una posición sin columna va vacía"},
 ]
+for _p in PAPELES:
+    _p["cantidad"] = _p["maximo"]                     # el campo de D-34; con D-35 mandan `minimo` y `maximo`
 CLIENTES_MAXIMO = 2000
 
 
@@ -214,14 +227,20 @@ def leer_caso(caso: dict) -> dict:
     Lanza `ArchivoNoCalza` si falta un papel, una columna no se puede leer o trae valores que el modelo no conoce.
     """
     col, t = caso["columnas"], tabla_del_caso(caso)
-    nombres = {p["papel"]: tabla.nombres_del_papel(col, p["papel"], p["cantidad"]) for p in PAPELES}
+    nombres = {p["papel"]: tabla.nombres_del_papel(col, p["papel"], p["maximo"]) for p in PAPELES if p["papel"] != "transiciones"}
     def matriz(papel, **limites):
         return np.stack([tabla.numeros(t, n, **limites) for n in nombres[papel]], axis=1)
     cupo = tabla.numeros(t, nombres["cupo"][0], minimo=1e-9)
-    covariables = matriz("transiciones")
-    if (covariables[:, 0] <= 0).any():
-        raise ArchivoNoCalza(f"La columna «{nombres['transiciones'][0]}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
-    datos = variables_del_modelo(matriz("atraso", minimo=-2, maximo=8, enteros=True), matriz("saldo"), matriz("pago", minimo=0), cupo, covariables)
+    transiciones = list(col.get("transiciones") or [])
+    if len(transiciones) > 3:
+        raise ArchivoNoCalza(f"El papel «transiciones» acepta hasta 3 columnas y tiene {len(transiciones)}.")
+    transiciones += [None] * (3 - len(transiciones))
+    presentes = np.array([1.0 if nombre else 0.0 for nombre in transiciones])
+    covariables = np.stack([tabla.numeros(t, nombre) if nombre else np.zeros(len(cupo)) for nombre in transiciones], axis=1)
+    if presentes[0] and (covariables[:, 0] <= 0).any():
+        raise ArchivoNoCalza(f"La columna «{transiciones[0]}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
+    datos = variables_del_modelo(matriz("atraso", minimo=-2, maximo=8, enteros=True), matriz("saldo"), matriz("pago", minimo=0), cupo, covariables, presentes)
+    datos["presentes"] = presentes
     datos["impago"] = tabla.respuesta_si_no(t, nombres["objetivo"][0])
     datos["id"] = tabla.columna(t, nombres["id"][0])
     return datos
@@ -256,7 +275,8 @@ def posterior(filas: np.ndarray, impl: str, clave: str, muestras: int = tabla.MU
 def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     """A qué clientes por decidir conviene no aprobar: p de impago por muestra del posterior, decisión, qué pesa y examen."""
     col = caso["columnas"]
-    del_modelo = set(col["atraso"]) | set(col["saldo"]) | set(col["pago"]) | set(col["transiciones"]) | {col["cupo"]}
+    transiciones = [c for c in (col.get("transiciones") or [])]
+    del_modelo = set(col.get("atraso") or []) | set(col.get("saldo") or []) | set(col.get("pago") or []) | {c for c in transiciones if c} | {col.get("cupo")}
     for t in transformaciones:
         if t.removeprefix("quitar_factor:") in del_modelo:
             raise ErrorKrylov("Ese factor es parte del modelo de crédito y no se puede quitar.", "no_disponible")
@@ -277,7 +297,7 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         datos = {k: (np.asarray(v)[elegidos] if k != "id" else [v[i] for i in elegidos]) for k, v in datos.items()}
         por_decidir = np.isnan(datos["impago"])
 
-    filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"])
+    filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"], datos.get("presentes"))
     clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)
     theta = posterior(filas, impl, clave)
     muestras_p = probabilidad_de_impago(theta, {k: datos[k][por_decidir] for k in VARIABLES})
@@ -286,11 +306,11 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
 
     etiquetas = caso.get("etiquetas", {})
     psi = theta[:, 8:11]                                    # efecto de cada covariable sobre empeorar de estado
-    factores = [decision.factor(nombre, etiquetas.get(nombre, nombre), psi[:, j]) for j, nombre in enumerate(col["transiciones"])]
+    factores = [decision.factor(nombre, etiquetas.get(nombre, nombre), psi[:, j]) for j, nombre in enumerate(transiciones) if nombre]   # un papel ausente no es un factor
     return {
         "implementacion": impl, "unidades": lista,
         "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
-        "columnas": {"usadas": list(col["atraso"]) + list(col["saldo"]) + list(col["pago"]) + list(col["transiciones"]),
+        "columnas": {"usadas": list(col["atraso"]) + list(col["saldo"]) + list(col["pago"]) + [c for c in transiciones if c],
                      "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},
         "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
         "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(por_decidir)} en el archivo",
@@ -338,8 +358,9 @@ def factores_nube(datos: dict, col: dict) -> dict[str, np.ndarray]:
         factores[col["atraso"][t]] = np.asarray(datos["nivel"])[:, t]
         factores[col["saldo"][t]] = np.asarray(datos["uso"])[:, t]
         factores[col["pago"][t]] = np.where(np.asarray(datos["pago_cero"])[:, t], -20.0, np.asarray(datos["log_pago"])[:, t])
-    for j, nombre in enumerate(col["transiciones"]):
-        factores[nombre] = np.asarray(datos["x"])[:, j]
+    for j, nombre in enumerate(col.get("transiciones") or []):
+        if nombre:
+            factores[nombre] = np.asarray(datos["x"])[:, j]
     return factores
 
 
@@ -355,6 +376,6 @@ def nube(caso: dict, transformaciones: list[str]) -> dict:
     resumen = None
     if (carpeta / "codificador.onnx").exists():
         sesion, _ = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
-        filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"])
+        filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"], datos.get("presentes"))
         resumen = sesion.run(None, {"x": filas[None], "mascara": np.ones((1, len(filas)), dtype=np.float32)})[0][0]
     return {"caso": caso["nombre"], **comun.ubicar(comun.cargar(carpeta / "nube.npz"), x, y, mejor, resumen)}

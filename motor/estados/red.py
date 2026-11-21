@@ -1,11 +1,11 @@
 """Red del motor `estados`: codificador de conjuntos sobre los clientes y flujo condicional sobre θ (NPE).
 
-Cada fila es el historial aplanado de un cliente (53 números, `nucleo.estados.armar_filas`).
+Cada fila es el historial aplanado de un cliente (56 números, `nucleo.estados.armar_filas`).
 Dado θ los clientes son independientes, así que la cartera es un conjunto: el codificador es
 invariante al orden de las filas y admite n variable. Tiene tres caminos hacia el resumen s(D):
 
 - phi por cliente y pooling de atención: lo no lineal de cada historial (rachas, saltos de estado).
-- Atajo de segundo orden: el promedio y la matriz de covarianza de las 53 columnas de la cartera.
+- Atajo de segundo orden: el promedio y la matriz de covarianza de las 56 columnas de la cartera.
   Las transiciones entre estados se leen en covarianzas entre meses vecinos (atraso de un mes ×
   atraso del siguiente), y las emisiones, en covarianzas dentro del mes; sin el atajo, phi tiene
   que descubrir cada producto.
@@ -42,7 +42,7 @@ class CodificadorEstados(nn.Module):
         self.rho = nn.Sequential(nn.Linear(self.pooling.dim_salida + 256 + 1, 256), nn.ReLU(), nn.Linear(256, dim_resumen))
 
     def forward(self, x: Tensor, mascara: Tensor) -> Tensor:
-        """x: (B, n, 53); mascara: (B, n) con 1 = cliente real → resumen s(D): (B, dim_resumen)."""
+        """x: (B, n, 56); mascara: (B, n) con 1 = cliente real → resumen s(D): (B, dim_resumen)."""
         m = mascara.unsqueeze(-1)
         n = m.sum(dim=1).clamp(min=1.0)                                            # (B, 1)
         promedio = (x * m).sum(dim=1) / n
@@ -62,7 +62,7 @@ class RedEstados(nn.Module):
         self.flujo.escala_theta.copy_(torch.tensor(simular.DESVS, dtype=torch.float32))
 
     def resumen(self, filas: Tensor) -> Tensor:
-        """filas: (B, n, 53), sin relleno (todas las carteras del lote tienen el mismo n)."""
+        """filas: (B, n, 56), sin relleno (todas las carteras del lote tienen el mismo n)."""
         return self.codificador(filas, torch.ones(filas.shape[:2], device=filas.device))
 
     def perdida(self, filas: Tensor, theta: Tensor) -> Tensor:

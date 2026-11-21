@@ -19,7 +19,7 @@ def _datos_y_theta(rng, n=4):
 def test_restricciones():
     rng = np.random.default_rng(0)
     th = estados.a_restringido(rng.normal(0, 1, (50, estados.DIM_THETA)))
-    assert estados.DIM_THETA == 33 and estados.DIM_FILA == 53
+    assert estados.DIM_THETA == 33 and estados.DIM_FILA == 56
     np.testing.assert_allclose(th["pi"].sum(-1), 1)
     assert (np.diff(th["d"], axis=-1) > 0).all() and (np.diff(th["posicion"], axis=-1) > 0).all() and (th["posicion"][:, 0] == 0).all()
     assert (np.diff(th["cortes"], axis=-1) > 0).all() and (th["A"][:, [0, 1, 2], [0, 1, 2]] == 0).all()

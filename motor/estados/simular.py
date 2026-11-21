@@ -95,15 +95,18 @@ def _categorica(rng: np.random.Generator, probabilidades: np.ndarray) -> np.ndar
     return (rng.random(probabilidades.shape[:-1] + (1,)) > acumulada[..., :-1]).sum(axis=-1)
 
 
-def simular(rng: np.random.Generator, lote: int, n: int, reales: np.ndarray | None = None) -> dict:
+def simular(rng: np.random.Generator, lote: int, n: int, reales: np.ndarray | None = None, opcionales: bool = True) -> dict:
     """Un lote de carteras simuladas, todas de n clientes.
 
-    Devuelve `filas` (lote, n, 53) para el codificador, `theta` (lote, 33) sin restricciones, y las variables
+    Devuelve `filas` (lote, n, 56) para el codificador, `theta` (lote, 33) sin restricciones, y las variables
     del modelo (`nivel`, `uso`, `pago_cero`, `log_pago`, `x`, `impago` con NaN en los por decidir, `impago_real`).
     """
     theta = muestrear_prior(rng, lote)
     th = nucleo_es.a_restringido(theta)
-    x = covariables(rng, lote, n, reales)
+    # Papeles opcionales (D-35): la mitad de las carteras trae las tres covariables; en el resto, cada una con probabilidad 0,7.
+    # La ausente va en cero: las transiciones no dependen de su ψ, y el posterior de ese ψ es el prior.
+    presentes = ((rng.random((lote, 1)) < 0.5) | (rng.random((lote, nucleo_es.DIM_PRESENCIA)) < 0.7)).astype(np.float64) if opcionales else np.ones((lote, nucleo_es.DIM_PRESENCIA))
+    x = covariables(rng, lote, n, reales) * presentes[:, None, :]
     paso = nucleo_es.transiciones({k: v[:, None] if k in ("A", "psi") else v for k, v in th.items()}, x[:, :, None, :])[:, :, 0]
     # ^ (lote, n, 3, 3): una matriz de transición por cliente.
 
@@ -129,7 +132,7 @@ def simular(rng: np.random.Generator, lote: int, n: int, reales: np.ndarray | No
     impago_real = (rng.random((lote, n)) < d).astype(np.float64)
     impago = np.where(rng.random((lote, n)) < FRACCION_POR_DECIDIR, np.nan, impago_real)
 
-    return {"filas": nucleo_es.armar_filas(nivel, uso, pago_cero, log_pago, x, impago), "theta": theta.astype(np.float32),
+    return {"filas": nucleo_es.armar_filas(nivel, uso, pago_cero, log_pago, x, impago, presentes[:, None, :]), "theta": theta.astype(np.float32), "presentes": presentes,
             "nivel": nivel, "uso": uso, "pago_cero": pago_cero, "log_pago": log_pago, "x": x,
             "impago": impago, "impago_real": impago_real, "estado": estado}
 
@@ -173,7 +176,7 @@ def revisar(carteras: int = 2000, semilla: int = 0) -> dict:
 
 
 def config() -> dict:
-    return {"motor_id": "estados", "version_preproceso": "estados-1", "nombres_theta": list(NOMBRES_THETA),
+    return {"motor_id": "estados", "version_preproceso": "estados-2", "papeles_opcionales": "las tres covariables de las transiciones, con marca de presencia", "nombres_theta": list(NOMBRES_THETA),
             "prior": {n: {"media": m, "desv": s} for n, (m, s) in PRIOR.items()}, "rangos": {"n": [N_MIN, N_MAX]},
             "fraccion_por_decidir": FRACCION_POR_DECIDIR, "niveles_de_atraso": ["-2", "-1", "0", "1 o 2", "3 o más"]}
 

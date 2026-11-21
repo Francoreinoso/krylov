@@ -1,6 +1,6 @@
 """Exporta la red de `estados` a los artefactos del servicio (CONTRATO.md, sección 7).
 
-    codificador.onnx   filas (lote, n, 53) y máscara (lote, n) → resumen     (onnxruntime, n variable)
+    codificador.onnx   filas (lote, n, 56) y máscara (lote, n) → resumen     (onnxruntime, n variable)
     flujo.npz          pesos del flujo condicional                            (nucleo/flujo.py, NumPy)
     pesos.pt, config.json
 

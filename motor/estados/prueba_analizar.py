@@ -72,6 +72,12 @@ def test_tabla_subida_con_otros_nombres_y_archivo_que_no_calza(artefactos, monke
 
     def semaforo(**cambios):
         return estados.analizar(subido | cambios, [], costos)["semaforo"]
+    # Papeles opcionales (D-35): con una sola covariable responde igual, con un solo factor en «qué pesa».
+    menos = estados.analizar(subido | {"columnas": columnas | {"transiciones": [None, columnas["transiciones"][1]]}}, [], costos)
+    assert len(menos["unidades"]) == 400 and [f["nombre"] for f in menos["factores"]] == ["col_age"] and len(r["factores"]) == 3
+    lote = simular.simular(np.random.default_rng(5), 40, 200)
+    ausente = lote["presentes"][:, 0] == 0
+    assert ausente.any() and (lote["x"][ausente][..., 0] == 0).all() and (lote["filas"][..., 51:54] == lote["presentes"][:, None, :]).all()
     falta = semaforo(columnas=columnas | {"atraso": columnas["atraso"][:5]})
     assert falta["estado"] == "rojo_datos" and "6 columnas" in falta["motivo"]
     assert "col_nada" in semaforo(columnas=columnas | {"cupo": "col_nada"})["motivo"]
