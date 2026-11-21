@@ -116,7 +116,7 @@ def _log_logistica(x):
     return -np.logaddexp(0.0, -x)
 
 
-def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 12) -> np.ndarray:
+def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 8, nodos_paciente: int = 20) -> np.ndarray:
     """P(no llega) de cada cita, integrando u_b y v_i dado lo observado: cuadratura de Gauss-Hermite anidada.
 
     libre: muestras de θ sin restricciones, (S, 20). z: matriz de diseño (n, 18). respuesta: (n,) con 1, 0 o NaN.
@@ -126,38 +126,75 @@ def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 
         p = ∫∫ logistic(η + v + u) · p(v, u | respuestas conocidas del paciente y del barrio, θ) dv du
 
     El condicional se arma por niveles: la verosimilitud del paciente L_i(u) integra v; la del barrio es el
-    producto de las L_i(u) de sus pacientes. Para una cita con respuesta conocida, su propia respuesta también
-    condiciona (sirve para comprobar; lo que se decide son las citas con NaN).
+    producto de las L_i(u) de sus pacientes.
+
+    - **Paciente:** nodos de Gauss-Hermite del prior Normal(0, σ_v). Un paciente tiene pocas citas y su
+      posterior se parece al prior.
+    - **Barrio: cuadratura adaptativa.** Un barrio junta decenas de pacientes y el posterior de u_b queda
+      mucho más angosto que el prior: con los nodos del prior caería entre dos nodos. Primero se ubica el
+      posterior de cada barrio (una grilla gruesa y una parábola por su máximo en escala logarítmica) y
+      después los nodos se centran y se escalan ahí.
     """
     libre = np.atleast_2d(np.asarray(libre, dtype=np.float64))
     th = a_restringido(libre)
     respuesta = np.asarray(respuesta, dtype=np.float64)
     conocida = ~np.isnan(respuesta)
     signo = np.where(conocida, 2 * np.nan_to_num(respuesta) - 1, 0.0)            # +1 no llegó, −1 llegó, 0 sin respuesta
-    puntos, pesos = np.polynomial.hermite.hermgauss(nodos)
-    log_pesos = np.log(pesos / np.sqrt(np.pi))
+    barrio = np.asarray(barrio_del_paciente)[paciente]                            # barrio de cada cita
     n_pacientes, n_barrios = len(barrio_del_paciente), int(np.max(barrio_del_paciente)) + 1
     eta = z @ th["coef"].T                                                        # (n, S)
-    salida = np.empty_like(eta)
-    for s in range(libre.shape[0]):
-        u = np.sqrt(2.0) * th["sigma_b"][s] * puntos                              # nodos del barrio
-        v = np.sqrt(2.0) * th["sigma_v"][s] * puntos                              # nodos del paciente
-        logit = eta[:, s, None, None] + u[None, :, None] + v[None, None, :]       # (n, Ku, Kv)
+
+    def gauss_hermite(k):
+        puntos, pesos = np.polynomial.hermite.hermgauss(k)
+        return puntos, pesos
+    puntos_v, pesos_v = gauss_hermite(nodos_paciente)
+    puntos_v8, pesos_v8 = gauss_hermite(8)
+    puntos_u, pesos_u = gauss_hermite(nodos)
+    grilla = np.linspace(-4.0, 4.0, 9)                                            # en unidades de σ_b
+
+    def por_nivel(eta_s, u, v, log_pesos_v, con_prediccion):
+        """Para nodos u (G, Ku) propios de cada barrio y v (Kv,): log L_i(u) (P, Ku) y, si se pide, E_v[p | u] (n, Ku)."""
+        logit = eta_s[:, None, None] + u[barrio][:, :, None] + v[None, None, :]   # (n, Ku, Kv)
         log_ver_cita = np.where(conocida[:, None, None], _log_logistica(signo[:, None, None] * logit), 0.0)
-        log_ver_paciente = np.zeros((n_pacientes, nodos, nodos))
+        log_ver_paciente = np.zeros((n_pacientes, u.shape[1], len(v)))
         np.add.at(log_ver_paciente, paciente, log_ver_cita)                       # producto sobre las citas del paciente
-        log_ver_paciente += log_pesos[None, None, :]
+        log_ver_paciente += log_pesos_v
         tope = log_ver_paciente.max(axis=2, keepdims=True)
-        log_l = tope[..., 0] + np.log(np.exp(log_ver_paciente - tope).sum(axis=2))   # log L_i(u): (P, Ku)
-        # Predicción de la cita dado u: E_v[logistic(η + u + v) | respuestas del paciente].
-        dado_u = (np.exp(_log_logistica(logit) + log_ver_paciente[paciente] - tope[paciente]).sum(axis=2)
-                  / np.exp(log_l[paciente] - tope[paciente][..., 0]))                # (n, Ku)
-        log_ver_barrio = np.zeros((n_barrios, nodos))
-        np.add.at(log_ver_barrio, barrio_del_paciente, log_l)                     # producto sobre los pacientes del barrio
-        log_ver_barrio += log_pesos[None, :]
-        peso_u = np.exp(log_ver_barrio - log_ver_barrio.max(axis=1, keepdims=True))
-        peso_u /= peso_u.sum(axis=1, keepdims=True)                               # p(u_j | datos del barrio)
-        salida[:, s] = (dado_u * peso_u[barrio_del_paciente[paciente]]).sum(axis=1)
+        suma = np.exp(log_ver_paciente - tope).sum(axis=2)
+        log_l = tope[..., 0] + np.log(suma)                                       # log L_i(u)
+        if not con_prediccion:
+            return log_l, None
+        dado_u = np.exp(_log_logistica(logit) + (log_ver_paciente - tope)[paciente]).sum(axis=2) / suma[paciente]
+        return log_l, dado_u
+
+    def log_posterior_barrio(log_l, u, sigma_b):
+        """log p(u | datos del barrio) + constante, en los nodos u (G, Ku)."""
+        total = np.zeros((n_barrios, u.shape[1]))
+        np.add.at(total, barrio_del_paciente, log_l)                              # producto sobre los pacientes del barrio
+        return total - 0.5 * (u / sigma_b) ** 2
+
+    salida = np.empty_like(eta)
+    filas = np.arange(n_barrios)
+    for s in range(libre.shape[0]):
+        sigma_v, sigma_b = th["sigma_v"][s], th["sigma_b"][s]
+        # 1. Ubicar el posterior de u en cada barrio: grilla gruesa y parábola por el máximo del logaritmo.
+        u0 = np.broadcast_to(grilla * sigma_b, (n_barrios, len(grilla)))
+        log_l, _ = por_nivel(eta[:, s], u0, np.sqrt(2.0) * sigma_v * puntos_v8, np.log(pesos_v8), False)
+        lp = log_posterior_barrio(log_l, u0, sigma_b)
+        m = np.clip(lp.argmax(axis=1), 1, len(grilla) - 2)
+        paso = (grilla[1] - grilla[0]) * sigma_b
+        curvatura = (lp[filas, m - 1] - 2 * lp[filas, m] + lp[filas, m + 1]) / paso ** 2
+        con_maximo = curvatura < -1e-9
+        centro = np.where(con_maximo, u0[filas, m] - (lp[filas, m + 1] - lp[filas, m - 1]) / (2 * paso * np.where(con_maximo, curvatura, -1.0)), 0.0)
+        ancho = np.where(con_maximo, 1.0 / np.sqrt(np.where(con_maximo, -curvatura, 1.0)), sigma_b)
+        centro, ancho = np.clip(centro, -5 * sigma_b, 5 * sigma_b), np.clip(ancho, 1e-3 * sigma_b, sigma_b)
+        # 2. Cuadratura de Gauss-Hermite centrada y escalada en ese posterior.
+        u = centro[:, None] + np.sqrt(2.0) * ancho[:, None] * puntos_u[None, :]   # (G, Ku)
+        log_l, dado_u = por_nivel(eta[:, s], u, np.sqrt(2.0) * sigma_v * puntos_v, np.log(pesos_v), True)
+        log_peso = log_posterior_barrio(log_l, u, sigma_b) + np.log(pesos_u) + puntos_u ** 2
+        peso = np.exp(log_peso - log_peso.max(axis=1, keepdims=True))
+        peso /= peso.sum(axis=1, keepdims=True)                                   # p(u_j | datos del barrio), por barrio
+        salida[:, s] = (dado_u * peso[barrio]).sum(axis=1)
     return salida
 
 

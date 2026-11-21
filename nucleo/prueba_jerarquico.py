@@ -44,7 +44,7 @@ def test_paso_local_igual_a_la_integracion_directa():
     paciente = np.array([0, 0, 0, 1, 1])
     respuesta = np.array([1.0, 0.0, np.nan, 1.0, np.nan])
     z = jq.matriz_de_diseno(rng.integers(0, 40, 5), rng.integers(0, 5, 5), [0, 1, 0, 1, 0], rng.integers(1, 80, 5), rng.integers(0, 2, (5, 4)))
-    p = jq.paso_local(libre, z, respuesta, paciente, np.array([0, 0]), nodos=40)[:, 0]
+    p = jq.paso_local(libre, z, respuesta, paciente, np.array([0, 0]), nodos=40, nodos_paciente=40)[:, 0]
 
     th = jq.a_restringido(libre[0])
     eta = z @ th["coef"]
@@ -60,9 +60,34 @@ def test_paso_local_igual_a_la_integracion_directa():
     directo_2 = ((_logistica(eta[2] + u[:, None] + v[None, :]) * ver(0) * ver(1) * dens_v).sum(1) / l0 * posterior_u).sum() / posterior_u.sum()
     directo_4 = ((_logistica(eta[4] + u[:, None] + v[None, :]) * ver(3) * dens_v).sum(1) / l1 * posterior_u).sum() / posterior_u.sum()
     np.testing.assert_allclose([p[2], p[4]], [directo_2, directo_4], rtol=1e-6)
-    # Con 12 nodos (los del servicio) la diferencia es chica.
-    p12 = jq.paso_local(libre, z, respuesta, paciente, np.array([0, 0]), nodos=12)[:, 0]
-    assert np.abs(p12 - p)[[2, 4]].max() < 2e-3
+    # Con los nodos del servicio (8 de barrio, 20 de paciente) la diferencia es chica.
+    servicio = jq.paso_local(libre, z, respuesta, paciente, np.array([0, 0]))[:, 0]
+    assert np.abs(servicio - p)[[2, 4]].max() < 1e-3
     # El paciente 0 ya faltó una vez y fue otra; el 1 solo faltó: su cita por decidir sube respecto de no saber nada.
-    sin_historia = jq.paso_local(libre, z, np.full(5, np.nan), paciente, np.array([0, 0]), nodos=40)[:, 0]
+    sin_historia = jq.paso_local(libre, z, np.full(5, np.nan), paciente, np.array([0, 0]))[:, 0]
     assert p[4] > sin_historia[4]
+
+
+def test_barrio_grande_no_depende_del_numero_de_nodos():
+    """Con muchos pacientes por barrio el posterior de u es angosto: la cuadratura adaptativa lo encuentra igual.
+
+    Con nodos fijos en el prior, 12 y 15 nodos daban probabilidades que diferían hasta en 0,17 en el archivo real;
+    con la cuadratura adaptativa del barrio y 20 nodos de paciente, el error máximo ahí es 0,0004.
+    """
+    rng = np.random.default_rng(3)
+    n, pacientes, barrios = 1500, 900, 8
+    paciente = np.sort(rng.integers(0, pacientes, n))
+    _, paciente = np.unique(paciente, return_inverse=True)
+    barrio_del_paciente = rng.integers(0, barrios, paciente.max() + 1)
+    z = jq.matriz_de_diseno(rng.integers(0, 40, n), rng.integers(0, 5, n), rng.integers(0, 2, n), rng.integers(1, 80, n), rng.integers(0, 2, (n, 4)))
+    libre = rng.normal(0, 0.3, (6, jq.DIM_THETA))
+    libre[:, 0] = -1.0
+    libre[:, 18] = np.log([0.3, 0.7, 1.5, 2.2, 0.7, 1.0])                  # σ_v de chico a grande
+    libre[:, 19] = np.log([0.1, 0.3, 0.6, 0.9, 1.5, 2.0])                  # σ_b de chico a grande
+    u_real = rng.normal(0, 1.0, barrios)[barrio_del_paciente][paciente]
+    respuesta = (rng.random(n) < _logistica(-1.0 + u_real + rng.normal(0, 0.8, paciente.max() + 1)[paciente])).astype(float)
+    respuesta[rng.random(n) < 0.2] = np.nan
+    fino = jq.paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos=30, nodos_paciente=60)
+    servicio = jq.paso_local(libre, z, respuesta, paciente, barrio_del_paciente)             # 8 nodos de barrio, 20 de paciente
+    assert np.abs(servicio - fino).max() < 5e-3, np.abs(servicio - fino).max(axis=0)
+    assert np.abs(servicio - fino)[:, [0, 1, 2, 4, 5]].max() < 1e-3                          # todo menos σ_v = 2,2, la cola del prior
