@@ -74,3 +74,15 @@ def test_misma_metrica_que_el_simulador():
     theta = simular.muestrear_prior(50, simular.Prior(), torch.Generator().manual_seed(0))
     for del_simulador, del_nucleo in zip(simular.metrica_anisotropica(theta), espacial.metrica_anisotropica(theta.numpy())):
         np.testing.assert_allclose(del_nucleo, del_simulador.numpy(), rtol=1e-4)
+
+
+def test_examen_de_bloques_cuenta_todos_los_bloques(monkeypatch):
+    """El examen con la verdad escondida de `leyes` reparte los mismos bloques, por color, que la respuesta."""
+    from nucleo import api, espacial
+    from nucleo.casos import cargar_caso, costos_numericos
+    monkeypatch.setenv("KRYLOV_MOTOR_ESPACIAL", "red")
+    caso = cargar_caso("leyes")
+    examen = espacial.examen_de_bloques(caso, costos_numericos(caso, None))
+    colores = api.analizar("leyes")["resumen_colores"]
+    assert {e: v["bloques"] for e, v in examen["colores"].items()} == colores
+    assert all(0 <= v["sobre_el_limite"] <= v["bloques"] for v in examen["colores"].values()) and sum(t["n"] for t in examen["tramos"]) == examen["n"]

@@ -436,3 +436,38 @@ def _cuantil_normal(q: float) -> float:
         else:
             alto = medio
     return 0.5 * (bajo + alto)
+
+
+def examen_de_bloques(caso: dict, costos: dict) -> dict | None:
+    """Examen con la verdad escondida de un terreno simulado (`verdad_bloques` del caso: la ley verdadera de cada bloque).
+
+    De los bloques que quedaron en cada color, cuántos estaban de verdad sobre el límite; y por tramos de la probabilidad
+    que se dio, cuántos lo estaban. El archivo de verdad no entra al motor: se lee aquí, después de responder.
+    """
+    if not caso.get("verdad_bloques"):
+        return None
+    impl = implementacion("espacial")
+    terreno = leer_terreno(caso)
+    canales, media, escala = canales_de(terreno["suma"], terreno["cuenta"], terreno["raiz_dist"])
+    r = inferir(canales[None], terreno["cuenta"][None], impl, _clave(caso, False))
+    p = probabilidad_de_superar(r["media"], r["desviacion"], _umbral_estandarizado(terreno, media, escala)[None])[0]    # la misma de `analizar`
+    tabla = leer_columnas(caso["verdad_bloques"])
+    columna_verdad = next(nombre for nombre in tabla if nombre not in ("x", "y"))
+    x, y, verdad = _numeros(tabla["x"]), _numeros(tabla["y"]), _numeros(tabla[columna_verdad])
+    # La grilla del motor sale de dónde están las muestras y no coincide con la de la verdad: a cada bloque del motor
+    # se le asigna la ley verdadera del lugar más cercano a su centro.
+    geo = terreno["geometria"]
+    cx = geo["x0"] + (np.arange(LADO) + 0.5) * geo["lado"]
+    cy = geo["y0"] + (np.arange(LADO) + 0.5) * geo["lado"]
+    centros = np.stack(np.meshgrid(cx, cy), axis=-1).reshape(-1, 2)                    # fila por fila desde abajo
+    cercano = np.argmin(((centros[:, None, :] - np.stack([x, y], axis=-1)[None]) ** 2).sum(-1), axis=1)
+    dentro = terreno["dentro"].reshape(-1)
+    sobre, p = (verdad[cercano] > terreno["umbral"])[dentro], p.reshape(-1)[dentro]
+    estado = decision.decidir_espacial(p, costos["falso_si"], costos["falso_no"])["estado"]
+    colores = {e: {"bloques": int((estado == e).sum()), "sobre_el_limite": int(sobre[estado == e].sum())} for e in decision.ESTADOS}
+    tramos = []
+    for bajo, alto in ((0.0, 0.1), (0.1, 0.5), (0.5, 0.9), (0.9, 1.01)):
+        en = (p >= bajo) & (p < alto)
+        if en.any():
+            tramos.append({"dijimos": round(float(p[en].mean()), 3), "paso": round(float(sobre[en].mean()), 3), "n": int(en.sum())})
+    return {"tipo": "verdad_escondida", "n": int(len(p)), "implementacion": impl, "colores": colores, "tramos": tramos}

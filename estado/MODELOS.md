@@ -34,7 +34,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] SBC global: pasa; cobertura del 90% de los parámetros, 0,898
 - [x] SBC por unidad: aquí es la cobertura del mapa, bloque por bloque, 0,90
 - [x] Cobertura de lo que se decide, por tamaño: con menos y con más de 100 muestras; peor grupo 0,831 (alcance largo)
-- [x] Examen con la verdad escondida: 61 de 68 muestras escondidas de `leyes` dentro del rango
+- [x] Examen con la verdad escondida: de 147 bloques «conviene apartar», 138 estaban sobre el límite; de 568 «puede ir a la planta», 6. Y 61 de 68 muestras escondidas de `leyes` dentro del rango
 - [ ] Exportación y app: exportada y responde por `nucleo/api.py`; falta verla en la app (P-22)
 - [x] Método lento: 117 s por análisis en 6 terrenos simulados; falta el del archivo `leyes` (A-22)
 
