@@ -1,8 +1,10 @@
-# Krylov · Pitch v2, sincronizado con el deck (versión minería)
+# Krylov · el guion del deck (versión minería)
 
-> Guion de 3 minutos (cifra J-04) para las láminas de `pitch/deck/index.html`. No reemplaza a `pitch/GUION.md`, que es el del recorrido por la app. Las mismas frases están en las notas de cada lámina (tecla `N`).
+> **Qué es este archivo.** El guion de 3 minutos (J-04) para presentar **el deck completo**, lámina por lámina, sin salir a la app. Las mismas frases están en las notas de cada lámina (tecla `N`).
 >
-> **Tiempo estimado, no cronometrado:** contado en palabras, a 150 por minuto. El cronómetro de verdad es el primer ensayo con el deck abierto.
+> **El guion oficial sigue siendo `pitch/GUION.md`**, que parte en el deck, entra a la app en los momentos 4 a 6 y vuelve al deck para el cierre. Los dos cuentan lo mismo con las mismas cifras; cambia dónde se muestra. Abajo, en «Cómo calza con `GUION.md`», está la equivalencia y lo que no coincide. **Una persona del equipo elige cuál se ensaya.**
+>
+> **Tiempo estimado, no cronometrado:** contado en palabras, a 150 por minuto. El cronómetro de verdad es el primer ensayo (S-26).
 
 ## La idea, en una frase
 
@@ -21,11 +23,11 @@ El término se dice en voz alta tres veces (láminas 1, 3 y 8) y está en pantal
 | 1 | El problema | 0:00 | 0:23 | 51 | 2 | El rajo completo; «tardan horas»; el nombre |
 | 2 | Demo | 0:23 | 0:45 | 43 | 2 | El mapa en la pantalla de Krylov; el reloj en 7:24:59 |
 | 3 | Mundos simulados | 0:45 | 1:06 | 44 | 1 | El contador en 7.750.592; la pila |
-| 4 | El mapa | 1:06 | 1:30 | 49 | 2 | Las muestras; la superficie en tres colores; la malla |
-| 5 | ¿Dónde mido? | 1:30 | 1:51 | 46 | 1 | La A con sus US$ 15.629; el taladro y el mapa rehecho |
-| 6 | Sabe cuando no sabe | 1:51 | 2:11 | 38 | 2 | La nube; el archivo afuera, rojo; adentro, turquesa |
-| 7 | Hoja de ruta | 2:11 | 2:23 | 26 | 0 | Las cinco preguntas |
-| 8 | Negocio | 2:23 | 2:43 | 42 | 1 | El rajo; la esfera |
+| 4 | El banco | 1:06 | 1:31 | 52 | 2 | Las muestras; la superficie en tres colores; la malla |
+| 5 | ¿Dónde perforo? | 1:31 | 1:51 | 42 | 1 | La A con sus US$ 8.943; el taladro y el mapa rehecho |
+| 6 | Sabe cuando no sabe | 1:51 | 2:12 | 43 | 2 | La nube; el archivo afuera, rojo; adentro, verde |
+| 7 | Cinco decisiones | 2:12 | 2:27 | 32 | 0 | Las cinco preguntas con su estado |
+| 8 | Negocio | 2:27 | 2:43 | 32 | 1 | El rajo; la esfera |
 | 9 | Cierre | 2:43 | 2:51 | 17 | 0 | El QR |
 
 A cada lámina se llega con una pulsación más: 11 dentro de las láminas y 8 entre láminas.
@@ -38,7 +40,7 @@ A cada lámina se llega con una pulsación más: 11 dentro de las láminas y 8 e
 
 *(un rajo hecho de puntos aparece con un barrido; entran tres preguntas)*
 
-> «En una mina, las decisiones no esperan: dónde perforar, qué bloque va a planta, qué camión detener.»
+> «En una mina, las decisiones no esperan: dónde perforar, a dónde va la roca, qué camión parar.»
 
 `[→]`
 
@@ -74,55 +76,57 @@ A cada lámina se llega con una pulsación más: 11 dentro de las láminas y 8 e
 
 > «Lo que queda es un Artificial Data Scientist ya entrenado: calcula antes, como el ingeniero naval Krylov, para decidir al instante.»
 
-### 4 · El mapa (1:06 a 1:30)
+### 4 · El banco (1:06 a 1:31)
 
-`[→]` *(caen las 155 muestras sobre el terreno)*
+`[→]` *(caen las 340 muestras sobre el banco)*
 
-> «Esto funciona hoy. Un terreno real: 155 muestras de zinc.»
+> «Primera decisión: un banco de la mina, recién tronado. En cada pozo se midió el arsénico.»
 
-`[→]` *(la superficie sube, con sus curvas de nivel y sus tres colores; aparece US$ 646.485)*
+`[→]` *(la superficie sube, con sus curvas de nivel y sus tres colores; aparece US$ 1.577.707)*
 
-> «Krylov estima el metal en todo el terreno y decide. Rojo, hay que limpiar. Turquesa, no hace falta. Dorado, no sabemos. Y pone en plata lo que cuesta no saber.»
+> «Krylov responde el banco entero. Verde, puede ir a la planta. Rojo, conviene apartarlo. Ámbar, no sabemos. Y este número es lo que te cuesta no saber.»
 
 `[→]` *(aparece la malla sobre la superficie)*
 
 > «La malla de arriba es cuánto se puede equivocar.»
 
-### 5 · ¿Dónde mido? (1:30 a 1:51)
+### 5 · ¿Dónde perforo? (1:31 a 1:51)
 
-`[→]` *(un barrido enciende 19 columnas de luz; quedan A, B y C)*
+`[→]` *(un barrido enciende 40 columnas de luz; quedan A, B y C)*
 
-> «Una medición más cuesta tres mil dólares: ¿dónde vale la pena? Krylov probó cada lugar dudoso y rehízo el análisis 228 veces, en menos de un segundo. Medir en A vale más de quince mil.»
+> «La pregunta que vale plata: una muestra más, ¿dónde perforo? Krylov probó cada lugar dudoso y rehízo el análisis completo 480 veces. Una muestra en A vale cerca de nueve mil dólares, y cuesta mil quinientos.»
 
-`[→]` *(baja el taladro en A; el mapa se rehace desde ahí; el número sube hasta US$ 21.038)*
+`[→]` *(baja el taladro en A; el mapa se rehace desde ahí)*
 
-> «Mido, sale alto, el mapa se rehace y la duda baja.»
+> «Perforo, y el mapa se rehace.»
 
-### 6 · Sabe cuando no sabe (1:51 a 2:11)
+### 6 · Sabe cuando no sabe (1:51 a 2:12)
 
-`[→]` *(se forma la nube de casos con que practicó)*
+`[→]` *(se forma la nube de terrenos con que practicó)*
 
-> «¿Y si los datos vienen malos? Antes de responder, Krylov compara el archivo con todo lo que practicó.»
+> «¿Y si los datos no alcanzan? Antes de responder, compara el archivo con todo lo que practicó.»
 
-`[→]` *(el archivo cae en la zona «Nunca practicó»)*
+`[→]` *(un banco con 12 muestras cae en la zona «Nunca practicó»)*
 
-> «Este cae lejos: una columna delata la respuesta. No responde.»
+> «Este trae doce muestras: nunca practicó con tan pocas. No responde, y dice qué falta.»
 
-`[→]` *(el archivo viaja hacia adentro y se pone turquesa)*
+`[→]` *(con sus 340 muestras, el archivo viaja hacia adentro y se pone verde)*
 
-> «Propone quitarla, y recién ahí contesta. Sabe cuando no sabe.»
+> «Con el banco completo, recién ahí contesta. Sabe cuando no sabe.»
 
-### 7 · Hoja de ruta (2:11 a 2:23)
+### 7 · Cinco decisiones (2:12 a 2:27)
 
-`[→]` *(cinco figuras y cinco preguntas)*
+`[→]` *(cinco figuras, cinco preguntas, cada una con su estado)*
 
-> «Hoy lo ven en un terreno. La hoja de ruta: un modelo para cada decisión crítica de la mina. Leyes, sismicidad, camiones, flotación, taludes y relaves.»
+> «La misma idea, en cuatro decisiones más: si un muro va a ceder, si se está yendo cobre, qué camión parar, cuándo vuelve a entrar la gente. Hoy son hoja de ruta.»
 
-### 8 · Negocio (2:23 a 2:43)
+*La última frase dice lo que diga el tablero a las 20:30. Si alguna ya responde: «Estas dos ya responden; las otras son hoja de ruta.»*
+
+### 8 · Negocio (2:27 a 2:43)
 
 `[→]` *(el rajo, otra vez)*
 
-> «Partimos por la minería: tiene los problemas más difíciles y es la industria que más pesa en Chile. Primer paso: un piloto con datos históricos de una faena.»
+> «Partimos por la minería: tiene los problemas más difíciles y es la industria que más pesa en Chile.»
 
 `[→]` *(el rajo se envuelve en una esfera)*
 
@@ -138,36 +142,53 @@ A cada lámina se llega con una pulsación más: 11 dentro de las láminas y 8 e
 
 | Se dice | Cifra | Cuidado |
 |---|---|---|
-| «228 análisis» | M-08 | |
-| «menos de un segundo» | M-09: 0,69 s | Medido sin nada más entrenando en ese computador |
-| «más de siete horas», «tardan horas» | M-10: 26.699 s | **Es 228 × 117,1 s** (M-25, medido por análisis en 6 terrenos). No se corrieron las siete horas seguidas. Si preguntan, se dice así |
+| «228 análisis», «menos de un segundo» | M-08, M-09 (0,69 s) | Medidos en el terreno real, no en el banco |
+| «más de siete horas», «tardan horas» | M-10: 26.699 s | **Es 228 × 117,1 s** (M-25, medido por análisis en 6 terrenos). No se corrieron las siete horas seguidas |
 | «más de siete millones de terrenos simulados» | M-01: 7.750.592 | |
-| «155 muestras de zinc» | D-04 | Es un suelo contaminado, no un yacimiento |
-| «una medición más cuesta tres mil dólares» | K-17 | Hipótesis del caso |
-| «medir en A vale más de quince mil» | `api.donde_medir("terreno")`: US$ 15.629 | M-12 dice «pendiente» en CIFRAS: pedido en `pitch/deck/README.md` |
-| «la duda baja» (US$ 21.038 en pantalla) | 646.485 − 625.447, las dos de `api.analizar` | Sin id en CIFRAS todavía: mismo pedido |
+| «480 veces» | M-43 | **Sin tiempo:** M-44 no se ha medido limpio |
+| «cerca de nueve mil dólares» | M-46: US$ 8.943 | |
+| «cuesta mil quinientos» | K-24 | Hipótesis del caso |
+| «doce muestras» | `datos/demo/leyes_pocos.csv` | |
 | «a comienzos del 1900» (solo en pantalla) | N-01 | Sin fecha exacta ni nombre de barco |
 
-Lo que **no** se dice ni se muestra: las cifras del documento de minería (costo por hora de un camión detenido, minutos para decidir, porcentaje de arsénico, semanas de piloto) y los nombres de faenas; el 77% del examen real (M-13: solo si preguntan); «qué manda en el terreno» (M-30, pendiente); cualquier «al instante» sobre un caso que no sea el terreno; precio.
+En pantalla, además: US$ 1.577.707 (M-41), 147, 309 y 568 bloques (M-40), 500 ppm (K-21), y lo que baja al perforar (US$ 10.263 con el resultado del medio; sin id todavía).
+
+Lo que **no** se dice ni se muestra: las cifras de minería I-01 a I-22 (ninguna tiene todavía la firma de una persona); las del documento técnico que `CIFRAS.md` descarta; el 77% del examen con datos reales (M-13: solo si preguntan, y está en la lámina `0`); un tiempo para «¿Dónde perforo?»; precio; nombres de faenas.
+
+## Cómo calza con `GUION.md`
+
+| Momento de `GUION.md` | En este deck | Qué no coincide |
+|---|---|---|
+| 1 · El nombre (el barco) | La idea del nombre está en una frase de la lámina 3 | **El barco ya no está.** La lámina 1 es el problema |
+| 2 · El problema y la carrera | Láminas 1 y 2 | El problema se dice antes de la carrera, y la carrera es una demostración con dos pantallas |
+| 3 · Cómo | Lámina 3 | Sale «una noche, en un MacBook Air» |
+| 4 · El banco | Lámina 4 (o la app, tecla `1`) | Los mismos números. En el deck no se mueve un deslizador |
+| 5 · ¿Dónde perforo? | Lámina 5 (o la app, tecla `D`) | El deck muestra por defecto el resultado del medio, no «sale alto» |
+| 6 · Cuatro decisiones más | Lámina 7 (o la app, teclas `2` a `5`) | En el deck es una sola lámina de 15 segundos; en la app, 55 segundos con cada tarjeta respondiendo |
+| — | Lámina 6: sabe cuando no sabe | No está en la versión de tres minutos de `GUION.md` |
+| — | Lámina 8: negocio | `LAMINAS.md` lo deja fuera |
+| 7 · Cierre | Lámina 9 | Igual |
+
+**Si se presenta como dice `GUION.md`** (deck → app → deck): del deck se usan las láminas 1 a 3 y la 9, y las láminas 4 a 7 quedan de respaldo por si la app falla.
 
 ## Si falta tiempo
 
 Se corta en este orden:
 
-1. **Lámina 7 (hoja de ruta), 12 segundos.** Desde la 6 se aprieta `8`.
-2. **El tercer paso de la lámina 4**, 5 segundos: no se muestra la malla.
-3. **Lámina 6 (la nube), 20 segundos.** Desde la 5 se aprieta `7`.
+1. **Lámina 8 (negocio), 16 segundos.** Desde la 7 se aprieta `9`.
+2. **Lámina 6 (sabe cuando no sabe), 22 segundos.** Desde la 5 se aprieta `7`.
+3. **El tercer paso de la lámina 4**, 5 segundos: no se muestra la malla.
 
-No se cortan nunca la lámina 1 (el problema), la demo, el mapa ni «¿Dónde mido?».
+No se cortan nunca el problema, la demo, el banco ni «¿Dónde perforo?».
 
 ## Si sobra tiempo o si preguntan
 
-- **Tecla `D`: la demo real**, encima de las láminas. Necesita internet. Hoy abre la app publicada, que todavía no es la versión minera: se dice así.
+- **Tecla `D`: la demo real**, encima de las láminas. Necesita internet.
 - **Tecla `0`: cómo funciona.** La arquitectura en dos mitades, con los números del sello del motor.
-- **Lámina 5, con el mouse:** elegir B o C en el mapa, y «Bajo», «Medio» o «Alto» en la regla. El mapa se rehace cada vez con la respuesta guardada de la red. Arrastrar gira el terreno.
-- **«¿Eso es una mina?»** «No: es un terreno real con muestras de zinc, datos públicos. Es el mismo tipo de modelo con que se estiman leyes. La mina es el piloto que viene.»
+- **Lámina 5, con el mouse:** elegir B o C en el mapa, y «Bajo», «Medio» o «Alto» en la regla. Arrastrar gira el banco.
+- **«¿Ese banco es de una mina?»** «No: es simulado, y lo dice en pantalla. El mismo motor lo probamos con datos reales públicos: escondimos 31 mediciones y 24 cayeron dentro del rango que dimos» (M-13). Se dice tal cual: es 77%, no 90%.
 - **«¿Eso corre en vivo?»** «En la app, sí. En estas láminas se anima la respuesta que dio la red, guardada.»
-- **«¿Qué tan exacto es?»** «Escondimos 31 mediciones reales del terreno y 24 cayeron dentro del rango que dimos» (M-13). Se dice tal cual: es 77%, no 90%.
+- **Sobre taludes y sismicidad:** «Krylov apoya la decisión de un especialista; no la reemplaza» (regla 22).
 
 ## Si algo falla
 
@@ -176,11 +197,3 @@ No se cortan nunca la lámina 1 (el problema), la demo, el mapa ni «¿Dónde mi
 | El navegador no abre el deck o se ve mal | `pitch/deck/respaldo/krylov-deck.pdf`: las diez láminas en su estado final |
 | Una animación se traba | `P` la pausa; `→` sigue. Cada paso tiene un estado final legible |
 | No hay internet | Nada cambia, salvo la tecla `D`: muestra un aviso y `Esc` vuelve |
-
-## Qué cambió respecto de la versión anterior de este guion
-
-- Abre con el problema en una mina, no con la historia del nombre. El barco salió; queda una frase.
-- La carrera de tiempos ahora se presenta como demostración, con el mapa en pantalla.
-- Salieron Buk, AgendaPro y el precio. El negocio es: partir por la minería, después cualquier industria.
-- La hoja de ruta son cinco decisiones de la mina.
-- Los colores se nombran distinto: rojo, turquesa y dorado.
