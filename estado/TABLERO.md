@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 05:14 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15; H1 a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 05:23 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: antes de dormir, 05:15; H1 a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
 
@@ -23,7 +23,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora P-07 (tecla `M` y corrección); después P-09 (pines de «¿Dónde mido?»). Dos arreglos chicos: en rojo, el pie no dice «Respondió la red»; los rótulos de los ejes de la nube, más grandes. Texto de portada y cierre (P-13) en `pitch/LAMINAS.md`. **Pedido tuyo a PC 2, copiado:** que `analizar` traiga `unidad`. Ojo: P-03 agregó `@fontsource-variable/archivo`: quien tenga la web abierta hace `npm ci` y reinicia `npm run dev`. **Aviso de PC 2:** `codificador.onnx` viene con `codificador.onnx.data`; el servicio necesita los dos (antes de A-10).
-- **PC 2 · amortizacion:** sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N3. Sesión B: A-N2. Las plantillas de texto están en `casos/textos.yaml` y las `etiquetas` en cada caso (D-30). `estados` espera a que `espacial` termine (08:30). **PC 1 pide** que `analizar` traiga `unidad` (campo nuevo: decídelo con entrada en DECISIONES). Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
+- **PC 2 · amortizacion:** sesión A: A-05 y a dormir a las 05:15; el agente sigue con A-N3. Sesión B: A-N2. Las plantillas de texto están en `casos/textos.yaml` y las `etiquetas` en cada caso (D-30). `estados` espera a que `espacial` termine (08:30). `jerarquico`: su predictivo a priori calza con el archivo real (lo corrió PC 3, percentiles 30 a 64); tiene que quedar con prueba de humo para lanzarlo en PC 3 a las 08:30. **PC 1 pide** que `analizar` traiga `unidad` (campo nuevo: decídelo con entrada en DECISIONES). Tu pedido a PC 3 está hecho: `supervivencia` corre en PC 3 desde las 04:05.
 - **PC 3 · seguimiento:** ahora S-N4 (rondas de lectura 06:15, 07:15, 08:15); lo demás de la mañana exige a una persona o números de los motores. Para una persona en la mañana: borradores `pitch/README_borrador.md` y `pitch/descripcion_borrador.md`, y tres cifras por revisar (sección «Revisión de fuentes» de `pitch/CIFRAS.md`). Nada pesado aquí. A dormir a las 05:15, enchufado y con la tapa abierta. 08:15: S-06; 08:30: S-06b (exportar `supervivencia` y lanzar `jerarquico`).
 
 ## Qué cambió respecto del plan

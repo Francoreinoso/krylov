@@ -25,6 +25,7 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 05:03 · Ronda: P-N1 de PC 1 verificado (`npm run prueba`: 45 pasan). PC 2: `uv run pytest nucleo/prueba_decision.py nucleo/prueba_api.py nucleo/prueba_nube.py nucleo/prueba_espacial.py -q`: 15 pasan; `api.casos()` sigue el orden de `casos/INICIO`; `api.analizar("terreno")` responde `no_disponible` (esperado hasta la red validada). `supervivencia`: 2,8 millones de datasets, punto de guardado 04:55.
 - sáb 05:14 · Ronda: el rediseño de PC 1 (tema oscuro, mapa P-N2, nube P-N3, deslizadores) revisado a 1280×720 en modo estático con `?caso=rotacion`, `?caso=terreno` y `?caso=rotacion_malo`: se ven bien. Dos pedidos a PC 1 (abajo). PC 2 dejó `estados` listo para entrenar en PC 2 cuando quede libre. `supervivencia`: 3,3 millones de datasets, punto de guardado 05:05.
 - sáb 05:14 · `etiquetas` (nombre en pantalla de cada columna) en los cinco YAML de `casos/`, a pedido de PC 2; `nucleo/estados.py` ya las lee. D-30 registra eso y el cambio de `estados` a 33 parámetros (atraso en 5 niveles), también en `WORKPLAN.md` 11.4, `pitch/LAMINAS.md` y el borrador del README.
+- sáb 05:23 · Ronda: `jerarquico` de PC 2 corre en PC 3 con el archivo real (que solo está aquí). Predictivo a priori contra `datos/demo/inasistencias.csv`: los 7 resúmenes caen entre los percentiles 30 y 64 de 1.000 carteras simuladas (ver Números medidos); 14 s a baja prioridad. Pruebas: `uv run pytest nucleo/prueba_jerarquico.py motor/jerarquico/prueba_jerarquico.py -q`: 6 pasan. `supervivencia`: 3,8 millones de datasets, punto de guardado 05:15.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 ## En curso
@@ -68,6 +69,7 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 - sáb 05:14 · A PC 1: en el estado rojo (`?caso=rotacion_malo`) el pie dice «Respondió la red que practicó con casos simulados», pero ahí Krylov no responde: en rojo, ese pie no va.
 - sáb 05:14 · A PC 1: los rótulos de los ejes de la nube son muy chicos para el proyector (ejes con nombre, momento 3 del guion). Más grandes, y horizontales si caben.
 - sáb 05:14 · A PC 2: hecho tu pedido de las 05:11: `etiquetas` está en `casos/credito.yaml` y en los otros cuatro casos.
+- sáb 05:23 · A PC 2: corrí tu `motor.jerarquico.simular --revisar` aquí, con el archivo real: calza (percentiles 30 a 64; detalle en Números medidos). Si cambias el prior, avísame y lo vuelvo a correr: son 14 segundos.
 - sáb 04:51 · A PC 2: las plantillas de texto están en `casos/textos.yaml` (contrato, sección 5: las escribe `seguimiento`). `nucleo/api.py` arma hoy el titular con un f-string; que lea la plantilla de ahí. El titular de verde dice lo mismo que el tuyo.
 - sáb 04:36 · A PC 2 (respuesta a tu pedido de las 04:00): `supervivencia` corre en PC 3 desde las 04:05 y termina sola a las 08:30. A las 08:30 PC 3 exporta y sube (paso 7).
 
@@ -91,6 +93,7 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 | Terreno, puntos y grilla | 155 puntos, 3.103 celdas | `Rscript datos/preparar/terreno.R` (D-04, D-04b) | 03:22 |
 | `supervivencia` en el M3: pasos de entrenamiento por segundo, CPU, lote 32 | 22 a 28 (unos 800 datasets por segundo); nada más entrenando | `registro.jsonl` de la prueba de humo | 04:05 |
 | `supervivencia` en el M3: SBC chico a los 3 minutos | cobertura del 90% en 0,906; contracción media 0,53; 8 de 32 con KS sobre el límite | `uv run python -m motor.supervivencia.validar --sbc 200` | 04:05 |
+| `jerarquico`: predictivo a priori contra el archivo real (1.980 citas) | No llega 0,210 → percentil 45 (simulado 0,05 a 0,54); mismo día 0,048 → 30; otro día 0,292 → 51; con SMS 0,266 → 47; citas del mismo día 0,333 → 54; con SMS 0,324 → 54; citas por paciente 1,73 → 64 | `uv run python -m motor.jerarquico.simular --revisar` (1.000 carteras simuladas) | 05:23 |
 | Prueba del asistente genérico: respuestas distintas de 3 | sin medir | S-09 | — |
 | Extraños que repiten la idea, prueba 1 (12:30) | sin medir | `ensayo-pitch` | — |
 | Extraños que repiten la idea, prueba 2 (19:00) | sin medir | `ensayo-pitch` | — |
