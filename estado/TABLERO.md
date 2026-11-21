@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 17:25 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 17:40 · **Hito vigente:** camino a H4, 14:30 · **Producto terminado: sáb 18:00** · Tope de redes: 20:30
 
 **URL pública:** https://krylov-tan.vercel.app/ · **a las 16:20 sigue mostrando las cuatro tarjetas de antes del pivote** (rotación, terreno, citas, crédito). P-21 está en el repositorio pero no desplegada.
 
-**Manda D-38 (13:10), sobre D-37:** el método lento de cada motor se corre **al final** (A-36), y cada modelo sortea el tamaño del dataset. Una red se lanza y se valida sin esperarlo. **Ronda 1 terminada en PC 3:** `deformacion` no pasó su sello (falla solo el SBC por unidad). **Ronda 2:** `sismico` entrena en PC 3 desde las 16:14, hasta las 18:15. Falta el veredicto de `cinetica` (PC 2). El detalle pieza por pieza de cada motor está en `estado/MODELOS.md`.
+**D-38:** el método lento va al final (A-36). **D-39 (17:10):** el SBC por unidad se decide por el tamaño de la desviación; con eso **`cinetica` y `deformacion` pasan su sello.** Ronda 2: `sismico` entrena en PC 3 hasta las 18:15 y `desgaste` en PC 2. Detalle por motor: `estado/MODELOS.md`.
 
 ## Los cinco casos
 
@@ -15,9 +15,9 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 | Caso | Motor | Datos | Simulador | Red | Sello | En la app | Método lento | Responde |
 |---|---|---|---|---|---|---|---|---|
 | leyes | espacial | listo | listo | listo | listo | pendiente | pendiente | red |
-| taludes | deformacion | listo | listo | listo | no pasa | pendiente | pendiente | ejemplo |
-| flotacion | cinetica | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
-| flota | desgaste | listo | listo | pendiente | pendiente | pendiente | pendiente | ejemplo |
+| taludes | deformacion | listo | listo | listo | listo | en curso | pendiente | red |
+| flotacion | cinetica | listo | listo | listo | listo | listo | pendiente | red |
+| flota | desgaste | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 | sismicidad | sismico | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
 
 Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus pruebas pasan (`pytest motor/cinetica motor/desgaste motor/sismico motor/deformacion`); `leyes` responde verde con la red y ya tiene su examen por color (A-22; M-54: de 147 bloques «conviene apartar», 138 estaban sobre el límite). Las cuatro tarjetas nuevas responden `no_disponible` hasta que su red valide, y la web pinta su ejemplo.
@@ -26,9 +26,9 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🔴 atrasado | La URL pública no cambió desde el pivote: H4 (14:30) no se cumplió. Sin estado nuevo desde las 12:40. Recorte: desplegar ya P-21 y sacar `leyes` real (P-22); `Curva` (P-23) y el chat (P-24) esperan |
-| amortizacion (PC 2) | 🟡 sin noticias | Sin estado ni commits desde las 13:57. Falta el veredicto de `cinetica` (16:10), lanzar `desgaste` y responder el pedido de `ventana` |
-| seguimiento (PC 3) | 🟡 entrenando | Dos a la vez desde las 16:33, hasta las 18:15: `sismico` (364 datasets por segundo) y `deformacion` retomado (281), por decisión de su persona. El sello de `deformacion` de las 16:10 (no pasa) sigue vigente hasta revalidar |
+| producto (PC 1) | 🟡 al cierre | P-21 a P-26 hechas entre 16:40 y 17:32; `flotacion` responde con su red. Falta activar `taludes` con la red y el despliegue |
+| amortizacion (PC 2) | 🟢 | `cinetica` PASA (43,2 millones de plantas). `desgaste` entrenando. D-39 escrita |
+| seguimiento (PC 3) | 🟢 entrenando | `deformacion` PASA (17:36, red de las 16:10: 1.684.160 muros; el retome se descartó porque quedó peor). `sismico` entrena solo hasta las 18:15 |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
@@ -45,5 +45,5 @@ Verificado en PC 3 a las 14:00, corriendo: los cuatro simuladores existen y sus 
 ## Próxima decisión
 
 - **Ahora, una persona,** de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
-- **Ahora, PC 2 y una persona, por `taludes`:** su red no pasó (solo el SBC por unidad; coberturas en 0,90). Opciones: revisar el criterio, seguir entrenando después de la ronda 2, o adelantar su método lento para salir «precalculada». Hasta entonces la tarjeta sigue de ejemplo.
+- **Ahora, PC 1:** `KRYLOV_MOTOR_DEFORMACION=red`, volver a exportar `taludes` y desplegar. A las 18:00, tres tarjetas con su red: `leyes`, `flotacion` y `taludes`.
 - **Decidido (17:25, persona de PC 3):** `sismicidad` sigue entrenando, sin método lento; fuera del inicio a las 18:00 y entra si su red pasa antes de las 20:30. **Falta `flota`:** lo decide la persona de PC 2. **17:40, PC 1 y PC 3 (S-31):** qué tarjetas quedan en `casos/INICIO`; hoy solo `leyes` responde con su motor.
