@@ -2,7 +2,7 @@
 
 /* La cara del deck (pitch/deck/deck.css): basalto, curvas topográficas, cobre, óxido de cobre y oro.
    Titulares en Big Shoulders Display, texto en Instrument Sans, datos en JetBrains Mono.
-   Cuatro diseños para comparar en local (disenos.ts); cada uno redefine estos tokens. */
+   Un solo diseño: Lámina, el escenario negro del deck. */
 
 @font-face {
   font-family: "Big Shoulders Display";
@@ -77,37 +77,13 @@
   --color-curva: #f4efe60f;
   --abanico: #6fa8ff;
   color-scheme: dark;
-}
-
-/* Mesa: los dos paneles del respaldo técnico, «Antes» en cobre y «En vivo» en óxido. */
-[data-diseno="mesa"] {
-  --color-fondo: #0d0c0a;
-  --color-superficie: #17140f;
-  --color-curva: #f4efe60a;
-}
-
-/* Lámina: el escenario negro del deck, todo más grande. */
-[data-diseno="lamina"] {
+  /* Lámina: el escenario negro del deck. */
   --color-fondo: #070605;
   --color-superficie: #12100d;
   --color-linea: #2a2520;
   --color-curva: #f4efe608;
 }
 
-/* Óxido: el panel «En vivo». Turquesa de acento; el cobre queda solo para lo que cuesta no saber. */
-[data-diseno="oxido"] {
-  --color-fondo: #070d0c;
-  --color-superficie: #0d1716;
-  --color-linea: #1d302d;
-  --color-tinta: #eef3f1;
-  --color-tinta-suave: #a5b7b3;
-  --color-tenue: #71857f;
-  --color-acento: #36c2ae;
-  --color-sobre-acento: #04110f;
-  --color-trama: #070d0cb3;
-  --color-curva: #36c2ae10;
-  --abanico: #6fa8ff;
-}
 
 html {
   font-size: 17px;

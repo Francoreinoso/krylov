@@ -3,25 +3,21 @@
 // (D-35): el del equipo en un archivo del demo; en un archivo propio, el que propone el servidor.
 // Un archivo propio exige el servidor: sin él, el chat lo dice.
 //
-// Cuatro disposiciones para comparar (disenos.ts): Carta (una columna), Mesa (chat y lienzo),
-// Lámina (cada respuesta como una lámina) y Óxido (las cinco decisiones siempre a la vista).
+// Un solo diseño, Lámina (el que eligió el grupo): la portada del deck y cada respuesta como una lámina.
 
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api, clave as claveEstatica, despertarApi, ErrorDelServidor, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
 import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
 import Cierre from './Cierre'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
 import Decisiones, { type Quien } from './Decisiones'
-import { useDiseno } from './disenos'
 import Lateral, { IconoLateral } from './Lateral'
 import Marca, { Logotipo } from './Marca'
-import Mesa from './Mesa'
 import Particulas from './Particulas'
 import { elegirCaso, interpretar, MOTOR_EN_PALABRAS, preguntasDe, type Intencion } from './preguntas'
 import Respuesta from './Respuesta'
 import RespuestaEnChat, { type DatosRespuesta } from './RespuestaEnChat'
-import SelectorDiseno from './SelectorDiseno'
 import TarjetaArchivo from './TarjetaArchivo'
 import { lineaDelCaso, rotuloQuien } from './textos'
 import type { Calce, Candidata, Caso, MedicionNueva, Papel, Textos } from './tipos'
@@ -60,17 +56,6 @@ const ARCHIVOS_QUE_NO_ALCANZAN = [
   { nombre: 'taludes_corto', base: 'taludes' }, // una serie demasiado corta
 ]
 
-// Escritorio o teléfono, al día con el tamaño de la ventana.
-const consulta = window.matchMedia(ESCRITORIO)
-const useEscritorio = () =>
-  useSyncExternalStore(
-    (avisar) => {
-      consulta.addEventListener('change', avisar)
-      return () => consulta.removeEventListener('change', avisar)
-    },
-    () => consulta.matches,
-  )
-
 let siguienteId = 0
 const nueva = (caso: Caso | null = null): Conversacion => ({
   id: siguienteId++,
@@ -88,10 +73,6 @@ const tituloDe = (c: Conversacion) => {
 }
 
 export default function Chat() {
-  const { id: disposicion } = useDiseno()
-  const enEscritorio = useEscritorio()
-  // En Óxido la barra queda siempre a la vista en escritorio; en los demás se abre con su botón.
-  const fijaYVisible = disposicion === 'oxido' && enEscritorio
   const [casos, setCasos] = useState<Caso[]>([])
   const [quien, setQuien] = useState<Record<string, Quien>>({})
   const [rotulosMedir, setRotulosMedir] = useState<Record<string, string>>({}) // «¿Dónde perforo?» de cada caso
@@ -106,7 +87,6 @@ export default function Chat() {
   const [completa, setCompleta] = useState<DatosRespuesta | null>(null)
   const [origen, setOrigen] = useState<Origen | null>(null)
   const [abierta, setLateral] = useState(false)
-  const [enPanel, setEnPanel] = useState<number | null>(null) // Mesa: la respuesta que muestra el lienzo
   const [cierre, setCierre] = useState(false) // tecla L: la lámina de cierre con el QR
   const textos = useRef<Textos | null>(null) // los rótulos de la curva; sin ellos, la curva va sin rótulos
   const [textosChat, setTextosChat] = useState<NonNullable<Textos['chat']>>({}) // sin ellos, no hay botón de prueba
@@ -114,7 +94,7 @@ export default function Chat() {
   const selectorArchivo = useRef<HTMLInputElement>(null)
 
   const conv = estado.conversaciones.find((c) => c.id === estado.activa)!
-  const lateral = abierta || fijaYVisible
+  const lateral = abierta
   const escritorio = () => window.matchMedia(ESCRITORIO).matches
 
   useEffect(() => {
@@ -172,7 +152,6 @@ export default function Chat() {
       const todo: DatosRespuesta = { nuevas: [], perforacion: null, antes: null, ...datos, completa, textos: textos.current?.curva ?? null }
       return { ...c, mensajes: [...c.mensajes, { de: 'krylov', tipo: 'respuesta', datos: todo, id: mensaje, creado: Date.now() }] }
     })
-    setEnPanel(mensaje)
   }
 
   // Abre una conversación vacía, o reusa la actual si todavía no tiene mensajes.
@@ -187,7 +166,6 @@ export default function Chat() {
     })
     setTexto('')
     setAdjunto(null)
-    setEnPanel(null)
     cerrarLateralEnTelefono()
   }
 
@@ -400,7 +378,6 @@ export default function Chat() {
     if (pensando !== null) return
     const c = { ...nueva(caso), calceListo: true }
     setEstado((s) => ({ conversaciones: [c, ...s.conversaciones], activa: c.id }))
-    setEnPanel(null)
     setCompleta(null)
     setCierre(false)
     setTimeout(() => {
@@ -468,7 +445,6 @@ export default function Chat() {
         <main className="flex min-h-0 flex-1 flex-col pb-10 lg:pb-0">
           <Respuesta key={completa.analisis.caso} analisis={completa.analisis} nube={completa.nube} textos={completa.textos} />
         </main>
-        <SelectorDiseno />
         {cierre && <Cierre alCerrar={() => setCierre(false)} />}
       </div>
     )
@@ -486,10 +462,6 @@ export default function Chat() {
       : []
   const recientes = estado.conversaciones.filter((c) => c.mensajes.length > 0).map((c) => ({ id: c.id, titulo: tituloDe(c) }))
   const respuestas = conv.mensajes.filter((m): m is Extract<Mensaje, { tipo: 'respuesta' }> => m.de === 'krylov' && m.tipo === 'respuesta')
-  // La mesa necesita ancho: en teléfono la respuesta va entera en el chat, como en Carta.
-  const mesa = disposicion === 'mesa' && enEscritorio
-  const lamina = disposicion === 'lamina'
-  const enLienzo = mesa ? (respuestas.find((m) => m.id === enPanel) ?? respuestas.at(-1) ?? null) : null
 
   const compositor = (
     <Compositor
@@ -498,7 +470,7 @@ export default function Chat() {
       casos={casos}
       caso={conv.caso}
       ocupado={pensando !== null}
-      comando={lamina}
+      comando
       placeholder={conv.caso ? 'Pregúntale algo a tus datos' : 'Elige una decisión o escribe qué quieres saber'}
       alEscribir={setTexto}
       alEnviar={() => enviar()}
@@ -535,7 +507,7 @@ export default function Chat() {
   const inicio = (() => {
     if (conv.caso) {
       return (
-        <div className={`w-full ${mesa ? '' : 'max-w-3xl'}`}>
+        <div className="w-full max-w-3xl">
           <p className="dato">{conv.caso.empresa_o_industria}</p>
           <h1 className="titular mt-2 text-5xl sm:text-6xl">{conv.caso.titulo}</h1>
           <p className="mt-3 text-lg text-tinta-suave">{MOTOR_EN_PALABRAS[conv.caso.motor]}</p>
@@ -545,19 +517,7 @@ export default function Chat() {
         </div>
       )
     }
-    if (mesa) {
-      return (
-        <div className="w-full">
-          <Marca grande />
-          <h1 className="titular mt-6 text-5xl">¿Qué decisión tienes que tomar?</h1>
-          <p className="mt-3 text-tinta-suave">{FRASE} Elige una a la derecha, o escríbela.</p>
-          <div className="mt-8">{compositor}</div>
-          {aviso}
-        </div>
-      )
-    }
-    if (lamina) {
-      return (
+    return (
         <div className="w-full max-w-7xl">
           <section className="relative -mx-4 overflow-hidden px-4 pt-4 pb-10 sm:min-h-[24rem]">
             <Particulas className="pointer-events-none absolute inset-0 h-full w-full opacity-90" />
@@ -574,36 +534,6 @@ export default function Chat() {
           {decisiones()}
           <div className="mt-8">{aviso}</div>
         </div>
-      )
-    }
-    if (disposicion === 'oxido') {
-      return (
-        <div className="w-full max-w-3xl">
-          <h1 className="titular text-5xl sm:text-7xl">¿Qué decisión tienes que tomar?</h1>
-          <p className="mt-3 text-lg text-tinta-suave">{FRASE}</p>
-          <div className="mt-8">{compositor}</div>
-          <div className="mt-5 hidden lg:block">
-            <p className="dato mb-2">O empieza por una</p>
-            <div className="flex flex-wrap gap-2">
-              {casos.map((c) => (
-                <Chip key={c.nombre} texto={c.titulo} alElegir={() => enviar(c.titulo, c)} />
-              ))}
-            </div>
-          </div>
-          <div className="mt-10 lg:hidden">{decisiones('grilla')}</div>
-          {aviso}
-        </div>
-      )
-    }
-    // Carta.
-    return (
-      <div className="w-full max-w-6xl">
-        <h1 className="titular max-w-4xl text-6xl sm:text-8xl">¿Qué decisión tienes que tomar?</h1>
-        <p className="mt-4 max-w-2xl text-xl text-tinta-suave">{FRASE}</p>
-        <div className="mt-12">{decisiones()}</div>
-        <div className="mt-12 max-w-3xl">{compositor}</div>
-        <div className="max-w-3xl">{aviso}</div>
-      </div>
     )
   })()
 
@@ -615,23 +545,10 @@ export default function Chat() {
         alAbrir={() => setCompleta(m.datos)}
         alPerforar={(c) => perforar(m.datos, c)}
         ocupado={pensando !== null}
-        grande={lamina}
-        soloTitular={mesa}
+        grande
       />
     )
-    if (mesa) {
-      const activa = enLienzo?.id === m.id
-      return (
-        <MensajeKrylov>
-          <button onClick={() => setEnPanel(m.id)} className={`block w-full border-l-2 pl-4 text-left ${activa ? 'border-oxido' : 'border-linea hover:border-tinta-suave'}`}>
-            {contenido}
-            <span className={`dato mt-2 block ${activa ? 'text-oxido' : ''}`}>{activa ? 'En el lienzo' : 'Ver en el lienzo'}</span>
-          </button>
-        </MensajeKrylov>
-      )
-    }
-    if (lamina) {
-      return (
+    return (
         <section className="panel flex flex-col px-5 py-6 sm:px-10 sm:py-9 lg:min-h-[min(82vh,48rem)]">
           {contenido}
           <footer className="mt-auto flex items-end justify-between pt-8">
@@ -641,23 +558,21 @@ export default function Chat() {
             </span>
           </footer>
         </section>
-      )
-    }
-    return <MensajeKrylov>{contenido}</MensajeKrylov>
+    )
   }
 
   const listaMensajes = (
-    <ol className={`mx-auto space-y-10 py-8 ${mesa ? 'max-w-none' : lamina ? 'max-w-6xl' : 'max-w-5xl'}`}>
+    <ol className={`mx-auto space-y-10 py-8 max-w-6xl`}>
       {conv.mensajes.map((m) => {
-        const ancha = m.de === 'krylov' && m.tipo === 'respuesta' && (m.datos.completa || m.datos.perforacion || lamina)
+        const ancha = m.de === 'krylov' && m.tipo === 'respuesta'
         return (
-          <li key={m.id} ref={m === ultimaDelUsuario ? ultimaPregunta : undefined} className={`mx-auto scroll-mt-4 ${ancha || mesa ? '' : 'max-w-3xl'}`}>
+          <li key={m.id} ref={m === ultimaDelUsuario ? ultimaPregunta : undefined} className={`mx-auto scroll-mt-4 ${ancha ? '' : 'max-w-3xl'}`}>
             {m.de === 'tu' ? (
               <MensajeTu texto={m.texto} adjunto={m.adjunto} />
             ) : m.tipo === 'respuesta' ? (
               <>
                 {mensajeRespuesta(m, respuestas.indexOf(m) + 1)}
-                {m === ultimo && seguimiento.length > 0 && <div className={`aparecer mt-5 ${mesa || lamina ? '' : 'pl-11'}`}>{chips(seguimiento)}</div>}
+                {m === ultimo && seguimiento.length > 0 && <div className="aparecer mt-5">{chips(seguimiento)}</div>}
               </>
             ) : (
               <MensajeKrylov>
@@ -686,7 +601,7 @@ export default function Chat() {
         )
       })}
       {pensando === conv.id && (
-        <li className={`mx-auto ${mesa ? '' : 'max-w-3xl'}`}>
+        <li className="mx-auto max-w-3xl">
           <MensajeKrylov pensando>
             <p className="brillo text-lg">Calculando con el modelo…</p>
           </MensajeKrylov>
@@ -698,7 +613,7 @@ export default function Chat() {
   const pie = (
     <footer className="relative shrink-0 px-4 pb-3">
       <div className="pointer-events-none absolute inset-x-0 -top-8 h-8 bg-linear-to-t from-fondo" />
-      <div className={`mx-auto ${mesa ? '' : 'max-w-3xl'}`}>
+      <div className="mx-auto max-w-3xl">
         {compositor}
         {aviso}
       </div>
@@ -737,10 +652,9 @@ export default function Chat() {
               alElegirModelo={(c) => empezar(c)}
               alAbrir={(id) => {
                 setEstado((s) => ({ ...s, activa: id }))
-                setEnPanel(null)
                 cerrarLateralEnTelefono()
               }}
-              alCerrar={fijaYVisible ? undefined : () => setLateral(false)}
+              alCerrar={() => setLateral(false)}
             />
           </div>
         </>
@@ -763,34 +677,7 @@ export default function Chat() {
           {conv.caso && <span className="dato hidden sm:block">{conv.caso.empresa_o_industria}</span>}
         </header>
 
-        {mesa ? (
-          <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-            <section className="flex min-h-0 flex-col lg:w-[27rem] lg:shrink-0 xl:w-[30rem]">
-              {vacia ? (
-                <main className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-8">
-                  <div className="my-auto">{inicio}</div>
-                </main>
-              ) : (
-                <>
-                  <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-5" aria-live="polite">
-                    {listaMensajes}
-                  </main>
-                  {pie}
-                </>
-              )}
-            </section>
-            <Mesa
-              datos={enLienzo?.datos ?? null}
-              clave={enLienzo?.id ?? null}
-              caso={conv.caso}
-              casos={casos}
-              quien={quien}
-              pensando={pensando === conv.id}
-              alElegir={(c) => enviar(c.titulo, c)}
-              alPerforar={(c) => enLienzo && perforar(enLienzo.datos, c)}
-            />
-          </div>
-        ) : vacia ? (
+        {vacia ? (
           <main className="desliza-lista flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-4 pb-16 sm:px-8">
             <div className="my-auto flex w-full flex-col items-center py-10">{inicio}</div>
           </main>
@@ -824,7 +711,6 @@ export default function Chat() {
         </div>
       )}
 
-      <SelectorDiseno />
       {cierre && <Cierre alCerrar={() => setCierre(false)} />}
     </div>
   )

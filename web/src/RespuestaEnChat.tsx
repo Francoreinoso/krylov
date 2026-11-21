@@ -376,10 +376,9 @@ interface Props {
   alPerforar?: (c: Candidata) => void
   ocupado?: boolean
   grande?: boolean
-  soloTitular?: boolean // en la mesa, los paneles van al lienzo de la derecha
 }
 
-export default function RespuestaEnChat({ datos, creado, alAbrir, alPerforar, ocupado = false, grande = false, soloTitular = false }: Props) {
+export default function RespuestaEnChat({ datos, creado, alAbrir, alPerforar, ocupado = false, grande = false }: Props) {
   const { analisis, clave } = datos
   const d = useDecision(analisis)
   const [animar] = useState(() => Date.now() - creado < RECIENTE_MS && !quieto())
@@ -399,31 +398,27 @@ export default function RespuestaEnChat({ datos, creado, alAbrir, alPerforar, oc
     <div>
       {clave === null && <p className="dato mb-3 text-cobre">Tu archivo · columnas confirmadas por ti</p>}
 
-      <Titular texto={soloTitular ? analisis.titular : d.titular} animar={animar} grande={grande} precalculado={analisis.precalculado} />
+      <Titular texto={d.titular} animar={animar} grande={grande} precalculado={analisis.precalculado} />
 
       <div className={`mt-5 space-y-5 ${animar ? 'aparecer' : ''}`} style={{ animationDelay: `${retraso}ms` }}>
-        {!soloTitular && <CuerpoRespuesta datos={datos} d={d} grande={grande} alPerforar={alPerforar} ocupado={ocupado} />}
+        <CuerpoRespuesta datos={datos} d={d} grande={grande} alPerforar={alPerforar} ocupado={ocupado} />
 
-        {!soloTitular && <Interpretacion analisis={analisis} clave={clave} d={d} />}
+        <Interpretacion analisis={analisis} clave={clave} d={d} />
 
         <div className="flex flex-wrap items-center gap-x-1 gap-y-2 border-t border-linea pt-2">
-          {!soloTitular && (
-            <>
-              <BotonAccion titulo="Copiar" alHacer={copiar}>
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-                  <rect x="7" y="7" width="9" height="9" rx="1" />
-                  <path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7" />
-                </svg>
-                {copiado && <span>Copiado</span>}
-              </BotonAccion>
-              <BotonAccion titulo="Ver en pantalla completa" alHacer={alAbrir}>
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" aria-hidden>
-                  <path d="M12 4h4v4M8 16H4v-4M16 4l-5 5M4 16l5-5" />
-                </svg>
-                <span>Pantalla completa</span>
-              </BotonAccion>
-            </>
-          )}
+          <BotonAccion titulo="Copiar" alHacer={copiar}>
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+              <rect x="7" y="7" width="9" height="9" rx="1" />
+              <path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7" />
+            </svg>
+            {copiado && <span>Copiado</span>}
+          </BotonAccion>
+          <BotonAccion titulo="Ver en pantalla completa" alHacer={alAbrir}>
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square" aria-hidden>
+              <path d="M12 4h4v4M8 16H4v-4M16 4l-5 5M4 16l5-5" />
+            </svg>
+            <span>Pantalla completa</span>
+          </BotonAccion>
           <span className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-right" title={quienRespondio(analisis)}>
             <span className={`dato ${quien.clase}`}>{quien.texto}</span>
             {analisis.tiempo_ms > 0 && !analisis._aviso && !analisis.semaforo.estado.startsWith('rojo') && (
@@ -431,7 +426,7 @@ export default function RespuestaEnChat({ datos, creado, alAbrir, alPerforar, oc
             )}
           </span>
         </div>
-        {analisis.sintetico && !soloTitular && <p className="dato -mt-3">{analisis.origen_datos}</p>}
+        {analisis.sintetico && <p className="dato -mt-3">{analisis.origen_datos}</p>}
       </div>
     </div>
   )
