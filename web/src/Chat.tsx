@@ -106,6 +106,13 @@ export default function Chat() {
       mensajes: [...c.mensajes, ...contenidos.map((m) => ({ ...m, id: siguienteId++, creado: Date.now() }))],
     }))
 
+  // La primera respuesta de una conversación trae todos los paneles; las siguientes, el que se pidió.
+  const decirRespuesta = (id: number, datos: Omit<DatosRespuesta, 'completa'>) =>
+    modificar(id, (c) => {
+      const completa = !c.mensajes.some((m) => m.de === 'krylov' && m.tipo === 'respuesta')
+      return { ...c, mensajes: [...c.mensajes, { de: 'krylov', tipo: 'respuesta', datos: { ...datos, completa }, id: siguienteId++, creado: Date.now() }] }
+    })
+
   // Abre una conversación vacía, o reusa la actual si todavía no tiene mensajes.
   const empezar = (caso: Caso | null = null) => {
     setEstado((s) => {
@@ -128,7 +135,7 @@ export default function Chat() {
       if (propio) {
         const analisis = await api.analizarArchivo(propio.archivo.archivo, caso.motor, propio.columnas)
         setOrigen('api')
-        decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube: null, donde: null, clave: null } })
+        decirRespuesta(id, { intencion, analisis, nube: null, donde: null, clave: null })
         return
       }
       const r = await api.analizar(caso.nombre)
@@ -138,7 +145,7 @@ export default function Chat() {
         intencion === 'donde_medir' ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
       ])
       setOrigen(r.origen)
-      decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube, donde, clave: caso.nombre } })
+      decirRespuesta(id, { intencion, analisis, nube, donde, clave: caso.nombre })
     } catch (e) {
       decir(id, { de: 'krylov', tipo: 'texto', texto: e instanceof SinServidor ? SIN_SERVIDOR : `No pude responder: ${(e as Error).message}` })
     } finally {
@@ -393,9 +400,13 @@ export default function Chat() {
         ) : (
           <>
             <main className="desliza-lista min-h-0 flex-1 overflow-y-auto px-4" aria-live="polite">
-              <ol className="mx-auto max-w-3xl space-y-8 py-6">
+              <ol className="mx-auto max-w-5xl space-y-8 py-6">
                 {conv.mensajes.map((m) => (
-                  <li key={m.id} ref={m === ultimaDelUsuario ? ultimaPregunta : undefined} className="scroll-mt-4">
+                  <li
+                    key={m.id}
+                    ref={m === ultimaDelUsuario ? ultimaPregunta : undefined}
+                    className={`mx-auto scroll-mt-4 ${m.de === 'krylov' && m.tipo === 'respuesta' && m.datos.completa ? '' : 'max-w-3xl'}`}
+                  >
                     {m.de === 'tu' ? (
                       <MensajeTu texto={m.texto} adjunto={m.adjunto} />
                     ) : (
@@ -432,7 +443,7 @@ export default function Chat() {
                   </li>
                 ))}
                 {pensando === conv.id && (
-                  <li>
+                  <li className="mx-auto max-w-3xl">
                     <MensajeKrylov pensando>
                       <p className="brillo">Calculando con el modelo…</p>
                     </MensajeKrylov>

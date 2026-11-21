@@ -1,6 +1,7 @@
-// Una respuesta de Krylov dentro del chat: el titular, que aparece palabra por palabra, y el panel
-// que pidió la pregunta, con los mismos componentes de la vista 2. Debajo, la interpretación y las
-// acciones.
+// Una respuesta de Krylov dentro del chat: el titular, que aparece palabra por palabra, y los
+// paneles de la vista 2. La primera respuesta de una conversación los trae todos (número grande,
+// colores, deslizadores, lista o mapa, qué pesa y examen); las siguientes, solo el que pidió la
+// pregunta. Debajo, la interpretación y las acciones.
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { FONDO, ORDEN } from './colores'
@@ -24,6 +25,7 @@ export interface DatosRespuesta {
   nube: DatosNube | null
   donde: DondeMedir | null
   clave: string | null // la del archivo del demo; null en un archivo propio
+  completa: boolean // la primera respuesta de la conversación: todos los paneles
 }
 
 const UNIDADES_EN_CHAT = 12
@@ -64,7 +66,7 @@ interface Props {
 }
 
 export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
-  const { intencion, analisis, nube, donde, clave } = datos
+  const { intencion, analisis, nube, donde, clave, completa } = datos
   const d = useDecision(analisis)
   const [animar] = useState(() => Date.now() - creado < RECIENTE_MS && !quieto())
   const [copiado, setCopiado] = useState(false)
@@ -110,6 +112,69 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
     </Tarjeta>
   )
 
+  const candidatas = intencion === 'donde_medir' && donde && (
+    <ol className="grid gap-2 sm:grid-cols-3">
+      {donde.candidatas.map((c) => (
+        <li key={c.etiqueta} className="rounded-2xl border border-linea p-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-acento text-sm font-bold text-sobre-acento">{c.etiqueta}</span>
+          <p className="mt-2 text-sm">Medir aquí vale {plata(c.valor_de_medir, moneda)}</p>
+          <p className="text-xs text-tinta-suave">Cuesta {plata(c.costo_medicion, moneda)}</p>
+        </li>
+      ))}
+    </ol>
+  )
+
+  const deslizadores = costo_de_no_saber && (
+    <Deslizadores falsoSi={analisis.costos.falso_si} falsoNo={analisis.costos.falso_no} costos={d.costos} moneda={moneda} alCambiar={d.setCostos} />
+  )
+
+  const quePesa = factores && (
+    <Tarjeta>
+      <QuePesa factores={factores} titulo={mapa ? 'Qué manda en el terreno' : 'Qué pesa'} flechas={!mapa} />
+    </Tarjeta>
+  )
+
+  const elExamen = examen && (
+    <Tarjeta>
+      <Examen examen={examen} />
+    </Tarjeta>
+  )
+
+  // Todo a la vez, en el orden de la vista 2: a la izquierda lo que cuesta no saber, los colores y
+  // los costos; a la derecha las unidades o el mapa; abajo qué pesa y el examen.
+  const todo = (
+    <>
+      <div className="grid gap-4 md:grid-cols-[18rem_minmax(0,1fr)]">
+        <Tarjeta>
+          {costo_de_no_saber && d.total !== null && (
+            <>
+              <p className="text-sm text-tinta-suave">{rotulos.costo_de_no_saber}</p>
+              <NumeroGrande valor={d.total} moneda={moneda} />
+            </>
+          )}
+          <div className="mt-4">{colores}</div>
+          {deslizadores && <div className="mt-5">{deslizadores}</div>}
+        </Tarjeta>
+        {unidades && d.unidades ? (
+          <Tarjeta>
+            <div className="flex h-[26rem] flex-col">
+              <ListaUnidades unidades={unidades} decisiones={d.unidades} corte={d.corte} />
+            </div>
+          </Tarjeta>
+        ) : (
+          mapaChico
+        )}
+      </div>
+      {candidatas}
+      {(quePesa || elExamen) && (
+        <div className={`grid gap-4 ${quePesa && elExamen ? 'sm:grid-cols-2' : ''}`}>
+          {quePesa}
+          {elExamen}
+        </div>
+      )}
+    </>
+  )
+
   return (
     <div>
       {clave === null && (
@@ -138,6 +203,8 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
               </Tarjeta>
             )}
           </>
+        ) : completa ? (
+          todo
         ) : (
           <>
             {intencion === 'decidir' && (
@@ -159,44 +226,18 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
                 <p className="text-sm text-tinta-suave">{rotulos.costo_de_no_saber}</p>
                 <NumeroGrande valor={d.total} moneda={moneda} />
                 <div className="mt-4">{colores}</div>
-                <div className="mt-5">
-                  <Deslizadores falsoSi={analisis.costos.falso_si} falsoNo={analisis.costos.falso_no} costos={d.costos} moneda={moneda} alCambiar={d.setCostos} />
-                </div>
+                <div className="mt-5">{deslizadores}</div>
               </Tarjeta>
             )}
 
-            {intencion === 'que_pesa' &&
-              (factores ? (
-                <Tarjeta>
-                  <QuePesa factores={factores} titulo={mapa ? 'Qué manda en el terreno' : 'Qué pesa'} flechas={!mapa} />
-                </Tarjeta>
-              ) : (
-                <p>Este caso todavía no trae qué pesa.</p>
-              ))}
+            {intencion === 'que_pesa' && (quePesa || <p>Este caso todavía no trae qué pesa.</p>)}
 
-            {intencion === 'examen' &&
-              (examen ? (
-                <Tarjeta>
-                  <Examen examen={examen} />
-                </Tarjeta>
-              ) : (
-                <p>Este caso todavía no tiene examen.</p>
-              ))}
+            {intencion === 'examen' && (elExamen || <p>Este caso todavía no tiene examen.</p>)}
 
             {intencion === 'donde_medir' && (
               <>
                 {mapaChico}
-                {donde && (
-                  <ol className="grid gap-2 sm:grid-cols-3">
-                    {donde.candidatas.map((c) => (
-                      <li key={c.etiqueta} className="rounded-2xl border border-linea p-3">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-acento text-sm font-bold text-sobre-acento">{c.etiqueta}</span>
-                        <p className="mt-2 text-sm">Medir aquí vale {plata(c.valor_de_medir, moneda)}</p>
-                        <p className="text-xs text-tinta-suave">Cuesta {plata(c.costo_medicion, moneda)}</p>
-                      </li>
-                    ))}
-                  </ol>
-                )}
+                {candidatas}
               </>
             )}
           </>
