@@ -112,6 +112,9 @@ def exportar_onnx(
     Ojo: el optimizador de este exportador elimina sumas con constantes muy chicas
     (`x + 1e-8` desaparece del grafo), así que un `+ eps` no protege una división en
     ONNX. Por eso los poolings acotan el denominador con `clamp(min=1.0)`.
+
+    Deja un solo archivo: sin `external_data=False` el exportador escribe los pesos aparte,
+    en `<ruta>.data`, y el servicio y git necesitarían los dos.
     """
     modulo.eval()
     torch.onnx.export(
@@ -122,6 +125,7 @@ def exportar_onnx(
         output_names=list(nombres_salida),
         dynamic_shapes=ejes_dinamicos,
         dynamo=True,
+        external_data=False,   # los pesos van dentro: un solo archivo, que es lo que versiona el contrato
         verbose=False,
     )
 

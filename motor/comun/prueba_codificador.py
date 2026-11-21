@@ -78,6 +78,7 @@ def test_exporta_a_onnx_con_n_variable(codificador, tmp_path):
     ruta = str(tmp_path / "codificador.onnx")
     ejes = {"x": {0: "lote", 1: "n"}, "mascara": {0: "lote", 1: "n"}}
     exportar_onnx(codificador, lote_con_relleno(2, 64), ruta, ["x", "mascara"], ejes)
+    assert [f.name for f in tmp_path.iterdir()] == ["codificador.onnx"]      # un solo archivo, con los pesos dentro
     for lote, n in [(1, 50), (3, 300), (2, 1470)]:
         diferencia = comparar_con_onnxruntime(codificador, ruta, lote_con_relleno(lote, n, semilla=n))
         assert diferencia < TOLERANCIA, (lote, n, diferencia)
