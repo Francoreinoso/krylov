@@ -31,8 +31,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 0:00 a 0:22</h4>
-        <p class="dice">«A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía.» <b>[→]</b> «Casco roto: no hay tiempo para calcular.» <b>[→]</b> «Pero el cálculo ya estaba hecho, en una tabla: mirar y decidir. Calcular antes, decidir al instante. Eso hicimos con el trabajo de un data scientist.»</p></div>
+      <div><h4>Qué se dice · 0:00 a 0:23</h4>
+        <p class="dice">«A comienzos del 1900, un ingeniero naval, Alekséi Krylov, hizo algo raro: calculó por adelantado qué hacer si el barco se rompía.» <b>[→]</b> «Casco roto: no hay tiempo para calcular.» <b>[→]</b> «Pero el cálculo ya estaba hecho, en una tabla: mirar y decidir. Eso hicimos con el trabajo de un data scientist.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">N-01: «a comienzos del 1900», sin fecha exacta, sin nombre de barco y sin decir que la Marina ya las usaba. El plano y la tabla son una ilustración: los números romanos no son datos históricos.</p></div>
     </div></aside>
@@ -73,8 +73,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 0:22 a 0:47</h4>
-        <p class="dice">«Los modelos que mejor responden, los que dicen cuánto se pueden equivocar, hoy exigen un especialista y mucha espera.» <b>[→]</b> «El mismo trabajo: 228 análisis completos. Abajo, Krylov: listo. Arriba, el método lento de siempre: esa barra sí se está moviendo.» <b>[→]</b> «Termina en más de siete horas. Krylov, en menos de un segundo.»</p></div>
+      <div><h4>Qué se dice · 0:23 a 0:47</h4>
+        <p class="dice">«Los modelos que mejor responden, los que dicen cuánto se pueden equivocar, hoy exigen un especialista y mucha espera.» <b>[→]</b> «El mismo trabajo: 228 análisis. Abajo, Krylov: listo. Arriba, el método lento de siempre: esa barra sí se está moviendo.» <b>[→]</b> «Termina en más de siete horas. Krylov, en menos de un segundo.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">M-08 (228 análisis), M-09 (0,69 s, la red), M-10 (26.699 s = 7 h 24 min 59 s), M-25 (117 s por análisis lento). Todo del sello de <code>espacial</code>, MacBook Air M4.<br><b>Ojo:</b> las 7 horas son 228 × 117,1 s (un análisis lento medido en 6 terrenos); nadie corrió las 7 horas de corrido. Si preguntan, se dice así. La barra de arriba avanza en tiempo real hasta el segundo clic; después dice «acelerado».</p></div>
     </div></aside>
@@ -100,7 +100,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · 0:47 a 1:05</h4>
-        <p class="dice">«¿Cómo? Antes de ver un solo dato real, Krylov practicó con más de siete millones de terrenos simulados, donde la respuesta correcta se conoce.» <b>[→]</b> «Una noche, en un MacBook Air. El cálculo difícil se paga una vez; después, cada respuesta sale al instante.»</p></div>
+        <p class="dice">«¿Cómo? Antes de ver un solo dato real, practicó con más de siete millones de terrenos simulados, donde la respuesta correcta se conoce.» <b>[→]</b> «Una noche, en un MacBook Air. El cálculo difícil se paga una vez.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">M-01 (7.750.592 terrenos simulados) y M-02 (280 minutos), sello de <code>espacial</code>. Los terrenos que pasan son 256 muestras del simulador <code>motor/espacial/simular.py</code> (semilla 2026), repetidas: se ven cientos, no millones. «Al instante» se dice solo del terreno.</p></div>
     </div></aside>
@@ -135,8 +135,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 1:05 a 1:30</h4>
-        <p class="dice">«Esto funciona hoy. Un terreno real: 155 mediciones de zinc junto a un río.» <b>[→]</b> «Krylov responde el terreno entero. Los colores son decisiones: rojo, hay que limpiar; verde, no hace falta; ámbar, no sabemos. Y este es el número que importa: lo que te cuesta no saber.» <b>[→]</b> «Lo translúcido es cuánto se puede equivocar en cada bloque.»</p></div>
+      <div><h4>Qué se dice · 1:05 a 1:31</h4>
+        <p class="dice">«Y funciona hoy. Un terreno real: 155 mediciones de zinc junto a un río.» <b>[→]</b> «Krylov responde el terreno entero. Los colores son decisiones: rojo, hay que limpiar; verde, no hace falta; ámbar, no sabemos. Y este número es lo que te cuesta no saber.» <b>[→]</b> «Lo translúcido es cuánto se puede equivocar en cada bloque.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">D-04 (155 mediciones; datos <code>meuse</code>, río Mosa). K-11 (720 mg/kg, con fuente). K-12 y K-13 (costos: hipótesis). Bloques por color, lo que cuesta no saber y alturas: <code>api.analizar("terreno")</code> con la red, guardado por <code>pitch/deck/datos/generar.py</code>. Rango creíble de 90% por bloque: mismas funciones de <code>nucleo/espacial.py</code>. Altura = zinc estimado; color = decisión, no pronóstico. Si preguntan por exactitud: M-13, 24 de 31 mediciones escondidas cayeron en el rango (77%). No se dice «qué manda»: M-30 sigue pendiente.</p></div>
     </div></aside>
@@ -170,8 +170,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 1:30 a 2:00</h4>
-        <p class="dice">«Y la pregunta que vale plata: si puedo medir un punto más, ¿dónde? Para contestar, Krylov imaginó cientos de resultados posibles y rehízo el análisis completo 228 veces. Menos de un segundo. Medir en A vale más de quince mil dólares.» <b>[→]</b> «Mido, sale alto, y el mapa se rehace.»</p></div>
+      <div><h4>Qué se dice · 1:31 a 1:51</h4>
+        <p class="dice">«La pregunta que vale plata: si puedo medir un punto más, ¿dónde? Para contestar, Krylov rehízo el análisis completo 228 veces, en menos de un segundo. Medir en A vale más de quince mil dólares.» <b>[→]</b> «Mido, sale alto, y el mapa se rehace.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">M-08, M-09, M-10. Pines y su valor: <code>api.donde_medir("terreno")</code> con la red (M-12 sigue «pendiente» en CIFRAS: pedido en el README). K-17: la medición cuesta US$ 3.000 (hipótesis). El mapa rehecho es la respuesta de la red a <code>api.analizar("terreno", mediciones=[…])</code>, guardada en <code>datos.js</code>: aquí se anima, en la app corre en vivo. Se puede hacer clic en otro pin y en «sale bajo / medio / alto».</p></div>
     </div></aside>
@@ -199,8 +199,8 @@
     <div class="bloque pie chico" data-paso="0">Se dibujan <span data-dato="nube.n_dibujadas" data-formato="miles">3.000</span> de <span data-dato="nube.n_simulaciones" data-formato="miles">5.000</span> empresas simuladas. El archivo: datos públicos de ejemplo (ficticios, creados por IBM), más una columna que agregamos nosotros.</div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 2:00 a 2:20</h4>
-        <p class="dice">«¿Y si le paso un archivo malo? Antes de responder, Krylov lo compara con las empresas que simuló.» <b>[→]</b> «Este cae afuera: una columna delata la respuesta. Krylov no responde.» <b>[→]</b> «Propone sacarla, y recién ahí contesta. Sabe cuando no sabe.»</p></div>
+      <div><h4>Qué se dice · 1:51 a 2:10</h4>
+        <p class="dice">«¿Y con un archivo malo? Antes de responder, lo compara con las empresas que simuló.» <b>[→]</b> «Este cae afuera: una columna delata la respuesta. Krylov no responde.» <b>[→]</b> «Propone sacarla, y recién ahí contesta. Sabe cuando no sabe.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">M-29 (el archivo malo cae fuera y, corregido, dentro), D-05 (el archivo malo), D-01 (archivo ficticio de IBM). Puntos y posiciones: <code>api.nube("rotacion_malo")</code> y la misma con <code>["quitar_factor:fecha_salida"]</code>. <b>No se dice que la tarjeta de rotación responde «al instante»:</b> esa red no pasó su sello; hoy responde con el método lento, precalculado y rotulado.</p></div>
     </div></aside>
@@ -230,8 +230,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 2:20 a 2:36</h4>
-        <p class="dice">«Hoy lo ven en un terreno. La hoja de ruta: cada modelo difícil se entrena una vez y queda al instante para cualquiera. Dónde perforar, en minería. Qué trae El Niño. Qué acción funciona de verdad, en miles de empresas.»</p></div>
+      <div><h4>Qué se dice · 2:10 a 2:26</h4>
+        <p class="dice">«Hoy lo ven en un terreno. La hoja de ruta: cada modelo difícil se entrena una vez y queda al instante para cualquiera. Dónde perforar. Qué trae El Niño. Qué funciona de verdad en miles de empresas.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente"><b>Nada de esta lámina existe:</b> es hoja de ruta y las tres figuras son ilustraciones (un campo simulado, no datos de minería ni de clima). No hay cifras. Los modelos candidatos, con horas honestas, están en <code>pitch/MODELOS_CANDIDATOS.md</code>.</p></div>
     </div></aside>
@@ -257,8 +257,8 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 2:36 a 2:48</h4>
-        <p class="dice">«¿A quién se lo vendemos primero? A plataformas con miles de empresas cliente: una integración, y cada empresa tiene su data scientist.» <b>[→]</b> «Veinte dólares al mes por empresa. Es una hipótesis, todavía sin validar.»</p></div>
+      <div><h4>Qué se dice · 2:26 a 2:41</h4>
+        <p class="dice">«¿A quién primero? A plataformas con miles de empresas cliente: una integración, y cada empresa tiene su data scientist.» <b>[→]</b> «Veinte dólares al mes por empresa: es una hipótesis, sin validar.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">C-05 (US$ 20 al mes: hipótesis sin validar) y C-06 (US$ 240.000 al año por 1.000 empresas: cálculo sobre C-05). Buk y AgendaPro van solo como «tipo»: no son clientes ni dieron datos. Sin logos. Si preguntan: «todavía no hablamos con clientes».</p></div>
     </div></aside>
@@ -286,7 +286,7 @@
     </div>
 
     <aside class="notas"><div class="cols">
-      <div><h4>Qué se dice · 2:48 a 3:00</h4>
+      <div><h4>Qué se dice · 2:41 a 2:53</h4>
         <p class="dice">«Lo construimos con Claude Code. Está en línea: escaneen y muevan los costos ustedes. Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.»</p></div>
       <div><h4>Fuentes y cuidado</h4>
         <p class="fuente">La frase es la de AGENTS.md. «Millones» se sostiene con M-01 (7.750.592 terrenos). El QR va a https://krylov-tan.vercel.app/ y es una imagen local (<code>qr.svg</code>). Los nombres del equipo se escriben en <code>EQUIPO</code>, al final de <code>index.html</code>, cuando cada persona lo confirme. De Anthropic, solo «lo construimos con Claude Code», salvo que la interpretación del chat funcione a las 18:00.</p></div>
