@@ -2,16 +2,18 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 45 líneas.
 
-**Actualizado:** sáb 21-nov 05:36 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
+**Actualizado:** sáb 21-nov 05:51 · **Hito vigente:** H0 cerrado (tag `h0`). Próximo: H1, a más tardar 08:45 · **Producto terminado: sáb 18:00**
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en PC 3 en tamaño teléfono y por PC 1 desde un teléfono (04:01). Falta confirmar con datos móviles.
+
+**⚠️ Para Rodrigo, camino crítico del H2 de las 12:15:** A-N2 (paso local y NumPyro de `supervivencia`) no avanza desde las 04:00; de ahí dependen `analizar` de rotación, la cartera y la nube con el archivo malo. PC 2 pregunta: ¿se reactiva la sesión B o la sesión A toma `supervivencia`? También es tuya la decisión de agregar `unidad` a `analizar` (pedido de PC 1).
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
 | producto (PC 1) | 🟢 adelantado | P-01 a P-03 y P-N1 a P-N3 verificados en PC 3: tema oscuro, deslizadores, mapa y nube, en una pantalla de 1280×720 |
-| amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04, A-B1 a A-B4, A-N1, A-N3, el código de A-11 y A-12, la nube común (A-13) y parte de A-N5 en `main`; 15 pruebas de `nucleo/` pasan en PC 3. `espacial` entrena desde las 03:50 |
+| amortizacion (PC 2) | 🟡 bloqueo en A-N2 | A-01 a A-04, A-B1 a A-B4, A-N1, A-N3, el código de A-11 y A-12, la nube común (A-13) y parte de A-N5 en `main`; 15 pruebas de `nucleo/` pasan en PC 3. `espacial` entrena desde las 03:50 |
 | seguimiento (PC 3) | 🟢 adelantado | S-02 a S-05, S-N1 a S-N3, S-08, S-12 y los textos de pantalla v1 hechos (D-29). `supervivencia` entrena en PC 3 desde las 04:05: 2,1 millones de datasets a las 04:46 |
 
 ## La madrugada (D-31: dormir a las 05:15 ya no es obligatorio)

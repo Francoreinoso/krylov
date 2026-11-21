@@ -34,14 +34,18 @@ titular:
 en_palabras:
   # Hasta tres frases, en este orden, solo las que apliquen.
   hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y saber más no cambiaría la decisión."
+  hay_actuar_una: "En 1 {unidad_singular}, {actuar_min}, y saber más no cambiaría la decisión."      # cuando n_actuar == 1
   hay_en_duda: "En {n_en_duda} {unidad_plural} los datos no alcanzan para decidir: {en_duda_min}."
+  hay_en_duda_una: "En 1 {unidad_singular} los datos no alcanzan para decidir: {en_duda_min}."      # cuando n_en_duda == 1
   factor_seguro: "Lo que más pesa es {factor_min}."
   factor_no_se_sabe: "{factor}: con estos datos no se puede saber si sube o baja el riesgo."
-  # Terreno (motor espacial): reemplazan a las anteriores.
+  # Terreno (motor espacial): reemplazan a las anteriores. Caben tres: «no hace falta limpiar» no lleva frase
+  # (el mapa ya lo muestra), para que salga «qué manda», que es la historia del terreno.
   espacial:
     hay_actuar: "Hay {n_actuar} bloques que hay que limpiar con seguridad."
-    hay_no_actuar: "En {n_no_actuar} bloques no hace falta limpiar."
+    hay_actuar_una: "Hay 1 bloque que hay que limpiar con seguridad."                               # cuando n_actuar == 1
     hay_en_duda: "En {n_en_duda} bloques no se sabe: ahí conviene medir antes de gastar."
+    hay_en_duda_una: "En 1 bloque no se sabe: ahí conviene medir antes de gastar."                  # cuando n_en_duda == 1
     manda: "En este terreno manda {factor_min}."
 
 semaforo:
@@ -61,7 +65,8 @@ semaforo:
 
 examen:
   # La frase la arma el servicio con `tramos` (CONTRATO.md 3): nunca a mano.
-  tabla: "De las {unidad_plural} a las que les dimos cerca de {dijimos}% de riesgo, {paso_verbo} el {paso}%."
+  # Sin artículo ni unidad, para que sirva en los tres casos (las personas, los clientes, las citas). Como en GLOSARIO.md.
+  tabla: "Cuando dijimos cerca de {dijimos}% de riesgo, {paso_verbo} el {paso}%."
   verbo_por_caso: { rotacion: "se fue", inasistencias: "no llegó", credito: "no pagó" }
   espacial: "Escondimos {n} mediciones reales y las adivinamos: {k} cayeron dentro del rango que dimos."
   sin_medir: "Exactitud en medición."
@@ -78,6 +83,10 @@ sello:
 precalculado:
   rotulo: "precalculado"
   explicacion: "Esta respuesta la calculamos antes con el método lento de siempre. Los deslizadores sí funcionan en vivo."
+  # Terreno con KRYLOV_ESPACIAL_THETA=mcmc: el mapa y «¿Dónde mido?» salen de la red; «qué manda» sale del MCMC
+  # precalculado (orden de corte n.º 4 de WORKPLAN.md 6.5). Nunca se dice que «qué manda» lo respondió la red.
+  que_manda_rotulo: "precalculado"
+  pie_espacial_mixto: "El mapa lo respondió la red que practicó con terrenos simulados. «Qué manda en el terreno» lo calculamos antes con el método lento de siempre."
 
 deslizadores:
   # Pregunta sobre cada deslizador; la etiqueta de cada costo sale del YAML del caso.
