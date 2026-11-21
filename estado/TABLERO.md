@@ -12,7 +12,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 |---|---|---|
 | producto (PC 1) | 🟢 adelantado | P-01 y P-02 en `main`, verificados en PC 3. Sigue P-03 |
 | amortizacion (PC 2) | 🟢 adelantado | A-01 a A-04 y A-B1 a A-B4 en `main`. `espacial` entrena en PC 2 desde las 03:50. `supervivencia` lista para PC 3 |
-| seguimiento (PC 3) | 🟢 adelantado | S-02 con respuesta, S-03, S-04 y S-05 en `main`. Grupo `entrenar` instalado |
+| seguimiento (PC 3) | 🟢 adelantado | S-02 con respuesta, S-03, S-04 y S-05 en `main`. `supervivencia` entrena aquí desde las 04:05 |
 
 ## H0: cerrado a las 04:00 (D-27, D-28)
 
@@ -24,7 +24,7 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 - **PC 1 · producto:** P-03 (vista 1 y vista 2 de los casos con lista). Una persona abre la URL en un teléfono con datos móviles. Ojo: el orden de las tarjetas lo manda `casos/INICIO` (rotación, terreno, inasistencias, crédito); el ejemplo fijo trae otro orden.
 - **PC 2 · amortizacion:** sesión A: `espacial` entrenando; seguir con A-05 y la lista nocturna. Sesión B: A-N2 (paso local y NumPyro). Rotación, terreno (con `terreno_grilla.csv`) y crédito ya están en `datos/demo/`.
-- **PC 3 · seguimiento:** S-05b: lanzar `supervivencia` con la sección «Lanzar `supervivencia` en PC 3» de `estado/amortizacion.md` (todo listo desde las 04:00; plan: 04:55). Antes de dormir, lista nocturna (S-N1 ya tiene el crudo de inasistencias). Guion: la versión de 3 minutos pasa a ser la principal.
+- **PC 3 · seguimiento:** `supervivencia` entrena aquí desde las 04:05 hasta las 08:30 (S-05b, adelantado; cómo retomar en `estado/seguimiento.md`). Antes de dormir, lista nocturna (S-N1 ya tiene el crudo de inasistencias). Guion: la versión de 3 minutos pasa a ser la principal.
 
 ## Qué cambió respecto del plan
 

@@ -16,11 +16,25 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 04:00 · **H0 cerrado**, tag `h0` en los dos repositorios (D-28). P-01 verificado corriendo: API local en el puerto 8010, web en 5173, inicio y respuestas fijas; con la API detenida, modo estático.
 - sáb 03:28 · S-05, crédito (adelantado): `datos/demo/credito.csv` (muestra de 2.000 de 30.000, las 25 columnas con los seis meses de `PAY_*`, `BILL_AMT*` y `PAY_AMT*`, 400 respuestas vacías al azar) y `credito_verdad.csv` (400 filas). Las dos clases quedan presentes. Comando: `uv run --no-project --with pandas --with xlrd python datos/preparar/credito.py` (el crudo se baja con los comandos del encabezado del script).
 
+- sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
+
 ## En curso
 
-- sáb 04:00 · Siguiente: a las 04:55, S-05b, lanzar `entrenar-motor supervivencia` en este computador.
+- sáb 04:05 · **S-05b: `supervivencia` entrena en este computador hasta las 08:30** (adelantada desde las 04:55). Ver la tabla «Entrenamiento en curso».
 - sáb 03:49 · Crudo de inasistencias en `datos/crudo/inasistencias/KaggleV2-May-2016.csv` (copia pública del archivo de Kaggle, verificada contra D-03). Listo para S-N1. No se sube (licencia no comercial).
-- sáb 03:47 · Grupo `entrenar` instalado y probado: listo para S-05b a las 04:55.
+
+## Entrenamiento en curso
+
+| Qué | Valor |
+|---|---|
+| Motor | `supervivencia`, en PC 3 (MacBook Air M3, 16 GB), enchufado |
+| Comando exacto | `cd ~/Downloads/krylov && nohup caffeinate -dims uv run python -m motor.supervivencia.entrenar --dispositivo cpu --hasta 08:30 --guardar-cada-min 10 > motor/checkpoints/supervivencia/corrida.log 2>&1 < /dev/null &` (desacoplado: sigue aunque se cierre Claude Code o la terminal) |
+| Hora de inicio | sáb 04:05, retomando desde el paso 4.450 de la prueba de humo |
+| Puntos de guardado | `motor/checkpoints/supervivencia/ultimo.pt`, cada 10 minutos; avance en `registro.jsonl`; salida en `corrida.log` |
+| Mirar cómo va | `tail -n 1 motor/checkpoints/supervivencia/registro.jsonl` |
+| Si se cae | El mismo comando. La primera línea de `corrida.log` tiene que decir `[retomar] … paso N`. Nunca `--nuevo` |
+| Detener antes de las 08:30 | `pkill -INT -f "motor.supervivencia.entrenar"` (guarda y sale). A las 08:30 se detiene solo |
+| Después (S-06b, 08:30) | `uv run python -m motor.supervivencia.exportar` y subir `motor/artefactos/supervivencia/` (pasos 7 y 8 de `estado/amortizacion.md`) |
 
 ## Bloqueos
 
@@ -47,6 +61,8 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 | Crédito, por decidir | 400 de 2.000; con respuesta 1.600, 23,3% no pagó | `datos/preparar/credito.py` (cifra D-02b) | 03:28 |
 | Rotación, por decidir | 294 de 1.470; con respuesta 1.176, 15,6% renunció | `python3 datos/preparar/rotacion.py` (cifra D-01b) | 03:22 |
 | Terreno, puntos y grilla | 155 puntos, 3.103 celdas | `Rscript datos/preparar/terreno.R` (D-04, D-04b) | 03:22 |
+| `supervivencia` en el M3: pasos de entrenamiento por segundo, CPU, lote 32 | 22 a 28 (unos 800 datasets por segundo); nada más entrenando | `registro.jsonl` de la prueba de humo | 04:05 |
+| `supervivencia` en el M3: SBC chico a los 3 minutos | cobertura del 90% en 0,906; contracción media 0,53; 8 de 32 con KS sobre el límite | `uv run python -m motor.supervivencia.validar --sbc 200` | 04:05 |
 | Prueba del asistente genérico: respuestas distintas de 3 | sin medir | S-09 | — |
 | Extraños que repiten la idea, prueba 1 (12:30) | sin medir | `ensayo-pitch` | — |
 | Extraños que repiten la idea, prueba 2 (19:00) | sin medir | `ensayo-pitch` | — |
