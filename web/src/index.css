@@ -1,72 +1,9 @@
 @import "tailwindcss";
 
+/* Diseño Estudio: claro, de asistente. */
 @theme {
-  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
-
-  --color-fondo: #0d1f2b;
-  --color-superficie: #132a38;
-  --color-linea: #24414f;
-  --color-tinta: #e9eff2;
-  --color-tinta-suave: #8da3af;
-  --color-actuar: #e5534b;
-  --color-en-duda: #f0b429;
-  --color-no-actuar: #3daa74;
-  --color-acento: #f0b429;
-  --color-sobre-acento: #0d1f2b;
-}
-
-/* Tokens que no generan utilidades: radio de las cajas, sombra, fuente y ancho de los titulares,
-   y el color de las rayas del achurado (lo lee también el canvas). */
-:root {
-  --radio: 6px;
-  --sombra: none;
-  --fuente-titular: var(--font-sans);
-  --ancho-titular: 72%;
-  --color-trama: #0d1f2b73;
-  --degradado: linear-gradient(var(--color-acento), var(--color-acento));
-  --fondo-imagen: none;
-  --radio-caja: 28px;
-}
-
-html {
-  font-size: 18px;
-  color-scheme: dark;
-}
-
-/* Diseños para comparar (selector abajo a la derecha). «Puente» es el de arriba. */
-:root[data-diseno="tablas"] {
-  --color-fondo: #f4efe4;
-  --color-superficie: #ebe4d4;
-  --color-linea: #cfc4ad;
-  --color-tinta: #1d1a16;
-  --color-tinta-suave: #6b6253;
-  --color-actuar: #b8322a;
-  --color-en-duda: #c98a00;
-  --color-no-actuar: #2e7d4f;
-  --color-acento: #1d1a16;
-  --color-sobre-acento: #f4efe4;
-  --color-trama: #f4efe48c;
-  --radio: 0px;
-  --font-sans: "Newsreader Variable", ui-serif, Georgia, serif;
-  --radio-caja: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 2px;
-  --radius-2xl: 2px;
-  --radius-3xl: 2px;
-  --fuente-titular: "Newsreader Variable", ui-serif, Georgia, serif;
-  --ancho-titular: 100%;
-  color-scheme: light;
-}
-
-:root[data-diseno="estudio"],
-:root[data-diseno="estudio-noche"] {
   --font-sans: ui-sans-serif, system-ui, "Segoe UI", Inter, Roboto, "Helvetica Neue", sans-serif;
-  --radio: 20px;
-  --ancho-titular: 100%;
-  --degradado: linear-gradient(100deg, #5b5bd6 0%, #9a5fd8 45%, #e0844a 100%);
-}
 
-:root[data-diseno="estudio"] {
   --color-fondo: #ffffff;
   --color-superficie: #f4f4f7;
   --color-linea: #e5e5ec;
@@ -77,194 +14,32 @@ html {
   --color-no-actuar: #1f9d61;
   --color-acento: #5b5bd6;
   --color-sobre-acento: #ffffff;
-  --color-trama: #ffffff80;
+}
+
+/* Tokens que no generan utilidades: radio de la caja del chat, sombra, fuente de los titulares,
+   el degradado del saludo y el color de las rayas del achurado (lo lee también el canvas). */
+:root {
+  --radio-caja: 28px;
   --sombra: 0 1px 2px #1a1b2512, 0 6px 24px #1a1b250d;
-  color-scheme: light;
-}
-
-:root[data-diseno="estudio-noche"] {
-  --color-fondo: #1e1f24;
-  --color-superficie: #2a2b31;
-  --color-linea: #393a43;
-  --color-tinta: #ececf1;
-  --color-tinta-suave: #9a9cab;
-  --color-actuar: #f06b63;
-  --color-en-duda: #f2b630;
-  --color-no-actuar: #3fbf82;
-  --color-acento: #9191f8;
-  --color-sobre-acento: #14141a;
-  --color-trama: #1e1f2480;
-  --sombra: 0 1px 2px #00000040, 0 8px 28px #00000038;
-  --degradado: linear-gradient(100deg, #9191f8 0%, #c084fc 45%, #f2a36b 100%);
-  color-scheme: dark;
-}
-
-/* ——— Diseños de la familia Estudio: misma estructura, otra paleta y otra letra. ——— */
-
-/* Arcilla: papel tibio, terracota y titulares con serifa. */
-:root[data-diseno="arcilla"] {
-  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --fuente-titular: "Fraunces Variable", ui-serif, Georgia, serif;
-  --ancho-titular: 100%;
-  --radio: 16px;
-  --color-fondo: #faf8f3;
-  --color-superficie: #f1ede3;
-  --color-linea: #e4ddcd;
-  --color-tinta: #24201b;
-  --color-tinta-suave: #776e61;
-  --color-actuar: #c8402f;
-  --color-en-duda: #d99a1e;
-  --color-no-actuar: #4f8a5b;
-  --color-acento: #c2562f;
-  --color-sobre-acento: #ffffff;
-  --color-trama: #faf8f380;
-  --sombra: 0 1px 2px #24201b10, 0 8px 28px #5a3a1a0f;
-  --degradado: linear-gradient(100deg, #b4462b 0%, #d0703a 55%, #c9973e 100%);
-  color-scheme: light;
-}
-
-/* Marea: el «teal transformador» de 2026 sobre blanco roto; el mar de Krylov. */
-:root[data-diseno="marea"] {
-  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --fuente-titular: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
-  --ancho-titular: 100%;
-  --radio: 18px;
-  --color-fondo: #f7f6f2;
-  --color-superficie: #e4eef0;
-  --color-linea: #d2e0e3;
-  --color-tinta: #17212b;
-  --color-tinta-suave: #5d6b70;
-  --color-actuar: #d1493f;
-  --color-en-duda: #e3a21a;
-  --color-no-actuar: #2f8f5b;
-  --color-acento: #174a5b;
-  --color-sobre-acento: #ffffff;
-  --color-trama: #f7f6f280;
-  --sombra: 0 1px 2px #17212b12, 0 8px 26px #174a5b10;
-  --degradado: linear-gradient(100deg, #174a5b 0%, #1d7f8f 50%, #3fb4c6 100%);
-  color-scheme: light;
-}
-
-/* Tinta: blanco y negro; el único color en pantalla son las decisiones. */
-:root[data-diseno="tinta"] {
-  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
-  --ancho-titular: 88%;
-  --radio: 10px;
-  --radio-caja: 14px;
-  --radius-2xl: 10px;
-  --radius-3xl: 14px;
-  --color-fondo: #ffffff;
-  --color-superficie: #f4f4f4;
-  --color-linea: #e4e4e4;
-  --color-tinta: #0a0a0a;
-  --color-tinta-suave: #6b6b6b;
-  --color-actuar: #e5484d;
-  --color-en-duda: #f5b10a;
-  --color-no-actuar: #30a46c;
-  --color-acento: #0a0a0a;
-  --color-sobre-acento: #ffffff;
+  --fuente-titular: var(--font-sans);
   --color-trama: #ffffff80;
-  --sombra: 0 1px 2px #0000000d, 0 4px 16px #0000000a;
-  --degradado: linear-gradient(#0a0a0a, #0a0a0a);
+  --degradado: linear-gradient(100deg, #5b5bd6 0%, #9a5fd8 45%, #e0844a 100%);
+}
+
+html {
+  font-size: 18px;
   color-scheme: light;
-}
-
-/* Órbita: casi negro y azul eléctrico, con un brillo frío arriba. */
-:root[data-diseno="orbita"] {
-  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
-  --ancho-titular: 100%;
-  --radio: 12px;
-  --radio-caja: 16px;
-  --radius-2xl: 12px;
-  --radius-3xl: 14px;
-  --color-fondo: #090b10;
-  --color-superficie: #131722;
-  --color-linea: #232a38;
-  --color-tinta: #eef2fa;
-  --color-tinta-suave: #8792a8;
-  --color-actuar: #f2555a;
-  --color-en-duda: #f5b83d;
-  --color-no-actuar: #3dbf86;
-  --color-acento: #5b8cff;
-  --color-sobre-acento: #ffffff;
-  --color-trama: #090b1080;
-  --sombra: 0 1px 2px #00000060, 0 8px 30px #00000050;
-  --degradado: linear-gradient(100deg, #4f7dff 0%, #7fa6ff 50%, #c9d8ff 100%);
-  --fondo-imagen: radial-gradient(70% 45% at 50% -5%, #3d6bff26, transparent 70%);
-  color-scheme: dark;
-}
-
-/* Wasabi: grafito, celeste y lima. Mucha energía para el proyector. */
-:root[data-diseno="wasabi"] {
-  --font-sans: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
-  --ancho-titular: 100%;
-  --radio: 14px;
-  --color-fondo: #0b0d10;
-  --color-superficie: #151a21;
-  --color-linea: #252c37;
-  --color-tinta: #f4f5f7;
-  --color-tinta-suave: #8b95a3;
-  --color-actuar: #ff5c4d;
-  --color-en-duda: #ffb224;
-  --color-no-actuar: #3ccf91;
-  --color-acento: #e9f056;
-  --color-sobre-acento: #0b0d10;
-  --color-trama: #0b0d1080;
-  --sombra: 0 1px 2px #00000060, 0 8px 30px #00000050;
-  --degradado: linear-gradient(100deg, #56d9ff 0%, #9be7c4 50%, #e9f056 100%);
-  --fondo-imagen: radial-gradient(60% 40% at 50% -5%, #56d9ff18, transparent 70%);
-  color-scheme: dark;
-}
-
-/* Ciruela: ciruela muy oscura, durazno y oro viejo; editorial, con serifa. */
-:root[data-diseno="ciruela"] {
-  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --fuente-titular: "Fraunces Variable", ui-serif, Georgia, serif;
-  --ancho-titular: 100%;
-  --radio: 18px;
-  --color-fondo: #1a1216;
-  --color-superficie: #261a20;
-  --color-linea: #3a2a32;
-  --color-tinta: #f6ece8;
-  --color-tinta-suave: #b09ca3;
-  --color-actuar: #e8675a;
-  --color-en-duda: #e5b24a;
-  --color-no-actuar: #58a57c;
-  --color-acento: #f0b48a;
-  --color-sobre-acento: #1a1216;
-  --color-trama: #1a121680;
-  --sombra: 0 1px 2px #00000060, 0 8px 30px #00000050;
-  --degradado: linear-gradient(100deg, #f5cac3 0%, #f0b48a 50%, #c9965a 100%);
-  --fondo-imagen: radial-gradient(60% 40% at 50% -5%, #f5cac314, transparent 70%);
-  color-scheme: dark;
 }
 
 body {
   @apply bg-fondo text-tinta antialiased;
   font-variant-numeric: tabular-nums;
-  background-image: var(--fondo-imagen);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
-/* Tinta: titulares apretados, como un cartel suizo. */
-:root[data-diseno="tinta"] .condensado {
-  letter-spacing: -0.015em;
-}
-
-/* Los titulares con serifa se ven mejor un poco más livianos. */
-:root[data-diseno="arcilla"] .condensado,
-:root[data-diseno="ciruela"] .condensado {
-  font-weight: 560;
-  letter-spacing: -0.01em;
-}
-
-/* Titulares y número grande: Archivo en ancho condensado. */
+/* Titulares y número grande. */
 .condensado {
   font-family: var(--fuente-titular);
-  font-stretch: var(--ancho-titular);
 }
-
 
 /* La duda se ve como trama, no solo como color. */
 .achurado {

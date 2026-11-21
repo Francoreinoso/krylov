@@ -1,5 +1,5 @@
 // Los tres colores son decisiones, no pronósticos (CONTRATO.md, sección 3).
-// Los valores viven en el CSS (index.css) y cambian con el diseño elegido.
+// Los valores viven en el CSS (index.css).
 
 import type { Estado } from './tipos'
 
@@ -20,7 +20,7 @@ export const FONDO: Record<Estado, string> = {
   no_actuar: 'bg-no-actuar',
 }
 
-// Para SVG: la variable CSS, así el color cambia con el diseño sin volver a pintar.
+// Para SVG: la variable CSS.
 export const COLOR_SVG: Record<Estado, string> = {
   actuar: `var(${VARIABLE.actuar})`,
   en_duda: `var(${VARIABLE.en_duda})`,

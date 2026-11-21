@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 // Llama a `dibujar` con un contexto del tamaño en pantalla del canvas, cada vez que cambian las
-// dependencias, el tamaño o el diseño (evento `diseno`, ver disenos.ts).
+// dependencias o el tamaño.
 export function useLienzo(dibujar: (ctx: CanvasRenderingContext2D, ancho: number, alto: number) => void, deps: unknown[]) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -23,11 +23,7 @@ export function useLienzo(dibujar: (ctx: CanvasRenderingContext2D, ancho: number
     pintar()
     const observador = new ResizeObserver(pintar)
     observador.observe(canvas)
-    window.addEventListener('diseno', pintar)
-    return () => {
-      observador.disconnect()
-      window.removeEventListener('diseno', pintar)
-    }
+    return () => observador.disconnect()
   }, deps)
   return ref
 }
