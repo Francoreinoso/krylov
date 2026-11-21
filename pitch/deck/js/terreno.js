@@ -347,7 +347,7 @@
         haces.forEach(function (h) {
           const k = K.fuera((s.escaneo * 1.25 - h.orden) / 0.22), y0 = altura(h.i);
           const quedan = h.mejor ? 1 : 1 - 0.55 * s.destaca;
-          const elegido = lamina === 'donde' && h.letra === E.sel ? 1 : 0;
+          const elegido = h.letra === E.sel ? 1 : 0;
           const apagado = h.letra && s.medido > 0 ? (elegido ? 1 - s.medido : 1) : 1;
           h.haz.visible = h.cima.visible = k > 0 && s.haces > 0;
           h.haz.position.set(h.x, y0, h.z);
@@ -405,164 +405,74 @@
 
   function terreno() { return E || (K.gl.ok ? construir() : null); }
 
-  // ============================== 4 · El mapa ==============================
-  K.registrar('mapa', {
-    tres: null, interactivo: true, tQuieto: 0,
-    crear: function (L) {
-      const m = (this.m = terreno());
-      if (!m) return;
-      this.tres = m.tres;
-      this.rio = document.createElement('div');
-      this.rio.className = 'etq rio';
-      this.rio.textContent = 'Río';
-      L.querySelector('#etq-mapa').appendChild(this.rio);
-    },
-    entrar: function () {
-      const m = this.m;
-      if (!m) return;
-      if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
-      Object.assign(m.s, { haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0, morf: 1, arrastre: 0, arrastreEl: 0, color: 1 });
-      K.anim(m.s, { az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400 }, 2.0, false);
-    },
-    paso: function (p, inst) {
-      const m = this.m;
-      if (!m) return;
-      const s = m.s;
-      if (p === 0) {
-        K.anim(s, { crece: 0, vidrio: 0, puntos: 1 }, 0.6, inst);
-        s.caida = 0; s.tallos = 0;
-        K.anim(s, { caida: 1 }, 3.0, inst, 'none', 0.3);
-        K.anim(s, { tallos: 1 }, 1.0, inst, 'power1.out', 2.4);
-      } else {
-        K.anim(s, { caida: 1, tallos: 1 }, 0.4, inst);
-        K.anim(s, { crece: 1 }, 3.2, inst, 'power1.inOut');
-        K.anim(s, { vidrio: p >= 2 ? 1 : 0 }, 1.8, inst);
-        K.anim(s, { puntos: p >= 2 ? 0.45 : 1 }, 1.2, inst);
-      }
-      this.rio.classList.toggle('ver', m.orillas.length > 0);
-    },
-    cuadro: function (t, dt) {
-      const m = this.m;
-      if (!m) return;
-      m.cuadro(t, dt, 'mapa');
-      // «Río Mosa»: junto al punto de la orilla que queda más abajo en pantalla.
-      let mejor = null;
-      for (let i = 0; i < m.orillas.length; i += 5) {
-        const p = K.proyectar(m.orillas[i].x, 0.1, m.orillas[i].z, m.tres.camera);
-        if (!p.detras && p.x > 820 && p.x < 1800 && p.y < 990 && (!mejor || p.y > mejor.y)) mejor = p;
-      }
-      if (mejor) this.rio.style.transform = 'translate(' + (mejor.x - 24).toFixed(1) + 'px,' + (mejor.y + 14).toFixed(1) + 'px) translate(-100%, 0)';
-    },
-  });
-
-  // ============================== 5 · ¿Dónde mido? ==============================
-  K.registrar('donde', {
+  // ============================== 5 · Leyes: el banco y «¿Dónde perforo?» ==============================
+  K.registrar('leyes', {
     tres: null, interactivo: true, tQuieto: 0,
     crear: function (L) {
       const m = (this.m = terreno()), yo = this;
       if (!m) return;
       this.tres = m.tres;
-      const capa = L.querySelector('#etq-donde'), D = m.D;
+      const capa = L.querySelector('#etq-leyes'), D = m.D;
       m.haces.forEach(function (h) {
         if (!h.letra) return;
         h.etq = document.createElement('div');
         h.etq.className = 'etq letra' + (h.letra === 'A' ? '' : ' menor');
         h.etq.textContent = h.letra;
-        h.etq.addEventListener('click', function () { m.sel = h.letra; if (K.donde().paso === 0) K.siguiente(); else yo.medir(false); });
         capa.appendChild(h.etq);
       });
-      // la lista de los tres mejores lugares
+      // los tres mejores lugares para una muestra más
       this.filas = {};
       const ranking = L.querySelector('#ranking');
       D.donde.candidatas.forEach(function (c) {
         const fila = document.createElement('div');
         fila.className = 'fila ' + c.etiqueta.toLowerCase();
-        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$ ' + K.miles(c.valor_de_medir) + '</span>' +
-          (c.etiqueta === 'A' ? '<span class="p"></span>' : '');
+        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$&nbsp;' + K.miles(c.valor_de_medir) + '</span>';
         ranking.appendChild(fila);
         yo.filas[c.etiqueta] = fila;
       });
-      const veces = D.donde.candidatas[0].valor_de_medir / D.terreno.costos.medicion, frase = this.filas.A.querySelector('.p');
-      frase.textContent = 'vale una muestra más en A: ' + K.coma(veces, 1).replace(',0', '') + ' veces lo que cuesta.';
       this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
-      this.texto = L.querySelector('#texto-medicion');
-      this.monto = L.querySelector('#baja-monto');
-      this.sentido = L.querySelector('#baja-sentido');
-      this.promedio = L.querySelector('#baja-promedio');
-      this.regla = L.querySelector('#regla');
-      this.regla.addEventListener('click', function (ev) {
-        const b = ev.target.closest('button');
-        if (b) { m.nivel = b.dataset.nivel; yo.medir(false); }
-      });
-    },
-    // La regla: los tres resultados posibles de medir en el lugar elegido, sobre una escala, con el nivel que obliga a actuar.
-    pintarRegla: function () {
-      const m = this.m, c = m.candidata(m.sel), r = c.resultados_posibles, T = m.T;
-      const tope = Math.max(r.alto, T.umbral) * 1.18, pos = function (v) { return (K.acotar(v / tope, 0.04, 0.97) * 100).toFixed(1) + '%'; };
-      const nombres = { bajo: 'Bajo', medio: 'Medio', alto: 'Alto' };
-      let html = '<div class="eje"></div><div class="corte" style="left:' + pos(T.umbral) + '"><span>' + K.miles(T.umbral) + ' ' + T.unidad_valor + '</span></div>';
-      ['bajo', 'medio', 'alto'].forEach(function (q) {
-        html += '<button data-nivel="' + q + '" class="' + (q === m.nivel ? 'sel' : '') + '" style="left:' + pos(r[q]) + '"><span class="q">' + nombres[q] + '</span><span class="n">' + K.miles(r[q]) + '</span></button>';
-      });
-      this.regla.innerHTML = html;
-    },
-    medir: function (inst) {
-      const m = this.m, s = m.s, c = m.candidata(m.sel), valor = c.resultados_posibles[m.nivel];
-      const capa = m.D.mediciones[m.sel][m.nivel], baja = m.T.costo_de_no_saber - capa.costo_de_no_saber;
-      gsap.killTweensOf(s, 'taladro,medido');
-      s.taladro = 0; s.medido = 0;
-      K.anim(s, { taladro: 1 }, 0.8, inst, 'power2.in');
-      K.anim(s, { medido: 1 }, 0.9, inst, 'power2.out', 0.8);
-      m.morfar(capa, m.pinDe(m.sel, valor), inst, 0.9);
-      const perfora = /perfor/i.test(m.T.rotulos.donde_medir || '');
-      this.texto.innerHTML = (perfora ? 'Perforas en ' : 'Mides en ') + m.sel + ': <span class="oro">' + K.miles(valor) + ' ' + m.T.unidad_valor.split(' ')[0] + '</span>.';
-      // Con un resultado puntual la duda puede bajar o subir; en promedio baja lo que vale medir ahí.
-      this.sentido.textContent = baja >= 0 ? 'baja' : 'sube';
-      this.monto.parentNode.style.color = baja >= 0 ? '' : 'var(--cobre)';
-      this.promedio.textContent = 'En promedio, sobre todos los resultados posibles, la baja US$ ' + K.miles(c.valor_de_medir) + '.';
-      if (this.cuenta) this.cuenta.kill();
-      this.cuenta = K.contar(this.monto, 0, Math.abs(baja), 2.4, K.miles, inst, 'power1.inOut');
-      this.pintarRegla();
-      m.haces.forEach(function (h) { if (h.etq) h.etq.classList.toggle('sel', h.letra === m.sel); });
     },
     entrar: function () {
       const m = this.m;
       if (!m) return;
-      m.sel = 'A'; m.nivel = 'medio';
-      Object.assign(m.s, { crece: 1, vidrio: 0, caida: 1, tallos: 1, color: 1, arrastre: 0, arrastreEl: 0 });
+      const s = m.s;
+      gsap.killTweensOf(s);
+      if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
+      Object.assign(s, { crece: 0, vidrio: 0, caida: 1, tallos: 1, puntos: 1, color: 1, morf: 1, haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0,
+        az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, arrastre: 0, arrastreEl: 0 });
+      // el banco se levanta apenas entra la lámina; después aparece la malla del rango
+      K.anim(s, { crece: 1 }, 3.0, false, 'power1.inOut', 0.3);
+      K.anim(s, { vidrio: 1 }, 1.6, false, 'power1.inOut', 3.0);
     },
     paso: function (p, inst) {
       const m = this.m;
       if (!m) return;
       const s = m.s;
-      K.anim(s, { puntos: 0.3, vidrio: 0, haces: 1 }, 0.8, inst);
+      if (inst) { gsap.killTweensOf(s, 'crece,vidrio'); s.crece = 1; s.vidrio = p === 0 ? 1 : 0; }
       if (p === 0) {
-        if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
-        gsap.killTweensOf(s, 'taladro,medido,escaneo,destaca');
-        Object.assign(s, { morf: 1, taladro: 0, medido: 0 });
-        K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5, dx: -410 }, 2.6, inst);
-        if (!inst) { s.escaneo = 0; s.destaca = 0; }
-        K.anim(s, { escaneo: 1 }, 3.4, inst, 'none', 0.7);
-        K.anim(s, { destaca: 1 }, 1.8, inst, 'power1.inOut', 4.0);
-        m.haces.forEach(function (h) { if (h.etq) h.etq.classList.remove('sel'); });
+        K.anim(s, { haces: 0, puntos: 1 }, 0.6, inst);
+        K.anim(s, { az: -0.62, el: 0.62, R: 92, ty: -1.5 }, 2.2, inst);
+        if (inst) { s.escaneo = 0; s.destaca = 0; }
       } else {
-        K.anim(s, { escaneo: 1, destaca: 1 }, 0.3, inst);
-        K.anim(s, { az: -0.58, el: 0.8, R: 92, ty: 1.5, dx: -410 }, 2.4, inst);
-        this.medir(inst);
+        gsap.killTweensOf(s, 'crece,vidrio');
+        s.crece = 1;
+        K.anim(s, { vidrio: 0, puntos: 0.3, haces: 1 }, 0.8, inst);
+        K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5 }, 2.6, inst);
+        if (!inst) { s.escaneo = 0; s.destaca = 0; }
+        K.anim(s, { escaneo: 1 }, 3.0, inst, 'none', 0.5);
+        K.anim(s, { destaca: 1 }, 1.6, inst, 'power1.inOut', 3.4);
       }
     },
     cuadro: function (t, dt) {
       const m = this.m;
       if (!m) return;
-      m.cuadro(t, dt, 'donde');
+      m.cuadro(t, dt, 'leyes');
       const s = m.s, yo = this, n = m.D.donde.analisis_rehechos;
       this.cuentaAnalisis.textContent = K.miles(Math.min(n, Math.floor(K.acotar(s.escaneo * 1.02, 0, 1) * n)));
-      // la lista se llena de atrás hacia adelante: C, B y al final A
-      ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });
+      ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });   // C, B y al final A
       m.haces.forEach(function (h) {
         if (!h.etq) return;
-        const apagado = s.medido > 0.5 && h.letra === m.sel;
-        h.etq.classList.toggle('ver', s.destaca > 0.5 && !apagado);
+        h.etq.classList.toggle('ver', s.destaca > 0.5 && s.haces > 0.5);
         const q = K.proyectar(h.cima.position.x, h.cima.position.y + 1.3, h.cima.position.z, m.tres.camera);
         h.etq.style.transform = 'translate(' + q.x.toFixed(1) + 'px,' + q.y.toFixed(1) + 'px) translate(-50%, -100%)';
       });

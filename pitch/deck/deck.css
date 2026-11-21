@@ -112,11 +112,9 @@ html, body {
 .sin-gl .lamina[data-gl] > :not(aside) { visibility: hidden; }
 .sin-gl #l-mina { background-image: url(respaldo/01.jpg); }
 .sin-gl #l-mundos { background-image: url(respaldo/03.jpg); }
-.sin-gl #l-mapa { background-image: url(respaldo/04.jpg); }
-.sin-gl #l-donde { background-image: url(respaldo/05.jpg); }
-.sin-gl #l-vision { background-image: url(respaldo/07.jpg); }
-.sin-gl #l-negocio { background-image: url(respaldo/08.jpg); }
-.sin-gl #l-cierre { background-image: url(respaldo/09.jpg); }
+.sin-gl #l-vision { background-image: url(respaldo/04.jpg); }
+.sin-gl #l-leyes { background-image: url(respaldo/05.jpg); }
+.sin-gl #l-cierre { background-image: url(respaldo/11.jpg); }
 
 /* ---------- Tipografía ---------- */
 
@@ -130,7 +128,9 @@ html, body {
 .cobre { color: var(--cobre); }
 .oxido { color: var(--oxido); }
 .oro { color: var(--oro); }
-.num { font-weight: 800; line-height: .9; }
+.num { font-weight: 800; line-height: .9; white-space: nowrap; }
+/* Ninguna cifra se parte en dos líneas */
+.nb { white-space: nowrap; }
 /* Cifras que cuentan sin temblar: cada carácter en su caja */
 .num .d { display: inline-block; width: .5em; text-align: center; }
 .num .s { display: inline-block; width: .22em; text-align: center; }
@@ -251,7 +251,7 @@ html, body {
 .sobre-mapa .cabeza { left: 110px; top: 96px; width: 840px; }
 .sobre-mapa .cabeza .t2 { font-size: 88px; }
 .sobre-mapa .cabeza .p { margin-top: 14px; font-size: 31px; width: 760px; }
-#l-mapa .lateral { left: 110px; top: 400px; width: 720px; }
+#l-leyes .lateral { left: 110px; top: 400px; width: 720px; }
 .leyenda { display: grid; gap: 10px; }
 .leyenda .fila { display: grid; grid-template-columns: 54px 1fr auto; gap: 22px; align-items: center; font-size: 33px; font-weight: 520; }
 .leyenda .fila .num { font-size: 58px; min-width: 110px; text-align: right; }
@@ -262,28 +262,28 @@ html, body {
 .muestra.corte { height: 0; border-top: 4px solid #fff; }
 .muestra.malla { background-image: linear-gradient(#f4efe6b0 2px, transparent 2px), linear-gradient(90deg, #f4efe6b0 2px, transparent 2px); background-size: 13px 13px; }
 .leyenda .fila.chica { font-size: 26px; line-height: 1.2; color: var(--suave); font-weight: 450; margin-top: 2px; }
-#l-mapa .cuesta { margin-top: 24px; }
-#l-mapa .cuesta .p { font-size: 36px; }
-#l-mapa .cuesta .num { font-size: 124px; color: var(--cobre); white-space: nowrap; margin-top: 4px; }
-#l-mapa .cuesta .dato { margin-top: 10px; }
+#l-leyes .cuesta { margin-top: 24px; }
+#l-leyes .cuesta .p { font-size: 36px; }
+#l-leyes .cuesta .num { font-size: 124px; color: var(--cobre); white-space: nowrap; margin-top: 4px; }
+#l-leyes .cuesta .dato { margin-top: 10px; }
 
-#l-donde .cabeza { width: 860px; }
-#l-donde .cabeza .t2 { font-size: 92px; }
-#l-donde .ranking { left: 110px; top: 400px; width: 700px; }
-#l-donde .ranking .fila { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; border-top: 1.5px solid var(--linea); padding: 12px 0 6px; opacity: 0; transition: opacity .6s ease; }
-#l-donde .ranking .fila.ver { opacity: 1; }
-#l-donde .ranking .fila .letra { font-family: var(--titulo); font-weight: 800; font-size: 72px; line-height: 1; color: var(--suave); }
-#l-donde .ranking .fila .num { font-size: 72px; color: var(--suave); }
-#l-donde .ranking .fila.a .letra, #l-donde .ranking .fila.a .num { color: var(--oro); font-size: 138px; }
-#l-donde .ranking .fila .p { grid-column: 2; font-size: 30px; margin-top: 2px; }
-#l-donde .escaner { left: 110px; bottom: 150px; width: 760px; }
-#l-donde .escaner b { color: var(--tinta); font-weight: 600; }
-#l-donde .medicion { left: 110px; top: 400px; width: 800px; }
-#l-donde .medicion .t3 { font-size: 78px; white-space: nowrap; }
-#l-donde .medicion .baja { margin-top: 30px; }
-#l-donde .medicion .baja .p { font-size: 36px; }
-#l-donde .medicion .baja .num { font-size: 150px; color: var(--no-actuar); white-space: nowrap; margin-top: 6px; }
-#l-donde .medicion .baja .dato { margin-top: 12px; }
+#l-leyes .cabeza { width: 860px; }
+#l-leyes .cabeza .t2 { font-size: 92px; }
+#l-leyes .ranking { left: 110px; top: 400px; width: 700px; }
+#l-leyes .ranking .fila { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; border-top: 1.5px solid var(--linea); padding: 12px 0 6px; opacity: 0; transition: opacity .6s ease; }
+#l-leyes .ranking .fila.ver { opacity: 1; }
+#l-leyes .ranking .fila .letra { font-family: var(--titulo); font-weight: 800; font-size: 72px; line-height: 1; color: var(--suave); }
+#l-leyes .ranking .fila .num { font-size: 72px; color: var(--suave); }
+#l-leyes .ranking .fila.a .letra, #l-leyes .ranking .fila.a .num { color: var(--oro); font-size: 138px; }
+#l-leyes .ranking .fila .p { grid-column: 2; font-size: 30px; margin-top: 2px; }
+#l-leyes .escaner { left: 110px; bottom: 150px; width: 760px; }
+#l-leyes .escaner b { color: var(--tinta); font-weight: 600; }
+#l-leyes .medicion { left: 110px; top: 400px; width: 800px; }
+#l-leyes .medicion .t3 { font-size: 78px; white-space: nowrap; }
+#l-leyes .medicion .baja { margin-top: 30px; }
+#l-leyes .medicion .baja .p { font-size: 36px; }
+#l-leyes .medicion .baja .num { font-size: 150px; color: var(--no-actuar); white-space: nowrap; margin-top: 6px; }
+#l-leyes .medicion .baja .dato { margin-top: 12px; }
 /* La regla de medición: los tres resultados posibles sobre una escala */
 .regla { position: relative; height: 150px; margin-top: 34px; width: 720px; }
 .regla .eje { position: absolute; left: 0; right: 0; top: 96px; height: 2px; background: var(--tenue); }
@@ -314,9 +314,10 @@ html, body {
    ===================================================================== */
 
 #l-vision .cabeza { left: 110px; top: 100px; width: 1700px; }
+#l-vision .cabeza .p { margin-top: 14px; }
 #l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(5, 1fr); }
 #l-vision .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
-#l-vision .cinco .t3 { font-size: 48px; line-height: 1.02; min-height: 150px; }
+#l-vision .cinco .t3 { font-size: 50px; line-height: 1.02; }
 #l-vision .cinco .estado { font-size: 22px; }
 #l-vision .cinco .responde .estado { color: var(--no-actuar); }
 #l-vision .cinco .precalculado .estado { color: var(--oro); }
@@ -341,17 +342,17 @@ html, body {
    9 · Cierre
    ===================================================================== */
 
-#l-cierre .frase { left: 110px; top: 150px; width: 1120px; }
-#l-cierre .frase .t2 { font-size: 118px; }
-#l-cierre .frase .p { margin-top: 36px; font-size: 42px; width: 980px; }
-#l-cierre .qr { right: 110px; top: 160px; width: 440px; }
-#l-cierre .qr .codigo { width: 440px; height: 440px; background: #f4efe6; padding: 46px; }
+#l-cierre .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f5 0%, #0b0a09cc 42%, transparent 66%); }
+#l-cierre .frase { left: 110px; top: 110px; width: 1150px; }
+#l-cierre .frase .t2 { font-size: 102px; }
+#l-cierre .frase .p { margin-top: 30px; font-size: 38px; width: 1000px; }
+#l-cierre .qr { left: 110px; bottom: 120px; display: flex; gap: 40px; align-items: flex-end; }
+#l-cierre .qr .codigo { width: 250px; height: 250px; background: #f4efe6; padding: 24px; flex: none; }
 #l-cierre .qr .codigo svg { width: 100%; height: 100%; display: block; }
-#l-cierre .qr .t3 { font-size: 64px; margin-top: 26px; }
-#l-cierre .qr .dato { color: var(--cobre); font-size: 24px; margin-top: 6px; text-transform: none; letter-spacing: .02em; }
-#l-cierre .equipo { left: 110px; bottom: 150px; width: 1300px; }
-#l-cierre .equipo .p { font-size: 30px; color: var(--tenue); }
-#l-cierre .equipo .p b { color: var(--suave); }
+#l-cierre .qr .t3 { font-size: 76px; }
+#l-cierre .qr .dato { color: var(--cobre); font-size: 26px; margin-top: 4px; text-transform: none; letter-spacing: .02em; }
+#l-cierre .qr .equipo { font-size: 26px; line-height: 1.35; color: var(--tenue); margin-top: 22px; }
+#l-cierre .qr .equipo b { color: var(--suave); }
 
 /* =====================================================================
    0 · Cómo funciona (respaldo, fuera de los 3 minutos)
@@ -381,3 +382,52 @@ html, body {
 #l-arquitectura .sello { position: absolute; left: 110px; right: 110px; bottom: 92px; display: flex; justify-content: space-between; }
 #l-arquitectura .sello div { max-width: 330px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
 #l-arquitectura .sello b { display: block; font-family: var(--titulo); font-weight: 800; font-size: 46px; white-space: nowrap; color: var(--tinta); letter-spacing: 0; line-height: 1.05; text-transform: none; }
+
+/* =====================================================================
+   2 · Bayesian Amortized Inference: entra un archivo, sale la respuesta
+   ===================================================================== */
+
+#l-rafaga canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-rafaga .cabeza { left: 110px; top: 96px; width: 840px; }
+#l-rafaga .cabeza .t2 { font-size: 100px; }
+#l-rafaga .cabeza .p { margin-top: 22px; font-size: 34px; }
+#l-rafaga .marcador { left: 110px; top: 450px; width: 760px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+#l-rafaga .lado .num { font-size: 170px; color: var(--tenue); }
+#l-rafaga .lado.krylov .num { color: var(--cobre); }
+#l-rafaga .lado .p { font-size: 29px; color: var(--tinta); margin-top: 4px; white-space: nowrap; }
+#l-rafaga .lado .dato { margin-top: 6px; font-size: 20px; white-space: nowrap; }
+#l-rafaga .lado .riel { position: relative; height: 5px; background: var(--linea); margin-top: 16px; width: 280px; }
+#l-rafaga .lado .riel i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--suave); }
+#l-rafaga .golpe { left: 110px; top: 450px; width: 800px; padding: 26px 0; background: var(--fondo); }
+#l-rafaga .golpe .t3 { font-size: 64px; line-height: 1.12; }
+#l-rafaga[data-paso-actual="1"] .marcador { opacity: 0; transition: opacity .5s ease; }
+
+/* =====================================================================
+   5 · Leyes: «¿Dónde perforo?»
+   ===================================================================== */
+
+#l-leyes .lateral { top: 470px; }
+#l-leyes .perforo { left: 110px; top: 400px; width: 780px; }
+#l-leyes .perforo .t3 { font-size: 96px; }
+#l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
+#l-leyes .perforo .p b { color: var(--tinta); }
+#l-leyes .perforo .ranking { position: static; width: 600px; margin-top: 18px; }
+#l-leyes .perforo .ranking .fila { padding: 8px 0 2px; }
+#l-leyes .perforo .ranking .fila .letra, #l-leyes .perforo .ranking .fila .num { font-size: 58px; }
+#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 118px; }
+
+/* =====================================================================
+   6 a 9 · Las otras cuatro decisiones
+   ===================================================================== */
+
+.sobre-serie canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+.sobre-serie .cabeza { left: 110px; top: 100px; width: 780px; }
+.sobre-serie .cabeza .t2 { font-size: 96px; }
+.sobre-serie .cabeza .p { margin-top: 24px; font-size: 36px; }
+.sobre-serie .lateral { left: 110px; bottom: 130px; width: 720px; }
+.sobre-serie .cuantas { left: 110px; top: 470px; width: 760px; display: flex; align-items: baseline; gap: 26px; }
+.sobre-serie .cuantas .num { font-size: 190px; color: var(--cobre); }
+.sobre-serie .cuantas .p { font-size: 36px; color: var(--tinta); width: 420px; }
+.sobre-serie .cuesta { margin-top: 28px; }
+.sobre-serie .cuesta .p { color: var(--tinta); font-size: 34px; }
+.sobre-serie .cuesta .num { font-size: 116px; color: var(--cobre); margin-top: 4px; }

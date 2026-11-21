@@ -23,6 +23,11 @@ públicos) queda para la demostración de tiempos y para el examen con datos rea
 - `practica`    cuántas muestras tenía cada uno de 3.000 terrenos del simulador `motor/espacial/simular.py`
                 (semilla 2026): con qué se parece o no un archivo nuevo. Y los límites del motor (30 y 400).
 - `simulados`   256 terrenos del mismo simulador, el campo verdadero de cada uno llevado a 0..255.
+- `rafaga`      32 bancos del simulador y lo que la red respondió para cada uno (media y probabilidad de superar
+                un límite fijo): es la lámina 2, donde entra un archivo y sale un mapa, uno tras otro.
+- `series`      los otros cuatro casos de D-37 (taludes, flotacion, flota, sismicidad): las series de su archivo
+                de demo, sus rótulos y, **si su motor ya responde**, la decisión por unidad y su curva. Mientras
+                no responda, la lámina dibuja solo los datos; al volver a correr este script, aparece la respuesta.
 - `sello`       copia de `motor/artefactos/espacial/sello.json`.
 
 Tarda unos segundos. No hay que correrlo con un entrenamiento andando más de lo que dura.
@@ -48,8 +53,11 @@ import numpy as np  # noqa: E402
 from nucleo import api, casos, decision, espacial  # noqa: E402
 
 CASO = "leyes"            # el caso estrella: láminas 4 y 5
-REAL = "terreno"          # datos reales públicos: lámina 2 y examen
-POCOS = "leyes_pocos"     # el archivo que no alcanza: lámina 6
+REAL = "terreno"          # datos reales públicos: el encargo de los 228 análisis (M-08 a M-10) y el examen
+POCOS = "leyes_pocos"     # el archivo que no alcanza
+SERIES = ("taludes", "flotacion", "flota", "sismicidad")   # las otras cuatro decisiones de la mina
+BANCOS_RAFAGA = 32
+LIMITE_RAFAGA = 0.7       # el límite fijo, en unidades estandarizadas, con que se pintan los mapas de la ráfaga
 SEMILLA = 2026
 TERRENOS_SIMULADOS = 256
 TERRENOS_PRACTICA = 3000
@@ -99,7 +107,8 @@ def ficha(nombre: str, c: dict) -> dict:
     r, m = c["respuesta"], c["respuesta"]["mapa"]
     examen = (r.get("examen") or {}).get("tramos") or [None]
     return {
-        "caso": nombre, "nx": m["nx"], "ny": m["ny"], "x0": m["x0"], "y0": m["y0"], "lado": m["lado"],
+        "caso": nombre, "titulo": casos.cargar_caso(nombre)["tarjeta"]["titulo"],
+        "nx": m["nx"], "ny": m["ny"], "x0": m["x0"], "y0": m["y0"], "lado": m["lado"],
         "umbral": m["umbral"], "unidad_valor": m["unidad_valor"], "punto_de_corte": r["punto_de_corte"],
         "dentro": c["dentro"], **capa(c),
         "puntos": [[p["x"], p["y"], p["valor"]] for p in m["puntos"]],
@@ -183,6 +192,54 @@ def simulador() -> tuple[str, list[int]]:
     return base64.b64encode((gris * 255).round().astype(np.uint8).tobytes()).decode(), muestras[:TERRENOS_PRACTICA], prior
 
 
+def rafaga() -> dict:
+    """Bancos del simulador y la respuesta de la red para cada uno: los mapas que salen, uno tras otro, en la lámina 2."""
+    import torch
+
+    from motor.espacial.simular import Prior, simular
+
+    gen = torch.Generator().manual_seed(SEMILLA + 1)
+    d = simular(BANCOS_RAFAGA, Prior(), gen, con_tendencia=False)
+    canales, cuenta = d["canales"].numpy().astype(np.float32), d["cuenta"].numpy().astype(np.float32)
+    inicio = time.perf_counter()
+    r = espacial.inferir(canales, cuenta, "red", "rafaga")
+    ms = (time.perf_counter() - inicio) * 1000 / BANCOS_RAFAGA
+    p = espacial.probabilidad_de_superar(r["media"], r["desviacion"], np.full(BANCOS_RAFAGA, LIMITE_RAFAGA))
+    b64 = lambda a: base64.b64encode(np.ascontiguousarray(a).tobytes()).decode()
+    return {
+        "n": BANCOS_RAFAGA, "lado": espacial.LADO, "limite": LIMITE_RAFAGA, "ms_por_banco_aqui": round(ms, 1),
+        "media": b64(np.clip((r["media"] + 2.5) / 5 * 255, 0, 255).round().astype(np.uint8)),      # de −2,5 a 2,5
+        "p": b64((np.clip(p, 0, 1) * 255).round().astype(np.uint8)),
+        "muestras": b64(np.packbits(cuenta.reshape(BANCOS_RAFAGA, -1) > 0, axis=1)),
+    }
+
+
+def serie(nombre: str) -> dict:
+    """Un caso de series: lo que trae su archivo y, si su motor ya responde, la decisión por unidad."""
+    caso = casos.cargar_caso(nombre)
+    col = caso["columnas"]
+    unidades: dict[str, list] = {}
+    with open(RAIZ / caso["dataset"]) as f:
+        for fila in csv.DictReader(f):
+            unidades.setdefault(fila[col["unidad"]], []).append([round(float(fila[col["tiempo"]]), 3), round(float(fila[col["valor"]]), 3)])
+    respuesta = None
+    r = api.analizar(nombre)
+    if "error" not in r and r.get("unidades") and r.get("implementacion") in ("red", "mcmc") and not r["semaforo"]["estado"].startswith("rojo"):
+        respuesta = {
+            "implementacion": r["implementacion"], "precalculado": r["precalculado"], "colores": r["resumen_colores"],
+            "costo_de_no_saber": (r.get("costo_de_no_saber") or {}).get("valor"),
+            "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "curva": u.get("curva")} for u in r["unidades"]},
+        }
+    return {
+        "caso": nombre, "titulo": caso["tarjeta"]["titulo"], "pregunta": caso["pregunta"], "unidad": caso["unidad"],
+        "rotulos": caso["rotulos"], "umbral": col.get("umbral"), "horizonte": col.get("horizonte"),
+        "unidad_tiempo": col.get("unidad_tiempo"), "unidad_valor": col.get("unidad_valor"),
+        "eje_tiempo": col.get("eje_tiempo"), "eje_valor": col.get("eje_valor"),
+        "unidades": [{"id": k, "puntos": v} for k, v in unidades.items()],
+        "lecturas": sum(len(v) for v in unidades.values()), "respuesta": respuesta,
+    }
+
+
 def main() -> None:
     inicio = time.time()
     base = mapa_con_rango(CASO, [])
@@ -221,6 +278,8 @@ def main() -> None:
         },
         "practica": {"muestras": muestras, "minimo": prior.n_min, "maximo": espacial.MEDICIONES_MAXIMO, "semilla": SEMILLA},
         "simulados": {"n": TERRENOS_SIMULADOS, "lado": 32, "semilla": SEMILLA, "b64": campos},
+        "rafaga": rafaga(),
+        "series": {nombre: serie(nombre) for nombre in SERIES},
         "sello": sello,
     }
     salida = Path(__file__).with_name("datos.js")
@@ -237,6 +296,10 @@ def main() -> None:
     print(REAL, "· colores", real["colores"], "· examen", datos["real"]["examen"])
     print(POCOS, "·", datos["pocos"]["muestras"], "muestras ·", pocos["semaforo"]["motivo"])
     print("práctica:", len(muestras), "terrenos, de", min(muestras), "a", max(muestras), "muestras")
+    print("ráfaga:", BANCOS_RAFAGA, "bancos ·", datos["rafaga"]["ms_por_banco_aqui"], "ms por banco en este computador (en lote)")
+    for nombre, c in datos["series"].items():
+        print(" ", nombre, "·", len(c["unidades"]), c["unidad"]["plural"], "·", c["lecturas"], "lecturas ·",
+              "responde: " + c["respuesta"]["implementacion"] if c["respuesta"] else "su motor todavía no responde: solo datos")
 
 
 if __name__ == "__main__":
