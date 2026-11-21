@@ -38,7 +38,22 @@ NOMBRES_COEF = (["alfa"] + [f"gamma_{m}" for m in range(2, 7)] + ["kappa"] + [f"
                 + ["rho_0", "rho_1"] + [f"beta_{j}" for j in range(1, 6)])
 NOMBRES_THETA = (["alfa"] + [f"inc_gamma_{m}" for m in range(2, 7)] + NOMBRES_COEF[6:] + ["log_sigma_v", "log_sigma_b"])
 DIM_COEF, DIM_THETA = len(NOMBRES_COEF), len(NOMBRES_THETA)          # 18 y 20
-DIM_FILA = DIM_COEF - 1 + 2                                           # 19: Z sin la constante, respuesta y marca
+# Papeles opcionales (D-35): un archivo puede no traer el día de la semana, el recordatorio o alguno de los cinco
+# factores de la persona. Hay una marca de presencia por cada uno; la columna ausente va en cero en la matriz de
+# diseño, así los datos no dependen de su coeficiente y su posterior es el prior.
+OPCIONALES = ("categoria", "tratamiento") + tuple(f"efecto_{j}" for j in range(1, 6))
+_COLUMNAS_DE_Z = {"categoria": [7, 8, 9, 10], "tratamiento": [11, 12], **{f"efecto_{j}": [12 + j] for j in range(1, 6)}}
+DIM_PRESENCIA = len(OPCIONALES)                                       # 7
+DIM_FILA = DIM_COEF - 1 + DIM_PRESENCIA + 2                           # 26: Z sin la constante, presencia, respuesta y marca
+
+
+def mascara_de_columnas(presentes) -> np.ndarray:
+    """De las marcas de presencia (..., 7), en el orden de OPCIONALES, a una máscara sobre las 18 columnas de Z (..., 18)."""
+    presentes = np.asarray(presentes, dtype=np.float64)
+    mascara = np.ones(presentes.shape[:-1] + (DIM_COEF,))
+    for k, papel in enumerate(OPCIONALES):
+        mascara[..., _COLUMNAS_DE_Z[papel]] = presentes[..., k:k + 1]
+    return mascara
 
 
 def base_spline(t) -> np.ndarray:
@@ -78,12 +93,15 @@ def matriz_de_diseno(espera, dia, sms, edad, binarias) -> np.ndarray:
     ], axis=-1)
 
 
-def armar_filas(z, respuesta) -> np.ndarray:
-    """La fila de cada cita para el codificador, (..., 19): Z sin la constante, la respuesta (0 si falta) y la marca «por decidir»."""
+def armar_filas(z, respuesta, presentes=None) -> np.ndarray:
+    """La fila de cada cita para el codificador, (..., 26): Z sin la constante, las marcas de presencia del dataset,
+    la respuesta (0 si falta) y la marca «por decidir». `presentes` (7,) o con ejes que se difundan; None = todo presente.
+    `z` ya viene con las columnas ausentes en cero (`z * mascara_de_columnas(presentes)`)."""
     respuesta = np.asarray(respuesta, dtype=np.float64)
     por_decidir = np.isnan(respuesta)
-    return np.concatenate([np.asarray(z)[..., 1:], np.where(por_decidir, 0.0, respuesta)[..., None],
-                           por_decidir.astype(np.float64)[..., None]], axis=-1).astype(np.float32)
+    presentes = np.ones(DIM_PRESENCIA) if presentes is None else np.asarray(presentes, dtype=np.float64)
+    return np.concatenate([np.asarray(z)[..., 1:], np.broadcast_to(presentes, respuesta.shape + (DIM_PRESENCIA,)),
+                           np.where(por_decidir, 0.0, respuesta)[..., None], por_decidir.astype(np.float64)[..., None]], axis=-1).astype(np.float32)
 
 
 def a_restringido(libre, xp=np) -> dict:
@@ -213,15 +231,18 @@ from nucleo.casos import ArchivoNoCalza, tabla_del_caso     # noqa: E402
 
 # Los papeles de columna que recibe la red de `jerarquico` (D-34): es el esquema con que se entrenó, y no cambia.
 PAPELES = [
-    {"papel": "id", "cantidad": 1, "tipo": "texto", "texto": "Identificador de la cita"},
-    {"papel": "objetivo", "cantidad": 1, "tipo": "si_no", "texto": "No llegó (vacío en las citas por decidir)"},
-    {"papel": "paciente", "cantidad": 1, "tipo": "texto", "texto": "Persona: puede tener varias citas"},
-    {"papel": "grupo", "cantidad": 1, "tipo": "texto", "texto": "Grupo al que pertenece la persona (barrio, sede)"},
-    {"papel": "suave", "cantidad": 1, "tipo": "entero", "texto": "Días de espera entre agendar y la cita (0 = el mismo día)"},
-    {"papel": "categoria", "cantidad": 1, "tipo": "entero", "texto": "Día de la semana (0 = lunes … 4 = viernes)"},
-    {"papel": "tratamiento", "cantidad": 1, "tipo": "si_no", "texto": "Recibió recordatorio (1 o 0)"},
-    {"papel": "efectos", "cantidad": 5, "tipo": "numero", "texto": "Cinco factores de la persona: el primero es la edad y los otros cuatro son 1 o 0"},
+    {"papel": "id", "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Identificador de la cita"},
+    {"papel": "objetivo", "minimo": 1, "maximo": 1, "tipo": "si_no", "texto": "No llegó (vacío en las citas por decidir)"},
+    {"papel": "paciente", "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Persona: puede tener varias citas"},
+    {"papel": "grupo", "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Grupo al que pertenece la persona (barrio, sede)"},
+    {"papel": "suave", "minimo": 1, "maximo": 1, "tipo": "entero", "texto": "Días de espera entre agendar y la cita (0 = el mismo día)"},
+    {"papel": "categoria", "minimo": 0, "maximo": 1, "tipo": "entero", "texto": "Día de la semana (0 = lunes … 4 = viernes)"},
+    {"papel": "tratamiento", "minimo": 0, "maximo": 1, "tipo": "si_no", "texto": "Recibió recordatorio (1 o 0)"},
+    {"papel": "efectos", "minimo": 0, "maximo": 5, "tipo": "numero",
+     "texto": "Hasta cinco factores de la persona, por posición: el primero es la edad en años y los otros cuatro son 1 o 0. Una posición sin columna va vacía"},
 ]
+for _p in PAPELES:
+    _p["cantidad"] = _p["maximo"]                     # el campo de D-34; con D-35 mandan `minimo` y `maximo`
 CITAS_MAXIMO, BARRIOS_MAXIMO = 3000, 40          # el rango del simulador (`motor/jerarquico/simular.py`)
 
 
@@ -229,25 +250,39 @@ def leer_caso(caso: dict) -> dict:
     """El archivo de un caso (o la tabla subida) por columnas del modelo, con pacientes y barrios como índices.
 
     Devuelve `espera`, `dia`, `sms`, `edad`, `binarias` (n, 4), `respuesta` (1 = no llegó, NaN = por decidir), `id`,
-    `paciente` (n,) en 0..P−1, `barrio` (n,) y `barrio_del_paciente` (P,) en 0..G−1.
-    Lanza `ArchivoNoCalza` si falta un papel, una columna no se puede leer o trae valores que el modelo no conoce.
+    `paciente` (n,) en 0..P−1, `barrio` (n,), `barrio_del_paciente` (P,) en 0..G−1 y `presentes` (7,), las marcas de
+    los papeles opcionales (los ausentes van en cero). Lanza `ArchivoNoCalza` si falta un papel obligatorio, una
+    columna no se puede leer o trae valores que el modelo no conoce.
     """
     col, t = caso["columnas"], tabla_del_caso(caso)
-    nombres = {p["papel"]: tabla.nombres_del_papel(col, p["papel"], p["cantidad"]) for p in PAPELES}
-    _, paciente = np.unique(np.array(tabla.columna(t, nombres["paciente"][0])), return_inverse=True)
-    _, barrio = np.unique(np.array(tabla.columna(t, nombres["grupo"][0])), return_inverse=True)
-    if len(paciente) > CITAS_MAXIMO or barrio.max(initial=0) + 1 > BARRIOS_MAXIMO:
-        raise ArchivoNoCalza(f"El archivo tiene {len(paciente)} filas en {barrio.max(initial=0) + 1} grupos; la red practicó con hasta "
+    def obligatorio(papel):
+        return tabla.nombres_del_papel(col, papel, 1)[0]
+    _, paciente = np.unique(np.array(tabla.columna(t, obligatorio("paciente"))), return_inverse=True)
+    _, barrio = np.unique(np.array(tabla.columna(t, obligatorio("grupo"))), return_inverse=True)
+    n = len(paciente)
+    if n > CITAS_MAXIMO or barrio.max(initial=0) + 1 > BARRIOS_MAXIMO:
+        raise ArchivoNoCalza(f"El archivo tiene {n} filas en {barrio.max(initial=0) + 1} grupos; la red practicó con hasta "
                              f"{CITAS_MAXIMO} filas en {BARRIOS_MAXIMO} grupos.", "rojo_modelo")
     barrio_del_paciente = np.zeros(paciente.max(initial=0) + 1, dtype=int)
     barrio_del_paciente[paciente] = barrio                    # si una persona figura en dos grupos, queda en el último
-    efectos = nombres["efectos"]
-    return {"espera": tabla.numeros(t, nombres["suave"][0], minimo=0), "dia": tabla.numeros(t, nombres["categoria"][0], 0, 4, enteros=True).astype(int),
-            "sms": tabla.numeros(t, nombres["tratamiento"][0], 0, 1, enteros=True), "edad": tabla.numeros(t, efectos[0], 0, 120),
-            "binarias": np.stack([tabla.numeros(t, e, 0, 1, enteros=True) for e in efectos[1:]], axis=1),
-            "respuesta": tabla.respuesta_si_no(t, nombres["objetivo"][0]),
-            "id": tabla.columna(t, nombres["id"][0]), "paciente": paciente, "barrio": barrio_del_paciente[paciente],
+    efectos = list(col.get("efectos") or [])
+    if len(efectos) > 5:
+        raise ArchivoNoCalza(f"El papel «efectos» acepta hasta 5 columnas y tiene {len(efectos)}.")
+    efectos += [None] * (5 - len(efectos))
+    nombres = [col.get("categoria"), col.get("tratamiento")] + efectos          # en el orden de OPCIONALES
+    limites = [dict(minimo=0, maximo=4, enteros=True), dict(minimo=0, maximo=1, enteros=True), dict(minimo=0, maximo=120)] + [dict(minimo=0, maximo=1, enteros=True)] * 4
+    opcionales = [tabla.numeros(t, nombre, **lim) if nombre else np.zeros(n) for nombre, lim in zip(nombres, limites)]
+    return {"espera": tabla.numeros(t, obligatorio("suave"), minimo=0), "dia": opcionales[0].astype(int), "sms": opcionales[1],
+            "edad": opcionales[2], "binarias": np.stack(opcionales[3:], axis=1),
+            "respuesta": tabla.respuesta_si_no(t, obligatorio("objetivo")), "presentes": np.array([1.0 if nombre else 0.0 for nombre in nombres]),
+            "id": tabla.columna(t, obligatorio("id")), "paciente": paciente, "barrio": barrio_del_paciente[paciente],
             "barrio_del_paciente": barrio_del_paciente}
+
+
+def diseno_del_caso(datos: dict) -> np.ndarray:
+    """La matriz de diseño de un archivo leído con `leer_caso`, con las columnas de los papeles ausentes en cero."""
+    z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
+    return z * mascara_de_columnas(datos.get("presentes", np.ones(DIM_PRESENCIA)))
 
 
 from functools import cache                                   # noqa: E402
@@ -272,7 +307,7 @@ def posterior(z, datos: dict, impl: str, clave: str, muestras: int = tabla.MUEST
         if not (carpeta / "codificador.onnx").exists():
             raise ErrorKrylov("La red de inasistencias todavía no está exportada.", "no_disponible")
         sesion, pesos = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
-        tensor, mascara, _ = anidar(armar_filas(z, datos["respuesta"]), datos["barrio"], datos["paciente"])
+        tensor, mascara, _ = anidar(armar_filas(z, datos["respuesta"], datos.get("presentes")), datos["barrio"], datos["paciente"])
         resumen = sesion.run(None, {"filas": tensor[None], "mascara": mascara[None]})[0][0]
         return flujo_numpy.muestrear(pesos, resumen, flujo_numpy.ruido(0, muestras, DIM_THETA)).astype(np.float64)
     ruta = carpeta / "mcmc" / f"{clave}.npz"
@@ -286,7 +321,7 @@ def posterior(z, datos: dict, impl: str, clave: str, muestras: int = tabla.MUEST
 def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     """Qué citas por decidir conviene confirmar: p de no llegar por muestra del posterior, decisión, qué pesa y examen."""
     col = caso["columnas"]
-    del_modelo = {col["suave"], col["categoria"], col["tratamiento"], *col["efectos"]}
+    del_modelo = {c for c in (col.get("suave"), col.get("categoria"), col.get("tratamiento"), *(col.get("efectos") or [])) if c}
     for t in transformaciones:
         if t.removeprefix("quitar_factor:") in del_modelo:
             raise ErrorKrylov("Ese factor es parte del modelo de inasistencias y no se puede quitar.", "no_disponible")
@@ -303,7 +338,7 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     if conocidas.sum() < 10 or (1 - conocidas).sum() < 10:
         return {"implementacion": impl, **tabla.rojo_datos(caso, "casi_ningun_si", k=int(conocidas.sum()), n=len(conocidas))}
 
-    z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
+    z = diseno_del_caso(datos)
     clave = caso["nombre"] + "".join("__" + t.replace(":", "-") for t in transformaciones)
     theta = posterior(z, datos, impl, clave)
     muestras_p = paso_local(theta, z, datos["respuesta"], datos["paciente"], datos["barrio_del_paciente"])[por_decidir]
@@ -315,12 +350,14 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         return decision.factor(nombre, etiquetas.get(nombre, nombre), muestras)
     # Espera: el riesgo a 30 días de espera contra 1 día, f(log 31) − f(log 2), con el posterior del spline.
     contraste = (base_spline(np.log1p(30.0)) - base_spline(np.log1p(1.0)))[1:]
-    factores = ([fila(col["suave"], th["coef"][:, 1:6] @ contraste), fila(col["tratamiento"], th["coef"][:, 11])]
-                + [fila(nombre, th["coef"][:, 13 + j]) for j, nombre in enumerate(col["efectos"])])
+    efectos = list(col.get("efectos") or [])
+    factores = [fila(col["suave"], th["coef"][:, 1:6] @ contraste)]
+    factores += [fila(col["tratamiento"], th["coef"][:, 11])] if col.get("tratamiento") else []
+    factores += [fila(nombre, th["coef"][:, 13 + j]) for j, nombre in enumerate(efectos) if nombre]      # un papel ausente no es un factor
     return {
         "implementacion": impl, "unidades": tabla.unidades(ids, muestras_p, costos),
         "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
-        "columnas": {"usadas": [col["suave"], col["categoria"], col["tratamiento"], *col["efectos"]],
+        "columnas": {"usadas": [c for c in (col["suave"], col.get("categoria"), col.get("tratamiento"), *efectos) if c],
                      "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},
         "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
         "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(datos['barrio_del_paciente'])} pacientes",
@@ -336,10 +373,10 @@ def factores_nube(datos: dict, col: dict) -> dict[str, np.ndarray]:
     datos: `espera`, `dia`, `sms`, `edad` (n,) y `binarias` (n, 4), por cita. La misma función sirve para el
     archivo del caso y para cada dataset simulado (`motor/jerarquico/nube.py`).
     """
-    factores = {col["suave"]: datos["espera"], col["categoria"]: datos["dia"], col["tratamiento"]: datos["sms"], col["efectos"][0]: datos["edad"]}
-    for j, nombre in enumerate(col["efectos"][1:]):
-        factores[nombre] = np.asarray(datos["binarias"])[:, j]
-    return factores
+    efectos = list(col.get("efectos") or []) + [None] * 5
+    columnas = [(col["suave"], datos["espera"]), (col.get("categoria"), datos["dia"]), (col.get("tratamiento"), datos["sms"]), (efectos[0], datos["edad"])]
+    columnas += [(efectos[1 + j], np.asarray(datos["binarias"])[:, j]) for j in range(4)]
+    return {nombre: valores for nombre, valores in columnas if nombre}
 
 
 def nube(caso: dict, transformaciones: list[str]) -> dict:
@@ -354,7 +391,6 @@ def nube(caso: dict, transformaciones: list[str]) -> dict:
     resumen = None
     if (carpeta / "codificador.onnx").exists():
         sesion, _ = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
-        z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
-        tensor, mascara, _ = anidar(armar_filas(z, datos["respuesta"]), datos["barrio"], datos["paciente"])
+        tensor, mascara, _ = anidar(armar_filas(diseno_del_caso(datos), datos["respuesta"], datos.get("presentes")), datos["barrio"], datos["paciente"])
         resumen = sesion.run(None, {"filas": tensor[None], "mascara": mascara[None]})[0][0]
     return {"caso": caso["nombre"], **comun.ubicar(comun.cargar(carpeta / "nube.npz"), x, y, mejor, resumen)}

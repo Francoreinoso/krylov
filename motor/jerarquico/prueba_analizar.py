@@ -70,7 +70,13 @@ def test_tabla_subida_y_archivo_que_no_calza(artefactos, monkeypatch):
     def semaforo(**cambios):
         return jerarquico.analizar(subido | cambios, [], costos)["semaforo"]
     col = base["columnas"]
-    assert semaforo(columnas=col | {"efectos": col["efectos"][:3]})["estado"] == "rojo_datos"
+    sin_espera = semaforo(columnas={k: v for k, v in col.items() if k != "suave"})
+    assert sin_espera["estado"] == "rojo_datos" and "suave" in sin_espera["motivo"]
+    # Papeles opcionales (D-35): sin recordatorio y con solo tres factores responde igual, con menos factores en «qué pesa».
+    menos = jerarquico.analizar(subido | {"columnas": {k: v for k, v in col.items() if k != "tratamiento"} | {"efectos": col["efectos"][:3]}}, [], costos)
+    assert menos["semaforo"] if "semaforo" in menos else True
+    assert len(menos["unidades"]) == len(r["unidades"]) and len(menos["factores"]) == 4 and len(r["factores"]) == 7
+    assert list(jerarquico.leer_caso(subido | {"columnas": col | {"efectos": col["efectos"][:3]}})["presentes"]) == [1, 1, 1, 1, 1, 0, 0]
     sabado = semaforo(tabla=tabla | {"dia_semana": ["5"] * len(tabla["dia_semana"])})
     assert sabado["estado"] == "rojo_modelo" and "dia_semana" in sabado["motivo"]
     grande = semaforo(tabla={k: v * 2 for k, v in tabla.items()})

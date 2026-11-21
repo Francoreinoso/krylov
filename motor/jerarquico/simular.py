@@ -92,10 +92,10 @@ def _covariables(rng: np.random.Generator, forma: tuple[int, int, int, int], rea
             "binarias": np.broadcast_to(binarias, forma + (4,))}
 
 
-def simular(rng: np.random.Generator, lote: int, citas: int, barrios: int, reales: dict | None = None) -> dict:
+def simular(rng: np.random.Generator, lote: int, citas: int, barrios: int, reales: dict | None = None, opcionales: bool = True) -> dict:
     """Un lote de datasets simulados con cerca de `citas` citas en `barrios` barrios cada uno.
 
-    Devuelve `filas` (B, G, P, C, 19) y `mascara` (B, G, P, C) para el codificador, `theta` (B, 20), y lo que
+    Devuelve `filas` (B, G, P, C, 26) y `mascara` (B, G, P, C) para el codificador, `theta` (B, 20), y lo que
     sirve para validar: `z` (matriz de diseño), `respuesta` (NaN = por decidir), `respuesta_real`, `p_real`.
     """
     theta = muestrear_prior(rng, lote)
@@ -110,15 +110,28 @@ def simular(rng: np.random.Generator, lote: int, citas: int, barrios: int, reale
     mascara = (np.arange(CITAS_POR_PACIENTE_MAX) < n_citas[..., None]) & existe_paciente[..., None]
 
     cov = _covariables(rng, forma, reales)
-    z = nucleo_jq.matriz_de_diseno(cov["espera"], cov["dia"], cov["sms"], cov["edad"], cov["binarias"])
+    presentes = muestrear_presencia(rng, lote) if opcionales else np.ones((lote, nucleo_jq.DIM_PRESENCIA))
+    # Un papel ausente va en cero en la matriz de diseño: los datos no dependen de su coeficiente y su posterior es el prior.
+    z = (nucleo_jq.matriz_de_diseno(cov["espera"], cov["dia"], cov["sms"], cov["edad"], cov["binarias"])
+         * nucleo_jq.mascara_de_columnas(presentes)[:, None, None, None, :])
+    cov["sms"] = cov["sms"] * presentes[:, 1, None, None, None]
     u = th["sigma_b"][:, None, None, None] * rng.standard_normal((lote, barrios, 1, 1))
     v = th["sigma_v"][:, None, None, None] * rng.standard_normal((lote, barrios, cupos, 1))
     p_real = 1 / (1 + np.exp(-((z * th["coef"][:, None, None, None, :]).sum(-1) + u + v)))
     respuesta_real = (rng.random(forma) < p_real).astype(np.float64)
     respuesta = np.where(rng.random(forma) < FRACCION_POR_DECIDIR, np.nan, respuesta_real)
-    filas = nucleo_jq.armar_filas(z, respuesta) * mascara[..., None]
+    filas = nucleo_jq.armar_filas(z, respuesta, presentes[:, None, None, None, :]) * mascara[..., None]
     return {"filas": filas.astype(np.float32), "mascara": mascara.astype(np.float32), "theta": theta.astype(np.float32),
-            "z": z, "respuesta": respuesta, "respuesta_real": respuesta_real, "p_real": p_real, **cov}
+            "z": z, "respuesta": respuesta, "respuesta_real": respuesta_real, "p_real": p_real, "presentes": presentes, **cov}
+
+
+def muestrear_presencia(rng: np.random.Generator, lote: int) -> np.ndarray:
+    """Qué papeles opcionales trae cada dataset (D-35), (lote, 7) en el orden de `nucleo.jerarquico.OPCIONALES`.
+
+    La mitad de los datasets trae todo (como el archivo del caso); en la otra mitad cada papel está con probabilidad 0,7.
+    """
+    completo = rng.random((lote, 1)) < 0.5
+    return (completo | (rng.random((lote, nucleo_jq.DIM_PRESENCIA)) < 0.7)).astype(np.float64)
 
 
 def muestrear_tamano(rng: np.random.Generator) -> tuple[int, int]:
@@ -161,7 +174,7 @@ def revisar(datasets: int = 1000, semilla: int = 0) -> dict:
         anidado[k][tuple(posicion.T)] = real[k]
     del_real = resumenes(anidado["espera"], anidado["sms"], anidado["respuesta"], mascara)
     rng = np.random.default_rng(semilla)
-    sim = simular(rng, datasets, 2000, 30, real)
+    sim = simular(rng, datasets, 2000, 30, real, opcionales=False)      # el archivo del caso trae todos los papeles
     simulados = resumenes(sim["espera"], sim["sms"], sim["respuesta"], sim["mascara"])
     return {k: {"real": round(float(v), 3), "percentil_en_lo_simulado": round(float((simulados[k] < v).mean()) * 100, 1),
                 "simulado_p05_p50_p95": [round(float(q), 3) for q in np.quantile(simulados[k], [0.05, 0.5, 0.95])]}
@@ -169,10 +182,11 @@ def revisar(datasets: int = 1000, semilla: int = 0) -> dict:
 
 
 def config() -> dict:
-    return {"motor_id": "jerarquico", "version_preproceso": "jerarquico-1", "nombres_theta": list(NOMBRES_THETA),
+    return {"motor_id": "jerarquico", "version_preproceso": "jerarquico-2", "nombres_theta": list(NOMBRES_THETA),
             "prior": {n: {"media": m, "desv": s} for n, (m, s) in PRIOR.items()},
             "rangos": {"citas": [CITAS_MIN, CITAS_MAX], "barrios": [BARRIOS_MIN, BARRIOS_MAX]},
-            "fraccion_por_decidir": FRACCION_POR_DECIDIR, "sms_solo_con_espera_desde": 3}
+            "fraccion_por_decidir": FRACCION_POR_DECIDIR, "sms_solo_con_espera_desde": 3,
+            "papeles_opcionales": list(nucleo_jq.OPCIONALES), "version_esquema": "jerarquico-2 (presencia por papel)"}
 
 
 if __name__ == "__main__":

@@ -2,12 +2,12 @@
 
 El dataset entra anidado como lo es el modelo: barrios × pacientes × citas, con una máscara.
 
-    cita      phi sobre la fila de la cita (19 números de `nucleo.jerarquico.armar_filas`)
+    cita      phi sobre la fila de la cita (26 números de `nucleo.jerarquico.armar_filas`: la matriz de diseño, las marcas de presencia de los papeles opcionales, la respuesta y la marca «por decidir»)
     paciente  pooling de atención sobre sus citas + cuántas tiene → psi.   De aquí sale σ_v: cuánto se
               parecen entre sí las citas de un mismo paciente.
     barrio    pooling de atención sobre sus pacientes + cuántos son → xi.  De aquí sale σ_b.
     dataset   pooling de atención sobre los barrios + atajo de segundo orden (promedio y covarianza de las
-              19 columnas sobre todas las citas, de donde salen los efectos fijos) + log del número de
+              26 columnas sobre todas las citas, de donde salen los efectos fijos) + log del número de
               citas y número de barrios → rho → resumen s(D) de 128.
 
 Cada nivel es invariante al orden de sus elementos. Los poolings de atención normalizan sus pesos y
@@ -48,7 +48,7 @@ class CodificadorJerarquico(nn.Module):
         self.rho = nn.Sequential(nn.Linear(self.pooling_barrios.dim_salida + momentos + 2, 256), nn.ReLU(), nn.Linear(256, dim_resumen))
 
     def forward(self, filas: Tensor, mascara: Tensor) -> Tensor:
-        """filas: (B, G, P, C, 19); mascara: (B, G, P, C) con 1 donde hay cita → resumen s(D): (B, 128)."""
+        """filas: (B, G, P, C, 26); mascara: (B, G, P, C) con 1 donde hay cita → resumen s(D): (B, 128)."""
         citas_del_paciente = mascara.sum(dim=-1)                                   # (B, G, P)
         hay_paciente = citas_del_paciente.clamp(max=1.0)
         pacientes_del_barrio = hay_paciente.sum(dim=-1)                            # (B, G)

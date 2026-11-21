@@ -15,7 +15,7 @@ def test_spline_y_matriz_de_diseno():
     np.testing.assert_allclose(base.sum(-1), 1)
     assert base[0, 0] == 1 and (base[0, 1:] == 0).all()                    # en t = 0 solo vive la primera función: f(0) = 0
     z = jq.matriz_de_diseno([0, 5, 30], [0, 2, 4], [0, 1, 1], [38, 61, 15], [[0, 0, 0, 0], [1, 0, 1, 0], [0, 1, 0, 0]])
-    assert z.shape == (3, jq.DIM_COEF) and jq.DIM_THETA == 20 and jq.DIM_FILA == 19
+    assert z.shape == (3, jq.DIM_COEF) and jq.DIM_THETA == 20 and jq.DIM_FILA == 26
     assert (z[0, 1:6] == 0).all() and z[0, 6] == 1 and (z[0, 7:11] == 0).all()   # mismo día, lunes
     assert z[1, 8] == 1 and z[1, 11] == 1 and abs(z[1, 12] - (np.log(6) - 2.5)) < 1e-12 and abs(z[1, 13] - 1.0) < 1e-12
     esperas = np.arange(0, 181.0)                                            # la tabla por día es la base evaluada directo
@@ -24,7 +24,14 @@ def test_spline_y_matriz_de_diseno():
     th = jq.a_restringido(np.arange(20.0) / 10)
     np.testing.assert_allclose(th["coef"][1:6], np.cumsum(np.arange(1, 6) / 10))
     filas = jq.armar_filas(z, [1.0, np.nan, 0.0])
-    assert filas.shape == (3, 19) and (filas[1, -2:] == [0, 1]).all() and (filas[0, -2:] == [1, 0]).all()
+    assert filas.shape == (3, 26) and (filas[1, -2:] == [0, 1]).all() and (filas[0, -2:] == [1, 0]).all()
+    assert (filas[:, 17:24] == 1).all()                                      # sin `presentes`, todos los papeles opcionales están
+    # Papeles opcionales (D-35): sin recordatorio y sin el segundo factor, sus columnas de Z van en cero y la marca lo dice.
+    presentes = np.array([1, 0, 1, 0, 1, 1, 1.0])
+    mascara = jq.mascara_de_columnas(presentes)
+    assert mascara.shape == (18,) and list(np.flatnonzero(mascara == 0)) == [11, 12, 14]
+    con_ausentes = jq.armar_filas(z * mascara, [1.0, np.nan, 0.0], presentes)
+    assert (con_ausentes[:, 17:24] == presentes).all() and (con_ausentes[:, [10, 11, 13]] == 0).all()
 
 
 def test_anidar_conserva_cada_fila():

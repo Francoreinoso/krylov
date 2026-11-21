@@ -57,3 +57,17 @@ def test_red_entrena_un_paso_y_exporta(tmp_path):
     medido = exportar(red, tmp_path, configuracion())
     assert max(medido.values()) < 1e-3, medido
     assert sorted(f.name for f in tmp_path.iterdir()) == ["codificador.onnx", "config.json", "flujo.npz", "pesos.pt"]
+
+
+def test_papeles_opcionales_en_el_simulador():
+    """D-35: cada dataset sortea qué papeles opcionales trae; el ausente va en cero en Z y su marca entra a las filas."""
+    from nucleo import jerarquico as jq
+    lote = simular.simular(np.random.default_rng(3), 40, 300, 5)
+    presentes = lote["presentes"]
+    assert presentes.shape == (40, 7) and 0.3 < (presentes.min(axis=1) == 1).mean() < 0.9 and (presentes == 0).any(axis=0).all()
+    i = int(np.flatnonzero(presentes[:, 1] == 0)[0])                          # un dataset sin recordatorio
+    existe = lote["mascara"][i] > 0
+    assert (lote["z"][i][..., [11, 12]] == 0).all() and (lote["filas"][i][existe][:, 17 + 1] == 0).all() and (lote["sms"][i] == 0).all()
+    assert (lote["filas"][i][existe][:, 17:24] == presentes[i]).all() and lote["filas"].shape[-1] == jq.DIM_FILA == 26
+    completo = simular.simular(np.random.default_rng(3), 5, 300, 5, opcionales=False)
+    assert (completo["presentes"] == 1).all()
