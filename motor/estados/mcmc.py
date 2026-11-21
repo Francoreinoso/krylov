@@ -48,9 +48,9 @@ def a_jax(datos: dict) -> dict:
     return {k: jnp.asarray(np.asarray(datos[k])) for k in VARIABLES}
 
 
-def correr(datos: dict, impago, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0) -> dict:
-    """Corre NUTS y devuelve las muestras de θ (muestras·cadenas, 33), los segundos y los diagnósticos."""
-    mcmc = MCMC(NUTS(modelo, init_strategy=init_to_value(values={"z": jnp.zeros(DIM_THETA)}), target_accept_prob=0.85),
+def correr(datos: dict, impago, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0, profundidad: int = 10) -> dict:
+    """Corre NUTS (`profundidad` = máximo de duplicaciones del árbol por paso) y devuelve las muestras de θ (muestras·cadenas, 33), los segundos y los diagnósticos."""
+    mcmc = MCMC(NUTS(modelo, init_strategy=init_to_value(values={"z": jnp.zeros(DIM_THETA)}), target_accept_prob=0.85, max_tree_depth=profundidad),
                 num_warmup=calentamiento, num_samples=muestras, num_chains=cadenas, chain_method="vectorized", progress_bar=False)
     inicio = time.time()
     mcmc.run(jax.random.PRNGKey(semilla), a_jax(datos), jnp.asarray(np.asarray(impago, dtype=np.float64)))

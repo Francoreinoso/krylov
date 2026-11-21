@@ -300,3 +300,38 @@ def cartera(caso: dict) -> dict:
             yield i, np.split(p.T, cortes)
 
     return comun.responder(caso, analizar_lotes)
+
+
+# ------------------------------------------------------------------------------ la nube (WORKPLAN.md, 11.9)
+
+def factores_nube(datos: dict, col: dict) -> dict[str, np.ndarray]:
+    """Los factores con nombre de una cartera, uno por columna del historial y por covariable, para los ejes de la nube.
+
+    La misma función sirve para el archivo del caso y para cada cartera simulada (`motor/estados/nube.py`).
+    Un pago de cero entra como el valor más bajo.
+    """
+    factores = {}
+    for t in range(MESES):
+        factores[col["atraso"][t]] = np.asarray(datos["nivel"])[:, t]
+        factores[col["saldo"][t]] = np.asarray(datos["uso"])[:, t]
+        factores[col["pago"][t]] = np.where(np.asarray(datos["pago_cero"])[:, t], -20.0, np.asarray(datos["log_pago"])[:, t])
+    for j, nombre in enumerate(col["transiciones"]):
+        factores[nombre] = np.asarray(datos["x"])[:, j]
+    return factores
+
+
+def nube(caso: dict, transformaciones: list[str]) -> dict:
+    """Dónde cae la cartera del caso respecto del predictivo a priori del modelo: ejes con nombre y resumen s(D)."""
+    from nucleo import nube as comun
+    carpeta = _casos.ARTEFACTOS / "estados"
+    if not (carpeta / "nube.npz").exists():
+        raise ErrorKrylov("La nube de crédito todavía no está calculada.", "no_disponible")
+    datos = leer_caso(caso)
+    factores = {**factores_nube(datos, caso["columnas"]), **comun.columnas_extra(caso, transformaciones)}
+    x, y, mejor = comun.ejes_con_nombre(factores, datos["impago"])
+    resumen = None
+    if (carpeta / "codificador.onnx").exists():
+        sesion, _ = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+        filas = armar_filas(*(datos[k] for k in VARIABLES), datos["impago"])
+        resumen = sesion.run(None, {"x": filas[None], "mascara": np.ones((1, len(filas)), dtype=np.float32)})[0][0]
+    return {"caso": caso["nombre"], **comun.ubicar(comun.cargar(carpeta / "nube.npz"), x, y, mejor, resumen)}

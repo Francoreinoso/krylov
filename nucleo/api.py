@@ -23,8 +23,8 @@ import importlib
 import json
 import time
 
-from nucleo import decision, textos
-from nucleo.casos import ARTEFACTOS, MOTORES, ErrorKrylov, bloque_costos, cargar_caso, costos_numericos, implementacion, nombres_del_inicio
+from nucleo import casos as _casos, decision, textos
+from nucleo.casos import MOTORES, ErrorKrylov, bloque_costos, cargar_caso, costos_numericos, implementacion, nombres_del_inicio
 
 
 def _motor(motor_id: str, funcion: str):
@@ -135,7 +135,7 @@ def nube(caso: str, transformaciones: list[str] = ()) -> dict:
 @_con_errores
 def sello(motor_id: str) -> dict:
     """La ficha técnica de un motor: `motor/artefactos/<motor_id>/sello.json` más `frases`."""
-    ruta = ARTEFACTOS / str(motor_id) / "sello.json"
+    ruta = _casos.ARTEFACTOS / str(motor_id) / "sello.json"       # se lee al llamar: las pruebas y el sello cambian la carpeta
     if motor_id not in MOTORES or not ruta.exists():
         raise ErrorKrylov(f"El motor «{motor_id}» todavía no tiene sello.", "sin_sello")
     ficha = json.loads(ruta.read_text(encoding="utf-8"))

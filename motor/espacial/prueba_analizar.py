@@ -128,4 +128,5 @@ def test_salvavidas_mapa_de_la_red_y_theta_del_mcmc(con_red, monkeypatch):
     assert "error" not in mixto and mixto["implementacion"] == "red"
     assert mixto["mapa"]["p"] == de_la_red["mapa"]["p"] and mixto["factores"] != de_la_red["factores"]
     assert "precalculado" in mixto["registro"][-1] and "precalculado" not in de_la_red["registro"][-1]
+    assert mixto["sello_resumen"]["frase"] and not de_la_red["sello_resumen"]["frase"]        # el pie mixto, de casos/textos.yaml
     assert len(api.donde_medir("terreno")["candidatas"]) == 3

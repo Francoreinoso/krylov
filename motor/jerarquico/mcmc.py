@@ -59,12 +59,12 @@ def argumentos(d: dict) -> tuple:
             jnp.asarray(d["paciente"]), jnp.asarray(d["barrio_del_paciente"]), int(np.max(d["barrio_del_paciente"])) + 1)
 
 
-def correr(d: dict, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0) -> dict:
-    """Corre NUTS y devuelve las muestras de θ (muestras·cadenas, 20), los segundos y los diagnósticos."""
+def correr(d: dict, calentamiento: int = 500, muestras: int = 500, cadenas: int = 4, semilla: int = 0, profundidad: int = 10) -> dict:
+    """Corre NUTS (`profundidad` = máximo de duplicaciones del árbol por paso) y devuelve las muestras de θ (muestras·cadenas, 20), los segundos y los diagnósticos."""
     args = argumentos(d)
     inicial = init_to_value(values={"z_theta": jnp.zeros(DIM_THETA), "u_crudo": jnp.zeros(args[5]),
                                     "v_crudo": jnp.zeros(args[4].shape[0])})
-    mcmc = MCMC(NUTS(modelo, init_strategy=inicial, target_accept_prob=0.85), num_warmup=calentamiento, num_samples=muestras,
+    mcmc = MCMC(NUTS(modelo, init_strategy=inicial, target_accept_prob=0.85, max_tree_depth=profundidad), num_warmup=calentamiento, num_samples=muestras,
                 num_chains=cadenas, chain_method="vectorized", progress_bar=False)
     inicio = time.time()
     mcmc.run(jax.random.PRNGKey(semilla), *args)

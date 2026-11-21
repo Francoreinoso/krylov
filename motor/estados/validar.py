@@ -21,6 +21,7 @@ import numpy as np
 import torch
 
 from motor.comun.entrenar import cargar_punto
+from motor.comun.validacion import dentro_del_rango
 from motor.estados import simular
 from motor.estados.red import RedEstados
 from nucleo import estados as nucleo_es
@@ -43,8 +44,7 @@ def sbc(red: RedEstados, carteras: int, muestras: int = 99, semilla: int = 10_00
             posterior = red.muestrear(torch.from_numpy(lote["filas"]), muestras).numpy()      # (muestras, b, 33)
         verdad = lote["theta"]
         rangos.append((posterior < verdad).sum(0))
-        bajo, alto = np.quantile(posterior, [0.05, 0.95], axis=0)
-        dentro.append((verdad >= bajo) & (verdad <= alto))
+        dentro.append(dentro_del_rango(rangos[-1], muestras))            # cobertura del 90% por rangos: exacta con 99 muestras
         anchos.append(posterior.var(0))
         n_de += [n] * b
         # Lo que se decide, en la primera cartera de la tanda: p de impago de los clientes por decidir.

@@ -24,6 +24,7 @@ import numpy as np
 import torch
 
 from motor.comun.entrenar import cargar_punto
+from motor.comun.validacion import dentro_del_rango
 from motor.espacial.exportar import PUNTO, red_desde_config
 from motor.espacial.simular import NOMBRES_THETA, Prior, simular
 
@@ -41,8 +42,7 @@ def sbc(red, n_terrenos: int, muestras: int = 99, semilla: int = 12345) -> dict:
     verdad = lote["theta"]
 
     rangos = (posterior < verdad).sum(0).numpy()                         # (n, 7), entre 0 y `muestras`
-    bajo, alto = torch.quantile(posterior, 0.05, dim=0), torch.quantile(posterior, 0.95, dim=0)
-    dentro = ((verdad >= bajo) & (verdad <= alto)).float()
+    dentro = torch.from_numpy(dentro_del_rango(rangos, muestras)).float()     # cobertura del 90% por rangos: exacta con 99 muestras
     z = ((posterior.mean(0) - verdad) / posterior.std(0)).numpy()
     contraccion = 1 - (posterior.var(0).mean(0) / verdad.var(0)).numpy()
     por_parametro = {}

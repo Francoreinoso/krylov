@@ -306,7 +306,12 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
             "p": lista(p, 3), "media": lista(_a_unidades_del_caso(r["media"][0], float(media), float(escala), terreno["transformacion"]), 1),
             "puntos": [{"x": float(x), "y": float(y), "valor": float(v)} for x, y, v in zip(terreno["x"], terreno["y"], terreno["valor"])],
             "umbral": terreno["umbral"], "unidad_valor": terreno["unidad_valor"]}
+    mixto = {}
+    if impl == "red" and theta_del_mcmc():       # el pie dice qué respondió la red y qué salió del MCMC precalculado (plantilla de PC 3)
+        from nucleo import textos
+        mixto = {"sello_resumen": {"frase": textos.frase("precalculado.pie_espacial_mixto") or "", "medido": False}}
     return {
+        **mixto,
         "implementacion": impl, "mapa": mapa,
         "resumen_colores": decision.resumen_colores(d["estado"][dentro]),
         "costo_total": float(d["duda"][dentro].sum()),

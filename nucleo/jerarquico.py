@@ -305,3 +305,35 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         "registro": [f"{int(por_decidir.sum())} {caso['unidad']['plural']} por decidir", f"{len(datos['barrio_del_paciente'])} pacientes",
                      f"{int(datos['barrio'].max()) + 1} barrios", f"{len(theta)} versiones creíbles"],
     }
+
+
+# ------------------------------------------------------------------------------ la nube (WORKPLAN.md, 11.9)
+
+def factores_nube(datos: dict, col: dict) -> dict[str, np.ndarray]:
+    """Los factores con nombre de un dataset de citas, uno por columna del modelo, para los ejes de la nube.
+
+    datos: `espera`, `dia`, `sms`, `edad` (n,) y `binarias` (n, 4), por cita. La misma función sirve para el
+    archivo del caso y para cada dataset simulado (`motor/jerarquico/nube.py`).
+    """
+    factores = {col["suave"]: datos["espera"], col["categoria"]: datos["dia"], col["tratamiento"]: datos["sms"], col["efectos"][0]: datos["edad"]}
+    for j, nombre in enumerate(col["efectos"][1:]):
+        factores[nombre] = np.asarray(datos["binarias"])[:, j]
+    return factores
+
+
+def nube(caso: dict, transformaciones: list[str]) -> dict:
+    """Dónde cae el archivo del caso respecto del predictivo a priori del modelo: ejes con nombre y resumen s(D)."""
+    from nucleo import nube as comun
+    carpeta = _casos.ARTEFACTOS / "jerarquico"
+    if not (carpeta / "nube.npz").exists():
+        raise ErrorKrylov("La nube de inasistencias todavía no está calculada.", "no_disponible")
+    datos = leer_caso(caso)
+    factores = {**factores_nube(datos, caso["columnas"]), **comun.columnas_extra(caso, transformaciones)}
+    x, y, mejor = comun.ejes_con_nombre(factores, datos["respuesta"])
+    resumen = None
+    if (carpeta / "codificador.onnx").exists():
+        sesion, _ = _red(str(carpeta), (carpeta / "codificador.onnx").stat().st_mtime)
+        z = matriz_de_diseno(datos["espera"], datos["dia"], datos["sms"], datos["edad"], datos["binarias"])
+        tensor, mascara, _ = anidar(armar_filas(z, datos["respuesta"]), datos["barrio"], datos["paciente"])
+        resumen = sesion.run(None, {"filas": tensor[None], "mascara": mascara[None]})[0][0]
+    return {"caso": caso["nombre"], **comun.ubicar(comun.cargar(carpeta / "nube.npz"), x, y, mejor, resumen)}

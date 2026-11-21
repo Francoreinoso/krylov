@@ -24,23 +24,46 @@ EJES = {"x": {"nombre": "Qué tan bien adivina la respuesta el mejor factor, sol
 PUNTOS_DIBUJADOS = 3000
 
 
-def auc(factor, respuesta) -> float:
+def auc_con_signo(factor, respuesta) -> float:
     """Área bajo la curva ROC de un factor numérico contra una respuesta sí/no, por rangos (empates a medias).
 
-    Se devuelve al derecho o al revés, lo que sea mayor: entre 0,5 (no adivina nada) y 1 (adivina siempre).
+    Sobre 0,5 si el factor crece con el «sí», bajo 0,5 si ordena al revés; 0,5 si falta una de las dos clases.
     """
     factor, respuesta = np.asarray(factor, dtype=np.float64), np.asarray(respuesta).astype(bool)
     positivos, negativos = int(respuesta.sum()), int((~respuesta).sum())
     if positivos == 0 or negativos == 0:
         return 0.5
-    orden = np.argsort(factor, kind="stable")
-    ordenado = factor[orden]
-    rangos = np.empty(len(factor))
-    limites = np.flatnonzero(np.r_[True, ordenado[1:] != ordenado[:-1], True])       # tramos de valores iguales
-    for inicio, fin in zip(limites[:-1], limites[1:]):
-        rangos[orden[inicio:fin]] = 0.5 * (inicio + fin - 1) + 1
-    area = (rangos[respuesta].sum() - positivos * (positivos + 1) / 2) / (positivos * negativos)
+    _, grupo, cuantos = np.unique(factor, return_inverse=True, return_counts=True)       # tramos de valores iguales
+    rangos = (np.cumsum(cuantos) - (cuantos - 1) / 2)[grupo]                              # rango promedio de cada tramo
+    return float((rangos[respuesta].sum() - positivos * (positivos + 1) / 2) / (positivos * negativos))
+
+
+def auc(factor, respuesta) -> float:
+    """El AUC al derecho o al revés, lo que sea mayor: entre 0,5 (no adivina nada) y 1 (adivina siempre)."""
+    area = auc_con_signo(factor, respuesta)
     return float(max(area, 1 - area))
+
+
+def a_numeros(valores) -> np.ndarray:
+    """Una columna del archivo, leída como texto, a números. Si no es numérica, vale 1 donde hay algo y 0 donde está vacía.
+
+    Así una columna como `fecha_salida` (una fecha o nada) entra a los ejes con nombre: lo que delata es si está o no.
+    """
+    try:
+        return np.array([float(v) if str(v).strip() else np.nan for v in valores])
+    except ValueError:
+        return np.array([1.0 if str(v).strip() else 0.0 for v in valores])
+
+
+def columnas_extra(caso: dict, transformaciones: list[str]) -> dict[str, np.ndarray]:
+    """Las columnas `extra` del caso (no entran al modelo, sí a los ejes con nombre), menos las que una corrección quitó."""
+    from nucleo.casos import leer_columnas
+    quitadas = {t.removeprefix("quitar_factor:") for t in transformaciones if t.startswith("quitar_factor:")}
+    nombres = [n for n in caso["columnas"].get("extra") or [] if n not in quitadas]
+    if not nombres:
+        return {}
+    tabla = leer_columnas(caso["dataset"])
+    return {n: np.nan_to_num(a_numeros(tabla[n]), nan=-1.0) for n in nombres}
 
 
 def ejes_con_nombre(factores: dict[str, np.ndarray], respuesta) -> tuple[float, float, str]:

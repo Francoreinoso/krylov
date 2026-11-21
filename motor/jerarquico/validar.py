@@ -21,6 +21,7 @@ import numpy as np
 import torch
 
 from motor.comun.entrenar import cargar_punto
+from motor.comun.validacion import dentro_del_rango
 from motor.jerarquico import simular
 from motor.jerarquico.red import RedJerarquico
 from nucleo import jerarquico as nucleo_jq
@@ -44,8 +45,7 @@ def sbc(red: RedJerarquico, datasets: int, muestras: int = 99, semilla: int = 10
             posterior = red.muestrear(torch.from_numpy(lote["filas"]), torch.from_numpy(lote["mascara"]), muestras).numpy()
         verdad = lote["theta"]
         rangos.append((posterior < verdad).sum(0))
-        bajo, alto = np.quantile(posterior, [0.05, 0.95], axis=0)
-        dentro.append((verdad >= bajo) & (verdad <= alto))
+        dentro.append(dentro_del_rango(rangos[-1], muestras))            # cobertura del 90% por rangos: exacta con 99 muestras
         anchos.append(posterior.var(0))
         citas_de += [citas] * b
         barrios_de += [barrios] * b

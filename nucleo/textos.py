@@ -73,19 +73,21 @@ def en_palabras(caso: dict, colores: dict | None, factores: list[dict] | None) -
     if colores is None:
         return []
     valores = {"n_actuar": colores["actuar"], "n_no_actuar": colores["no_actuar"], "n_en_duda": colores["en_duda"],
-               "unidad_plural": caso["unidad"]["plural"], "actuar_min": minuscula_inicial(caso["rotulos"]["actuar"]),
+               "unidad_plural": caso["unidad"]["plural"], "unidad_singular": caso["unidad"]["singular"], "actuar_min": minuscula_inicial(caso["rotulos"]["actuar"]),
                "en_duda_min": minuscula_inicial(caso["rotulos"]["en_duda"])}
     factores = factores or []
     frases = []
+    def una(n: int) -> str:                                   # la variante en singular de la plantilla, cuando hay una sola
+        return "_una" if n == 1 else ""
     if caso["motor"] == "espacial":
         base = "en_palabras.espacial."
-        frases += [frase(base + "hay_actuar", **valores)] if colores["actuar"] else []
+        frases += [frase(base + "hay_actuar" + una(colores["actuar"]), **valores)] if colores["actuar"] else []
         frases += [frase(base + "hay_no_actuar", **valores)] if colores["no_actuar"] else []
-        frases += [frase(base + "hay_en_duda", **valores)] if colores["en_duda"] else []
+        frases += [frase(base + "hay_en_duda" + una(colores["en_duda"]), **valores)] if colores["en_duda"] else []
         frases += [frase(base + "manda", factor_min=minuscula_inicial(factores[0]["etiqueta"]))] if factores else []
     else:
-        frases += [frase("en_palabras.hay_actuar", **valores)] if colores["actuar"] else []
-        frases += [frase("en_palabras.hay_en_duda", **valores)] if colores["en_duda"] else []
+        frases += [frase("en_palabras.hay_actuar" + una(colores["actuar"]), **valores)] if colores["actuar"] else []
+        frases += [frase("en_palabras.hay_en_duda" + una(colores["en_duda"]), **valores)] if colores["en_duda"] else []
         seguro = next((f for f in factores if f["certeza"] == "seguro"), None)
         dudoso = next((f for f in factores if f["certeza"] == "no_se_sabe"), None)
         frases += [frase("en_palabras.factor_seguro", factor_min=minuscula_inicial(seguro["etiqueta"]))] if seguro else []

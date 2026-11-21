@@ -84,7 +84,7 @@ def test_sello_con_frases(tmp_path, monkeypatch):
     ejemplo.pop("frases")
     ejemplo["cobertura_90_peor_grupo"] = None                               # un campo sin medir no genera frase
     (tmp_path / "espacial" / "sello.json").write_text(json.dumps(ejemplo), encoding="utf-8")
-    monkeypatch.setattr(api, "ARTEFACTOS", tmp_path)
+    monkeypatch.setattr(casos, "ARTEFACTOS", tmp_path)
     ficha = api.sello("espacial")
     assert len(ficha["frases"]) == 2 and "12,0 millones" in ficha["frases"][0] and "90,3%" in ficha["frases"][1]
     ejemplo.update(cobertura_90_peor_grupo=0.871, mcmc_s_por_dataset=300.0)
@@ -102,3 +102,11 @@ def test_textos_sin_numero_no_hay_frase():
     assert textos.titular(caso, {"estado": "rojo_datos"}, None, None) == textos.frase("titular.rojo_datos")
     sin_duda = textos.titular(caso, {"estado": "verde"}, {"actuar": 3, "no_actuar": 9, "en_duda": 0}, 0.0)
     assert sin_duda and "en duda" not in sin_duda.split(".")[0].replace("Ninguna duda", "")
+
+
+def test_en_palabras_usa_la_variante_en_singular():
+    caso = cargar_caso("credito")
+    varias = textos.en_palabras(caso, {"actuar": 3, "no_actuar": 5, "en_duda": 2}, [])
+    una = textos.en_palabras(caso, {"actuar": 1, "no_actuar": 5, "en_duda": 1}, [])
+    assert len(varias) == len(una) == 2 and all(" 1 cliente" in f and "clientes" not in f for f in una)
+    assert "3 clientes" in varias[0] and "2 clientes" in varias[1]
