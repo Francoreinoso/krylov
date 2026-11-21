@@ -11,7 +11,7 @@ Persona: [nombre] · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZ
 
 ## En curso
 
-- (vacío) · Primera tarea: A-01, entorno y preprocesamiento espacial. Meta de la noche: entrenamiento de la red espacial corriendo antes de las 05:15.
+- (vacío) · Primera tarea: A-01 (sesión A) y A-B1 (sesión B). Meta de la noche: a las 05:15, `espacial` entrenando en PC 2 y `supervivencia` en PC 3.
 
 ## Bloqueos
 
@@ -44,5 +44,5 @@ Persona: [nombre] · Dueño de `nucleo/` y `motor/`. Instrucciones: `PC2_AMORTIZ
 | Terrenos simulados usados en el entrenamiento | sin medir | A-09 | — |
 | Sello de `espacial` | sin medir | `validar-motor` | — |
 | «¿Dónde mido?»: análisis rehechos y segundos, con la red | sin medir | A-11 | — |
-| «¿Dónde mido?»: los mismos análisis con el método exacto | sin medir | A-11 | — |
+| «¿Dónde mido?»: los mismos análisis con el MCMC de referencia | sin medir | A-12 | — |
 | Cartera: análisis y segundos | sin medir | A-12 | — |

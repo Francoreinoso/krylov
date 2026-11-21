@@ -22,7 +22,7 @@ Rol: cualquiera propone; `seguimiento` escribe en `pitch/CIFRAS.md`. Regla del p
 ## Reglas
 
 - **Lo que se dice en voz alta sobre exactitud sale del examen con datos reales**, no de simulaciones. La exactitud en simulaciones va en la lámina técnica.
-- Una comparación de tiempos dice exactamente qué se comparó: «rehacer N análisis con el método exacto tomó M minutos en este computador». Nunca se elige un rival lento a propósito.
+- Una comparación de tiempos dice exactamente qué se comparó: «rehacer N análisis con el método lento de siempre tomó M minutos en este computador». Nunca se elige un rival lento a propósito.
 - Las cifras de un sponsor (clientes, usuarios, reservas) solo con fuente pública y enlace. Nunca de memoria.
 - Los costos de un caso sin fuente van como hipótesis y la app los muestra como supuestos, en deslizadores.
 - Un cálculo sobre otras cifras se anota como cálculo y nombra las filas de las que sale.

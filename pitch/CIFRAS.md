@@ -53,30 +53,53 @@ Ninguno tiene fuente, salvo K-11. Definen la plata que se ve, así que en voz al
 
 ## Medidas nuestras
 
-Todas pendientes. Cada una se registra con máquina, hora y comando.
+Todas pendientes. Cada una se registra con máquina, hora y comando. Las mide PC 2 salvo que se diga otra cosa. Las tareas A-xx son las de `WORKPLAN.md`, sección 6.3, reescrita por D-26.
 
 | Id | Cifra | Valor | Cuándo se mide | Verificó |
 |---|---|---|---|---|
-| M-01 | Terrenos simulados con que practicó la red | pendiente | A-09 | |
-| M-02 | Minutos de entrenamiento | pendiente | A-09 | |
-| M-03 | Examen con datos reales, rotación: «dijimos N%, pasó M%», sobre cuántas personas | pendiente | A-08 | |
-| M-04 | Lo que cuesta no saber, rotación, con los costos por defecto | pendiente | A-08 | |
-| M-05 | Personas en cada color, rotación | pendiente | A-08 | |
-| M-06 | Qué pesa en rotación: un factor «seguro» y uno «no se puede saber» | pendiente. No escribir el nombre de ningún factor antes de correr el motor | A-08 | |
+| M-01 | Terrenos simulados con que practicó el motor del terreno | pendiente | A-08 | |
+| M-02 | Minutos de entrenamiento del motor del terreno | pendiente | A-08 | |
+| M-03 | Examen con datos reales, rotación: «dijimos N%, pasó M%», sobre cuántas personas | pendiente | A-10 | |
+| M-04 | Lo que cuesta no saber, rotación, con los costos por defecto | pendiente | A-10 | |
+| M-05 | Personas en cada color, rotación | pendiente | A-10 | |
+| M-06 | Qué pesa en rotación: un factor «seguro» y uno «no se puede saber» | pendiente. No escribir el nombre de ningún factor antes de correr el motor | A-10 | |
 | M-07 | Empresas simuladas de la nube | pendiente | A-13 | |
-| M-08 | «¿Dónde mido?»: análisis completos rehechos | pendiente | A-11 | |
-| M-09 | «¿Dónde mido?»: segundos con la red | pendiente | A-11 | |
-| M-10 | Los mismos análisis con el método exacto: minutos | pendiente. Decir exactamente qué se comparó | A-11 | |
-| M-11 | Acierto cuando se dice 90%: método rápido, Krylov | pendiente | A-14 | |
-| M-12 | Lo que vale medir en el mejor punto del terreno | pendiente | A-11 | |
-| M-13 | Examen con datos reales, terreno: mediciones escondidas que cayeron en el rango | pendiente | A-10 | |
-| M-14 | Cartera: empresas analizadas y segundos | pendiente | A-12 | |
+| M-08 | «¿Dónde mido?»: análisis completos rehechos | pendiente | A-12 | |
+| M-09 | «¿Dónde mido?»: segundos con Krylov, sin nada entrenando en ese computador | pendiente | A-12, 12:00 | |
+| M-10 | Los mismos análisis con el método lento de siempre: minutos | pendiente. Decir exactamente qué se comparó: rehacer cada análisis completo. Un solo análisis lento del terreno tarda segundos | A-12, 12:00 | |
+| M-11 | Acierto cuando se dice 90%: método rápido de siempre, Krylov | pendiente | A-16 | |
+| M-12 | Lo que vale medir en el mejor punto del terreno | pendiente | A-12 | |
+| M-13 | Examen con datos reales, terreno: mediciones escondidas que cayeron en el rango | pendiente | A-11 | |
+| M-14 | Cartera: empresas analizadas y segundos. Si rotación salió precalculada, es el número de empresas precalculadas y no se dice «1.000» | pendiente | A-13 | |
 | M-15 | Prueba del asistente genérico: de tres intentos, cuántas respuestas distintas y cuántas dicen cuánto se pueden equivocar | pendiente | S-09 | |
 | M-16 | Extraños que repiten la idea, prueba de las 12:30 | pendiente: de 3 | S-13 | |
 | M-17 | Extraños que repiten la idea, prueba de las 19:00 | pendiente: de 3 | Sáb 19:00 | |
 | M-18 | Tiempo de una tarjeta en la URL pública, desde un teléfono | pendiente | P-08 | |
 | M-19 | Horas desde la primera línea del motor espacial hasta el mapa en la app | pendiente | H2 | |
-| M-20 | Simular un conjunto de 300 puntos sueltos | 1,15 ms. MacBook M4 16 GB, 21-nov 00:24 | ya medido | |
+| M-20 | Simular un conjunto de 300 puntos sueltos | 1,15 ms. MacBook M4 16 GB, 21-nov 00:24. Medido para el plan anterior; no va al guion | ya medido | |
+
+### Por motor (decisión D-26)
+
+Una fila por motor y por medida. `sup` = rotación, `jer` = inasistencias, `est` = crédito, `esp` = terreno. Los valores van entre corchetes hasta medirlos; lo que no se alcance a medir se queda sin decir. Las de «lámina técnica» no se dicen en voz alta.
+
+| Id | Cifra | Valor | Cuándo se mide | Verificó |
+|---|---|---|---|---|
+| M-21 | Empresas simuladas con que practicó el motor de rotación | [pendiente] | A-10 | |
+| M-22 | Carteras simuladas con que practicaron los motores de inasistencias y de crédito | [pendiente], una por motor | A-14, A-15 | |
+| M-23 | Minutos de entrenamiento por motor (rotación, inasistencias, crédito; el del terreno es M-02) | [pendiente] | A-10, A-14, A-15 | |
+| M-24 | Acierto del rango de 90% en simulaciones nuevas, por motor y en su peor grupo. Lámina técnica | [pendiente] ×4 | `validar-motor`: A-08, A-10, 13:00, 14:00 | |
+| M-25 | Segundos del método lento de siempre por archivo, por motor | [pendiente] ×4. Máquina y cuántos archivos se promediaron | A-08 (terreno, rotación), 11:30 (inasistencias), 12:30 (crédito) | |
+| M-26 | Milisegundos de Krylov por archivo, por motor, sin nada entrenando | [pendiente] ×4 | 12:00 y A-16 | |
+| M-27 | Cartera de 1.000 empresas: horas con el método lento (M-25 × 1.000, dicho como cálculo) contra segundos de Krylov (M-14) | [pendiente] | A-16 | |
+| M-28 | Diferencia entre Krylov y el método lento en los mismos archivos, por motor. Lámina técnica | [pendiente] ×4 | `validar-motor` | |
+| M-29 | El archivo malo cae fuera de la nube y, corregido, dentro | [pendiente: sí o no, por cada uno de los dos chequeos] | A-13 | |
+| M-30 | Qué manda en el terreno | [pendiente]. No escribir nada antes de correr el motor | A-11 | |
+| M-31 | Examen con datos reales, inasistencias | [pendiente] | A-14 | |
+| M-32 | Examen con datos reales, crédito | [pendiente] | A-15 | |
+| M-33 | Qué tarjetas respondieron con lo que practicó y cuáles salieron precalculadas | [pendiente: se fija a las 16:00] | A-17 | |
+| M-34 | Examen con datos reales del método rápido de siempre, en los mismos casos | [pendiente] | A-16 | |
+
+**Retiradas por D-26** (no se usan; los ids no se reciclan): todo tiempo o acierto del método exacto de las tres tarjetas con lista del plan anterior; «Krylov eligió N de M columnas» y cualquier cifra de la propuesta de columnas o de «Sube tus datos»; M-19 se reemplaza por M-23 y M-02.
 
 ## Negocio (solo lámina de respaldo)
 

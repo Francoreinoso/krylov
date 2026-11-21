@@ -13,6 +13,7 @@ Dejar funcionando, en el computador del escenario y en una URL pública, la app 
 - **Tuyo:** `servicio/` (backend), `web/` (frontend y `web/public/estatico/`), `estado/producto.md`, y el despliegue.
 - **No tocas:** `nucleo/` y `motor/` (PC 2); `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md` (PC 3). Si necesitas un cambio ahí, lo pides en «Pedidos a otros» de tu estado.
 - **No importas `torch`** en `servicio/`. No tocas motores: llamas a las funciones de `nucleo/api.py`.
+- **Este computador no entrena ni corre el método lento de siempre.** Tiene 6,6 GiB de memoria y casi toda en uso; los entrenamientos van en PC 2 y PC 3.
 
 ## Arranque (03:00 a 03:15)
 
@@ -69,6 +70,19 @@ Los dos últimos comandos tienen que dar el mismo identificador. Si uno falló (
 3. Al terminar: skill `actualizar-estado`. Eso es lo que PC 3 lee.
 4. Si necesitas algo de PC 2 que todavía no existe, sigue con el ejemplo fijo de `contratos/ejemplos/`. Nunca esperes.
 
+## Qué cambió con la decisión D-26 (léelo antes de P-01)
+
+Ahora hay cuatro motores, uno por tarjeta: `supervivencia` (rotación), `jerarquico` (inasistencias), `estados` (crédito) y `espacial` (terreno). Para ti cambia poco, porque la forma de las respuestas es la misma:
+
+- El ejemplo fijo de las tres tarjetas con lista se llama `analizar_tabla.json`. Sirve igual para rotación, inasistencias y crédito: cambia `motor_id` y qué factores aparecen.
+- `decision_prueba.json` trae en cada caso `regla`: `tabla` (con `muestras_p`) o `espacial` (con `p`).
+- **El terreno ahora trae `factores`** («qué manda en el terreno»). El panel «qué pesa» se muestra también junto al mapa.
+- **Toda respuesta trae `implementacion` (`red` o `mcmc`) y `precalculado`.** Cuando `precalculado` es `true`, la tarjeta y el pie llevan el rótulo «precalculado». No es un error: es el plan B de esa tarjeta, y la pantalla tiene que decir la verdad sobre quién responde.
+- **Hay un sello por motor:** `sello.json` (terreno) y `sello_<motor>.json`. Un campo en `null` no se muestra.
+- **La nube** trae además `detectores`. Se dibuja solo con los dos ejes con nombre y el punto del archivo; si `detectores` trae un motivo, va en la banda roja.
+- **«Sube tus datos» se cortó**, con su ruta, la capa de lenguaje y la clave de Anthropic en la app. No hay botón en el inicio ni tarea P-12. El pie nunca dice «Krylov eligió N columnas».
+- **La cartera puede llegar precalculada y con menos de 1.000 empresas.** El contador muestra `n_analisis`, sea el que sea, y el rótulo «precalculado» si corresponde.
+
 ## Tus tareas, en orden
 
 El detalle (entregable y criterio de cada una) está en `WORKPLAN.md`, sección 6.2. El recorrido que tiene que salir está en la sección 4.3. Las vistas, en la 1.3. El formato de cada respuesta, en `contratos/CONTRATO.md`, sección 6.
@@ -77,18 +91,18 @@ El detalle (entregable y criterio de cada una) está en `WORKPLAN.md`, sección 
 |---|---|---|---|
 | P-01 | 03:15 | 30 | Esqueleto: API que devuelve los ejemplos fijos, web que los pinta, y modo estático leyendo copias en `web/public/estatico/` |
 | P-02 | 03:45 | 30 | **Primer despliegue** con la skill `desplegar`. Necesita al dueño de la cuenta `Silent-math`, así que se hace hoy, con todos despiertos |
-| P-03 | 04:15 | 45 | Vista 1 (tarjetas) y vista 2 para regresión, contra el ejemplo fijo |
+| P-03 | 04:15 | 45 | Vista 1 (tarjetas, sin botón de subir archivo) y vista 2 para los casos con lista, contra `analizar_tabla.json`. Rótulo «precalculado» cuando la respuesta lo trae |
 | | 05:00 | 15 | Dejar la lista nocturna y actualizar el estado. A dormir a las 05:15 |
 | P-04 | 08:30 | 30 | Revisar lo nocturno. Deslizadores que se sienten bien |
-| P-05 | 09:00 | 30 | Conectar `analizar` real de rotación. Primera versión de `exportar_estatico`. Redespliegue |
-| P-06 | 09:30 | 50 | Mapa del terreno; conectar el real cuando PC 2 avise |
-| P-07 | 10:20 | 50 | Vista 4: tecla `M`, la nube, rojo, corrección, verde |
-| P-08 | 11:10 | 40 | Vista 3: cartera con contador y tabla |
+| P-05 | 09:00 | 30 | Primera versión de `exportar_estatico`, con los ejemplos fijos. Redespliegue. `analizar` real de rotación se conecta cuando PC 2 avise (cerca de las 10:15) |
+| P-06 | 09:30 | 50 | Mapa del terreno con su panel «qué manda»; conectar el real cuando PC 2 avise (cerca de las 11:00) |
+| P-07 | 10:20 | 50 | Vista 4: tecla `M`, la nube con sus dos ejes con nombre, rojo, corrección, verde. Con el ejemplo fijo; la real llega a las 13:15 |
+| P-08 | 11:10 | 40 | Vista 3: cartera con contador y tabla, con el ejemplo fijo; la real llega a las 13:15 |
 | | 11:50 | 20 | Redespliegue y medición desde un teléfono. **H2 a las 12:15** |
 | P-09 | 12:30 | 75 | **«¿Dónde mido?»**: pines, análisis rehechos, clic, resultado, el mapa cambia. Es lo más importante del día |
-| P-10 | 14:05 | 25 | Panel del examen y pie |
+| P-10 | 14:05 | 25 | Panel del examen y pie. Conectar inasistencias (14:10) y crédito (14:50) cuando PC 2 avise |
 | P-11 | 14:30 | 30 | Modo demo: teclas `M`, `T`, `C`, `L`, semilla fija, pantalla completa. `exportar_estatico` completo. Redespliegue. **H3 a las 15:00** |
-| P-12 | 15:15 | 45 | Opcional: «Sube tus datos» con Claude proponiendo columnas. **Es lo primero que se corta** |
+| P-12 | 15:15 | 45 | **Cortada (D-26).** Su tiempo va a `exportar_estatico` con lo que PC 2 fije a las 16:00 (quién responde en cada tarjeta) y a pulido |
 | P-13 | 16:00 | 40 | Portada y cierre dentro de la app (tecla `L`), con QR. Vista en teléfono |
 | P-14 | 16:40 | 50 | Pulido para proyector, borrar código muerto, último despliegue |
 | | 17:30 | 30 | Skill `preparar-demo`. **18:00: producto terminado** |
@@ -109,13 +123,13 @@ Reglas de la noche: solo `web/` y `servicio/`; no desplegar; no instalar nada qu
 
 - **El modo estático no es un extra.** La URL pública del QR tiene que hacer el recorrido completo sin servidor: el plan gratuito de Render tiene una décima de procesador y se duerme. La web pide a la API y, si no responde en 1,5 segundos, lee el archivo de `web/public/estatico/`. Constrúyelo en P-01 y mantenlo al día con `exportar_estatico`.
 - **Los deslizadores responden en el navegador**, no en el servidor. Por eso existe `decision.ts`.
-- **El mapa y «¿Dónde mido?» van antes que todo lo demás.** Si te atrasas, el orden de corte es: «Sube tus datos», cartera, panel del examen.
+- **El mapa y «¿Dónde mido?» van antes que todo lo demás.** Si te atrasas, el orden de corte es: cartera, panel del examen.
+- **La pantalla dice quién responde.** A las 16:00 PC 2 fija, tarjeta por tarjeta, si responde la red o sale precalculada. `exportar_estatico` se corre de nuevo después de esa hora.
 - **Nada tarda más de 2 segundos.** Lo que tarde más se sirve precalculado.
 - **El código se revisa.** Un cuarto de la nota es «aspecto técnico», con revisión automatizada del repositorio. Componentes con nombres claros, sin código muerto, y la prueba de `decision.ts` pasando.
-- **Antes de escribir la llamada a Claude (P-12), carga la skill `claude-api`.** No la escribas de memoria.
 
 ## Qué recibes y qué entregas
 
-- De PC 2: `nucleo/api.py`. Primero `analizar` para rotación (cerca de las 09:00), después el terreno (10:30), `donde_medir` (11:30), `cartera` (12:00) y `nube` (13:10).
+- De PC 2: `nucleo/api.py`. Primero `analizar` para rotación (10:15), después el terreno (11:00), `donde_medir` (12:00), `cartera` y `nube` (13:15), inasistencias (14:10) y crédito (14:50). Hasta que llegue cada una, sigues con su ejemplo fijo.
 - De PC 3: los casos y sus datos, y los textos de pantalla (v1 a las 11:30, definitivos a las 13:40).
 - Entregas: la URL pública y el demo. Avisa a PC 3 cada vez que redespliegues.

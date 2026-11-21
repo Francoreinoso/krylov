@@ -26,7 +26,7 @@ motor/banco/
 *.npy
 *.npz
 
-# Lo que SÍ se versiona de un motor: motor/artefactos/<motor_id>/{modelo.onnx,pesos.pt,config.json,sello.json}
+# Lo que SÍ se versiona de un motor: motor/artefactos/<motor_id>/{codificador.onnx,flujo.npz,pesos.pt,config.json,sello.json,nube.npz,mcmc/*.npz}
 !motor/artefactos/**
 
 # Las respuestas precalculadas SÍ se versionan: web/public/estatico/
@@ -41,3 +41,6 @@ motor/banco/
 
 # Videos crudos del respaldo (el final se sube a mano)
 pitch/video/crudo/
+
+# Resumen para leer de pie: no va al repositorio (PC3_SEGUIMIENTO.md, S-01)
+RESUMEN.md

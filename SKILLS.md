@@ -24,7 +24,7 @@ Por qué así: Claude Code carga `CLAUDE.md` y `CLAUDE.local.md` automáticament
 
 ## Cómo se usa una skill
 
-- Escribiendo `/nombre` en Claude Code (por ejemplo `/punto-de-control h1`).
+- Escribiendo `/nombre` en Claude Code (por ejemplo `/punto-de-control h1` o `/validar-motor supervivencia`).
 - O pidiéndolo con palabras: Claude Code la elige por su descripción («prepara el caso de crédito»).
 - Para repetirla sola: `/loop 30m /ronda`.
 
@@ -45,10 +45,10 @@ Está paso a paso en el archivo `PC*.md` de ese computador, sección «Arranque�
 | `punto-de-control` | PC 3 | A la hora de cada hito (H0 a H3, congelado, entrega) | Tablero, decisiones y tag en los dos repositorios |
 | `actualizar-estado` | todos | Al terminar algo, al bloquearse, antes de cada hito | `estado/<rol>.md` al día y subido |
 | `registrar-cifra` | todos proponen, PC 3 registra | Cada número que verá el jurado | Fila en `pitch/CIFRAS.md` |
-| `agregar-caso` | PC 3 | Para cada tarjeta y para el archivo malo | CSV, archivo de verdad y YAML que calzan. 25 minutos |
-| `medir-rendimiento` | PC 2 | Antes de lanzar el entrenamiento | Procesador o GPU del Mac, decidido midiendo |
-| `entrenar-motor` | PC 2 | Corrida nocturna de la red del terreno, o para retomarla | Entrenamiento corriendo, con puntos de guardado |
-| `validar-motor` | PC 2 | Antes de activar la red en el producto | Sello con números medidos, ONNX; pasa o no pasa |
+| `agregar-caso` | PC 3 | Para cada tarjeta y para el archivo malo | CSV con las columnas que pide el modelo del motor, archivo de verdad y YAML que calzan. 25 minutos |
+| `medir-rendimiento <motor>` | PC 2, PC 3 | Antes de lanzar cada entrenamiento | Procesador o GPU del Mac, decidido midiendo; presupuesto del paso local |
+| `entrenar-motor <motor>` | PC 2, PC 3 | Una corrida por motor (`espacial`, `supervivencia`, `jerarquico`, `estados`), o para retomarla | Entrenamiento corriendo, con puntos de guardado |
+| `validar-motor <motor>` | PC 2, PC 3 | Antes de activar la red de un motor en el producto | Sello del motor con números medidos, codificador en ONNX, flujo en `flujo.npz`, muestras del MCMC; pasa o no pasa |
 | `desplegar` | PC 1 | Primer despliegue (hoy, antes de dormir) y antes de cada hito | URL pública verificada desde un teléfono |
 | `preparar-demo` | PC 1 | Antes de cada ensayo y en la fase de iteración | Demo revisado en 17 puntos |
 | `ensayo-pitch` | PC 3 | Sáb 12:30, 17:00, 18:30, 19:00, 21:00; dom 06:30, 07:30 | Tiempos y una corrección |
@@ -60,7 +60,7 @@ Está paso a paso en el archivo `PC*.md` de ese computador, sección «Arranque�
 Es el trabajo principal de PC 3. Baja los cambios, lee los estados, verifica corriendo lo que cada uno dice haber terminado, escribe en el tablero la siguiente tarea de cada rol, recorta el plan si algo lleva el doble de su tiempo y reemplaza en el guion cada corchete que ya tiene su número. Diez minutos.
 
 ### punto-de-control
-Un hito: se mide contra el criterio escrito en `WORKPLAN.md`, se decide seguir o cortar, se anota y se deja un tag. En H2 se decide si el momento estrella corre con la red o con el método exacto precalculado.
+Un hito: se mide contra el criterio escrito en `WORKPLAN.md`, se decide seguir o cortar, se anota y se deja un tag. Hay un H2 por motor (12:15, 13:00, 14:00; tope 16:00): ahí se decide si cada tarjeta responde con su red o con el plan B, el posterior del MCMC precalculado y rotulado.
 
 ### actualizar-estado
 Un minuto: hecho, en curso, bloqueos, pedidos a otros y números medidos, con hora y con el identificador de la tarea.
@@ -69,16 +69,16 @@ Un minuto: hecho, en curso, bloqueos, pedidos a otros y números medidos, con ho
 Cada número que verá el jurado se clasifica como medido, con fuente o hipótesis. Lo que se dice sobre exactitud sale del examen con datos reales. Una comparación dice exactamente qué se comparó.
 
 ### agregar-caso
-Deja listo el archivo de datos de un caso: 20% de las respuestas vacías al azar, con la verdad guardada aparte para el examen. Los YAML ya vienen escritos; hay que comprobar que las columnas calzan.
+Deja listo el archivo de datos de un caso: 20% de las respuestas vacías al azar, con la verdad guardada aparte para el examen. Los YAML ya vienen escritos, con cada columna en su papel dentro del modelo del motor; hay que comprobar que calzan. Inasistencias se muestrea por pacientes completos dentro de barrios, y el terreno necesita además la grilla con la distancia al río.
 
 ### medir-rendimiento
-Ocho minutos en el MacBook Air, con la red real, antes de lanzar la noche. Tapa abierta, enchufado.
+Ocho minutos por motor, con la red real, antes de lanzar su entrenamiento. Tapa abierta, enchufado y sin nada más entrenando. También mide el presupuesto del paso local: un análisis en menos de 1 segundo y la cartera en segundos.
 
 ### entrenar-motor
-La corrida larga de la única red del proyecto, con terrenos simulados al vuelo y puntos de guardado cada 10 minutos. Antes de lanzar: el preprocesamiento compartido tiene su prueba y la red ya se exportó una vez sin entrenar.
+La corrida larga de la red de un motor, con datasets simulados al vuelo desde su modelo generativo y puntos de guardado cada 10 minutos. Un entrenamiento por computador: `espacial` y `estados` en PC 2, `supervivencia` y `jerarquico` en PC 3. Para lanzar basta simulador, codificador, flujo, pérdida, puntos de guardado y una prueba de humo con un SBC chico.
 
 ### validar-motor
-Tres chequeos: contra terrenos simulados nuevos, contra el método exacto y contra mediciones reales escondidas. Además mide el método rápido de siempre, para poder decir cuánto se equivoca. Exporta a ONNX y escribe el sello.
+Cuatro chequeos por motor: SBC y cobertura en simulaciones nuevas, comparación con el MCMC de referencia (5 a 10 datasets simulados más el real, con su tiempo), examen con datos reales reservados y la nube con el archivo malo. Además mide el método rápido de siempre, para poder decir qué se pierde sin el modelo completo. Exporta el codificador a ONNX, comprueba que el flujo en NumPy da lo mismo que en `torch` y escribe el sello. Si no pasa, la tarjeta sale con el MCMC precalculado.
 
 ### desplegar
 Web y respuestas precalculadas en Vercel, API en Render, las dos desde el repositorio espejo. La URL pública funciona sin servidor. En el escenario el demo corre en local.

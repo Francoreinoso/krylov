@@ -35,7 +35,7 @@ Los criterios exactos y qué hacer si fallan están en `WORKPLAN.md`, sección 6
 
 ## En `h2`
 
-Se decide con qué corre el momento estrella: la red (`KRYLOV_MOTOR_ESPACIAL=red`) si pasó `validar-motor`, o el método exacto con «¿Dónde mido?» precalculado. La frase del guion cambia según cuál sea.
+H2 es por motor (`espacial` y `supervivencia` a las 12:15, `jerarquico` a las 13:00, `estados` a las 14:00; tope 16:00). Para cada uno se decide quién responde: la red (`KRYLOV_MOTOR_<ID>=red`) si pasó `validar-motor`, o el MCMC precalculado (`mcmc`), rotulado «precalculado». El orden de corte y la frase del guion en cada caso están en `WORKPLAN.md`, sección 6.5.
 
 ## En `congelado`
 

@@ -12,7 +12,7 @@ Rol: `producto` (PC 1), cuando su humano lo pide. Tope: 30 minutos por intento. 
 ## Cómo está armado
 
 - **Vercel** sirve la web y los archivos de `web/public/estatico/`. Con eso basta para que el recorrido completo funcione en la URL pública, sin servidor.
-- **Render** corre la API. Solo la necesita «Sube tus datos».
+- **Render** corre la API del cálculo en vivo. La URL pública no depende de ella: todo el recorrido está en modo estático.
 - Los dos despliegan desde **`Silent-math/krylov`**, el repositorio espejo, porque no pueden conectarse al de la organización. Cada `git push` actualiza los dos repositorios y dispara los despliegues.
 - La conexión inicial de Vercel y Render la hace **el dueño de la cuenta `Silent-math`**, una sola vez, tenga el rol que tenga.
 
@@ -33,7 +33,7 @@ Rol: `producto` (PC 1), cuando su humano lo pide. Tope: 30 minutos por intento. 
 ## Si algo falla
 
 - **Vercel no despliega un commit:** mira el autor del commit y la visibilidad del espejo (paso 1).
-- **Render tarda o está dormido:** es lo esperado en el plan gratuito. La web no depende de él. Para «Sube tus datos», la web llama a `/api/salud` al cargar, para ir despertándolo.
+- **Render tarda o está dormido:** es lo esperado en el plan gratuito. La web no depende de él. La web llama a `/api/salud` al cargar, para ir despertándolo.
 - **Render no levanta:** revisa que `PYTHON_VERSION` sea 3.12 y que `requirements.txt` no traiga `torch`. Si no sale en 30 minutos, la API se queda solo en local y «Sube tus datos» se muestra desde el computador del escenario.
 
 **En el escenario el demo corre en local.** La URL pública es para la entrega, el QR y la página de votación.

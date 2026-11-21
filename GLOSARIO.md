@@ -1,6 +1,6 @@
 # Glosario de Krylov
 
-Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos los archivos, en la pantalla y en el pitch. Si un término no está aquí, no se usa sin explicarlo.
+Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos los archivos, en la pantalla y en el pitch. Si un término no está aquí, no se usa sin explicarlo. Este glosario manda en la pantalla y en el pitch; en el código, en `STACK.md`, en el anexo técnico y en el README técnico se usan los nombres técnicos precisos (última tabla).
 
 ## El producto
 
@@ -8,12 +8,17 @@ Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos
 - **Data scientist artificial.** Programa que hace el trabajo de un analista de datos: elige el método, lo aplica, dice qué conviene hacer, cuánto se puede equivocar y cuándo los datos no sirven.
 - **Modelo avanzado.** Modelo estadístico que, además de predecir, dice cuánto se puede equivocar. Hoy exige un especialista.
 - **Simular.** Inventar datos con reglas conocidas. Krylov practica con millones de casos simulados, donde la respuesta correcta se conoce, antes de ver datos reales.
+- **Modelo generativo.** Las reglas con que Krylov inventa empresas (o carteras, o terrenos) para practicar: cómo son las personas, qué las mueve y cómo aparece eso en los datos, incluidos los datos que faltan. Cada motor tiene las suyas. En pantalla se dice «las reglas».
+- **El método lento de siempre.** La forma en que un especialista resuelve hoy estos modelos: correcta, y de minutos por empresa. Krylov la usa para comprobar sus redes y como respaldo. En el código se llama MCMC.
+- **El método rápido de siempre.** El modelo simple que se usa cuando no hay especialista (una regresión). Es la comparación: muestra qué se pierde sin el modelo completo.
+- **Precalculado.** Rótulo de una respuesta que no salió de la red sino del método lento, calculado antes. Una tarjeta rotulada así no se presenta como respuesta al instante.
 - **Amortizar.** Pagar el costo de cálculo una sola vez, por adelantado, entrenando una red con casos simulados, para que después cada respuesta sea instantánea.
-- **Motor.** Un modelo avanzado listo para responder al instante. Hay dos:
-  - `regresion`: preguntas de sí o no (¿renuncia?, ¿paga?, ¿falta?) a partir de hasta 8 factores. Usa el método exacto, que aquí ya es instantáneo. No tiene red.
-  - `espacial`: datos con ubicación (¿dónde está contaminado?). Usa una red entrenada con millones de terrenos simulados.
-- **Método exacto.** La forma de siempre de hacer el cálculo: correcta, y lenta cuando hay que repetirla cientos de veces. Cada motor tiene una versión exacta, que es además el plan B si la red falla.
-- **Red.** El programa que aprendió, mirando terrenos simulados, a dar la misma respuesta que el método exacto en una fracción del tiempo.
+- **Motor.** Un modelo avanzado con sus reglas para inventar casos y una red que practicó con ellos, listo para responder al instante. Hay cuatro, uno por tarjeta:
+  - `supervivencia` (rotación): cuánto dura una persona en la empresa, cuando de muchas todavía no se sabe porque siguen ahí.
+  - `jerarquico` (inasistencias): cada paciente y cada barrio tienen su propia tendencia a faltar.
+  - `estados` (crédito): cada cliente pasa mes a mes por estados que no se ven (al día, apretado, en problemas).
+  - `espacial` (terreno): datos con ubicación; qué manda en el terreno y dónde conviene medir.
+- **Red.** El programa que aprendió, mirando solo casos simulados, a dar para un archivo entero la misma respuesta que el método lento de siempre, en milisegundos.
 
 ## Lo que se ve en pantalla
 
@@ -25,10 +30,10 @@ Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos
 - **Tres colores.** Son decisiones, no pronósticos: «conviene actuar», «no hace falta» y «no sabemos si conviene». Una unidad está en el tercero cuando hay más de 10% de probabilidad de que la decisión cambie al saber más.
 - **Lo que te cuesta no saber.** El número grande de la pantalla. Es la plata que se ahorraría, en promedio, si la duda se despejara antes de decidir. Vale cero cuando no hay duda.
 - **¿Dónde mido?** En casos con mapa: los tres lugares donde una medición más vale más plata. Para calcularlo, Krylov imagina cientos de resultados posibles y rehace el análisis completo para cada uno.
-- **Qué pesa.** Los factores que mueven la respuesta, cada uno con una etiqueta: seguro, probable, o no se puede saber con estos datos.
+- **Qué pesa.** Los factores que mueven la respuesta, cada uno con una etiqueta: seguro, probable, o no se puede saber con estos datos. En el terreno dice qué manda: el río, los bloques vecinos o el error de medición.
 - **Examen.** Lo que pasó cuando Krylov respondió sobre datos reales que no había visto: «de las personas a las que dimos 30% de riesgo, se fue el 28%». Es la exactitud que se dice en voz alta.
-- **Sello.** La ficha técnica de un motor: con cuántas simulaciones practicó, cuánto acierta en casos simulados, cuánto tarda. Va en el pie de la pantalla y en la lámina técnica.
-- **Nube.** El dibujo de las simulaciones con que Krylov practicó, con el archivo del usuario encima. Si el archivo cae fuera, Krylov no responde.
+- **Sello.** La ficha técnica de un motor (hay uno por motor): con cuántas simulaciones practicó, cuánto acierta en casos simulados, cuánto se parece al método lento y cuánto tarda cada uno. Va en el pie de la pantalla y en la lámina técnica.
+- **Nube.** El dibujo de las simulaciones con que Krylov practicó, con el archivo del usuario encima. Tiene dos ejes con nombre: qué tan bien adivina la respuesta el mejor factor por sí solo, y la proporción de «sí». Si el archivo cae fuera, Krylov no responde. Por dentro hay un segundo chequeo que no se dibuja.
 - **Semáforo.** Verde: responde. Amarillo: responde con un aviso. Rojo: no responde y dice por qué, porque faltan datos o porque el archivo no se parece a nada que conozca; en ese caso propone una corrección.
 - **Cartera.** La vista donde se analizan cientos o miles de clientes de una plataforma de una sola vez.
 - **Modo estático.** Las respuestas del demo guardadas como archivos junto a la web. Así la URL pública responde aunque no haya servidor.
@@ -59,8 +64,12 @@ Las palabras del proyecto, en una o dos líneas cada una. Se usan igual en todos
 | Fuera de distribución, fuera del prior | «No se parece a nada que haya visto» |
 | Inferencia amortizada | «Ya practicó con millones de casos simulados» |
 | Modelo bayesiano | «Un modelo que dice cuánto se puede equivocar» |
+| Modelo generativo, prior | «Las reglas con que Krylov inventa empresas» |
+| Latente, efecto aleatorio | «Algo que no se ve en los datos pero deja huella» (el compromiso de una persona, la tendencia de un paciente a faltar) |
+| NPE, flujo normalizador, codificador | No se nombran. «La red que practicó» |
+| SBC | No se nombra. «Lo comprobamos en casos simulados nuevos» |
 | Coeficiente, efecto | «Qué pesa» |
 | Umbral de decisión | «Punto de corte» |
-| MCMC, muestreo por importancia | «El método exacto de siempre» (solo si preguntan) |
-| Regresión logística, kriging, variograma | No se nombran. Si preguntan: «el método rápido de siempre» para el kriging con parámetros fijos |
+| MCMC | «El método lento de siempre» |
+| Regresión logística, kriging con parámetros fijos | No se nombran. «El método rápido de siempre» |
 | Simulación, simular | Se dicen tal cual: es el nombre del track |

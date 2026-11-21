@@ -14,10 +14,21 @@ Frase: **«Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo. En u
 
 Por qué ese nombre: por Alekséi Krylov, ingeniero naval que calculó por adelantado tablas para que el capitán de un barco averiado decidiera en segundos qué hacer. Calcular antes, decidir al instante. El relato completo y su fuente están en `pitch/GUION.md`; no lo cuentes de memoria.
 
-Cómo funciona: por dentro hay **motores**. Un motor es un modelo estadístico avanzado (uno que además de predecir dice cuánto se puede equivocar) listo para responder al instante. Krylov elige la herramienta como lo haría un buen analista:
+Cómo funciona: Krylov es **inferencia basada en simulación amortizada, caso por caso** (decisión D-26). Por dentro hay cuatro **motores**, uno por tarjeta. Cada motor tiene cuatro piezas:
 
-- `regresion` usa el **método exacto**, porque para esa pregunta el método exacto ya es instantáneo. No tiene red y no la necesita.
-- `espacial` usa una **red entrenada con millones de terrenos simulados** (eso es **amortizar**: pagar el cálculo una vez, antes, para que cada respuesta sea instantánea). Aquí la red sí es indispensable: para decir dónde conviene medir hay que rehacer el análisis completo cientos de veces, y con el método exacto eso toma minutos.
+1. **Un modelo generativo** (en pantalla: «las reglas con que Krylov inventa empresas»): un modelo estadístico avanzado, de los que hoy exigen un especialista, escrito con sus ecuaciones en `WORKPLAN.md`, sección 11.
+2. **Un simulador** que inventa millones de casos con esas reglas.
+3. **Una red** que practicó solo con esos casos simulados y aprendió a dar, para un archivo entero, lo que el método lento de siempre daría (eso es **amortizar**: pagar el cálculo una vez, antes).
+4. **Respuestas en milisegundos** para cualquier archivo de la misma familia: el del demo o cada una de las 1.000 empresas de la cartera.
+
+| Motor | Tarjeta | Modelo |
+|---|---|---|
+| `supervivencia` | Rotación | Tiempo hasta la renuncia con censura, efecto no lineal del sueldo, efecto por cargo y un compromiso latente por persona que genera las cuatro encuestas |
+| `jerarquico` | Inasistencias | Propensión latente por paciente y efecto por barrio; espera no lineal; el efecto del SMS cambia con la espera |
+| `estados` | Crédito | Cadena de estados ocultos mes a mes; los seis meses de atrasos, saldos y pagos son sus emisiones |
+| `espacial` | Terreno | Proceso gaussiano anisotrópico con tendencia por la distancia al río; entrega el posterior de los parámetros y el mapa |
+
+Cada motor tiene además su **MCMC de referencia**: valida la red, da la cifra de amortización (minutos contra milisegundos) y es el plan B de la tarjeta, precalculado y rotulado. La regresión logística simple es solo «el método rápido de siempre»: la comparación que muestra qué se pierde sin el modelo completo.
 
 Para quién: Platanus Hack 26, Santiago, track Simulaciones. Jurado de fundadores e inversionistas que no sabe estadística. Primero ven producto, negocio y show. Lo técnico tiene que ser correcto y estar listo para las preguntas, pero no se muestra primero.
 
@@ -27,7 +38,7 @@ Todas las palabras del proyecto están definidas en `GLOSARIO.md`. Úsalas tal c
 
 Una sola app web con cuatro vistas chicas:
 
-1. **Inicio · «¿Qué quieres saber?»** Cuatro tarjetas, una por caso de uso, y un botón «Sube tus datos».
+1. **Inicio · «¿Qué quieres saber?»** Cuatro tarjetas, una por caso de uso.
 2. **Respuesta.** Un titular en una frase; un número grande, **lo que te cuesta no saber**; las **unidades** (personas, citas, clientes, bloques de terreno) en **tres colores que son decisiones** (conviene actuar, no hace falta, no sabemos si conviene), como lista o como mapa; **deslizadores de costos** que cambian la respuesta en vivo; **qué pesa**, con la etiqueta «no se puede saber con estos datos» cuando corresponde; y el **examen**: qué tan bien le fue a Krylov con datos reales que no había visto.
    - En casos con mapa, además: **«¿Dónde mido?»**. Tres pines con plata. Un clic simula la medición y el mapa cambia. Es el momento estrella del show.
 3. **Todos a la vez (Cartera).** Mil empresas analizadas de una vez, ordenadas por lo que les cuesta no saber.
@@ -35,8 +46,9 @@ Una sola app web con cuatro vistas chicas:
 
 ## Qué NO se construye
 
-- Una red para `regresion`. El método exacto es instantáneo y decirlo es una fortaleza.
+- «Sube tus datos», la propuesta de columnas y cualquier llamada a un modelo de lenguaje dentro de la app. Se cortaron (D-26): cada motor responde una familia de archivos.
 - Motor de eventos raros, voz, WhatsApp, caja de pregunta libre, tarjetas sintéticas de más sponsors. Se cortaron (ver `DECISIONES.md`, D-17).
+- Una vista, una función o un motor fuera de los cuatro de `WORKPLAN.md`, sección 1.2.
 - Cuentas de usuario, base de datos, panel de administración, un chat, una quinta vista.
 - Nada nuevo después del sábado a las 18:00.
 - Nada que no aparezca en `WORKPLAN.md`. Si crees que falta algo, anótalo como pedido en tu archivo de estado; no lo construyas.
@@ -49,10 +61,10 @@ Lee `CLAUDE.local.md` en la raíz. Trae una línea `ROL:` e importa el archivo d
 | Computador | Rol | Instrucciones | Es dueño de | Entrega |
 |---|---|---|---|---|
 | PC 1 | `producto` | `PC1_PRODUCTO.md` | `servicio/`, `web/`, `estado/producto.md` | Backend, frontend y despliegue: la app que se ve en el demo y la URL pública |
-| PC 2 | `amortizacion` | `PC2_AMORTIZACION.md` | `nucleo/`, `motor/`, `estado/amortizacion.md` | Los motores, la red entrenada con simulaciones, la capa de decisión y sus números medidos |
+| PC 2 | `amortizacion` | `PC2_AMORTIZACION.md` | `nucleo/`, `motor/`, `estado/amortizacion.md` | Los cuatro motores (modelo generativo, simulador, red, validación), la capa de decisión y sus números medidos |
 | PC 3 | `seguimiento` | `PC3_SEGUIMIENTO.md` | `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`, `estado/seguimiento.md`, `DECISIONES.md`, `WORKPLAN.md` | Monitoreo y guía en cada paso, ajustes al plan, los casos y sus datos, y el pitch, el demo y el relato al día con lo construido |
 
-PC 2 es el MacBook Air M4 de 16 GB sin ventilador. «PC» aquí siempre es un computador; las horas de revisión se llaman **hitos** (H0 a H3).
+PC 2 es el MacBook Air M4 de 16 GB sin ventilador. PC 3 es un MacBook Air M3 de 16 GB y presta su procesador para entrenar (`supervivencia` de noche, `jerarquico` de día). PC 1 es un notebook con poca memoria: no entrena ni corre MCMC. «PC» aquí siempre es un computador; las horas de revisión se llaman **hitos** (H0 a H3).
 
 ## Mapa del repositorio
 
@@ -60,8 +72,8 @@ PC 2 es el MacBook Air M4 de 16 GB sin ventilador. «PC» aquí siempre es un co
 AGENTS.md  CLAUDE.md  GLOSARIO.md  SKILLS.md  STACK.md  WORKPLAN.md  DECISIONES.md
 PC1_PRODUCTO.md  PC2_AMORTIZACION.md  PC3_SEGUIMIENTO.md
 contratos/   CONTRATO.md + ejemplos/            congelado en H0
-nucleo/      preproceso, decisión, motores, api.py. Solo NumPy y onnxruntime   (amortizacion)
-motor/       simular, entrenar, validar, exportar; artefactos/<motor_id>/      (amortizacion)
+nucleo/      preproceso, decisión, flujo en NumPy, paso local de cada motor, api.py. Solo NumPy y onnxruntime   (amortizacion)
+motor/       comun/ (codificador, flujo, entrenamiento) y <motor_id>/ (simular, red, mcmc, validar); artefactos/<motor_id>/   (amortizacion)
 servicio/    backend FastAPI y exportar_estatico                               (producto)
 web/         frontend; web/public/estatico/ son las respuestas precalculadas   (producto)
 casos/       <nombre>.yaml + INICIO (orden de las tarjetas)                    (seguimiento)
@@ -86,7 +98,7 @@ Como el repositorio es público, **no se sube nada que no pueda leer un juez o u
 
 ## Contratos (detalle en `contratos/CONTRATO.md`)
 
-- **`amortizacion` → `producto`.** Funciones puras en `nucleo/api.py` (`casos`, `analizar`, `cartera`, `donde_medir`, `nube`, `sello`) que devuelven diccionarios con la misma forma que los ejemplos fijos de `contratos/ejemplos/`. `producto` nunca toca un motor ni importa `torch`.
+- **`amortizacion` → `producto`.** Funciones puras en `nucleo/api.py` (`casos`, `analizar`, `cartera`, `donde_medir`, `nube`, `sello`) que devuelven diccionarios con la misma forma que los ejemplos fijos de `contratos/ejemplos/`. `producto` nunca toca un motor ni importa `torch`. Cada motor responde con su red (`red`) o con el posterior del MCMC precalculado (`mcmc`, rotulado «precalculado»); lo elige una variable `KRYLOV_MOTOR_<ID>`.
 - **Decisión.** La regla de los tres colores y de «lo que cuesta no saber» está escrita en `CONTRATO.md`, sección 3, y existe en Python y en TypeScript con una prueba común.
 - **Backend → frontend.** Rutas HTTP, y además **modo estático**: toda respuesta del demo existe como archivo en `web/public/estatico/`. La web usa la API si responde en 1,5 segundos y, si no, el archivo.
 - **Caso.** `casos/<nombre>.yaml` trae la tarjeta, la pregunta, el motor, las columnas, los costos y el origen de los datos. Ningún texto de industria va escrito en el código.
@@ -100,7 +112,8 @@ Solo se dice que usamos un sponsor si de verdad está integrado y funcionando a 
 | Papel | Sponsors | Cómo aparecen |
 |---|---|---|
 | Caso de uso en el demo | Buk (anfitrión), AgendaPro | Una tarjeta cada uno, rotulada «caso tipo … · datos públicos de ejemplo» |
-| Infraestructura que usamos | Anthropic, Vercel, Render | Claude propone columnas y redacta, nunca calcula; Claude Code construye el producto. Web y respuestas precalculadas en Vercel. API en Render |
+| Infraestructura que usamos | Vercel, Render | Web y respuestas precalculadas en Vercel. API en Render |
+| Herramienta con que se construyó | Anthropic | Claude Code construyó el producto. No está integrado en la app y no se dice otra cosa |
 | No se usan | ElevenLabs, Kapso, Kairos, Lici, Copec, CChC, Cognition | No se mencionan como usados. Cognition no se menciona en absoluto |
 
 La web del evento lista once sponsors (los de la tabla menos Cognition, que no aparece). `seguimiento` lo confirma en el lugar (tarea S-10) antes de que una frase diga «auspiciador».
@@ -109,15 +122,15 @@ La web del evento lista once sponsors (los de la tabla menos Cognition, que no a
 
 1. **Ninguna cifra en pantalla, lámina o guion sin fila en `pitch/CIFRAS.md`** (medido, con fuente o hipótesis). *Basta una cifra inflada para perder la credibilidad del resto.*
 2. **Ninguna frase del guion afirma un resultado antes de que el motor lo haya dado.** Los resultados van entre corchetes hasta que se miden. *El guion anterior decía qué factor «no se podía saber» sin haber corrido nada.*
-3. **Un solo preprocesamiento.** `nucleo/preproceso.py` es la única función que transforma datos, idéntica para el simulador y para el servicio. *Si difieren, la red recibe en vivo algo que nunca vio al entrenar y falla en silencio.*
+3. **Un solo preprocesamiento, y `nucleo/` sin `torch`.** `nucleo/preproceso.py` es la única función que transforma datos, idéntica para el simulador y para el servicio. El flujo se muestrea en NumPy y tiene una prueba que exige lo mismo que `torch`. *Si difieren, la red recibe en vivo algo que nunca vio al entrenar y falla en silencio.*
 4. **Los colores son decisiones, no pronósticos.** Nunca «se va, seguro»; siempre «conviene retener». *Con un punto de corte de 20%, alguien con 22% de riesgo queda en «actuar»: como pronóstico sería falso, como decisión es correcto.*
-5. **La simulación se ve.** La nube de simulaciones, los pines de «¿Dónde mido?» y el conteo de análisis rehechos no se cortan. *Es el track, y es lo que nos distingue de un tablero con una regresión.*
-6. **Cero jerga en la interfaz y en el pitch.** Usa `GLOSARIO.md`. *Nadie repite una frase que no entendió.*
+5. **La simulación se ve, y es cierta.** La nube de simulaciones, los pines de «¿Dónde mido?» y el conteo de análisis rehechos no se cortan. Una tarjeta solo dice que respondió la red si su motor pasó `validar-motor`; si no, dice «precalculado». *Es el track, y es lo que nos distingue de un tablero con una regresión.*
+6. **Cero jerga en la interfaz y en el pitch; nombres técnicos precisos en el código.** En pantalla y en el pitch, `GLOSARIO.md`. En `nucleo/`, `motor/`, `STACK.md`, el anexo técnico y el README técnico se escribe modelo generativo, prior, posterior, NPE, flujo normalizador, SBC, MCMC. *Nadie repite una frase que no entendió; y un cuarto de la nota es una revisión del código, que tiene que leerse como inferencia basada en simulación de verdad.*
 7. **Nada en vivo tarda más de 2 segundos.** Lo que tarde más se precalcula y lleva `precalculado: true`. *El aire muerto mata un demo.*
 8. **La URL pública funciona sin servidor.** Toda respuesta del recorrido está precalculada en `web/public/estatico/`. *El QR lo va a escanear toda la sala a la vez, y un servidor gratuito no aguanta.*
 9. **Todo dato sintético o simulado va rotulado, y todo caso dice de dónde vienen sus datos.** *Que lo descubra el jurado es peor.*
 10. **Un caso con el nombre de un sponsor es una hipótesis de uso con datos públicos.** Nunca afirmes cómo trabaja esa empresa ni que son datos suyos. *Su gente está en la sala.*
-11. **El modelo de lenguaje solo ve encabezados y estadísticas por columna; nunca filas ni valores. Y nunca produce un número que no esté en el JSON del motor.** *Claude conversa; el motor calcula. Es la respuesta a «¿no es un chat con un CSV?».*
+11. **No hay modelo de lenguaje dentro de la app.** Todo número sale de un motor y todo texto, de una plantilla llenada con el JSON del motor. *Es la respuesta a «¿no es un chat con un CSV?».*
 12. **No inventes citas, nombres, clientes ni respuestas de personas.** *Una cita falsa descalifica.*
 13. **No envíes mensajes ni publiques nada por tu cuenta.** El único despliegue permitido es el de la app, lo hace `producto` con la skill `desplegar`. *Lo que sale del equipo lo firma una persona.*
 14. **No edites directorios ajenos.** Si necesitas un cambio en una carpeta de otro rol, pídelo en «Pedidos a otros» de tu estado. *Tres personas con sueño sobre una sola rama.*
@@ -135,7 +148,7 @@ La web del evento lista once sponsors (los de la tabla menos Cognition, que no a
 | `verde` | Responde con confianza | Muestra el resultado |
 | `amarillo` | Responde, con aviso | Muestra el resultado y el motivo |
 | `rojo_datos` | Faltan datos para responder (muy pocas filas, casi ningún «sí») | No responde y dice qué falta |
-| `rojo_modelo` | Los datos no se parecen a nada que el motor conozca | Muestra dónde cae el archivo respecto de las simulaciones, propone una corrección (quitar una columna que delata la respuesta, quitar una tendencia) y reintenta |
+| `rojo_modelo` | Los datos no se parecen a nada que el motor conozca. Hay dos detectores y basta que marque uno | Muestra dónde cae el archivo respecto de las simulaciones, propone una corrección (quitar una columna que delata la respuesta) y reintenta |
 
 ## Sincronización y estado
 
@@ -154,20 +167,20 @@ La web del evento lista once sponsors (los de la tabla menos Cognition, que no a
 
 ## Si te bloqueas más de 20 minutos
 
-Anótalo en Bloqueos con la hora y lo que probaste, toma el camino alternativo de `WORKPLAN.md` y sigue con el ejemplo fijo o con la implementación `exacto`. No esperes a otro rol.
+Anótalo en Bloqueos con la hora y lo que probaste, toma el camino alternativo de `WORKPLAN.md` y sigue con el ejemplo fijo o con la implementación `mcmc`. No esperes a otro rol.
 
 ## Trabajo sin humano (de noche)
 
-Cada archivo `PC*.md` trae una lista de tareas que el agente puede hacer solo mientras su humano duerme. Reglas: solo esas tareas, solo en tus carpetas, commits chicos, sin desplegar, sin enviar nada. Si algo exige una decisión, anótalo en tu estado y pasa a la siguiente tarea. En PC 2 no lances nada que compita con el entrenamiento por el procesador más de un par de minutos.
+Cada archivo `PC*.md` trae una lista de tareas que el agente puede hacer solo mientras su humano duerme. Reglas: solo esas tareas, solo en tus carpetas, commits chicos, sin desplegar, sin enviar nada. Si algo exige una decisión, anótalo en tu estado y pasa a la siguiente tarea. En PC 2 y en PC 3 no lances nada que compita con el entrenamiento por el procesador más de un par de minutos: ni otro entrenamiento ni una corrida de MCMC.
 
 ## Horario (hora de Santiago)
 
 | Hito | Cuándo | Qué tiene que existir |
 |---|---|---|
 | H0 | sáb 03:45 | Los tres empujan a los dos repositorios; contrato congelado; la web muestra un ejemplo fijo |
-| Antes de dormir | sáb 05:15 | Entrenamiento de la red espacial corriendo; URL pública con el esqueleto; datos de rotación y terreno listos |
-| H1 | sáb 08:45 | ¿Sobrevivió la noche? Entrenamiento con puntos de guardado; URL pública viva; lo que hicieron los agentes de noche, revisado |
-| H2 | sáb 12:15 | ¿Está la pieza estrella? Respuesta de rotación con datos reales; mapa del terreno; «¿Dónde mido?» calculando; red validada o decisión de plan B |
+| Antes de dormir | sáb 05:15 | Dos entrenamientos corriendo: `espacial` en PC 2 y `supervivencia` en PC 3; URL pública con el esqueleto; datos de rotación y terreno listos |
+| H1 | sáb 08:45 | ¿Sobrevivió la noche? Entrenamientos con puntos de guardado; URL pública viva; lo que hicieron los agentes de noche, revisado |
+| H2 | sáb 12:15 | ¿Está la pieza estrella? Respuesta de rotación con datos reales; mapa del terreno; «¿Dónde mido?» calculando. **Red o plan B, motor por motor:** `espacial` y `supervivencia` a las 12:15, `jerarquico` a las 13:00, `estados` a las 14:00; tope 16:00 |
 | H3 | sáb 15:00 | Recorrido completo del demo, dos veces seguidas, en la URL pública y sin internet |
 | **Producto terminado** | **sáb 18:00** | Tag `congelado`. Nada nuevo entra |
 | Iterar demo y pitch | sáb 18:00 a 22:00 | Ensayos, segunda prueba con extraños, arreglos de texto |

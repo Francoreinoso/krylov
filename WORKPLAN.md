@@ -2,7 +2,7 @@
 
 Platanus Hack 26, Santiago, track Simulaciones. Escrito el sábado 21 de noviembre a las 03:00. Reemplaza al plan v3 y responde a la crítica v3 (sección 9).
 
-> **Cambio de fondo, sáb 03:00 (decisión D-26):** Krylov es inferencia basada en simulación amortizada, con cuatro motores, uno por caso. Ya están al día `contratos/`, `casos/`, `PC2_AMORTIZACION.md` y las secciones 6.3 y 11 de este archivo. **El resto de este archivo todavía describe el plan anterior** (dos motores, `regresion` sin red) y se corrige en las rondas después de H0. Donde choquen, manda D-26.
+> **Cambio de fondo, sáb 03:00 (decisión D-26):** Krylov es inferencia basada en simulación amortizada, con cuatro motores, uno por caso. Este archivo ya está al día con ese cambio; la sección 9 se conserva como historia.
 
 > **Esto es una hackathon.** Proyecto chico, tiempo acotado, se vende con un pitch corto. **El producto se termina el sábado a las 18:00.** Desde ahí solo se itera el demo y el pitch. El plan no depende de contactar a nadie. Ante la duda: lo más simple que se vea bien en el demo, y que la simulación se vea en pantalla.
 
@@ -12,7 +12,7 @@ Fechas fijas: producto terminado sábado 18:00 · entrega domingo 08:00 · cierr
 
 **Qué es Krylov.** Un **data scientist artificial**: le das un archivo de datos y una pregunta de negocio, y te dice qué conviene hacer, **cuánto te cuesta no saber** y **dónde conviene averiguar más**. Y avisa cuando los datos no sirven.
 
-**Cómo funciona, en una frase.** Hace el cálculo difícil antes: practica con millones de casos simulados, donde la respuesta correcta se conoce, y por eso después responde al instante.
+**Cómo funciona, en una frase.** Hace el cálculo difícil antes: para cada tipo de pregunta tiene reglas con que inventa empresas (o terrenos), practica con millones de esos casos simulados, donde la respuesta correcta se conoce, y por eso después responde al instante.
 
 **Por qué se llama así.** Por Alekséi Krylov, ingeniero naval que a comienzos del 1900 calculó por adelantado qué hacer con un barco averiado, para que el capitán decidiera en segundos. Calcular antes, decidir al instante.
 
@@ -23,10 +23,10 @@ Fechas fijas: producto terminado sábado 18:00 · entrega domingo 08:00 · cierr
 **Qué cambió respecto del plan v3**, en cinco líneas:
 
 1. El nombre es Krylov.
-2. El momento estrella es «¿Dónde mido?», que antes era opcional. Es el único lugar donde la red es indispensable.
-3. `regresion` no lleva red. La noche de cómputo es para la red del terreno.
+2. El momento estrella es «¿Dónde mido?», que antes era opcional.
+3. Cada tarjeta tiene su propio motor: un modelo de los que hoy exigen un especialista, y una red que practicó con casos simulados de ese modelo (D-26). Lo que antes era una regresión con el método exacto ya no existe.
 4. Los colores son decisiones y el número grande mide de verdad la duda.
-5. La URL pública funciona sin servidor, y el plan se cortó a cuatro tarjetas y dos motores.
+5. La URL pública funciona sin servidor, y el plan se cortó a cuatro tarjetas, cada una con su motor.
 
 ### 0.1 El objetivo: ganar, con los criterios oficiales
 
@@ -34,8 +34,8 @@ Los criterios están publicados en las bases (antes no los teníamos). Cada deci
 
 | Criterio | Peso | Qué dice | Cómo lo cumplimos |
 |---|---|---|---|
-| **Aspecto técnico** | 25% | Calidad de la ingeniería y de las decisiones de diseño: complejidad, modelación y adecuación. **El jurado puede apoyarse en una revisión automatizada del código** | Una red entrenada con simulaciones propias, validada contra el método exacto y contra datos reales; un contrato entre módulos; pruebas por módulo; un README que explica cómo se entrenó y cómo se validó |
-| **Ambición** | 20% | Qué tan altos fueron los objetivos para las 36 horas | Entrenar en una noche, en un notebook sin ventilador, una red que reemplaza un cálculo de minutos; dos motores; app desplegada |
+| **Aspecto técnico** | 25% | Calidad de la ingeniería y de las decisiones de diseño: complejidad, modelación y adecuación. **El jurado puede apoyarse en una revisión automatizada del código** | Inferencia basada en simulación amortizada, caso por caso: cuatro modelos generativos escritos con sus ecuaciones, un simulador y una red por modelo, validada con SBC, contra un MCMC de referencia y contra datos reales; un contrato entre módulos; pruebas por módulo; un README que lo explica con los nombres técnicos |
+| **Ambición** | 20% | Qué tan altos fueron los objetivos para las 36 horas | Entrenar en una noche y una mañana, en dos notebooks sin ventilador, redes que reemplazan un cálculo de minutos por empresa; cuatro motores; app desplegada |
 | **Ejecución** | 20% | Qué tan pulido, coherente y funcional es el resultado | Recorrido sin esperas; URL pública que no se cae; tarde entera para ensayar |
 | **Impacto** | 20% | El valor que entrega a sus usuarios, **la profundidad por sobre el alcance** | Cada pantalla termina en una decisión con plata. Por eso la cartera («miles de clientes») pesa menos que «¿Dónde mido?» |
 | **Originalidad** | 15% | Qué tan sorprendente es, si va más allá de la primera solución evidente | No es un chat con un archivo: dice cuánto no sabe y cuánto vale averiguarlo |
@@ -57,7 +57,7 @@ Están completos en `GLOSARIO.md`. Los que más se usan:
 | **Data scientist artificial** | Programa que hace el trabajo de un analista de datos: elige el método, lo aplica, dice qué conviene hacer y cuándo los datos no sirven |
 | **Simular** | Inventar datos con reglas conocidas. Krylov practica con casos simulados, donde la respuesta correcta se conoce |
 | **Amortizar** | Pagar el costo de cálculo una sola vez, por adelantado, para que cada respuesta sea instantánea |
-| **Motor** | Un modelo estadístico listo para responder al instante. Hay dos: `regresion` (método exacto) y `espacial` (red entrenada con terrenos simulados) |
+| **Motor** | Las reglas con que Krylov inventa casos de un tipo de pregunta, más la red que practicó con ellos y por eso responde al instante. Hay cuatro, uno por tarjeta |
 | **Caso de uso** | Una pregunta de negocio resuelta con un motor, un archivo de datos y sus costos. Cada tarjeta es un caso |
 | **Unidad** | Aquello sobre lo que se decide: una persona, una cita, un cliente, un bloque de terreno |
 | **Tres colores** | Son decisiones: «conviene actuar», «no hace falta», «no sabemos si conviene» |
@@ -74,33 +74,34 @@ Están completos en `GLOSARIO.md`. Los que más se usan:
 
 Hoy, para responder «¿a quién conviene retener?» o «¿dónde mido antes de gastar?», una empresa necesita un data scientist: alguien que elige un modelo, lo programa, lo ajusta y explica el resultado. Tarda días, cuesta un sueldo, y casi nunca dice cuánto se puede equivocar ni cuánto vale salir de la duda. La mayoría de las empresas no tiene uno.
 
-Krylov hace ese trabajo. Y elige la herramienta como lo haría un buen analista: cuando el método exacto es instantáneo, usa el método exacto; cuando no alcanza, usa una red que ya practicó con millones de casos simulados.
+Krylov hace ese trabajo, con los modelos que usaría ese especialista y no con los simples. Con el método de siempre, cada uno de esos modelos tarda minutos por empresa; Krylov ya practicó con millones de casos simulados y responde en milisegundos, para una empresa o para mil.
 
 ### 1.2 Los motores
 
-| Motor | Qué preguntas responde | Cómo responde | Estado al sábado 18:00 |
-|---|---|---|---|
-| `regresion` | Preguntas de sí o no (¿renuncia?, ¿paga?, ¿falta a la cita?), a partir de hasta 8 factores | **Método exacto.** Es instantáneo; una red no aporta nada y no se construye | Obligatorio. Tres tarjetas lo usan |
-| `espacial` | Datos con ubicación: ¿dónde está contaminado?, ¿dónde conviene medir? | **Red entrenada con terrenos simulados.** Aquí sí es indispensable: «¿Dónde mido?» exige rehacer el análisis cientos de veces | Obligatorio. Es el momento estrella |
-| Eventos raros, series de tiempo, segmentación | | | Lámina de hoja de ruta. No se construyen |
+| Motor | Tarjeta | Qué modelo es, en palabras | Por qué el método de siempre es lento | Al sábado 18:00 |
+|---|---|---|---|---|
+| `espacial` | Terreno | El terreno varía de a poco, más en una dirección que en otra, y cambia con la distancia al río; cada medición trae error | «¿Dónde mido?» exige rehacer el análisis cientos de veces | Red obligatoria. Es el momento estrella |
+| `supervivencia` | Rotación (tipo Buk) | Cuánto dura una persona en la empresa, cuando de muchas todavía no se sabe (siguen ahí). Efecto del sueldo que no es una recta, diferencias por cargo y un compromiso de cada persona que no se ve, pero se asoma en sus cuatro encuestas | Una incógnita por persona, más las de cada cargo | Red comprometida. Abre el demo y alimenta la cartera |
+| `jerarquico` | Inasistencias (tipo AgendaPro) | Cada paciente tiene su propia tendencia a faltar y cada barrio la suya; la espera pesa de forma no lineal y el efecto del SMS cambia con la espera | Cerca de mil incógnitas en dos niveles | Red como meta; si no, sale precalculado |
+| `estados` | Crédito | Cada cliente pasa mes a mes por estados que no se ven (al día, apretado, en problemas); sus atrasos, deudas y pagos de seis meses son la huella | Hay que recorrer la historia de cada cliente en cada paso del cálculo | Red como meta; es la más difícil. Si no, sale precalculado |
+| Eventos raros, series de tiempo, segmentación | | | | Lámina de hoja de ruta. No se construyen |
 
-La versión exacta de `espacial` también se construye: es la vara para validar la red y el plan B si la red no pasa.
+Cada motor tiene además su versión con el método lento de siempre (MCMC), que se calcula una vez y se guarda: es la vara para validar la red y el plan B de la tarjeta. Una tarjeta que sale del plan B se rotula «precalculado» y el guion no dice que responde la red. La regresión simple queda solo como «el método rápido de siempre», para mostrar qué se pierde sin el modelo completo. El detalle técnico está en la sección 11.
 
 ### 1.3 Las cuatro vistas
 
 **Vista 1 · Inicio: «¿Qué quieres saber?»**
 - Cuatro tarjetas: «Caso tipo Buk · ¿A quién conviene retener?», «Terreno · ¿Dónde limpio y dónde mido?», «Caso tipo AgendaPro · ¿Qué citas conviene confirmar?», «Crédito · ¿A quién le apruebo?».
-- Un botón «Sube tus datos».
 - Abajo, en chico: «Casos de ejemplo con datos públicos. No son datos de estas empresas.»
 
 **Vista 2 · Respuesta.** Es la pantalla principal. De arriba abajo:
 1. **Titular en una frase.** «[N] personas están en duda. No saber te cuesta [plata].»
 2. **Lo que te cuesta no saber**, en grande.
 3. **Dos deslizadores de costos**, con su pregunta en palabras («¿Cuánto te cuesta reemplazar a alguien?»). Al moverlos cambian los colores, el titular y el número, sin espera. Dicen «supuesto».
-4. **Las unidades en tres colores.** En casos de regresión, una lista ordenada con una barra por unidad que muestra su rango y la línea del punto de corte. En casos espaciales, un mapa.
-5. **Qué pesa.** Cada factor con una flecha y una etiqueta: «seguro», «probable» o «no se puede saber con estos datos».
+4. **Las unidades en tres colores.** En casos de tabla, una lista ordenada con una barra por unidad que muestra su rango y la línea del punto de corte. En casos espaciales, un mapa.
+5. **Qué pesa.** Cada factor con una flecha y una etiqueta: «seguro», «probable» o «no se puede saber con estos datos». En el terreno dice qué manda: el río, lo que pasa en los bloques vecinos o el error de cada medición.
 6. **El examen.** «Escondimos a [294] personas reales. De las que dijimos [30]% de riesgo, se fue el [N]%.»
-7. **Pie:** qué motor usó, de dónde vienen los datos y, solo si es cierto, «Krylov eligió 8 de 35 columnas».
+7. **Pie:** qué motor usó, de dónde vienen los datos y, si la respuesta salió del plan B, el rótulo «precalculado».
 
 En casos con mapa, además:
 
@@ -120,26 +121,21 @@ Reglas de pantalla: nada tarda más de dos segundos, ninguna palabra de estadís
 
 ### 1.4 Dónde se ve la simulación
 
-Es el nombre del track y era lo que el plan anterior no mostraba. Ahora aparece cuatro veces, y ninguna se corta:
+Es el nombre del track y era lo que el plan anterior no mostraba. Ahora aparece cinco veces, y ninguna se corta. Desde D-26, además, es cierta en las cuatro tarjetas: cada una responde con una red que practicó con casos simulados de su propio modelo.
 
 | Dónde | Qué se simula | Qué se dice |
 |---|---|---|
-| La nube (vista 4) | Empresas inventadas con reglas conocidas | «Esto es con lo que practicó» |
+| La nube (vista 4) | Empresas inventadas con las reglas del motor: las mismas con que practicó | «Esto es con lo que practicó» |
 | «¿Dónde mido?» | Cientos de resultados posibles de una medición que todavía no se hace | «Imaginó [N] resultados y rehízo el análisis para cada uno» |
 | El clic en un pin | Una medición | «Mido, sale alto, y el mapa cambia» |
-| El cierre | Los terrenos del entrenamiento | «Anoche practicó con [N] millones de terrenos simulados» |
+| La cartera (vista 3) | 1.000 empresas inventadas con esas mismas reglas, cada una distinta | «Con el método de siempre, [horas]. Krylov, [segundos]» |
+| El cierre | Los casos del entrenamiento | «Anoche practicó con [N] millones de empresas y terrenos simulados» |
 
 ### 1.5 Lo que se cortó y los opcionales
 
-Cortado, con lo que libera (decisión D-17): la red de `regresion` y su noche de cómputo; el motor de eventos raros; la voz; WhatsApp; la caja de pregunta libre; las tarjetas sintéticas de licitaciones, obras y cargadores; el análisis a mano con cronómetro. Suman cerca de siete horas de trabajo, que se usan en «¿Dónde mido?», la nube, los deslizadores y el modo estático.
+Cortado (decisiones D-17 y D-26): el motor de eventos raros; la voz; WhatsApp; la caja de pregunta libre; las tarjetas sintéticas de licitaciones, obras y cargadores; el análisis a mano con cronómetro; y **«Sube tus datos»** con la capa de lenguaje, porque cada motor responde una familia de archivos y no un CSV cualquiera.
 
-Opcionales, solo después de H3 y solo si H3 pasó limpio. Fecha tope 16:30.
-
-| Opcional | Qué agrega | Quién | Tiempo |
-|---|---|---|---|
-| «Sube tus datos» con Claude proponiendo columnas | Responde «¿quién eligió las columnas?» y muestra a Anthropic integrado | PC 1 (P-12) | 45 min |
-| «Qué manda en el terreno» | Una segunda cabeza de la red que entrega los parámetros del terreno: «manda el río» | PC 2 (A-16) | 90 min |
-| La red corriendo en el navegador | Cualquier teléfono simula mediciones sin servidor | PC 1 (dentro de P-13) | 60 min, riesgoso |
+**No hay opcionales.** Todo el tiempo de PC 2 va a los cuatro motores. Lo que antes era opcional y ahora es obligatorio: «qué manda en el terreno», que sale del análisis mismo.
 
 ## 2. Dónde se usa
 
@@ -153,9 +149,9 @@ Regla: un caso con el nombre de un sponsor es una hipótesis de uso con datos p�
 |---|---|---|---|
 | **Buk** (anfitrión) | Caso | ¿A quién conviene retener? Datos públicos ficticios creados por IBM, 1.470 personas | Sí. Abre el demo |
 | **AgendaPro** | Caso | ¿Qué citas conviene confirmar? Datos públicos reales, 110.527 citas médicas | Sí |
-| **Anthropic** | Infraestructura | Claude propone qué columnas usar y redacta; nunca calcula. Claude Code construye el producto | Sí. La propuesta de columnas, si P-12 entra |
+| **Anthropic** | Herramienta | Claude Code construyó el producto. No está integrado en la app y no se dice otra cosa | Sí, como herramienta |
 | **Vercel** | Infraestructura | La web y las respuestas precalculadas | Sí |
-| **Render** | Infraestructura | La API para «Sube tus datos» | Sí |
+| **Render** | Infraestructura | La API del cálculo en vivo; la URL pública no depende de ella | Sí |
 | ElevenLabs, Kapso, Kairos, CChC, Copec, Lici | No se usan | No se nombran como usados. Pueden ir en la lámina de hoja de ruta como industrias | No |
 
 Además, dos tarjetas sin sponsor: **Crédito** (30.000 clientes reales de tarjetas) y **Terreno** (155 mediciones reales de metales en un suelo).
@@ -210,7 +206,7 @@ El texto completo está en `pitch/GUION.md`, que PC 3 pone al día en cada ronda
 
 **Versión de 90 segundos:** momentos 1 (dos frases), 2 y 4, y la frase. **Lo primero que se corta es la cartera. El mapa no se corta nunca.**
 
-La comparación del momento 4 tiene tres números y los tres se miden: lo que tarda Krylov, lo que tarda rehacer los mismos análisis con el método exacto, y cuánto acierta el método rápido de siempre cuando dice 90%. La frase dice exactamente qué se comparó.
+La comparación del momento 4 tiene tres números y los tres se miden: lo que tarda Krylov, lo que tarda rehacer los mismos análisis con el método lento de siempre, y cuánto acierta el método rápido de siempre cuando dice 90%. La frase dice exactamente qué se comparó.
 
 ### 4.3 El recorrido, clic por clic
 
@@ -240,7 +236,9 @@ Las teclas existen para no depender del mouse en un escenario. Todo el recorrido
 | inferencia amortizada | «ya practicó con millones de casos simulados» |
 | calibración | «dijimos 30% de riesgo y pasó el 28%» |
 | fuera de distribución | «no se parece a nada que haya visto» |
-| regresión logística, bayesiano, kriging | no se nombran; si preguntan: «el método exacto de siempre», «el método rápido de siempre» |
+| MCMC | «el método lento de siempre» |
+| modelo generativo, prior | «las reglas con que Krylov inventa empresas» |
+| regresión logística, bayesiano, kriging | no se nombran; si preguntan: «el método rápido de siempre» |
 | «se va, seguro», «senior» | «conviene retener». La palabra «senior» sale de todo |
 | simular, simulación | se dicen tal cual, y a menudo: es el nombre del track |
 
@@ -250,7 +248,7 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 
 1. **Portada:** «Krylov» y la frase.
 2. **Cierre:** la frase, el equipo, el QR, y una franja con terrenos simulados pasando.
-3. **Respaldo técnico:** cómo se entrenó (terrenos simulados, minutos, computador), el sello, la comparación con el método exacto y con el rápido, el examen con datos reales, y qué no hace todavía.
+3. **Respaldo técnico:** por motor, el modelo en una línea, cómo se entrenó (casos simulados, minutos, computador), el sello, la comparación con el método lento y con el rápido, el examen con datos reales, y qué no hace todavía. Esta lámina sí usa los nombres técnicos.
 4. **Respaldo de negocio:** la unidad, el primer cliente, la tabla de diferencias.
 5. **Respaldo: qué existe hoy y qué es hoja de ruta.**
 
@@ -268,28 +266,33 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 | Pregunta | Respuesta |
 |---|---|
 | ¿En qué se diferencia de subirle el archivo a un chat? | Lo probamos: el mismo archivo y la misma pregunta, tres veces. [Resultado de S-09.] Krylov da siempre la misma respuesta, mide la duda en plata y rinde un examen con datos reales. Y un chat no te dice dónde medir |
-| ¿Quién eligió las columnas y los costos? | Los costos, tú: son los deslizadores, y la respuesta cambia en vivo. Las columnas las propone Krylov mirando solo los encabezados [si P-12 entró]; en estos ejemplos [las propuso Krylov / las elegimos nosotros], y la pantalla lo dice |
-| ¿Dónde está la simulación? | En tres lugares. Krylov practicó con [N] millones de terrenos inventados. Antes de responder compara tu archivo con empresas simuladas. Y para decir dónde medir, simula cientos de resultados posibles de una medición que todavía no haces |
+| ¿Quién eligió las columnas y los costos? | Los costos, tú: son los deslizadores, y la respuesta cambia en vivo. Las columnas, nosotros: cada motor pide las que su modelo necesita (el tiempo en la empresa, las encuestas, el cargo), y la pantalla lo dice |
+| ¿Dónde está la simulación? | En todo. Cada tarjeta responde con una red que practicó con [N] millones de empresas o terrenos inventados con reglas conocidas. Antes de responder compara tu archivo con esos casos simulados. Y para decir dónde medir, simula cientos de resultados posibles de una medición que todavía no haces |
 | ¿De verdad reemplaza a un data scientist? | Reemplaza el análisis de rutina. Para una empresa que no tiene ninguno, es el primero |
 | ¿Estos son datos de Buk o de AgendaPro? | No. Son datos públicos, y lo dice la pantalla. Son casos tipo, para mostrar la pregunta |
 | ¿Hablaron con clientes? | [Si hubo conversación con alguien de Buk: la frase textual, con permiso.] Si no: «Todavía no, y no lo vamos a inventar. Es lo primero que haríamos el lunes» |
 | ¿Qué impide que lo copien? | Hoy, poco: el equipo, que investiga en esto, y llegar primero. La ventaja se construye con cada motor nuevo y con el historial de exámenes |
-| ¿Qué existe hoy y qué es lámina? | Existe una app en línea con dos motores, cuatro casos y una red entrenada anoche. Series de tiempo y eventos raros son hoja de ruta |
+| ¿Qué existe hoy y qué es lámina? | Existe una app en línea con cuatro casos, cada uno con su modelo, y [N] redes entrenadas entre anoche y hoy [las que hayan pasado; las demás tarjetas dicen «precalculado»]. Series de tiempo y eventos raros son hoja de ruta |
+| ¿Suben cualquier archivo? | Todavía no. Cada motor responde un tipo de pregunta con un tipo de archivo. Agregar un tipo nuevo es escribir sus reglas y dejarlo practicando una noche |
 | ¿Y si se equivoca? | Por eso el examen: escondemos datos reales y mostramos cuánto acertó. Y cuando el archivo no se parece a nada que conozca, no responde |
-| ¿Mis datos salen de la empresa? | Los motores son chicos y pueden correr dentro de la empresa. El modelo de lenguaje solo ve los nombres de las columnas, nunca los datos |
+| ¿Mis datos salen de la empresa? | No hace falta: los motores son chicos y pueden correr dentro de la empresa. Ningún modelo de lenguaje ve los datos |
 | ¿Quién paga y cuánto? | La plataforma que lo integra. Pensamos en US$ 20 al mes por empresa que lo use; es una hipótesis y lo decimos así |
 
 Técnicas, para quien las haga:
 
 | Pregunta | Respuesta |
 |---|---|
-| Una regresión se ajusta en milisegundos. ¿Para qué una red? | Para la regresión no hay red, y es a propósito: el método exacto ya es instantáneo. La red está donde el exacto no alcanza: rehacer [N] análisis de un terreno para decir dónde medir toma [M] minutos con el exacto y [X] segundos con la red |
-| En ese modelo hay atajos para no rehacer cada análisis desde cero | Sí, en este modelo en particular los hay, y los conocemos. La red no depende de ellos: funciona igual en modelos donde no existen. Lo que medimos y decimos es rehacer cada análisis completo, y la comparación está escrita tal cual en la lámina técnica |
-| ¿Cómo saben que la red no se equivoca? | Tres chequeos: contra [5.000] terrenos simulados nuevos; contra el método exacto en [20] terrenos; y escondiendo mediciones reales del mismo terreno del demo |
+| ¿Esto es inferencia basada en simulación de verdad? | Sí. Cada caso tiene un modelo generativo explícito (prior, efectos por grupo, latentes por unidad, censura y faltantes), un simulador, y una red entrenada solo con simulaciones para entregar el posterior de los parámetros (NPE con un flujo normalizador condicional sobre un codificador de conjuntos). Lo local se integra exacto. Está en el README y en el código |
+| ¿Por qué no usar MCMC y listo? | Lo usamos, como referencia. Tarda [X] minutos por empresa en [el modelo de rotación]; la red, [Y] milisegundos, con las mismas medias y rangos en [N] casos comparados. Para una plataforma con miles de empresas, es la diferencia entre [horas] y [segundos] |
+| En el terreno, un MCMC con 155 puntos tarda segundos | Cierto, y lo decimos. Ahí lo caro es «¿Dónde mido?»: rehacer [N] análisis completos toma [M] minutos con el método de siempre y [X] segundos con la red |
+| En ese modelo hay atajos para no rehacer cada análisis desde cero | Sí, en el modelo del terreno los hay, y los conocemos. La red no depende de ellos: funciona igual en modelos donde no existen. Lo que medimos y decimos es rehacer cada análisis completo |
+| ¿Cómo saben que la red no se equivoca? | Cuatro chequeos por motor: SBC y cobertura en [N] simulaciones nuevas; contra el MCMC en [5 a 10] datasets simulados y en el real; el examen con datos reales reservados; y un archivo mal especificado, que tiene que caer fuera |
+| ¿Y los motores que no pasaron? | Esas tarjetas muestran el resultado del MCMC, calculado antes, y dicen «precalculado». No decimos que ahí responde la red |
+| ¿De dónde salen las covariables de las empresas simuladas? | Mitad remuestreando filas reales con perturbaciones y mitad de un generador propio. La red generaliza hasta donde llega ese generador, y está escrito en las limitaciones |
 | ¿Ese 90% es sobre sus propias simulaciones? | El del sello, sí, y por eso va en la lámina técnica. Lo que decimos en voz alta es el examen con datos reales |
-| ¿Qué pasa con datos que no se parecen al entrenamiento? | La nube lo muestra y el sistema no responde. En el terreno, el examen con mediciones escondidas es la alarma: si falla, propone quitar la tendencia |
-| ¿Por qué una grilla y no los puntos tal cual? | Porque una red sobre puntos sueltos de cantidad variable es un proyecto de investigación. La grilla entrena en una noche y hace trivial agregar una medición hipotética |
-| ¿Qué no hace todavía? | Más de 8 factores, terrenos en tres dimensiones, más de 400 mediciones, series de tiempo. Está en la lámina técnica |
+| ¿Qué pasa con datos que no se parecen al entrenamiento? | Dos detectores, y basta que marque uno. El que se dibuja usa dos medidas con nombre; el otro mide la distancia en los resúmenes que aprendió la red. No dependemos solo del segundo, porque una red puede mandar algo que nunca vio a cualquier parte |
+| ¿Por qué una grilla en el terreno y no los puntos tal cual? | Porque en la grilla agregar una medición hipotética es trivial y rehacer 480 análisis es una sola pasada. En los otros tres motores la red sí recibe las filas tal cual, en cualquier orden y cantidad |
+| ¿Qué no hace todavía? | Archivos fuera de las cuatro familias, empresas con más de 2.000 filas por análisis, terrenos en tres dimensiones, más de 400 mediciones. Está en la lámina técnica |
 
 ## 6. Plan hora a hora
 
@@ -305,14 +308,14 @@ Regla de corte: **si una tarea lleva el doble de su duración, se corta o se sim
 |---|---|---|---|
 | **03:00 a 03:45** Arranque | Clonar, espejo, entorno. P-01 | Clonar, espejo, entorno. A-01 | S-01 a S-03 |
 | **H0 · 03:45** | | | |
-| **03:45 a 05:15** | P-02 (primer despliegue), P-03 | A-02 a A-05. **Entrenamiento lanzado** | S-04, S-05. Duerme 04:30 |
-| **05:15 a 08:30** | Duerme. El agente hace su lista nocturna | Duerme. La red entrena. El agente hace `regresion` exacta | Duerme hasta las 08:00 |
+| **03:45 a 05:15** | P-02 (primer despliegue), P-03 | Dos sesiones: A-02 a A-04 y A-B1 a A-B4. **Dos entrenamientos lanzados** | S-04, S-05. **Lanza `supervivencia` en su computador a las 04:55** |
+| **05:15 a 08:30** | Duerme. El agente hace su lista nocturna | Duerme. `espacial` entrena. El agente hace A-N1 a A-N6 | Duerme hasta las 08:15. `supervivencia` entrena |
 | **H1 · 08:45** | | | S-06 |
-| **08:30 a 12:15** | P-04 a P-08 | A-08 a A-12 | S-07 a S-12 |
+| **08:30 a 12:15** | P-04 a P-08 | A-08 a A-12. `estados` entrena de fondo | S-07 a S-12. `jerarquico` entrena |
 | **H2 · 12:15** | | | |
-| **12:30 a 15:00** | P-09 a P-11 | A-13 a A-15 | S-13 a S-15 |
+| **12:30 a 15:00** | P-09 a P-11 | A-13 a A-16. H2 de `jerarquico` (13:00) y `estados` (14:00) | S-13 a S-15 |
 | **H3 · 15:00** | | | |
-| **15:00 a 18:00** | P-12 a P-14 | A-16, A-17 | S-16 a S-18 |
+| **15:00 a 18:00** | P-13, P-14 | A-17, A-18. Tope de motores: 16:00 | S-16 a S-18 |
 | **PRODUCTO TERMINADO · 18:00** | | | |
 | **18:00 a 22:00** Iterar demo y pitch | Ajustes de texto y orden | Respaldo técnico, respuestas | Ensayos, extraños, charla |
 | **22:00 a 00:00** | Video de respaldo | README técnico | Entrega |
@@ -329,7 +332,7 @@ Dueño de `servicio/` y `web/`. Skills: `desplegar`, `preparar-demo`. Herramient
 |---|---|---|---|---|---|
 | P-01 | 03:15 | 30 | Entorno y esqueleto: una API que devuelve los ejemplos fijos de `contratos/ejemplos/`, una web que pinta las tarjetas y una respuesta, y el modo estático leyendo copias de esos ejemplos en `web/public/estatico/` | `servicio/`, `web/` | Con dos comandos se ve una respuesta de ejemplo en el navegador; con `?estatico=1` se ve igual con la API apagada |
 | P-02 | 03:45 | 30 | **Primer despliegue** (skill `desplegar`). Se hace hoy, con los tres despiertos, porque necesita al dueño de la cuenta `Silent-math` | URL en `estado/producto.md` | Otra persona abre la URL desde su teléfono y ve las tarjetas |
-| P-03 | 04:15 | 45 | Vista 1 y vista 2 para casos de regresión, contra el ejemplo fijo: titular, número grande, lista con barra, rango y línea del punto de corte, «qué pesa», pie | Componentes | Se lee completa en tamaño de proyector |
+| P-03 | 04:15 | 45 | Vista 1 y vista 2 para casos de tabla (`analizar_tabla.json`), contra el ejemplo fijo: titular, número grande, lista con barra, rango y línea del punto de corte, «qué pesa», pie | Componentes | Se lee completa en tamaño de proyector |
 | | 05:00 | 15 | Dejar al agente la lista nocturna y actualizar el estado | | |
 | | 05:15 | | **Duerme hasta las 08:30** | | |
 | P-N1 | noche | | *Agente solo.* `web/src/decision.ts` con la regla de `CONTRATO.md`, sección 3, y su prueba contra `decision_prueba.json`. Deslizadores de costos que recalculan colores, titular y número | | La prueba pasa |
@@ -343,12 +346,14 @@ Dueño de `servicio/` y `web/`. Skills: `desplegar`, `preparar-demo`. Herramient
 | | 11:50 | 20 | Redespliegue, medir el tiempo desde un teléfono, estado | | Listo para H2 |
 | P-09 | 12:30 | 75 | **«¿Dónde mido?»:** botón, tres pines con plata, línea de análisis rehechos, clic en un pin, «sale bajo / medio / alto», el mapa y los pines cambian. Animación del cambio | Componente | Los pasos 7 y 8 del recorrido salen en menos de 2 segundos cada uno |
 | | 13:45 | 20 | Almuerzo | | |
-| P-10 | 14:05 | 25 | Panel del examen y pie. «Krylov eligió N de M columnas» solo si el caso dice `elegidas_por: krylov` | Panel | Lee del JSON; no hay números escritos a mano |
+| P-10 | 14:05 | 25 | Panel del examen y pie. Rótulo «precalculado» cuando la respuesta trae `precalculado: true`. «Qué pesa» también en el mapa | Panel | Lee del JSON; no hay números escritos a mano |
 | P-11 | 14:30 | 30 | Modo demo: teclas `M`, `T`, `C`, `L`, semilla fija, pantalla completa. `exportar_estatico` con todas las claves del recorrido. Redespliegue | Atajos | El recorrido de 4.3 sale completo sin internet y en la URL con `?estatico=1` |
-| P-12 | 15:15 | 45 | Opcional: «Sube tus datos». Claude propone columnas, el usuario confirma y pone sus costos, se analiza. Con reglas fijas de respaldo. **Es lo primero que se corta** | Ruta `proponer` | Un CSV que no es del demo llega a una respuesta. Con internet apagado, las tarjetas siguen igual |
+| P-12 | | | **Cortada (D-26).** No hay «Sube tus datos». Sus 45 minutos van a recibir inasistencias y crédito (llegan a las 14:10 y 14:50) y a `exportar_estatico` con la implementación final de cada motor (16:00) | | |
 | P-13 | 16:00 | 40 | Portada y cierre dentro de la app (tecla `L`) con el QR guardado como imagen y la franja de terrenos simulados. La vista 2 se lee en un teléfono | Láminas | El QR abre la URL y la respuesta se lee sin hacer zoom |
 | P-14 | 16:40 | 50 | Pulido para proyector con los textos de PC 3. Borrar código muerto. Último despliegue. Sacar lo que no funcione | Tag `congelado` | El recorrido sale dos veces seguidas en la URL pública |
 | | 17:30 | 30 | Skill `preparar-demo` completa | | Los 17 puntos marcados |
+
+**Desde D-26, lo real de PC 2 llega más tarde que las horas de esta tabla:** rotación 10:15, terreno 11:00, `donde_medir` 12:00, cartera y nube 13:15, inasistencias 14:10, crédito 14:50. P-05 a P-09 se construyen contra el ejemplo fijo a su hora y se conectan cuando llega cada función. PC 1 no entrena ni corre el método lento.
 
 Qué recibe: de PC 2, las funciones de `nucleo/api.py`; de PC 3, los casos, los datos y los textos de pantalla. Qué entrega: la URL y el demo.
 
@@ -446,19 +451,21 @@ Su trabajo tiene dos partes. Una es la lista de abajo. La otra, que va primero c
 | S-02 | 03:20 | 5 | Mandar la consulta a la organización (`pitch/MENSAJES.md`) | Mensaje enviado | Enviado por una persona |
 | S-03 | 03:25 | 20 | Caso de rotación (skill `agregar-caso`): 20% de las respuestas vacías al azar, con la verdad guardada aparte | `datos/demo/rotacion.csv` y `_verdad.csv` | Las dos clases siguen presentes en lo que queda |
 | | 03:45 | 10 | **H0** | Tablero, tag | Hecho |
-| S-04 | 03:55 | 15 | Caso del terreno. PC 2 lo necesita a primera hora | `datos/demo/terreno.csv` | 155 filas con `x`, `y`, `zinc` |
-| S-05 | 04:10 | 20 | Caso de crédito | `datos/demo/credito.csv` y `_verdad.csv` | Muestra de 2.000 filas |
-| | 04:30 | | **Duerme hasta las 08:00.** Deja al agente su lista nocturna | | |
-| S-N1 | noche | | *Agente solo.* Script del caso de inasistencias, sin subir el CSV (licencia no comercial) | `datos/preparar/inasistencias.py` | Corre en local |
+| S-04 | 03:55 | 20 | Caso del terreno. PC 2 lo necesita a primera hora. **Incluye bajar `meuse.grid`** (mismo paquete `sp`): la distancia al río en cada celda | `datos/demo/terreno.csv`, `terreno_grilla.csv` | 155 filas con `x`, `y`, `zinc`, `dist`; la grilla con `x`, `y`, `dist` |
+| S-05 | 04:15 | 20 | Caso de crédito, con los seis meses de atrasos, saldos y pagos | `datos/demo/credito.csv` y `_verdad.csv` | Muestra de 2.000 filas con todas las columnas de `casos/credito.yaml` |
+| S-05b | 04:55 | 20 | **Lanzar el entrenamiento de `supervivencia` en este computador:** `git pull`, `uv sync --group entrenar`, skill `entrenar-motor supervivencia`. Tapa abierta, enchufado | Proceso corriendo | Primer punto de guardado; el estado dice cómo retomar |
+| | 05:15 | | **Duerme hasta las 08:15.** Deja al agente su lista nocturna | | |
+| S-N1 | noche | | *Agente solo.* Script del caso de inasistencias, sin subir el CSV (licencia no comercial). **Muestra por pacientes completos dentro de 30 barrios**, nunca filas sueltas | `datos/preparar/inasistencias.py` | Corre en local; al menos un tercio de los pacientes tiene 2 o más citas |
 | S-N2 | noche | | *Agente solo.* Abrir cada fuente de `pitch/CIFRAS.md` y anotar lo que dice la página. Borrador de `project-description.md` y de la estructura del README | Borradores | Una persona los revisa en la mañana |
-| S-06 | 08:00 | 45 | Primera ronda del día: qué pasó en la noche en los tres computadores. Verificar corriendo | Tablero | Cada rol tiene su siguiente tarea |
+| S-06 | 08:15 | 30 | Primera ronda del día: qué pasó en la noche en los tres computadores. Verificar corriendo | Tablero | Cada rol tiene su siguiente tarea |
+| S-06b | 08:30 | 10 | **Subir el punto de guardado de `supervivencia` y lanzar `jerarquico` en este computador** (hasta las 11:30). A las 11:30, correr `validar-motor jerarquico` y su MCMC aquí mismo, y pasarle el resultado a PC 2 | Proceso corriendo; después, `sello.json` | `jerarquico` tiene veredicto antes de las 13:00 |
 | | 08:45 | 15 | **H1** | Tablero, decisión, tag | Hecho |
 | S-07 | 09:00 | 20 | Caso de inasistencias: revisar lo nocturno, columna de cliente | Caso completo | La tarjeta responde en local |
-| S-08 | 09:20 | 15 | Archivo malo: rotación más una columna `fecha_salida` que solo tiene dato para quienes renunciaron | `datos/demo/rotacion_malo.csv` | PC 2 lo usa en A-13 |
+| S-08 | 09:20 | 15 | Archivo malo: rotación más una columna `fecha_salida` que solo tiene dato para quienes renunciaron (va en `columnas.extra`) | `datos/demo/rotacion_malo.csv` | PC 2 lo usa en A-13 |
 | S-09 | 09:35 | 20 | Prueba del asistente genérico: el mismo archivo y la misma pregunta, tres veces. Anotar lo que pasó, sea cual sea | `pitch/VALIDACION.md`, cifra M-15 | Tabla llena |
 | | 09:55 | 10 | Ronda | | |
 | S-10 | 10:05 | 25 | Una persona abre las fuentes de las cifras que van al guion (N-01, K-11, J-01, D-01 a D-04) y firma la columna «Verificó». Mirar en el lugar qué sponsors hay | Columna llena | Ninguna cifra del guion queda sin persona |
-| S-11 | 10:30 | 55 | Guion v1 en voz alta y cronometrado, con lo que A-08 midió. Textos de pantalla v1 para PC 1: titulares, rótulos, motivos del semáforo, preguntas de los deslizadores | `pitch/GUION.md`, textos | Las tres versiones calzan en su tiempo |
+| S-11 | 10:30 | 55 | Guion v1 en voz alta y cronometrado, con lo que A-08 y A-10 midieron. Textos de pantalla v1 para PC 1: titulares, rótulos, motivos del semáforo, preguntas de los deslizadores | `pitch/GUION.md`, textos | Las tres versiones calzan en su tiempo |
 | | 11:25 | 10 | Ronda | | |
 | S-12 | 11:35 | 35 | Esqueleto de láminas: texto de portada y cierre para PC 1; respaldo técnico y de negocio | Láminas | Lo construido y lo que es lámina se distinguen a simple vista |
 | | 12:15 | 15 | **H2** | Tablero, decisión, tag | Hecho |
@@ -484,22 +491,43 @@ Cada uno lo corre PC 3 con la skill `punto-de-control` y deja un tag en los dos 
 - Si falla: nada más avanza hasta tener repositorio y contrato.
 - También se decide aquí: si el espejo se hace público (lo necesita Vercel) y quién presenta.
 
-**Antes de dormir · 05:15.** No es un hito formal, pero tienen que estar tres cosas: el entrenamiento corriendo con su primer punto de guardado; la URL pública mostrando el esqueleto; los datos de rotación y terreno en el repositorio. Si el despliegue no salió en 30 minutos, se deja para las 08:30 y no se trasnocha por eso.
+**Antes de dormir · 05:15.** No es un hito formal, pero tienen que estar tres cosas: dos entrenamientos corriendo con su primer punto de guardado (`espacial` en PC 2, `supervivencia` en PC 3; si solo cabe uno, `espacial`); la URL pública mostrando el esqueleto; los datos de rotación y terreno en el repositorio. Si el despliegue no salió en 30 minutos, se deja para las 08:30 y no se trasnocha por eso.
 
 **H1 · sábado 08:45 · ¿Sobrevivió la noche?**
-- Pasa si: hay puntos de guardado de toda la noche; la URL pública sigue viva; lo que hicieron los agentes está revisado por una persona.
-- Si el entrenamiento se cayó: se retoma desde el último punto de guardado y A-09 se corre una hora después. Si no hay ningún punto de guardado, se lanza de nuevo y la decisión de la red pasa entera a H2.
-- Si los agentes no dejaron `regresion` lista: PC 2 la hace primero (60 minutos) y todo lo suyo se corre media hora.
+- Pasa si: hay puntos de guardado de toda la noche en los dos computadores; la URL pública sigue viva; lo que hicieron los agentes está revisado por una persona.
+- Si un entrenamiento se cayó: se retoma desde el último punto de guardado. Si `supervivencia` no sirve, se relanza en PC 3 con prioridad sobre `jerarquico`, y su H2 pasa a las 13:30.
+- Si el agente no dejó el paso local ni el MCMC de `supervivencia` y `espacial`: PC 2 los hace primero y todo lo suyo se corre media hora.
 
-**H2 · sábado 12:15 · ¿Está la pieza estrella?**
-- Pasa si: la tarjeta de Buk responde con datos reales en la URL; el terreno se ve como mapa; `donde_medir` devuelve tres candidatas; la red pasó `validar-motor`.
-- **Aquí se decide con qué corre el momento estrella.** Si la red pasó: `KRYLOV_MOTOR_ESPACIAL=red`. Si no pasó pero mejora: una hora más de entrenamiento y se revalida a las 13:30. Si no: el mapa y «¿Dónde mido?» salen del método exacto, precalculados; el demo se ve igual, la interacción queda limitada a los pines precalculados y el guion dice «precalculado» y cuenta la red como lo que se entrenó, sin afirmar que es la que responde.
+**H2 · por motor · ¿Responde la red o el plan B?**
+
+| Motor | Hora | Pasa si |
+|---|---|---|
+| `espacial` | 12:15 | La cabeza de mapa pasa `validar-motor`; el terreno se ve como mapa; `donde_medir` devuelve tres candidatas en menos de 2 segundos |
+| `supervivencia` | 12:15 | Pasa `validar-motor`; la tarjeta de Buk responde con datos reales en la URL |
+| `jerarquico` | 13:00 | Pasa `validar-motor` |
+| `estados` | 14:00 | Pasa `validar-motor` |
+
+- **Si un motor pasa:** `KRYLOV_MOTOR_<ID>=red`.
+- **Si no pasa pero mejora:** sigue entrenando o se reentrena en el computador que esté libre, y se revalida. **Tope para todos: 16:00.**
+- **Si no pasa:** `KRYLOV_MOTOR_<ID>=mcmc`. La tarjeta muestra el posterior del MCMC precalculado, rotulada «precalculado», en modo estático; los deslizadores siguen funcionando. El guion no dice que ahí responde la red.
+- **Orden de corte**, del primero que cae al último, y qué se dice:
+
+| # | Qué cae | Qué se ve | Qué se dice |
+|---|---|---|---|
+| 1 | Red de `estados` | Crédito, «precalculado» | «Este lo calculamos con el método lento de siempre; tardó [X] minutos. Es lo que Krylov está aprendiendo a hacer al instante» |
+| 2 | Red de `jerarquico` | Inasistencias, «precalculado» | Lo mismo |
+| 3 | Red de `supervivencia` | Rotación, «precalculado». La cartera muestra las [N] empresas que se alcanzaron a precalcular | No se dice la cifra de 1.000 ni «al instante» sobre rotación. La frase de amortización se dice solo sobre el terreno |
+| 4 | Cabeza de flujo de `espacial` | «Qué manda en el terreno» sale del MCMC | No se dice que eso lo respondió la red |
+| Nunca | Cabeza de mapa y «¿Dónde mido?» | | Si fallara, vale lo de abajo |
+
+- Si la cabeza de mapa no pasa a las 16:00: el mapa y «¿Dónde mido?» salen precalculados con el método lento; el demo se ve igual, la interacción queda limitada a los pines precalculados y el guion cuenta las redes como lo que se entrenó, sin afirmar que responden.
+- Si una tarjeta no tiene ni su MCMC a las 16:00, sale de `casos/INICIO`.
 - Si falta la vista 4 o la cartera: van después de «¿Dónde mido?», que tiene prioridad sobre todo.
 
 **H3 · sábado 15:00 · ¿Está el demo completo?**
 - Pasa si: alguien que no sea de PC 1 hace el recorrido de la sección 4.3, dos veces seguidas, en la URL pública y con el wifi apagado en local, sin errores.
-- Si pasa: entran los opcionales de 1.5.
-- Si no pasa: no hay opcionales. Las tres horas son para que el recorrido salga.
+- Si pasa: las tres horas son para recibir las tarjetas que faltan, pulir y medir.
+- Si no pasa: las tres horas son para que el recorrido salga. Las tarjetas que no estén se sacan del inicio.
 
 **PRODUCTO TERMINADO · sábado 18:00.** Tag `congelado`. Lo que no funciona se saca de la pantalla. Desde aquí no entra ninguna función.
 
@@ -532,36 +560,45 @@ Domingo: ensayo 06:30, ensayo 07:30, entrega 08:00, cierre de repositorios 08:30
 |---|---|---|
 | PC 1 | 05:15 a 08:30 | 00:00 a 06:00 |
 | PC 2 | 05:15 a 08:30 | 00:00 a 06:00 |
-| PC 3 | 04:30 a 08:00 | 00:00 a 06:00 |
+| PC 3 | 05:15 a 08:15 | 00:00 a 06:00 |
 
-Son tres horas y media la primera noche. Terminar el producto a las 18:00 es lo que permite seis horas antes de presentar. Mientras las personas duermen, los agentes trabajan una lista corta y cerrada (`AGENTS.md`, «Trabajo sin humano»); el plan de la mañana no depende de que la terminen.
+Son cerca de tres horas la primera noche. Terminar el producto a las 18:00 es lo que permite seis horas antes de presentar. Mientras las personas duermen, los agentes trabajan una lista corta y cerrada (`AGENTS.md`, «Trabajo sin humano»); el plan de la mañana no depende de que la terminen.
 
 ### 6.8 Qué esperamos tener medido a cada hora
 
 | Hora | Número | Quién |
 |---|---|---|
-| Sáb 05:00 | Terrenos simulados por segundo; pasos de entrenamiento por segundo en procesador y en la GPU del Mac | PC 2 |
-| Sáb 09:00 | Rotación: personas en cada color, lo que cuesta no saber, qué pesa, examen con datos reales | PC 2 |
-| Sáb 09:45 | Red: exactitud en terrenos simulados, parecido con el método exacto, terrenos simulados usados | PC 2 |
+| Sáb 05:00 | `espacial` y `supervivencia`: datasets simulados por segundo y pasos de entrenamiento por segundo, en procesador y en la GPU del Mac | PC 2 |
+| Sáb 08:30 | Presupuesto del paso local: milisegundos por análisis de rotación con 32 muestras | PC 2 (agente) |
+| Sáb 09:15 | `espacial`: SBC y cobertura. MCMC de referencia de `espacial` y `supervivencia`: segundos por dataset | PC 2 |
+| Sáb 10:15 | Rotación: personas en cada color, lo que cuesta no saber, qué pesa, examen con datos reales. `supervivencia`: SBC, cobertura, diferencia con el MCMC | PC 2 |
 | Sáb 10:00 | Prueba del asistente genérico | PC 3 |
-| Sáb 11:30 | «¿Dónde mido?»: análisis rehechos, segundos con la red, minutos con el método exacto | PC 2 |
-| Sáb 12:00 | Cartera: análisis y segundos. Tiempo de una tarjeta en la URL desde un teléfono | PC 2, PC 1 |
-| Sáb 13:00 | Extraños que repiten la idea, prueba 1 | PC 3 |
-| Sáb 14:15 | Exactitud del método rápido contra la de Krylov; examen en crédito e inasistencias | PC 2 |
+| Sáb 11:00 | Terreno: examen con mediciones escondidas y qué manda | PC 2 |
+| Sáb 12:15 | «¿Dónde mido?»: análisis rehechos, segundos con la red, tiempo con el método lento. Medido sin nada entrenando | PC 2 |
+| Sáb 13:00 | `jerarquico`: SBC, cobertura, MCMC. Extraños que repiten la idea, prueba 1 | PC 3 |
+| Sáb 13:15 | Cartera: análisis y segundos. ¿El archivo malo cae fuera de la nube y, corregido, dentro? Tiempo de una tarjeta en la URL desde un teléfono | PC 2, PC 1 |
+| Sáb 14:00 | `estados`: SBC, cobertura, MCMC | PC 2 |
+| Sáb 15:30 | Por motor: segundos del MCMC contra milisegundos de la red; la cartera en horas contra segundos; el método rápido de siempre contra Krylov; examen en crédito e inasistencias | PC 2 |
 | Sáb 19:30 | Extraños que repiten la idea, prueba 2 | PC 3 |
 
 ### 6.9 Riesgos que nos dejan sin demo
 
 | Riesgo | Señal | Qué se hace |
 |---|---|---|
-| El entrenamiento se cae o el Mac se duerme | H1 sin puntos de guardado recientes | Tapa abierta y `caffeinate` desde el inicio. Se retoma del último punto. Decisión en H2 |
-| La red no valida | H2 | Método exacto con «¿Dónde mido?» precalculado. El demo se ve igual; el guion cambia una frase |
-| La red no exporta a ONNX | A-03, a las 04:30 | Se sabe la primera noche, no en la mañana. Plan B: `torch` solo en el computador del escenario y todo precalculado para la URL |
-| El terreno real da rojo por tendencia | A-10 | Es mejor historia: «Krylov notó que manda el río», con su corrección. Se prueba a las 10:00, no a las 17:00 |
+| Un entrenamiento se cae o un Mac se duerme | H1 sin puntos de guardado recientes | Tapa abierta y `caffeinate` desde el inicio, en PC 2 y en PC 3. Se retoma del último punto. Decisión en el H2 de ese motor |
+| Cuatro motores no caben en el tiempo de uno | H2 de cada motor | Cada motor tiene primero su MCMC precalculado. Orden de corte escrito en 6.5. Comprometido: `espacial` y `supervivencia` |
+| `supervivencia` no alcanza a lanzarse a las 05:15 | A-B3 sin prueba de humo a las 04:55 | No se trasnocha: se lanza a las 08:30 y su H2 pasa a las 13:30 |
+| La red del terreno empeora por la cabeza nueva | Prueba de A-03 | El gradiente de la cabeza de flujo no llega al codificador. Si los tres canales no pasan la prueba de humo, se lanza la red de dos canales |
+| `estados` no pasa SBC | H2 de las 14:00 | Los estados van ordenados en el prior. Si aun así no pasa, sale precalculado |
+| El paso local es lento | A-N2, de noche | Menos nodos de cuadratura; en la cartera, menos muestras |
+| El archivo malo no cae fuera de la nube | A-13 | No depende de la red: lo detectan los dos ejes con nombre, por construcción |
+| Una red no valida | Su H2 | Esa tarjeta sale con el MCMC precalculado, rotulada. El demo se ve igual; el guion cambia una frase por tarjeta |
+| Un codificador no exporta a ONNX | A-01, A-03 y A-B2, antes de las 05:00 | Se sabe la primera noche. A ONNX va solo el codificador; el flujo se muestrea en NumPy. Si el pooling de atención no exporta, promedio con máscara |
+| El terreno real no calza con el modelo | A-11 | La tendencia con el río ya está en el modelo: «manda el río» sale del análisis. Si el examen con mediciones escondidas falla igual, semáforo rojo y se dice |
 | Vercel no despliega los commits de dos de los tres | P-02 | Espejo público (decisión de H0). Si no, solo despliegan los commits del dueño de la cuenta |
-| El servidor gratuito no aguanta o duerme | Siempre | No importa: el recorrido completo está en modo estático. La API es solo para «Sube tus datos» |
+| El servidor gratuito no aguanta o duerme | Siempre | No importa: el recorrido completo está en modo estático |
 | Un push llega a un repositorio y no al otro | `git ls-remote` distinto | Repetir `git push`. PC 3 lo comprueba en cada hito |
-| PC 1 no alcanza las cuatro vistas | H2 | Orden de corte: «Sube tus datos», cartera, panel del examen. Nunca el mapa ni «¿Dónde mido?» |
+| PC 1 no alcanza las cuatro vistas | H2 | Orden de corte: cartera, panel del examen. Nunca el mapa ni «¿Dónde mido?» |
 | El agente nocturno rompe algo | Mañana | Solo toca sus carpetas y hace commits chicos: se revierte el commit. El plan no dependía de eso |
 | Una cifra del guion no llega | Ensayo de las 17:00 | La frase se dice sin número. Nunca se inventa |
 | Se rompe algo después de las 18:00 | Ensayo | Se vuelve al tag `congelado` |
@@ -597,14 +634,16 @@ Todo lo que se sube lo puede leer un juez, un rival o la revisión automatizada.
 | El sábado a las 18:00 existirá | Será lámina |
 |---|---|
 | App desplegada con las cuatro vistas, también sin servidor | Series de tiempo, eventos raros, segmentación |
-| Motor `regresion` exacto, con examen sobre datos reales | Integración real con una plataforma |
-| Motor `espacial`: red entrenada con terrenos simulados, validada, con su sello (o método exacto precalculado si no pasó H2) | Clientes, pilotos, precios validados |
-| «¿Dónde mido?» y la medición simulada | Terrenos en tres dimensiones |
-| Cuatro tarjetas con datos públicos: tres reales y una ficticia | Datos de cualquier sponsor |
-| Cartera con 1.000 empresas simuladas, rotuladas | |
-| «Sube tus datos» con Claude, si P-12 entró | |
+| Cuatro modelos generativos escritos, cada uno con su simulador y su MCMC de referencia | Integración real con una plataforma |
+| Motor `espacial`: red entrenada con terrenos simulados, validada, con su sello. «¿Dónde mido?» y la medición simulada | Clientes, pilotos, precios validados |
+| Motor `supervivencia`: red entrenada con empresas simuladas, validada, con su sello (o MCMC precalculado y rotulado, si no pasó) | Terrenos en tres dimensiones |
+| Motores `jerarquico` y `estados`: red validada si pasó su H2; si no, MCMC precalculado y rotulado. **Se dice cuál de las dos** | Subir un archivo cualquiera |
+| Cuatro tarjetas con datos públicos: tres reales y una ficticia, con examen sobre datos reales reservados | Datos de cualquier sponsor |
+| Cartera con 1.000 empresas simuladas, rotuladas (o las precalculadas, si `supervivencia` no pasó) | |
 
 ## 9. Respuesta a la crítica v3
+
+> Esta sección es historia: se escribió antes de D-26. Donde dice que `regresion` no lleva red, que la red del terreno devuelve solo el mapa o que los parámetros son opcionales, vale D-26 y la sección 11.
 
 La crítica tiene cinco puntos de fondo y veinte errores concretos. Se atienden todos; en tres se hizo algo distinto de lo que propone, y se explica por qué.
 

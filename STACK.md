@@ -9,7 +9,9 @@
 3. Lo que se elija se anota en `estado/<rol>.md` con una línea de por qué. Si la elección afecta a otro computador (por ejemplo, el formato en que se exporta la red), además va una entrada en `DECISIONES.md`.
 4. Las versiones de la sección 5 se verificaron en las páginas oficiales el 21 de noviembre de 2026. Lo que dice «por medir» o «sin verificar» no se da por cierto: se prueba.
 
-El caso de uso, en una línea, para juzgar cada alternativa: **una app web de cuatro vistas que se muestra una vez en un escenario, una URL pública que toda la sala abre a la vez desde el teléfono, y una red convolucional chica que se entrena una noche en un MacBook Air sin ventilador.** No hay usuarios, ni cuentas, ni datos que guardar.
+El caso de uso, en una línea, para juzgar cada alternativa: **una app web de cuatro vistas que se muestra una vez en un escenario, una URL pública que toda la sala abre a la vez desde el teléfono, y cuatro redes chicas de inferencia basada en simulación (un codificador del dataset más un flujo normalizador condicional por motor) que se entrenan entre una noche y una mañana en dos MacBook Air sin ventilador.** No hay usuarios, ni cuentas, ni datos que guardar.
+
+Desde la decisión D-26, en la sección 3 de este archivo, en el código y en el README técnico se usan los nombres técnicos precisos: modelo generativo, prior, posterior, NPE, flujo normalizador, SBC, MCMC. La pantalla y el pitch siguen usando `GLOSARIO.md`.
 
 ## 1. Común a los tres computadores
 
@@ -41,10 +43,10 @@ En la raíz del repositorio hay un `pyproject.toml` con dos conjuntos de depende
 
 | Conjunto | Paquetes | Quién lo instala | Comando |
 |---|---|---|---|
-| Base | `numpy`, `pyyaml`, `onnxruntime`, `fastapi[standard]`, `anthropic`, `pandas`, `pytest` | Los tres, y el servidor | `uv sync` |
-| Grupo `entrenar` | `torch`, `onnx`, `onnxscript` y, solo si se llega al opcional A-16, `zuko` | Solo PC 2 | `uv sync --group entrenar` |
+| Base | `numpy`, `pyyaml`, `onnxruntime`, `fastapi[standard]`, `pandas`, `pytest` | Los tres, y el servidor | `uv sync` |
+| Grupo `entrenar` | `torch`, `zuko`, `onnx`, `onnxscript`, y el MCMC de referencia: `numpyro` con `jax` | PC 2 y PC 3 (que presta su computador para entrenar) | `uv sync --group entrenar` |
 
-**Regla que no se rompe:** `nucleo/` y `servicio/` no importan `torch`. El servidor gratuito tiene 512 MB de memoria y el paquete de `torch` para Linux pesa más que eso. La red se entrena con `torch` y se sirve con `onnxruntime`, que pesa unos 28 MB.
+**Regla que no se rompe:** `nucleo/` y `servicio/` no importan `torch`, `zuko`, `jax` ni `numpyro`. El servidor gratuito tiene 512 MB de memoria y el paquete de `torch` para Linux pesa más que eso. Cada red se entrena con `torch`; el codificador se sirve con `onnxruntime`, que pesa unos 28 MB, y el flujo se muestrea en NumPy (sección 3.8). PC 1 no instala el grupo `entrenar`: tiene 1,3 GiB libres.
 
 ### 1.3 Los dos repositorios espejo
 
@@ -56,14 +58,14 @@ Cada computador clona el repositorio de la organización y le agrega el espejo c
 
 ```bash
 # desde la raíz del repositorio
-uv sync                                   # backend: FastAPI, NumPy, onnxruntime, anthropic
+uv sync                                   # backend: FastAPI, NumPy, onnxruntime
 npm create vite@latest web -- --template react-ts
 cd web && npm install
 npm install tailwindcss @tailwindcss/vite  # solo si se elige Tailwind (2.3)
 npm install -g vercel                      # solo si hace falta desplegar por línea de comandos (2.6)
 ```
 
-Variables de entorno, en un archivo `.env` que **no** se sube: `ANTHROPIC_API_KEY`, `KRYLOV_MOTOR_ESPACIAL` (`exacto` o `red`). En la web: `VITE_API_URL`.
+Variables de entorno, en un archivo `.env` que **no** se sube: una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. No hay clave de Anthropic: la capa de lenguaje se cortó (2.8).
 
 ### 2.2 Framework de la web
 
@@ -102,7 +104,7 @@ Lo que hay que dibujar: una grilla de 32×32 bloques de colores con puntos y pin
 |---|---|---|---|
 | **FastAPI + uvicorn** | Envuelve las funciones de `nucleo/api.py` en veinte líneas; valida entradas; recibe archivos; corre igual en el computador del escenario y en el servidor | Un proceso más que mantener despierto | **Recomendado** |
 | Flask | Más simple todavía | Sin validación ni tipos; ningún ahorro real | No |
-| Sin backend: todo precalculado | La URL pública no se puede caer | «Sube tus datos» y el cálculo en vivo del escenario dejan de existir | **Es el modo estático**, que se construye igual. No reemplaza al backend en el escenario |
+| Sin backend: todo precalculado | La URL pública no se puede caer | El cálculo en vivo del escenario deja de existir | **Es el modo estático**, que se construye igual. No reemplaza al backend en el escenario |
 | Funciones de Python en Vercel | Un solo proveedor; más memoria y procesador que el servidor gratuito de Render | Arranque en frío en cada función; otra forma de empaquetar | Plan B del despliegue de la API (2.6) |
 
 ### 2.6 Dónde se despliega
@@ -124,23 +126,27 @@ Hay tres piezas: la web con las respuestas precalculadas, la API, y el computado
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
 | **Render, plan gratuito** | Es sponsor; corre FastAPI tal cual, como proceso; se conecta al espejo | 0,1 de procesador y 512 MB; se duerme tras 15 minutos sin tráfico y tarda cerca de un minuto en despertar; por defecto usa Python 3.14 | **Recomendado**, porque nada del recorrido que se juzga depende de la API: lo cubre el modo estático |
-| Funciones de Python en Vercel | 2 GB y un procesador entero; no se duerme del mismo modo | Otra forma de empaquetar la API; arranque en frío de unos segundos | Plan B si «Sube tus datos» tarda más de 10 segundos en Render ya despierto |
+| Funciones de Python en Vercel | 2 GB y un procesador entero; no se duerme del mismo modo | Otra forma de empaquetar la API; arranque en frío de unos segundos | Plan B si la API tarda más de 10 segundos en Render ya despierto |
 | Túnel desde PC 1 (cloudflared, ngrok) | Toda la potencia del computador | Depende del wifi del lugar y de que el computador no se cierre | Solo para mostrarle algo a alguien en la mesa |
 
-Configuración de Render: lenguaje «Python 3»; comando de construcción `pip install -r requirements.txt`; comando de inicio `uvicorn servicio.app:app --host 0.0.0.0 --port $PORT`; variable `PYTHON_VERSION` con una versión 3.12 completa (por ejemplo `3.12.x`, la que muestre `uv python list`); variables `ANTHROPIC_API_KEY` y `KRYLOV_MOTOR_ESPACIAL`. El `requirements.txt` sale de `uv export --no-dev --no-hashes -o requirements.txt` y no incluye el grupo `entrenar`.
+Configuración de Render: lenguaje «Python 3»; comando de construcción `pip install -r requirements.txt`; comando de inicio `uvicorn servicio.app:app --host 0.0.0.0 --port $PORT`; variable `PYTHON_VERSION` con una versión 3.12 completa (por ejemplo `3.12.x`, la que muestre `uv python list`); y las variables `KRYLOV_MOTOR_<ID>` de cada motor. El `requirements.txt` sale de `uv export --no-dev --no-hashes -o requirements.txt` y no incluye el grupo `entrenar`.
 
 **El escenario: el computador que presenta, en local.** API y web corriendo en ese computador, con todo precargado y probado sin wifi. La URL pública es para la entrega y para el QR.
 
-### 2.7 Cómo corre la red dentro del servicio
+### 2.7 Cómo corren las redes dentro del servicio
+
+De cada motor llegan dos archivos: `codificador.onnx` y `flujo.npz` (sección 3.8). El servicio no los toca: llama a `nucleo/api.py`.
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **onnxruntime (Python) con el modelo exportado a ONNX** | 28 MB; arranca en milisegundos; rápido en procesador; el mismo archivo sirve en el escenario y en el servidor | Un paso de exportación en PC 2, que hay que probar temprano | **Recomendado** |
+| **onnxruntime (Python) para el codificador, NumPy para el flujo y para lo local** | 28 MB; arranca en milisegundos; rápido en procesador; los mismos archivos sirven en el escenario y en el servidor | Un paso de exportación en PC 2, que hay que probar temprano, y una prueba de que el flujo en NumPy da lo mismo que en `torch` | **Recomendado** |
 | `torch` en el servicio | Sin exportar nada | No cabe en el servidor gratuito; arranque lento | Solo en el computador del escenario, y solo si la exportación falla |
-| Pasada hacia adelante escrita en NumPy | Cero dependencias | Reescribir convoluciones a mano es una fuente de errores silenciosos | Último recurso |
-| onnxruntime-web, la red corriendo en el navegador | Cualquier teléfono simularía mediciones sin servidor: buen golpe de efecto | Con Vite no funciona sin ajustes (hay que servir los archivos `.wasm` y fijar la versión exacta); una hora de riesgo en la tarde | Opcional de P-13, solo si H3 pasó limpio. La versión precalculada se ve igual para quien escanea el QR |
+| Todo el codificador escrito en NumPy | Cero dependencias | Reescribir convoluciones y atención a mano es una fuente de errores silenciosos | Último recurso |
+| onnxruntime-web, la red corriendo en el navegador | Cualquier teléfono simularía mediciones sin servidor | Con Vite no funciona sin ajustes; una hora de riesgo en la tarde | No. Los opcionales se cortaron (D-26); la versión precalculada se ve igual para quien escanea el QR |
 
 ### 2.8 Capa de lenguaje (Claude)
+
+> **Cortada por la decisión D-26.** No hay capa de lenguaje en la app: «Sube tus datos» (P-12) y la ruta `/api/proponer` salieron, porque cada motor responde una familia de archivos y no un CSV cualquiera. `en_palabras` sale de plantillas y no se instala el paquete `anthropic`. Anthropic aparece solo como la herramienta con que se construyó el producto (Claude Code). La tabla queda como registro de lo que se evaluó.
 
 Una sola llamada por archivo subido (proponer columnas) y una por respuesta (tres frases). Se usa el SDK oficial `anthropic` de Python con salida estructurada. **Antes de escribir este código, el agente carga la skill `claude-api`**: varios parámetros que eran habituales ya no existen (temperatura, presupuesto de razonamiento, forzar una herramienta), y de memoria se escribe mal.
 
@@ -158,85 +164,125 @@ Base de datos, autenticación, colas, Docker, bibliotecas de estado global, prue
 
 ## 3. PC 2 · amortización de los modelos (MacBook Air M4, 16 GB, sin ventilador)
 
+Reescrita por la decisión D-26. Los cuatro modelos generativos y la arquitectura están en `WORKPLAN.md`, sección 11; aquí va con qué herramienta se hace cada pieza y por qué.
+
 ### 3.1 Qué instalar
 
 ```bash
 uv python install 3.12
-uv sync --group entrenar        # torch, onnx, onnxscript + la base (numpy, onnxruntime…)
+uv sync --group entrenar        # torch, zuko, onnx, onnxscript, numpyro, jax + la base (numpy, onnxruntime…)
 uv run python -c "import torch; print(torch.__version__, torch.backends.mps.is_available())"
+uv run python -c "import zuko, numpyro, jax; print(zuko.__version__, numpyro.__version__, jax.__version__)"
 uv run python -c "import numpy; numpy.show_config()"    # debe decir Accelerate
 ```
 
-No hace falta Node. Antes de lanzar nada largo: enchufado, **tapa abierta**, brillo al mínimo, sobre una superficie dura, modo de bajo consumo apagado, y el comando dentro de `caffeinate -dims`. Con la tapa cerrada y sin pantalla externa, `caffeinate` no garantiza que el equipo siga despierto: no hay documentación oficial que lo afirme, y las fuentes que existen se contradicen.
+No hace falta Node. Antes de lanzar nada largo: enchufado, **tapa abierta**, brillo al mínimo, sobre una superficie dura, modo de bajo consumo apagado, y el comando dentro de `caffeinate -dims`. Con la tapa cerrada y sin pantalla externa, `caffeinate` no garantiza que el equipo siga despierto: no hay documentación oficial que lo afirme, y las fuentes que existen se contradicen. PC 3 instala lo mismo y toma las mismas precauciones cuando entrena.
 
 ### 3.2 Framework de entrenamiento
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **PyTorch 2.15** | Convoluciones y transformada de Fourier corren en la GPU del Mac; exporta a ONNX con una función; es lo que el equipo y los agentes conocen mejor; el mismo código corre en la nube si hay que salir | La GPU del Mac no admite números de doble precisión: todo en `float32` | **Recomendado** |
-| MLX (Apple) | Hecho para estos chips; convoluciones y Fourier disponibles | No exporta a ONNX de forma oficial, así que el servicio no podría usar la red sin reescribirla; menos ejemplos | No, por la exportación |
-| JAX | Rápido en procesador, elegante para simuladores | En Mac es solo procesador en la práctica; exportar a ONNX pasa por paquetes de terceros | No |
+| **PyTorch 2.15** | Convoluciones y transformada de Fourier corren en la GPU del Mac; exporta a ONNX con una función; `zuko` corre encima; es lo que el equipo y los agentes conocen mejor; el mismo código corre en la nube si hay que salir | La GPU del Mac no admite números de doble precisión: todo en `float32` | **Recomendado** para los simuladores y las redes |
+| MLX (Apple) | Hecho para estos chips | No exporta a ONNX de forma oficial, así que el servicio no podría usar el codificador sin reescribirlo; menos ejemplos | No, por la exportación |
+| JAX | Rápido en procesador, elegante para simuladores | En Mac es solo procesador en la práctica; exportar a ONNX pasa por paquetes de terceros | No para las redes. Sí por debajo de NumPyro, para el MCMC de referencia (3.7) |
 
-### 3.3 Procesador o GPU del Mac
+### 3.3 Dónde corre cada entrenamiento, y en qué dispositivo
 
-No se decide de memoria: se mide con la skill `medir-rendimiento` sobre la red real, dos minutos en cada uno y dos minutos sostenidos.
+**Un entrenamiento por computador.** Un portátil sin ventilador no sostiene dos a la vez. El calendario, con sus horas, está en `WORKPLAN.md`, sección 6.3.
+
+| Computador | Qué es | Qué corre |
+|---|---|---|
+| PC 2 | MacBook Air M4, 16 GB | Entrena `espacial` de noche y `estados` de día. Validaciones y MCMC cuando no hay nada entrenando |
+| PC 3 | MacBook Air M3, 16 GB | Entrena `supervivencia` de noche y `jerarquico` de día. Lo lanza su persona; no edita `motor/` |
+| PC 1 | Ryzen 3 5300U, 6,6 GiB de memoria (1,3 GiB libres), sin GPU | **No entrena ni corre MCMC.** No instala el grupo `entrenar` |
+
+Procesador o GPU del Mac no se decide de memoria: se mide con la skill `medir-rendimiento`, **motor por motor**, dos minutos en cada uno y dos minutos sostenidos.
 
 | Alternativa | Cuándo conviene |
 |---|---|
-| GPU del Mac (`mps`) | Si rinde más de 1,5 veces lo del procesador en la red real y no aparecen avisos de operaciones que caen al procesador. Con redes convolucionales suele ganar; **por medir** |
+| GPU del Mac (`mps`) | Si rinde más de 1,5 veces lo del procesador en la red real y no aparecen avisos de operaciones que caen al procesador. Con la red convolucional de `espacial` suele ganar; con los codificadores de conjuntos, que son capas densas chicas sobre muchas filas, **por medir** |
 | Procesador (`cpu`) | Si la red es muy chica o si `mps` se calienta y cae más de 30% en dos minutos |
-| Nube (Kaggle o Colab gratuitos) | Solo si a las 09:00 el entrenamiento nocturno no sirve y hay que rehacerlo rápido. Las cuotas gratuitas no se pudieron confirmar en páginas oficiales: abrir una sesión y mirar antes de contar con ella |
+| Nube (Kaggle o Colab gratuitos) | Solo si a las 09:00 algo va atrasado **y una persona abrió la sesión y vio la cuota** (diez minutos). Las cuotas gratuitas no se pudieron confirmar en páginas oficiales: no se cuenta con ella de antemano |
+
+Dos reglas más: las mediciones de tiempo que van al guion se hacen sin ningún entrenamiento corriendo en ese computador, y el MCMC de referencia nunca corre encima de un entrenamiento.
 
 ### 3.4 Qué aprende la red, y con qué biblioteca
 
-Hay dos formas de amortizar el motor espacial. Se eligió la primera como obligatoria y la segunda como opcional.
+Cada motor es inferencia basada en simulación amortizada: la red aprende a invertir el modelo generativo. Qué parte del posterior se le pide a la red es la decisión de fondo.
 
 | Alternativa | Qué entrega | Pros | Contras | Veredicto |
 |---|---|---|---|---|
-| **Red que devuelve el mapa completo** (entra la grilla con las mediciones, sale el valor esperado y su margen en cada bloque) | El mapa de tres colores y «¿Dónde mido?» en una sola pasada por lote | Es una red convolucional común con una función de pérdida simple; entrena estable; rehacer 500 análisis es una pasada de 500 grillas, sin ningún cálculo exacto en el medio | No entrega los parámetros del terreno (alcance, dirección) | **Obligatoria**. PyTorch puro, sin biblioteca extra |
-| Red que devuelve los parámetros del terreno (flujo normalizador) y después un cálculo exacto por cada versión | Los cuatro parámetros con su rango, y permite corregir con la fórmula exacta | Es la inferencia amortizada clásica y da una frase más para el show («manda el río») | El cálculo exacto por versión vuelve a ser el cuello de botella en «¿Dónde mido?»; entrenar un flujo es más delicado | **Opcional** (A-16), con `zuko` |
+| **NPE sobre los parámetros globales θ, y lo local exacto en NumPy** | q(θ \| D) con un flujo normalizador condicional sobre el resumen s(D) del codificador. Dado cada θ muestreado, el efecto de grupo y el latente de cada unidad se integran con cuadratura de Gauss-Hermite anidada (filtro forward en `estados`) | θ tiene tamaño fijo aunque cambie el número de cargos o de barrios; la red hace solo lo caro; el predictivo por unidad es exacto dado θ; `nucleo/` sigue sin `torch` | Hay que escribir el paso local de cada motor y medir su presupuesto (32 muestras × unidades × nodos²) | **Elegida** para `supervivencia`, `jerarquico` y `estados` |
+| Una cabeza por unidad (la red entrega directo la probabilidad de cada fila) | `muestras_p` sin paso local | Una sola pasada | No hay posterior de θ, así que no hay «qué pesa» ni SBC sobre parámetros; se parece a una regresión con un emulador al lado, que es justo lo que D-26 reemplaza | No |
+| NPE también sobre los efectos de grupo y los latentes | Todo el posterior conjunto | Sin cuadratura | La dimensión crece con n y con el número de grupos; no entrena en horas | No |
+| **En `espacial`: cabeza de mapa más cabeza de flujo** | La cabeza de mapa entrega media y margen por bloque (predictivo posterior marginal, amortizado); la de flujo, q(θ \| D) sobre los 7 parámetros del terreno | «¿Dónde mido?» sigue siendo una pasada en lote de ~480 grillas; «qué manda en el terreno» sale del posterior | Dos pérdidas sobre un mismo codificador podrían estorbarse | **Elegida**, con el gradiente cortado: la cabeza de flujo recibe el resumen con `detach`, así la de mapa entrena exactamente igual que si estuviera sola |
 
-Si se llega al opcional, estas son las bibliotecas posibles:
+Qué flujo:
+
+| Alternativa | Pros | Contras | Veredicto |
+|---|---|---|---|
+| **Acoplamiento afín** (8 capas, permutación fija entre capas) sobre θ en espacio sin restricciones | Muestrear es una pasada hacia adelante de productos de matrices: se reescribe en NumPy en pocas líneas y no depende de la exportación. Con n de cientos a miles de filas el posterior en ese espacio es casi gaussiano, y alcanza | Menos expresivo por capa que un spline | **Elegido** |
+| Flujo de splines (NSF) | Más expresivo | Los splines usan `searchsorted`, que complica la exportación a ONNX y la copia en NumPy | No |
+| Flujo autorregresivo (MAF) | Buena densidad con pocas capas | Muestrea en un bucle sobre las dimensiones de θ (32 a 35): lento y mal exportable | No |
+
+Con qué biblioteca:
 
 | Biblioteca | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **`zuko`** | Flujos normalizadores en PyTorch, liviana, se enchufa a cualquier red propia | Hay que escribir el bucle de entrenamiento | **Recomendada** para el opcional |
+| **`zuko`** | Flujos normalizadores en PyTorch, liviana, se enchufa a cualquier red propia. `zuko.flows.NICE(features, context, transforms)` es el flujo de acoplamiento y usa transformaciones afines por defecto (leído en su documentación; se confirma corriéndolo en A-01) | Hay que escribir el bucle de entrenamiento, y comprobar que sus pesos se pueden leer capa por capa para la copia en NumPy | **Recomendada** para entrenar |
+| Acoplamiento afín propio (unas 60 líneas) | Los pesos quedan con nombres propios y la copia en NumPy es directa | Código propio que probar | **Plan B inmediato** si leer los pesos de `zuko` cuesta más de 20 minutos |
 | `sbi` | Bucle de entrenamiento y diagnósticos incluidos | Pensada para simuladores lentos y bancos fijos; aquí el simulador es rápido y se entrena al vuelo, y su estructura estorba | No |
-| BayesFlow | Flujo de trabajo completo y diagnósticos de calibración | Corre sobre Keras con otro motor por debajo y solo en Python 3.12 o 3.13: un entorno más que cuidar la noche de la hackathon | No |
+| BayesFlow | Flujo de trabajo completo y diagnósticos de calibración | Corre sobre Keras con otro motor por debajo: un entorno más que cuidar la noche de la hackathon | No |
 
-### 3.5 Cómo se le pasan los datos a la red
+Pérdida, en todos: NPE, −log q(θ | s(D)), promediada sobre datasets simulados al vuelo.
 
-| Alternativa | Pros | Contras | Veredicto |
-|---|---|---|---|
-| **Grilla fija de 32×32 con un canal que marca dónde hay medición** | Red convolucional estándar; agregar una medición hipotética es marcar una celda; cualquier terreno entra igual | Dos puntos en la misma celda se promedian; la resolución es fija | **Recomendado** |
-| Puntos sueltos de cantidad variable (redes de conjuntos o de atención) | Sin pérdida de resolución | Es investigación, no hackathon: más difícil de entrenar y de depurar en una noche | No |
-
-### 3.6 Simulador de terrenos
+### 3.5 Cómo se le pasa un dataset a la red (el codificador)
 
 | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|
-| **Transformada de Fourier sobre la grilla, en lotes, con `torch`** | Miles de terrenos por segundo; se simula al vuelo durante el entrenamiento, sin guardar nada en disco; la cifra «practicó con N millones de terrenos» sale de aquí | Es aproximado en los bordes (se simula una grilla más grande y se recorta); hay que comprobarlo contra el método directo en una prueba | **Recomendado** |
-| Método directo con NumPy (descomposición de la matriz de covarianza) | Exacto; ya está medido en este computador para puntos sueltos | Para 1.024 celdas son decenas de milisegundos por terreno: un millón de terrenos tomaría horas | Solo como referencia para la prueba y para el método exacto |
-| Biblioteca de geoestadística (`gstools`) | Simuladores listos | Una dependencia más, pensada para un terreno a la vez, no para lotes | No |
+| **Codificador de conjuntos: DeepSets con pooling de atención y máscara de relleno**, jerárquico cuando el modelo lo es (filas → grupo → dataset) | Invariante al orden de las filas; admite n variable; es la arquitectura estándar para amortizar sobre datasets enteros. **Ya no es «investigación»: es la arquitectura de los tres motores de tabla** | El pooling de atención puede complicar la exportación a ONNX con n variable: se prueba sin entrenar | **Elegido** para `supervivencia`, `jerarquico` y `estados`. Si no exporta, promedio con máscara en vez de atención |
+| Set Transformer con puntos inductores | Más expresivo: las filas se miran entre sí | Más lento por paso y más frágil de exportar; no hace falta con filas condicionalmente independientes dado el grupo | Solo si la calibración por grupos no pasa |
+| Estadísticos resumen escritos a mano | Simple y rápido | Hay que adivinar qué es suficiente para 30 parámetros; es lo que la red aprende sola | No (los dos resúmenes con nombre de la nube son otra cosa: `WORKPLAN.md`, 11.9) |
+| **Grilla fija de 32×32 con canales** (valor, marca de medición, √dist) y red convolucional | Agregar una medición hipotética es marcar una celda; cualquier terreno entra igual; entrena en una noche | Dos puntos en la misma celda se promedian; la resolución es fija | **Elegido** para `espacial`. Salvavidas: dos canales, sin tendencia, si los tres no pasan la prueba de humo a las 04:45 |
 
-### 3.7 Método exacto (referencia y plan B)
+### 3.6 Simuladores
 
-| Motor | Alternativa | Pros | Contras | Veredicto |
+Un simulador vectorizado por motor, en `torch`, que genera datasets completos al vuelo durante el entrenamiento, sin guardar nada en disco. La cifra «practicó con N millones» la cuenta el bucle de entrenamiento.
+
+| Pieza | Alternativa elegida | Por qué, y qué se descartó |
+|---|---|---|
+| Campo del terreno | **Transformada de Fourier sobre una grilla del doble de tamaño, recortada** | Miles de terrenos por segundo. Es aproximado en los bordes: una prueba lo compara con el método directo (descomposición de la covarianza en NumPy), que es exacto pero toma decenas de milisegundos por terreno. `gstools` simula un terreno a la vez: no |
+| Río del terreno | **Una curva suave al azar y su campo de distancia** | Lo más simple que da una tendencia creíble. Nada de redes fluviales |
+| Tablas | **Muestreo directo del modelo de 11.2 a 11.4, con n y número de grupos variables y relleno con máscara** | Todos los modelos se muestrean hacia adelante sin iterar |
+| Covariables | **Mitad remuestreo perturbado de filas reales, mitad generador paramétrico** (cópula gaussiana con correlaciones y marginales al azar) | Solo con las X del archivo del demo la red no generaliza a las 1.000 empresas de la cartera; solo con el generador puede no cubrir el archivo real. Límite declarado: generaliza hasta donde llega el generador |
+
+Los simuladores no se exportan: se usan solo al entrenar, al validar y para la cartera y la nube (que se precalculan o corren con una copia en NumPy si hace falta en `nucleo/`).
+
+### 3.7 MCMC de referencia (validación y plan B)
+
+Cada motor tiene su modelo escrito una segunda vez, para NUTS. Sirve para dos cosas: es la vara contra la que se valida la red (mismas medias y rangos, y el tiempo de cada uno es la cifra de amortización), y sus muestras precalculadas son la implementación `mcmc`, el plan B de cada tarjeta.
+
+| Alternativa | Pros | Contras | Veredicto |
+|---|---|---|---|
+| **NumPyro (NUTS) sobre JAX**, solo dentro de `motor/` | Rápido en procesador; los latentes discretos de `estados` se marginalizan con el filtro forward escrito en JAX; cadenas vectorizadas | Dos dependencias más en el grupo `entrenar`; hay que confirmar que instalan (A-01) | **Recomendado** |
+| PyMC | Sintaxis más conocida | Compilación más lenta al primer uso; más pesado de instalar | Solo si NumPyro no instala |
+| Stan | El de referencia de los libros | Compilar cada modelo en C++ la noche de la hackathon | No |
+| Muestreo por importancia en NumPy | Sin dependencias | No escala a 30 parámetros con un latente por unidad | No |
+
+Es acotado: de 5 a 10 datasets simulados por motor, más el real. Corre en un computador que no esté entrenando. En `espacial`, con 155 puntos, tarda segundos: la cifra de amortización ahí son los ~480 análisis rehechos de «¿Dónde mido?».
+
+**El método rápido de siempre** es otra cosa: una regresión logística simple (o kriging con parámetros fijos, en el terreno). No es un motor ni un plan B. Se mide solo para la comparación que muestra qué se pierde sin el modelo completo (A-16).
+
+### 3.8 Formato de entrega de cada red
+
+| Pieza | Alternativa | Pros | Contras | Veredicto |
 |---|---|---|---|---|
-| `regresion` | **NumPy: aproximación clásica corregida con muestreo por importancia** | Milisegundos; sin dependencias; se puede aplicar a mil empresas en un lote | Hay que escribir unas 60 líneas con cuidado | **Recomendado** |
-| `regresion` | `statsmodels` o `scikit-learn` | Una línea | Entregan un punto y un error aproximado, no las versiones creíbles que necesita «lo que cuesta no saber» | Solo para contrastar resultados en una prueba |
-| `regresion` | Stan o PyMC | El método de referencia de los libros | Compilación y segundos por análisis; dependencias pesadas | No |
-| `espacial` | **NumPy: muestreo por importancia sobre los cuatro parámetros** | Uno o dos segundos por análisis; es la vara contra la que se valida la red y el plan B del mapa | Lento para rehacer cientos de análisis, que es justo el argumento del show | **Recomendado** |
-| `espacial` | Kriging con parámetros fijos | Instantáneo; es «el método rápido de siempre» | Subestima cuánto se puede equivocar cuando hay pocos puntos. Se mide para decirlo, no se usa | Solo como comparación (A-14) |
+| Codificador | **ONNX** (`torch.onnx.export`, que hoy usa el exportador nuevo por defecto) | Lo lee `onnxruntime` en el servicio sin `torch` | Necesita `onnx` y `onnxscript`; el número de filas variable se declara con `dynamic_shapes`. **Probar la exportación con la red sin entrenar, motor por motor, la primera noche** | **Recomendado**. En `espacial` incluye la cabeza de mapa |
+| Flujo | **`flujo.npz` con los pesos, muestreado en NumPy por `nucleo/flujo.py`** | Sin riesgo de exportación; el acoplamiento afín son productos de matrices | Dos implementaciones del mismo flujo. Prueba obligatoria: con los mismos pesos y el mismo ruido, NumPy y `torch` dan la misma muestra, con tolerancia de `float32` | **Recomendado** |
+| Flujo | Exportar el flujo entero a ONNX | Un solo archivo | Muestrear dentro del grafo es justo lo que puede no exportar | No |
+| Todo | Archivo de pesos de `torch` | Sin exportar | Obliga a tener `torch` en el servicio | Se guarda igual (`pesos.pt`), para seguir entrenando |
 
-### 3.8 Formato de entrega de la red
-
-| Alternativa | Pros | Contras | Veredicto |
-|---|---|---|---|
-| **ONNX** (`torch.onnx.export`, que hoy usa el exportador nuevo por defecto) | Lo lee `onnxruntime` en el servicio sin `torch` | Necesita `onnx` y `onnxscript`; el tamaño de lote variable se declara con `dynamic_shapes`. **Probar la exportación con la red sin entrenar, en A-03, no a las 9 de la mañana** | **Recomendado** |
-| Archivo de pesos de `torch` | Sin exportar | Obliga a tener `torch` en el servicio | Se guarda igual, para seguir entrenando |
-
-El simulador no se exporta: la transformada de Fourier se usa solo al entrenar.
+Artefactos por motor, en `motor/artefactos/<motor_id>/`: `codificador.onnx`, `flujo.npz`, `pesos.pt`, `config.json`, `sello.json`, `nube.npz` y `mcmc/<clave>.npz` (`contratos/CONTRATO.md`, sección 7).
 
 ## 4. PC 3 · seguimiento (monitoreo, casos, datos y pitch)
 
@@ -244,10 +290,11 @@ El simulador no se exporta: la transformada de Fourier se usa solo al entrenar.
 
 ```bash
 uv sync                 # pandas para preparar los CSV, pytest, pyyaml
+uv sync --group entrenar   # D-26: este computador entrena `supervivencia` de noche y `jerarquico` de día
 brew install node       # solo para poder levantar la web en local y verificar corriendo
 ```
 
-PC 3 no instala `torch`. Necesita poder correr la app en local (`uv run` y `npm run dev`) porque su trabajo es **verificar corriendo, no leyendo**.
+PC 3 (MacBook Air M3, 16 GB) instala el grupo `entrenar` solo para **lanzar** entrenamientos y validaciones que escribió PC 2: no edita `motor/`. Mismas precauciones que PC 2 (3.1): enchufado, tapa abierta, `caffeinate -dims`. Además necesita poder correr la app en local (`uv run` y `npm run dev`) porque su trabajo es **verificar corriendo, no leyendo**.
 
 ### 4.2 Preparación de datos
 
@@ -256,7 +303,7 @@ PC 3 no instala `torch`. Necesita poder correr la app en local (`uv run` y `npm 
 | **Un script de Python por caso, con pandas, en `datos/preparar/`** | Reproducible; deja escrito de dónde salió cada archivo y con qué semilla se vació el 20% | Diez minutos más que hacerlo a mano | **Recomendado** |
 | A mano en una planilla | Rápido para mirar | No queda registro; imposible repetir si hay que cambiar algo a las 16:00 | Solo para mirar |
 
-El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, se busca una copia en CSV de los mismos 155 puntos o se lee con el paquete `pyreadr` (`uv run --with pyreadr …`).
+El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, se busca una copia en CSV de los mismos 155 puntos o se lee con el paquete `pyreadr` (`uv run --with pyreadr …`). Lo mismo vale para `meuse.grid` (3.103 celdas con `x`, `y`, `dist`), que desde D-26 hace falta como `datos/demo/terreno_grilla.csv`: la tendencia con la distancia al río se necesita en cada bloque.
 
 ### 4.3 Láminas
 
@@ -284,7 +331,8 @@ El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, s
 | PyTorch | 2.15.0 | Paquetes para Mac con chip Apple; la GPU del Mac no admite doble precisión; convoluciones y Fourier tienen implementación propia en la GPU del Mac (leído en el código fuente, no ejecutado) | PyPI, docs.pytorch.org |
 | onnxruntime | 1.32.0 | Python 3.11 a 3.14; unos 28 MB en Linux | PyPI |
 | onnx / onnxscript | 1.23.x / 0.7.x | Los usa el exportador | PyPI |
-| zuko | 1.6.0 | Solo para el opcional | PyPI |
+| zuko | 1.6.0 | `zuko.flows.NICE` es el flujo de acoplamiento; usa transformaciones afines por defecto (leído en la documentación el 21-nov, no ejecutado) | PyPI, zuko.readthedocs.io |
+| numpyro / jax | sin verificar | MCMC de referencia (NUTS), solo en `motor/`. La versión y que instalen en Python 3.12 en Mac con chip Apple se comprueban en A-01 | por confirmar en A-01 |
 | FastAPI / uvicorn | 0.165 / 0.54 | `fastapi[standard]` ya trae uvicorn | fastapi.tiangolo.com |
 | Node.js | 26 (LTS) | Vite 8 pide Node 20.19 o superior | nodejs.org |
 | Vite / React | 8 / 19 | `npm create vite@latest web -- --template react-ts` | vite.dev |
@@ -292,4 +340,4 @@ El archivo del terreno viene en un formato del lenguaje R. Para no instalar R, s
 | Render, plan gratuito | | 0,1 de procesador, 512 MB, se duerme a los 15 minutos, despierta en cerca de un minuto, Python 3.14 por defecto | render.com/docs/free, /docs/python-version |
 | Vercel, plan gratuito | | No conecta repositorios de organizaciones; bloquea commits de otros autores en repositorios privados; funciones de Python con 2 GB | vercel.com/docs/limits, /docs/git |
 
-**Sin verificar, hay que probarlo:** que `caffeinate` mantenga despierto el Mac con la tapa cerrada (por eso la tapa queda abierta); las cuotas gratuitas de Kaggle y Colab; que `vercel deploy --prod` evite el bloqueo por autor; que la red exporte a ONNX sin tropiezos (se prueba en A-03).
+**Sin verificar, hay que probarlo:** que `caffeinate` mantenga despierto el Mac con la tapa cerrada (por eso la tapa queda abierta); las cuotas gratuitas de Kaggle y Colab; que `vercel deploy --prod` evite el bloqueo por autor; que cada codificador exporte a ONNX con n variable (se prueba sin entrenar, motor por motor: A-01, A-03, A-B2, A-N6); que `numpyro` y `jax` instalen en este entorno (A-01); cuántos datasets por segundo simula y entrena cada motor (`medir-rendimiento`).
