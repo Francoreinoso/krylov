@@ -5,7 +5,7 @@ import { COLOR, token } from './colores'
 import { useLienzo } from './lienzo'
 import type { Nube as DatosNube } from './tipos'
 
-const MARGEN = { izq: 44, der: 16, arr: 16, aba: 40 }
+const MARGEN = { izq: 64, der: 16, arr: 16, aba: 52 }
 
 export default function Nube({ nube }: { nube: DatosNube }) {
   const { ejes, puntos, archivo } = nube
@@ -20,18 +20,22 @@ export default function Nube({ nube }: { nube: DatosNube }) {
       ctx.strokeStyle = token('--color-linea')
       ctx.lineWidth = 1
       ctx.strokeRect(MARGEN.izq, MARGEN.arr, w, h)
+      // Los nombres de los ejes, grandes y en tinta: se leen desde el fondo de la sala.
+      const fuente = token('--font-sans')
       ctx.fillStyle = token('--color-tinta-suave')
-      ctx.font = `13px ${token('--font-sans')}`
+      ctx.font = `15px ${fuente}`
       ctx.textAlign = 'center'
-      ctx.fillText(ejes.x.nombre, MARGEN.izq + w / 2, alto - 10)
-      ctx.fillText(String(ejes.x.min), MARGEN.izq, MARGEN.arr + h + 16)
-      ctx.fillText(String(ejes.x.max), MARGEN.izq + w, MARGEN.arr + h + 16)
+      ctx.fillText(String(ejes.x.min), MARGEN.izq, MARGEN.arr + h + 18)
+      ctx.fillText(String(ejes.x.max), MARGEN.izq + w, MARGEN.arr + h + 18)
       ctx.textAlign = 'right'
-      ctx.fillText(String(ejes.y.max), MARGEN.izq - 6, MARGEN.arr + 10)
-      ctx.fillText(String(ejes.y.min), MARGEN.izq - 6, MARGEN.arr + h)
+      ctx.fillText(String(ejes.y.max), MARGEN.izq - 8, MARGEN.arr + 12)
+      ctx.fillText(String(ejes.y.min), MARGEN.izq - 8, MARGEN.arr + h)
+      ctx.fillStyle = token('--color-tinta')
+      ctx.font = `600 17px ${fuente}`
       ctx.textAlign = 'center'
+      ctx.fillText(ejes.x.nombre, MARGEN.izq + w / 2, alto - 8)
       ctx.save()
-      ctx.translate(16, MARGEN.arr + h / 2)
+      ctx.translate(20, MARGEN.arr + h / 2)
       ctx.rotate(-Math.PI / 2)
       ctx.fillText(ejes.y.nombre, 0, 0)
       ctx.restore()

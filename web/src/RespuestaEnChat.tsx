@@ -11,6 +11,7 @@ import Nube from './Nube'
 import NumeroGrande from './NumeroGrande'
 import type { Intencion } from './preguntas'
 import QuePesa from './QuePesa'
+import { quienRespondio } from './textos'
 import { plata } from './titular'
 import type { Analisis, DondeMedir, Nube as DatosNube } from './tipos'
 import { useDecision } from './useDecision'
@@ -214,7 +215,7 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
             <span>Pantalla completa</span>
           </BotonAccion>
           <span className="ml-auto text-xs text-tinta-suave">
-            {analisis.precalculado ? 'Precalculado con el método lento de siempre' : 'Respondió la red que practicó con casos simulados'}
+            {quienRespondio(analisis)}
           </span>
         </div>
       </div>
