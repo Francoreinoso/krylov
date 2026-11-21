@@ -31,11 +31,16 @@ ARTEFACTOS = simular.RAIZ / "motor" / "artefactos" / "supervivencia"
 CASO = "rotacion"
 
 
-def generar(carpeta: Path = ARTEFACTOS, simulaciones: int = 5000, semilla: int = 7, por_lote: int = 50) -> dict:
-    """Escribe `carpeta/nube.npz` desde `simulaciones` empresas del predictivo a priori. Devuelve un resumen de lo guardado."""
+def generar(carpeta: Path = ARTEFACTOS, simulaciones: int = 5000, semilla: int = 7, por_lote: int = 50, personas: int | None = None) -> dict:
+    """Escribe `carpeta/nube.npz` desde `simulaciones` empresas del predictivo a priori. Devuelve un resumen de lo guardado.
+
+    Con `personas`, las empresas simuladas tienen ese tamaño y el archivo es `nube_n<personas>.npz`: la nube de un archivo
+    subido de otro tamaño que el del caso (D-34). Ver `generar_por_tamano`.
+    """
     caso, config = cargar_caso(CASO), simular.cargar_config()
     reales = simular.cargar_filas_reales(config)
-    n = len(reales["tiempo"]) if reales is not None else 1470              # el n del archivo del caso
+    n = personas or (len(reales["tiempo"]) if reales is not None else 1470)   # por defecto, el n del archivo del caso
+    ruta = carpeta / (nucleo_sv.nube_del_tamano(personas) if personas else "nube.npz")
     sesion, huella = None, ""
     if (carpeta / "codificador.onnx").exists():
         import onnxruntime
@@ -58,16 +63,30 @@ def generar(carpeta: Path = ARTEFACTOS, simulaciones: int = 5000, semilla: int =
     else:                                                                  # solo los ejes: sin media, precisión ni límite
         nube = {**comun.resumir_simulaciones(ejes, rng.normal(size=(len(ejes), 2))), "media": np.zeros(0), "precision": np.zeros((0, 0)), "limite": np.nan}
     carpeta.mkdir(parents=True, exist_ok=True)
-    np.savez(carpeta / "nube.npz", **nube, huella_codificador=np.array(huella))
-    return {"ruta": str(carpeta / "nube.npz"), "n_simulaciones": int(nube["n_simulaciones"]), "personas_por_empresa": int(n),
+    np.savez(ruta, **nube, huella_codificador=np.array(huella), personas=np.int64(n))
+    return {"ruta": str(ruta), "n_simulaciones": int(nube["n_simulaciones"]), "personas_por_empresa": int(n),
             "con_resumenes_aprendidos": sesion is not None, "x_maximo": round(float(nube["x_maximo"]), 3),
             "y_minimo": round(float(nube["y_minimo"]), 3), "y_maximo": round(float(nube["y_maximo"]), 3),
             "limite_mahalanobis": round(float(nube["limite"]), 2) if sesion is not None else None}
+
+
+def generar_por_tamano(carpeta: Path = ARTEFACTOS, simulaciones: int = 2000) -> list[dict]:
+    """Una nube por cada tamaño de `nucleo.supervivencia.TAMANOS_DE_NUBE`, para los archivos subidos (D-34).
+
+    El resumen s(D) y la dispersión de los ejes con nombre dependen del número de personas: una empresa de 450 cae
+    lejos de una nube de empresas de 1.470 aunque sea de la misma familia. WORKPLAN.md 11.9 pide el predictivo a priori
+    «con el n del archivo»; como el archivo subido llega después, se guardan nubes en una grilla de tamaños dentro del
+    rango del simulador y el servicio usa la más cercana.
+    """
+    return [generar(carpeta, simulaciones, semilla=7 + n, personas=n) for n in nucleo_sv.TAMANOS_DE_NUBE]
 
 
 if __name__ == "__main__":
     analizador = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     analizador.add_argument("--carpeta", type=Path, default=ARTEFACTOS, help="donde está codificador.onnx (si hay) y donde queda nube.npz")
     analizador.add_argument("--simulaciones", type=int, default=5000)
+    analizador.add_argument("--por-tamano", action="store_true", help="además, las nubes por tamaño para los archivos subidos")
     a = analizador.parse_args()
     print(json.dumps(generar(a.carpeta, a.simulaciones), indent=1))
+    if a.por_tamano:
+        print(json.dumps(generar_por_tamano(a.carpeta), indent=1))

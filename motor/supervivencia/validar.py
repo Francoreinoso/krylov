@@ -42,14 +42,15 @@ def sbc(red: red_sv.RedSupervivencia, datasets: int, muestras: int = 99, semilla
     """SBC y cobertura sobre `datasets` simulaciones nuevas (semilla distinta a la del entrenamiento).
 
     Por parámetro: rango medio (0,5 sin sesgo), χ² de uniformidad de los rangos en 10 tramos, cobertura del intervalo
-    de 90% (contada por rangos: exacta con 99 muestras) y contracción respecto del prior. La cobertura va también por
-    grupos: empresas chicas y grandes, con pocos y con muchos cargos.
+    de 90% (contada por rangos: exacta con 99 muestras), contracción respecto del prior y recuperación (correlación entre
+    el valor verdadero y la media del posterior). La cobertura va también por grupos: empresas chicas y grandes, con pocos
+    y con muchos cargos.
     """
     config = simular.cargar_config()
     reales = simular.cargar_filas_reales(config)
     rng = np.random.default_rng(semilla)
     torch.manual_seed(semilla)
-    rangos, tamanos, cargos, varianza_post = [], [], [], []
+    rangos, tamanos, cargos, varianza_post, medias, verdades = [], [], [], [], [], []
     for _ in range(int(np.ceil(datasets / lote))):
         n = simular.muestrear_n(rng, config)
         simulado = simular.simular(rng, lote, n, config, reales)
@@ -57,10 +58,12 @@ def sbc(red: red_sv.RedSupervivencia, datasets: int, muestras: int = 99, semilla
         post = red.muestrear(filas, grupo, muestras).numpy()             # (muestras, lote, 32)
         rangos.append((post < theta.numpy()).sum(axis=0))                 # 0..muestras
         varianza_post.append(post.var(axis=0))
+        medias.append(post.mean(axis=0)), verdades.append(theta.numpy())
         tamanos.append(np.full(lote, n))
         cargos.append(np.array([len(np.unique(g)) for g in simulado["grupo"]]))
     rangos, tamanos = np.concatenate(rangos)[:datasets], np.concatenate(tamanos)[:datasets]
     cargos, varianza_post = np.concatenate(cargos)[:datasets], np.concatenate(varianza_post)[:datasets]
+    medias, verdades = np.concatenate(medias)[:datasets], np.concatenate(verdades)[:datasets]
     dentro = dentro_del_rango(rangos, muestras)
     contraccion = 1.0 - varianza_post.mean(axis=0) / red.flujo.escala_theta.numpy() ** 2
 
@@ -70,7 +73,8 @@ def sbc(red: red_sv.RedSupervivencia, datasets: int, muestras: int = 99, semilla
         chi2 = float(((tramos - len(rangos) / 10) ** 2 / (len(rangos) / 10)).sum())
         por_parametro[nombre] = {"rango_medio": round(float(rangos[:, j].mean() / muestras), 3), "chi2_uniformidad": round(chi2, 1),
                                  "uniforme_al_99": chi2 < CHI2_99_GL9, "cobertura_90": round(float(dentro[:, j].mean()), 3),
-                                 "contraccion": round(float(contraccion[j]), 3)}
+                                 "contraccion": round(float(contraccion[j]), 3),
+                                 "recuperacion": round(float(np.corrcoef(verdades[:, j], medias[:, j])[0, 1]), 3)}
     grupos = {f"n hasta {N_CHICO}": tamanos <= N_CHICO, f"n sobre {N_CHICO}": tamanos > N_CHICO,
               f"hasta {CARGOS_POCOS} cargos": cargos <= CARGOS_POCOS, f"más de {CARGOS_POCOS} cargos": cargos > CARGOS_POCOS}
     por_grupo = {nombre: round(float(dentro[m].mean()), 3) for nombre, m in grupos.items() if m.any()}
@@ -103,7 +107,7 @@ def principal() -> None:
     salida = Path(a.punto).with_name("sbc.json")
     salida.write_text(json.dumps(resultado, indent=1, ensure_ascii=False), encoding="utf-8")
     for nombre, v in resultado["theta"].items():
-        print(f"{nombre:>12}  rango medio {v['rango_medio']:.2f}  χ² {v['chi2_uniformidad']:5.1f}  cobertura90 {v['cobertura_90']:.2f}  contracción {v['contraccion']:+.2f}")
+        print(f"{nombre:>12}  rango medio {v['rango_medio']:.2f}  χ² {v['chi2_uniformidad']:5.1f}  cobertura90 {v['cobertura_90']:.2f}  contracción {v['contraccion']:+.2f}  recuperación {v['recuperacion']:+.2f}")
     resumen = {k: v for k, v in resultado.items() if k != "theta"}
     print(json.dumps(resumen, indent=1, ensure_ascii=False))
     print(f"→ {salida}")

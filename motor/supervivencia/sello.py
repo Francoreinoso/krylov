@@ -26,6 +26,7 @@ import datetime as dt
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +40,10 @@ from motor.supervivencia.validar import cargar_red, sbc
 from nucleo import casos, supervivencia as nucleo_sv, tabla
 
 CASO, CASO_MALO = "rotacion", "rotacion_malo"
+# Archivos de prueba de la subida (D-34): otras empresas con el mismo esquema, con las columnas que asignaría el usuario.
+SUBIDOS = ("ventas", "investigacion")
+COLUMNAS_SUBIDOS = {"id": "n_empleado", "evento": "renuncio", "tiempo": "anios_en_empresa", "grupo": "cargo", "suave": "sueldo_mensual",
+                    "efectos": ["horas_extra", "distancia_km", "empresas_previas"], "encuestas": ["enc_ambiente", "enc_trabajo", "enc_relaciones", "enc_equilibrio"]}
 ARTEFACTOS = exportar.ARTEFACTOS
 
 
@@ -129,15 +134,28 @@ def comparar_con_mcmc(red, simulados: int, pasos: int, carpeta: Path, n: int = 1
 
 
 def nube_y_archivos(carpeta: Path, simulaciones: int) -> dict:
-    """Genera la nube con esta red y ubica los tres archivos del arco del demo: el real, el malo y el malo corregido."""
+    """Genera la nube con esta red y ubica los tres archivos del arco del demo: el real, el malo y el malo corregido.
+
+    Genera también las nubes por tamaño para los archivos subidos (D-34) y ubica en ellas los archivos de prueba de la
+    subida, que son más chicos que el del caso. Eso no entra al veredicto: va al informe.
+    """
     generada = nube.generar(carpeta, simulaciones)
+    por_tamano = nube.generar_por_tamano(carpeta, max(500, simulaciones * 2 // 5))
     def resumen(nombre, transformaciones):
         donde = nucleo_sv.nube(casos.cargar_caso(nombre), transformaciones)
         return {k: donde[k] for k in ("archivo", "detectores")}
     real, malo = resumen(CASO, []), resumen(CASO_MALO, [])
     propuesta = (nucleo_sv.analizar(casos.cargar_caso(CASO_MALO), [], {"falso_si": 1.0, "falso_no": 1.0})["semaforo"].get("propuesta") or {}).get("transformacion")
     corregido = resumen(CASO_MALO, [propuesta]) if propuesta else None
-    return {"generada": generada, "archivo_real": real, "archivo_malo": malo, "propuesta_del_semaforo": propuesta, "archivo_malo_corregido": corregido}
+    subidos = {}
+    for area in SUBIDOS:
+        ruta = casos.RAIZ / "datos" / "demo" / f"subida_rotacion_{area}.csv"
+        if ruta.exists():
+            en_memoria = {**casos.cargar_caso(CASO), "nombre": f"subida_{area}", "tabla": casos.leer_columnas(ruta), "columnas": COLUMNAS_SUBIDOS}
+            donde = nucleo_sv.nube(en_memoria, [])
+            subidos[area] = {"personas": len(en_memoria["tabla"]["cargo"]), "archivo": donde["archivo"], "detectores": donde["detectores"]}
+    return {"generada": generada, "archivo_real": real, "archivo_malo": malo, "propuesta_del_semaforo": propuesta, "archivo_malo_corregido": corregido,
+            "por_tamano": por_tamano, "archivos_subidos": subidos}
 
 
 def examen_y_latencia(empresas_de_la_cartera: int | None) -> dict:
@@ -173,6 +191,7 @@ def main() -> None:
     p.add_argument("--maquina", default="MacBook Air M4 16 GB")
     p.add_argument("--ensayo", action="store_true", help="recorrido completo en chico, a una carpeta temporal: prueba el programa, no la red")
     a = p.parse_args()
+    inicio = time.time()
     del_mcmc, empresas_de_la_cartera = {"pasos": 500}, None
     if a.ensayo:
         a.salida, a.sbc, a.unidades, a.simulados, a.nube = Path(tempfile.mkdtemp(prefix="krylov_sello_")) / "supervivencia", 100, 10, 1, 1500
@@ -198,7 +217,7 @@ def main() -> None:
         informe["mcmc"] = None if a.sin_mcmc else comparar_con_mcmc(red, a.simulados, carpeta=a.salida, **del_mcmc)
         print("[4/6] MCMC:", "sin correr" if a.sin_mcmc else {k: v for k, v in informe["mcmc"].items() if k != "por_dataset"}, flush=True)
     informe["nube"] = nube_y_archivos(a.salida, a.nube)
-    print("[5/6] nube:", informe["nube"], flush=True)
+    print("[5/6] nube:", {k: v for k, v in informe["nube"].items() if k != "por_tamano"}, flush=True)
     informe["real"] = examen_y_latencia(empresas_de_la_cartera)
     print("[6/6] examen y latencia:", {k: informe["real"][k] for k in ("analizar_ms", "semaforo", "examen_red", "examen_metodo_rapido", "cartera")}, flush=True)
 
@@ -218,7 +237,7 @@ def main() -> None:
         "simulaciones_entrenamiento": estado["datasets_simulados"], "entrenamiento_min": round(estado["segundos"] / 60),
         "casos_validacion": a.sbc, "cobertura_90": cobertura_p, "cobertura_90_parametros": cobertura_theta,
         "cobertura_90_peor_grupo": del_sbc["cobertura_90_peor_grupo"], "peor_grupo": {"n hasta 600": "empresas de hasta 600 personas", "n sobre 600": "empresas de más de 600 personas"}.get(del_sbc["peor_grupo"], "empresas con " + del_sbc["peor_grupo"]),
-        "sbc_pasa": sbc_pasa, "sbc_parametros_que_fallan": fallan,
+        "sbc_pasa": sbc_pasa, "sbc_parametros_que_fallan": fallan, "recuperacion": validacion.recuperacion(del_sbc["theta"]),
         "cobertura_90_metodo_rapido": informe["unidades"]["cobertura_90_metodo_rapido"], "latencia_ms": real["analizar_ms"],
         "mcmc_datasets_comparados": del_mcmc_ and del_mcmc_["datasets"], "mcmc_s_por_dataset": del_mcmc_ and del_mcmc_["s_por_dataset"],
         "mcmc_diferencia_media": del_mcmc_ and del_mcmc_["diferencia_media"], "mcmc_r_hat_max": del_mcmc_ and del_mcmc_["r_hat_max"],
@@ -234,7 +253,9 @@ def main() -> None:
                          "La censura (cuánto lleva cada persona al momento de la foto) se modela como LogNormal",
                          "Las covariables simuladas salen mitad del archivo del caso y mitad de un generador paramétrico: la red generaliza hasta donde llega ese generador"],
     }
+    informe["minutos_del_sello"] = round((time.time() - inicio) / 60, 1)     # cuánto tardó esta validación, de exportar al veredicto
     validacion.escribir(a.salida, sello, informe)
+    print(f"{informe['minutos_del_sello']} min", flush=True)
 
 
 if __name__ == "__main__":

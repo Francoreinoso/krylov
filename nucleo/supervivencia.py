@@ -4,15 +4,23 @@ Modelo generativo: WORKPLAN.md, sección 11.2. Aquí viven
   - el preprocesamiento: la MISMA función para los datasets simulados y para el archivo real,
   - la base B-spline del efecto no lineal del sueldo,
   - el paso entre θ con restricciones y θ libre (el espacio donde trabaja el flujo normalizador),
-  - la lectura del CSV de un caso según los papeles de `casos/<nombre>.yaml`.
+  - los papeles de columna que recibe la red (`PAPELES`) y la lectura de una tabla según esos papeles:
+    el archivo de `casos/<nombre>.yaml` o el que subió el usuario (D-34).
 
-Solo NumPy y la biblioteca estándar: este módulo lo importa el servicio (sin torch, jax ni numpyro).
+Solo NumPy, la biblioteca estándar y los módulos de `nucleo/`: este módulo lo importa el servicio
+(sin torch, jax ni numpyro).
 """
 from __future__ import annotations
 
 import csv
+import hashlib
+import os
+from functools import cache
 
 import numpy as np
+
+from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla
+from nucleo.casos import ArchivoNoCalza, ErrorKrylov, implementacion, tabla_del_caso
 
 # ----------------------------------------------------------------------------------------------
 # QUÉ ES «RIESGO» EN ESTE MOTOR (decisión provisoria del equipo, 21-nov).
@@ -165,44 +173,104 @@ def a_restringido(libre: np.ndarray) -> dict:
 
 # ------------------------------------------------------------------------- lectura de un archivo
 
-_SI = {"yes", "si", "sí", "y", "true", "1"}
+# Los papeles de columna que recibe la red (D-34), con la forma de `contratos/CONTRATO.md`, sección 2.
+# La red de la noche se entrenó con esquema fijo: en todos, `minimo` = `maximo` (D-35: sin papeles opcionales).
+PAPELES = [
+    {"papel": "id", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Identificador de la persona",
+     "texto_largo": "Un código o número que distingue a cada persona; no entra al modelo, solo nombra a quién se refiere cada respuesta"},
+    {"papel": "evento", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "si_no", "texto": "Renunció (vacío en las personas por decidir)",
+     "texto_largo": "Si la persona ya se fue de la empresa: sí o no (o 1 y 0). Va vacío en las personas sobre las que hay que decidir"},
+    {"papel": "tiempo", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "numero", "texto": "Años en la empresa",
+     "texto_largo": "Cuánto lleva o llevó la persona en la empresa, en años; si se fue, hasta que se fue. Se cuenta en años cumplidos"},
+    {"papel": "grupo", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "texto", "texto": "Cargo o grupo de la persona",
+     "texto_largo": "El cargo, equipo o área de la persona: cada grupo tiene su propio nivel de riesgo. La red practicó con 3 a 12 grupos"},
+    {"papel": "efectos", "cantidad": N_EFECTOS, "minimo": N_EFECTOS, "maximo": N_EFECTOS, "tipo": "numero", "texto": "Tres factores de la persona",
+     "texto_largo": "Tres datos de la persona que pueden mover el riesgo de irse, cada uno un número o un sí o no "
+                    "(por ejemplo horas extra, distancia a la casa, empresas anteriores). La red practicó con exactamente tres"},
+    {"papel": "suave", "cantidad": 1, "minimo": 1, "maximo": 1, "tipo": "numero", "texto": "Sueldo",
+     "texto_largo": "El sueldo de la persona, mayor que cero, en cualquier moneda. Su efecto no tiene por qué ser parejo: se lee en logaritmo"},
+    {"papel": "encuestas", "cantidad": N_ENCUESTAS, "minimo": N_ENCUESTAS, "maximo": N_ENCUESTAS, "tipo": "entero",
+     "texto": "Cuatro preguntas de encuesta, de 1 a 4",
+     "texto_largo": "Cuatro preguntas de una encuesta de clima o satisfacción, cada una respondida con un entero de 1 (lo peor) a 4 (lo mejor). "
+                    "De ellas sale el compromiso de la persona, que no se ve en los datos. La red practicó con exactamente cuatro"},
+]
+PERSONAS_MINIMO, PERSONAS_MAXIMO = 200, 2000      # el rango del simulador; con más filas se toma una muestra (contrato, sección 1)
+# La nube se simula con el n del archivo (WORKPLAN.md 11.9). Para un archivo subido, de cualquier tamaño, hay nubes
+# guardadas en esta grilla (`motor/supervivencia/nube.py`) y se usa la del tamaño más cercano, en escala logarítmica.
+TAMANOS_DE_NUBE = (200, 300, 450, 650, 950, 1400, 2000)
 
 
-def _a_numero(columna: list[str]) -> np.ndarray:
-    """Texto → float. Vacío → NaN; «Yes»/«Sí» → 1; cualquier otro texto → 0."""
-    salida = np.empty(len(columna))
-    for i, valor in enumerate(columna):
-        valor = valor.strip()
-        if valor == "":
-            salida[i] = np.nan
-            continue
-        try:
-            salida[i] = float(valor)
-        except ValueError:
-            salida[i] = 1.0 if valor.lower() in _SI else 0.0
-    return salida
+def nube_del_tamano(personas: int) -> str:
+    return f"nube_n{personas:04d}.npz"
 
 
-def leer_tabla(ruta, columnas: dict) -> dict:
-    """Lee el CSV de un caso con los papeles de `columnas` (casos/<nombre>.yaml).
+def columnas_del_papel(col: dict, papel: str) -> list[str]:
+    """Los nombres de columna asignados a un papel: en el YAML y en `analizar_archivo` van como un nombre o como una lista."""
+    valor = col.get(papel)
+    return [] if valor is None else list(valor) if isinstance(valor, (list, tuple)) else [valor]
 
-    Devuelve las columnas crudas que recibe `preprocesar`, más `grupo` (códigos 0..G−1),
-    `cargos` (los nombres) e `id`.
+
+def nombres_por_papel(col: dict) -> dict[str, list[str]]:
+    """Las columnas de cada papel de `PAPELES`, exigiendo las cantidades con que practicó la red.
+
+    Un papel sin columnas es `rojo_datos` (falta algo); uno con otra cantidad es `rojo_modelo`: la red se entrenó
+    con esquema fijo y un archivo con dos factores o cinco encuestas no es de la familia que conoce (D-34).
     """
-    with open(ruta, newline="", encoding="utf-8-sig") as archivo:
-        filas = list(csv.DictReader(archivo))
-    col = lambda nombre: [fila[nombre] for fila in filas]
-    cargos, grupo = np.unique(np.array(col(columnas["grupo"])), return_inverse=True)
+    nombres = {}
+    for p in PAPELES:
+        asignadas = columnas_del_papel(col, p["papel"])
+        if not asignadas:
+            raise ArchivoNoCalza(f"Falta el papel «{p['papel']}»: {p['texto'][:1].lower() + p['texto'][1:]}.")
+        if len(asignadas) != p["maximo"]:
+            raise ArchivoNoCalza(f"El papel «{p['papel']}» tiene {len(asignadas)} columnas y la red de rotación practicó con exactamente {p['maximo']}.", "rojo_modelo")
+        nombres[p["papel"]] = asignadas
+    return nombres
+
+
+def _numero_o_si_no(t: dict, nombre: str) -> np.ndarray:
+    """Un factor de la persona: números, o sí y no leídos como 1 y 0. Sin celdas vacías."""
+    valores = np.empty(len(tabla.columna(t, nombre)))
+    for i, texto in enumerate(t[nombre]):
+        try:
+            valores[i] = float(texto)
+        except ValueError:
+            try:
+                valores[i] = tabla.si_no(texto)
+            except KeyError:
+                valores[i] = np.nan
+    if not np.isfinite(valores).all():
+        raise ArchivoNoCalza(f"La columna «{nombre}» tiene celdas vacías o que no son un número ni un sí o no.")
+    return valores
+
+
+def columnas_crudas(t: dict, col: dict) -> dict:
+    """Una tabla (columna → lista de textos) leída con los papeles de `col`: las columnas crudas que recibe `preprocesar`.
+
+    Devuelve además `grupo` (códigos 0..G−1), `cargos` (los nombres) e `id`. Lanza `ArchivoNoCalza` si falta un papel,
+    una columna no se puede leer o trae valores que el modelo no conoce.
+    """
+    nombres = nombres_por_papel(col)
+    cargos, grupo = np.unique(np.array(tabla.columna(t, nombres["grupo"][0])), return_inverse=True)
+    sueldo = tabla.numeros(t, nombres["suave"][0])
+    if (sueldo <= 0).any():
+        raise ArchivoNoCalza(f"La columna «{nombres['suave'][0]}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
     return {
-        "id": col(columnas["id"]),
-        "efectos": np.stack([_a_numero(col(c)) for c in columnas["efectos"]], axis=1),
-        "sueldo": _a_numero(col(columnas["suave"])),
-        "encuestas": np.stack([_a_numero(col(c)) for c in columnas["encuestas"]], axis=1),
-        "tiempo": _a_numero(col(columnas["tiempo"])),
-        "evento": _a_numero(col(columnas["evento"])),
+        "id": tabla.columna(t, nombres["id"][0]),
+        "efectos": np.stack([_numero_o_si_no(t, c) for c in nombres["efectos"]], axis=1),
+        "sueldo": sueldo,
+        "encuestas": np.stack([tabla.numeros(t, c, minimo=1, maximo=4, enteros=True) for c in nombres["encuestas"]], axis=1),
+        "tiempo": np.floor(tabla.numeros(t, nombres["tiempo"][0], minimo=0)),      # años cumplidos: t = ⌊min(T, C)⌋ (WORKPLAN.md 11.2)
+        "evento": tabla.respuesta_si_no(t, nombres["evento"][0]),
         "grupo": grupo.astype(np.int64),
         "cargos": [str(c) for c in cargos],
     }
+
+
+def leer_tabla(ruta, columnas: dict) -> dict:
+    """Lee el CSV de un caso con los papeles de `columnas` (casos/<nombre>.yaml). Ver `columnas_crudas`."""
+    with open(ruta, newline="", encoding="utf-8-sig") as archivo:
+        filas = list(csv.DictReader(archivo))
+    return columnas_crudas({nombre: [fila[nombre] for fila in filas] for nombre in (filas[0] if filas else {})}, columnas)
 
 
 # =========================================================================================
@@ -513,13 +581,6 @@ def paso_local_por_empresa(libre, datos: dict, nodos: int = NODOS_CARGO, nodos_p
 # La respuesta de un caso de rotación: analizar, cartera y nube
 # =========================================================================================
 
-import hashlib                                                  # noqa: E402
-import os                                                       # noqa: E402
-from functools import cache                                     # noqa: E402
-
-from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
-from nucleo.casos import ErrorKrylov, implementacion           # noqa: E402
-
 NODOS_CARTERA = (4, 6)       # nodos de cargo y de persona en la cartera (WORKPLAN.md 11.6: menos nodos y 8 muestras)
 # Tandas más grandes que en `analizar`: con arreglos grandes NumPy suelta el candado de Python por más tiempo y los hilos rinden
 # (medido: 6,4 s de paso local con 1,5 millones contra 9,2 s con 300 mil). Son unos 25 MB por hilo en los lotes de 2.000 personas.
@@ -527,16 +588,17 @@ _ELEMENTOS_POR_TANDA_CARTERA = 1_500_000
 
 
 def leer_caso(caso: dict) -> dict:
-    """El archivo de un caso: columnas crudas (`leer_tabla`), variables del modelo y filas del codificador.
+    """El archivo de un caso, o la tabla subida (D-34): columnas crudas (`columnas_crudas`), variables del modelo y filas del codificador.
 
     Con más de 2.000 filas se toma una muestra con semilla fija (contrato, sección 1); `elegidas` dice cuáles.
+    Lanza `ArchivoNoCalza` si la tabla no calza con los papeles del modelo.
     """
-    ruta = _casos.RAIZ / caso["dataset"]
-    if not ruta.exists():
-        raise ErrorKrylov(f"No encuentro el archivo de datos «{ruta.name}».", "sin_datos")
-    cruda = leer_tabla(ruta, caso["columnas"])
+    t = tabla_del_caso(caso)
+    cruda = columnas_crudas(t, caso["columnas"])
+    for nombre in caso["columnas"].get("extra") or []:           # las columnas `extra` no entran al modelo, pero la nube las mira
+        tabla.columna(t, nombre)
     n = len(cruda["id"])
-    elegidas = np.sort(np.random.default_rng(0).choice(n, size=2000, replace=False)) if n > 2000 else np.arange(n)
+    elegidas = np.sort(np.random.default_rng(0).choice(n, size=PERSONAS_MAXIMO, replace=False)) if n > PERSONAS_MAXIMO else np.arange(n)
     cruda = {c: ([v[i] for i in elegidas] if c == "id" else v if c == "cargos" else v[elegidas]) for c, v in cruda.items()}
     variables = variables_del_modelo(cruda)
     filas = armar_filas(variables["x"], variables["w"], variables["encuestas"], variables["tiempo"], variables["evento"])
@@ -548,9 +610,9 @@ def factores_nube(cruda: dict, col: dict) -> dict[str, np.ndarray]:
 
     La misma función sirve para el archivo del caso y para cada empresa simulada (`motor/supervivencia/nube.py`).
     """
-    factores = {nombre: np.asarray(cruda["efectos"])[:, j] for j, nombre in enumerate(col["efectos"])}
-    factores[col["suave"]] = np.asarray(cruda["sueldo"])
-    factores.update({nombre: np.asarray(cruda["encuestas"])[:, j] for j, nombre in enumerate(col["encuestas"])})
+    factores = {nombre: np.asarray(cruda["efectos"])[:, j] for j, nombre in enumerate(columnas_del_papel(col, "efectos"))}
+    factores[columnas_del_papel(col, "suave")[0]] = np.asarray(cruda["sueldo"])
+    factores.update({nombre: np.asarray(cruda["encuestas"])[:, j] for j, nombre in enumerate(columnas_del_papel(col, "encuestas"))})
     return factores
 
 
@@ -598,6 +660,11 @@ def _ubicar_en_la_nube(caso: dict, transformaciones: list[str], datos: dict) -> 
     if not (carpeta / "nube.npz").exists():
         return None
     simulada = comun.cargar(carpeta / "nube.npz")
+    if caso.get("tabla") is not None:                            # un archivo subido: la nube de empresas de su tamaño, si está generada
+        n = len(datos["id"])
+        del_tamano = [(abs(np.log(t / n)), carpeta / nube_del_tamano(t)) for t in TAMANOS_DE_NUBE if (carpeta / nube_del_tamano(t)).exists()]
+        if del_tamano and min(del_tamano)[0] < abs(np.log(int(simulada.get("personas", 1470)) / n)):
+            simulada = comun.cargar(min(del_tamano)[1])
     extra = {nombre: valores[datos["elegidas"]] for nombre, valores in comun.columnas_extra(caso, transformaciones).items()}
     x, y, mejor = comun.ejes_con_nombre({**factores_nube(datos, caso["columnas"]), **extra}, datos["evento"])
     resumen = None
@@ -613,7 +680,10 @@ def _ubicar_en_la_nube(caso: dict, transformaciones: list[str], datos: dict) -> 
 
 def nube(caso: dict, transformaciones: list[str]) -> dict:
     """Dónde cae la empresa del caso respecto de las simulaciones con que practicó la red: ejes con nombre y resumen s(D)."""
-    donde = _ubicar_en_la_nube(caso, transformaciones, leer_caso(caso))
+    try:
+        donde = _ubicar_en_la_nube(caso, transformaciones, leer_caso(caso))
+    except ArchivoNoCalza as error:                              # una tabla subida que no calza no tiene dónde caer
+        raise ErrorKrylov(error.motivo, "archivo_no_calza") from None
     if donde is None:
         raise ErrorKrylov("La nube de rotación todavía no está calculada.", "no_disponible")
     return {"caso": caso["nombre"], **donde["nube"]}
@@ -646,20 +716,24 @@ def _semaforo(caso: dict, transformaciones: list[str], donde: dict | None) -> di
 def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     """A qué personas por decidir conviene retener: p de que ya haya renunciado por muestra del posterior, decisión, qué pesa y examen."""
     col = caso["columnas"]
-    del_modelo = {col["tiempo"], col["grupo"], col["suave"], *col["efectos"], *col["encuestas"]}
+    impl = implementacion("supervivencia")
+    try:
+        datos = leer_caso(caso)
+    except ArchivoNoCalza as error:                              # un archivo subido que no calza con el modelo: rojo con su motivo
+        return {"implementacion": impl, **tabla.rojo(caso, error)}
+    nombres = nombres_por_papel(col)
+    del_modelo = {c for papel in ("tiempo", "grupo", "suave", "efectos", "encuestas") for c in nombres[papel]}
     quitadas = {t.removeprefix("quitar_factor:") for t in transformaciones if t.startswith("quitar_factor:")}
     if quitadas & del_modelo:
         raise ErrorKrylov("Ese factor es parte del modelo de rotación y no se puede quitar.", "no_disponible")
-    impl = implementacion("supervivencia")
-    datos = leer_caso(caso)
     variables = datos["variables"]
     por_decidir = np.isnan(variables["evento"])
     conocidos = variables["evento"][~por_decidir]
     n = len(por_decidir)
     propio = {"implementacion": impl,
-              "columnas": {"usadas": [*col["efectos"], col["suave"], col["grupo"], *col["encuestas"], *[e for e in col.get("extra") or [] if e not in quitadas]],
+              "columnas": {"usadas": [*nombres["efectos"], *nombres["suave"], *nombres["grupo"], *nombres["encuestas"], *[e for e in col.get("extra") or [] if e not in quitadas]],
                            "disponibles": col.get("disponibles"), "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""}}
-    if n < 200:
+    if n < PERSONAS_MINIMO:
         return {**propio, **tabla.rojo_datos(caso, "pocas_filas", n=len(conocidos))}
     if conocidos.sum() < 10 or (1 - conocidos).sum() < 10:
         return {**propio, **tabla.rojo_datos(caso, "casi_ningun_si", k=int(conocidos.sum()), n=len(conocidos))}
@@ -680,8 +754,8 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     # Todo en la escala del riesgo (η): cada efecto por una desviación estándar de su columna; el sueldo, de una desviación bajo
     # el promedio a una sobre el promedio, s(1) − s(−1), con el posterior del spline; el compromiso entra con −λ.
     contraste = base_spline(1.0) - base_spline(-1.0)
-    factores = ([fila(nombre, theta[:, I_BETA][:, j]) for j, nombre in enumerate(col["efectos"])]
-                + [fila(col["suave"], theta[:, I_GAMMA] @ contraste), fila("compromiso", -theta[:, I_LAMBDA])])
+    factores = ([fila(nombre, theta[:, I_BETA][:, j]) for j, nombre in enumerate(nombres["efectos"])]
+                + [fila(nombres["suave"][0], theta[:, I_GAMMA] @ contraste), fila("compromiso", -theta[:, I_LAMBDA])])
     return {**propio, "unidades": tabla.unidades(ids, muestras_p, costos), "factores": sorted(factores, key=lambda f: -abs(f["efecto"])),
             "semaforo": semaforo, "examen": tabla.examen(caso, ids, muestras_p.mean(axis=1)),
             "registro": registro + [f"{len(theta)} versiones creíbles"]}
