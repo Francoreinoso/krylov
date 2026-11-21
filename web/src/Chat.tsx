@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { api, despertarApi, type Origen } from './api'
+import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
 import Lateral, { IconoLateral } from './Lateral'
@@ -13,12 +14,13 @@ import Respuesta from './Respuesta'
 import RespuestaEnChat, { type DatosRespuesta } from './RespuestaEnChat'
 import TarjetaArchivo from './TarjetaArchivo'
 import { lineaDelCaso } from './textos'
-import type { Caso } from './tipos'
+import type { Calce, Caso, Papel } from './tipos'
 
 type Contenido =
   | { de: 'tu'; texto: string; adjunto?: InfoCsv }
   | { de: 'krylov'; tipo: 'texto'; texto: string; nota?: string; accion?: 'modelos' | 'preguntas' }
   | { de: 'krylov'; tipo: 'respuesta'; datos: DatosRespuesta }
+  | { de: 'krylov'; tipo: 'calce'; calce: Calce; papeles: Papel[]; intencion: Intencion; confirmado: boolean }
 
 type Mensaje = Contenido & { id: number; creado: number }
 
@@ -27,15 +29,25 @@ interface Conversacion {
   caso: Caso | null
   archivo: InfoCsv | null // el archivo propio que se subió en esta conversación
   pendiente: string | null // la pregunta que espera a que se elija un modelo
+  calceListo: boolean // se confirmó qué columna cumple cada papel
   mensajes: Mensaje[]
 }
 
 const FRASE = 'Sé cuánto no sé, y te digo cuánto vale averiguarlo.'
 const SIN_ARCHIVO_PROPIO = 'Todavía no analizo archivos propios: respondo con el archivo de ejemplo del caso.'
+const OTRAS_COLUMNAS =
+  'Con otras columnas tengo que analizar el archivo de nuevo en el servidor, y todavía no está en línea. Respondo con las columnas del caso.'
 const ESCRITORIO = '(min-width: 1024px)'
 
 let siguienteId = 0
-const nueva = (caso: Caso | null = null): Conversacion => ({ id: siguienteId++, caso, archivo: null, pendiente: null, mensajes: [] })
+const nueva = (caso: Caso | null = null): Conversacion => ({
+  id: siguienteId++,
+  caso,
+  archivo: null,
+  pendiente: null,
+  calceListo: false,
+  mensajes: [],
+})
 
 const tituloDe = (c: Conversacion) => {
   const primero = c.mensajes.find((m) => m.de === 'tu')
@@ -71,7 +83,8 @@ export default function Chat() {
       .catch(() => setOrigen('estatico'))
   }, [])
 
-  // Como en los chats conocidos: la última pregunta sube al borde de arriba y la respuesta llega debajo.
+  // Como en los chats conocidos: la última pregunta (o el calce recién confirmado) sube al borde de
+  // arriba y la respuesta llega debajo.
   useEffect(() => {
     ultimaPregunta.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
   }, [conv.mensajes.length, conv.id])
@@ -94,7 +107,7 @@ export default function Chat() {
     setEstado((s) => {
       const actual = s.conversaciones.find((c) => c.id === s.activa)
       if (actual && actual.mensajes.length === 0) {
-        return { ...s, conversaciones: s.conversaciones.map((c) => (c.id === actual.id ? { ...c, caso } : c)) }
+        return { ...s, conversaciones: s.conversaciones.map((c) => (c.id === actual.id ? { ...c, caso, calceListo: false } : c)) }
       }
       const c = nueva(caso)
       return { conversaciones: [c, ...s.conversaciones], activa: c.id }
@@ -122,9 +135,43 @@ export default function Chat() {
     }
   }
 
+  // Antes de la primera respuesta, el chat muestra qué columna del archivo cumple cada papel.
+  const mostrarCalce = async (id: number, caso: Caso, intencion: Intencion) => {
+    setPensando(id)
+    try {
+      const [calce, papeles] = await Promise.all([api.calce(caso.nombre), api.papeles(caso.motor)])
+      decir(id, {
+        de: 'krylov',
+        tipo: 'texto',
+        texto: `Antes de analizar, revisa qué columna del archivo cumple cada papel del modelo de ${MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor}.`,
+      })
+      decir(id, { de: 'krylov', tipo: 'calce', calce: calce.datos, papeles: papeles.datos.papeles, intencion, confirmado: false })
+    } catch {
+      // Sin calce que mostrar, se analiza con las columnas del caso.
+      modificar(id, (c) => ({ ...c, calceListo: true }))
+      await responder(id, caso, intencion, false)
+    } finally {
+      setPensando((p) => (p === id ? null : p))
+    }
+  }
+
+  const confirmarCalce = (id: number, mensaje: number, caso: Caso, calce: Calce, intencion: Intencion, asignacion: Asignacion) => {
+    modificar(id, (c) => ({
+      ...c,
+      calceListo: true,
+      mensajes: c.mensajes.map((m) => (m.id === mensaje && m.de === 'krylov' && m.tipo === 'calce' ? { ...m, confirmado: true } : m)),
+    }))
+    if (!mismaAsignacion(asignacion, asignacionDe(calce))) decir(id, { de: 'krylov', tipo: 'texto', texto: OTRAS_COLUMNAS })
+    responder(id, caso, intencion, false)
+  }
+
   // Qué hacer con una pregunta, una vez que hay modelo.
-  const atender = (id: number, caso: Caso, pregunta: string, archivo: InfoCsv | null, recienElegido: boolean) => {
+  const atender = (id: number, caso: Caso, pregunta: string, archivo: InfoCsv | null, recienElegido: boolean, calceListo: boolean) => {
     const intencion = interpretar(pregunta, preguntasDe(caso))
+    if (intencion && !calceListo && archivo === null) {
+      mostrarCalce(id, caso, intencion)
+      return
+    }
     if (intencion) {
       responder(id, caso, intencion, archivo !== null)
       return
@@ -164,16 +211,16 @@ export default function Chat() {
         accion: 'preguntas',
       })
     } else {
-      atender(id, caso, pregunta, archivo, reconocido !== null && !casoElegido)
+      atender(id, caso, pregunta, archivo, reconocido !== null && !casoElegido, conv.calceListo && conv.caso !== null)
     }
   }
 
   // Elegir un modelo desde las tarjetas que ofrece Krylov retoma la pregunta que quedó esperando.
   const elegirModelo = (caso: Caso) => {
     const { id, pendiente, archivo } = conv
-    modificar(id, (c) => ({ ...c, caso, pendiente: null }))
+    modificar(id, (c) => ({ ...c, caso, pendiente: null, calceListo: false }))
     decir(id, { de: 'tu', texto: caso.titulo })
-    atender(id, caso, pendiente ?? '', archivo, true)
+    atender(id, caso, pendiente ?? '', archivo, true, false)
   }
 
   const adjuntar = async (archivo: File | undefined) => {
@@ -203,10 +250,10 @@ export default function Chat() {
 
   const vacia = conv.mensajes.length === 0
   const ultimo = conv.mensajes.at(-1)
-  const ultimaDelUsuario = conv.mensajes.findLast((m) => m.de === 'tu')
+  const ultimaDelUsuario = conv.mensajes.findLast((m) => m.de === 'tu' || (m.de === 'krylov' && m.tipo === 'calce' && m.confirmado))
   const preguntas = conv.caso ? preguntasDe(conv.caso) : []
   const seguimiento =
-    ultimo?.de === 'krylov' && pensando === null && (ultimo.tipo === 'respuesta' || ultimo.accion === 'preguntas')
+    ultimo?.de === 'krylov' && pensando === null && (ultimo.tipo === 'respuesta' || (ultimo.tipo === 'texto' && ultimo.accion === 'preguntas'))
       ? preguntas.filter((p) => ultimo.tipo !== 'respuesta' || p.intencion !== ultimo.datos.intencion)
       : []
   const recientes = estado.conversaciones.filter((c) => c.mensajes.length > 0).map((c) => ({ id: c.id, titulo: tituloDe(c) }))
@@ -223,7 +270,7 @@ export default function Chat() {
       alEnviar={() => enviar()}
       alAdjuntar={() => selectorArchivo.current?.click()}
       alQuitarAdjunto={() => setAdjunto(null)}
-      alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c }))}
+      alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c, calceListo: false }))}
     />
   )
 
@@ -319,6 +366,13 @@ export default function Chat() {
                       <MensajeKrylov>
                         {m.tipo === 'respuesta' ? (
                           <RespuestaEnChat datos={m.datos} creado={m.creado} alAbrir={() => setCompleta(m.datos)} />
+                        ) : m.tipo === 'calce' ? (
+                          <CalceEnChat
+                            calce={m.calce}
+                            papeles={m.papeles}
+                            confirmado={m.confirmado}
+                            alConfirmar={(a) => conv.caso && confirmarCalce(conv.id, m.id, conv.caso, m.calce, m.intencion, a)}
+                          />
                         ) : (
                           <>
                             <p className="leading-relaxed">{m.texto}</p>

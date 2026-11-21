@@ -123,3 +123,37 @@ export interface DondeMedir {
   caso: string
   candidatas: Candidata[]
 }
+
+// D-34 y D-35: los papeles de columna de cada motor y el calce de un archivo.
+export interface Papel {
+  papel: string
+  cantidad: number
+  minimo: number
+  maximo: number
+  tipo: string
+  texto: string
+  texto_largo: string
+}
+
+export interface Papeles {
+  motor_id: string
+  caso_base: string
+  papeles: Papel[]
+}
+
+export interface CalcePapel {
+  columnas: string[]
+  transformacion: { nombre: string; [k: string]: unknown } | null
+  motivo: string
+  confianza: 'alta' | 'media' | 'baja'
+}
+
+export interface Calce {
+  caso: string
+  motor_id: string
+  calce: Record<string, CalcePapel>
+  columnas: string[]
+  no_usadas: string[]
+  origen: 'equipo' | 'modelo' | 'regla'
+  precalculado: boolean
+}
