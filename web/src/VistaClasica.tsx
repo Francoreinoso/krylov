@@ -67,7 +67,7 @@ export default function VistaClasica() {
       </main>
 
       <p className="mt-3 text-xs text-tinta-suave/70">
-        {origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}. Ejemplo fijo: números inventados.
+        {origen === 'api' ? 'Respuesta de la API' : 'Modo estático'}.
       </p>
     </div>
   )

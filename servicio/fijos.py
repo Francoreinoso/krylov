@@ -1,8 +1,7 @@
 """Respuestas de ejemplo fijo (contratos/ejemplos/) para cada ruta de la API.
 
-Es la única tabla de correspondencias entre una petición y su respuesta mientras
-`nucleo/api.py` no responde. La usan `servicio.app` y `servicio.exportar_estatico`,
-así la API y el modo estático devuelven siempre lo mismo.
+Es el respaldo de `servicio.respuestas` cuando un motor de `nucleo/api.py` todavía
+no responde (sin red, sin MCMC precalculado o sin sello).
 """
 
 import json

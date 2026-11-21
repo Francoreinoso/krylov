@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from nucleo import api as nucleo
-from servicio import fijos
+from servicio import fijos, respuestas
 from servicio.calce import calce_del_demo, proponer_calce
 from servicio.interpretar import interpretar as interpretar_respuesta
 
@@ -54,27 +54,27 @@ def salud():
 
 @app.get("/api/casos")
 def casos():
-    return fijos.casos()
+    return respuestas.casos()
 
 
 @app.post("/api/analizar")
 def analizar(p: PedidoAnalizar):
-    return fijos.analizar(p.caso, p.transformaciones, p.mediciones)
+    return respuestas.analizar(p.caso, p.transformaciones, p.costos, p.mediciones)
 
 
 @app.post("/api/cartera")
 def cartera(p: PedidoCaso):
-    return fijos.cartera(p.caso)
+    return respuestas.cartera(p.caso)
 
 
 @app.post("/api/donde-medir")
 def donde_medir(p: PedidoDondeMedir):
-    return fijos.donde_medir(p.caso, p.mediciones)
+    return respuestas.donde_medir(p.caso, p.mediciones)
 
 
 @app.post("/api/nube")
 def nube(p: PedidoNube):
-    return fijos.nube(p.caso, p.transformaciones)
+    return respuestas.nube(p.caso, p.transformaciones)
 
 
 @app.get("/api/papeles/{motor_id}")
@@ -94,7 +94,7 @@ def calce(caso: str):
 
 @app.get("/api/sello")
 def sello(motor: str):
-    return fijos.sello(motor)
+    return respuestas.sello(motor)
 
 
 async def _leer_archivo(archivo: UploadFile) -> bytes:

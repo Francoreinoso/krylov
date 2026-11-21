@@ -1,36 +1,73 @@
 {
- "_aviso": "Ejemplo fijo para maquetar. Todos los números son inventados: no se muestran en el demo ni en el pitch.",
  "motor_id": "espacial",
  "implementacion": "red",
- "simulaciones_entrenamiento": 12000000,
- "entrenamiento_min": 190,
- "casos_validacion": 5000,
- "cobertura_90": 0.903,
- "cobertura_90_peor_grupo": 0.871,
- "peor_grupo": "muy pocas mediciones",
+ "pasa": true,
+ "pasa_la_cabeza_de_mapa": true,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "cobertura_theta_entre_85_y_95": true,
+  "cobertura_mapa_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "mcmc_bajo_0_3": true,
+  "analisis_bajo_1_s": true,
+  "lote_500_bajo_2_s": true
+ },
+ "simulaciones_entrenamiento": 7750592,
+ "entrenamiento_min": 280,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.9,
+ "cobertura_90_parametros": 0.898,
+ "cobertura_90_peor_grupo": 0.831,
+ "peor_grupo": "alcance largo",
+ "peor_grupo_de": "parámetros",
  "sbc_pasa": true,
- "cobertura_90_metodo_rapido": 0.74,
- "latencia_ms": 60,
- "mcmc_datasets_comparados": 8,
- "mcmc_s_por_dataset": 45.0,
- "mcmc_diferencia_media": 0.08,
+ "recuperacion": {
+  "media": 0.745,
+  "minima": 0.629,
+  "parametro_de_la_minima": "log_alcance",
+  "por_parametro": {
+   "log_alcance": 0.629,
+   "anis_1": 0.691,
+   "anis_2": 0.696,
+   "log_sigma": 0.788,
+   "log_tau": 0.718,
+   "beta0": 0.927,
+   "beta1": 0.766
+  }
+ },
+ "cobertura_90_metodo_rapido": 0.89,
+ "latencia_ms": 10,
+ "latencia_lote_500_ms": 1423,
+ "mcmc_datasets_comparados": 6,
+ "mcmc_s_por_dataset": 117.1,
+ "mcmc_diferencia_media": 0.263,
  "amortizacion": {
-  "que_se_compara": "rehacer 480 análisis completos para «¿Dónde mido?»",
-  "mcmc_s": 21600,
-  "red_s": 0.9
+  "que_se_compara": "rehacer 228 análisis completos para «¿Dónde mido?»",
+  "mcmc_s": 26698.8,
+  "red_s": 0.69
+ },
+ "examen_5_particiones": {
+  "particiones": 5,
+  "mediciones_escondidas": 155,
+  "dentro_del_rango_de_90": 138,
+  "cobertura": 0.89
  },
  "nube_malo_cae_fuera": null,
- "minutos_de_punta_a_punta": 240,
+ "minutos_de_punta_a_punta": null,
  "fecha": "2026-11-21",
  "maquina": "MacBook Air M4 16 GB",
+ "ensayo": false,
  "limitaciones": [
-  "Terrenos en dos dimensiones",
-  "Hasta 400 mediciones",
-  "Grilla de 32 por 32 bloques"
+  "Terrenos en dos dimensiones, llevados a una grilla de 32 por 32 bloques",
+  "Entre 30 y 400 mediciones",
+  "Una sola tendencia: la raíz de la distancia a un río",
+  "Covarianza exponencial con anisotropía geométrica",
+  "Dos mediciones en el mismo bloque se promedian"
  ],
  "frases": [
-  "Practicó con 12 millones de terrenos simulados.",
-  "Cuando da un rango de 90%, acierta 90,3%. El método rápido de siempre acierta 74%.",
-  "En el tipo de terreno más difícil acierta 87,1%."
+  "Practicó con 7,8 millones de terrenos simulados.",
+  "Cuando da un rango de 90%, acierta 90,0%.",
+  "En el caso más difícil (alcance largo) acierta 83,1%.",
+  "Da lo mismo que el método lento de siempre, que tarda 2 minutos; Krylov tarda 10 milisegundos."
  ]
 }

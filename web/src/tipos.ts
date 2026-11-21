@@ -108,6 +108,7 @@ export interface Analisis {
   tiempo_ms: number
   sintetico: boolean
   origen_datos: string
+  _aviso?: string // solo en el ejemplo fijo (contratos/ejemplos/), cuando el motor todavía no responde
 }
 
 export interface Candidata {

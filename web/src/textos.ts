@@ -6,6 +6,7 @@ export const lineaDelCaso = (caso: Caso) =>
 
 // Quién respondió, para el pie. En rojo no hubo respuesta, así que no se le atribuye a nadie.
 export function quienRespondio(analisis: Analisis): string {
+  if (analisis._aviso) return 'Ejemplo fijo con números inventados: este modelo todavía no responde'
   if (analisis.semaforo.estado.startsWith('rojo')) return 'Krylov no respondió con este archivo'
   return analisis.precalculado ? 'Precalculado con el método lento de siempre' : 'Respondió la red que practicó con casos simulados'
 }

@@ -1,6 +1,6 @@
 """Escribe en web/public/estatico/ cada respuesta que el recorrido del demo puede pedir.
 
-Correr: uv run python -m servicio.exportar_estatico
+Correr (configuración del H2): KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_SUPERVIVENCIA=mcmc uv run python -m servicio.exportar_estatico
 """
 
 import json
@@ -8,7 +8,7 @@ import shutil
 from pathlib import Path
 
 from nucleo import api as nucleo
-from servicio import fijos
+from servicio import fijos, respuestas
 from servicio.calce import calce_del_demo
 from servicio.interpretar import interpretar
 
@@ -31,27 +31,27 @@ def _analisis(clave: str, datos: dict) -> int:
 
 def exportar() -> int:
     shutil.rmtree(DESTINO, ignore_errors=True)
-    lista = fijos.casos()
+    lista = respuestas.casos()
     _escribir("casos", lista)
     n = 1
     for c in lista["casos"]:
         nombre = c["nombre"]
-        n += _analisis(nombre, fijos.analizar(nombre))
+        n += _analisis(nombre, respuestas.analizar(nombre))
         if c["tiene_cartera"]:
-            _escribir(f"cartera/{nombre}", fijos.cartera(nombre))
+            _escribir(f"cartera/{nombre}", respuestas.cartera(nombre))
             n += 1
         if c["motor"] == "espacial":
-            _escribir(f"donde-medir/{nombre}", fijos.donde_medir(nombre))
+            _escribir(f"donde-medir/{nombre}", respuestas.donde_medir(nombre))
             n += 1
-        _escribir(f"sello/{c['motor']}", fijos.sello(c["motor"]))
+        _escribir(f"sello/{c['motor']}", respuestas.sello(c["motor"]))
         _escribir(f"papeles/{c['motor']}", nucleo.papeles(c["motor"]))
         _escribir(f"calce/{nombre}", calce_del_demo(nombre))
         n += 3
     # El arco rojo → corrección → verde del archivo malo.
     for t in ([], CORRECCION):
         clave = fijos.clave("rotacion_malo", t)
-        n += _analisis(clave, fijos.analizar("rotacion_malo", t))
-        _escribir(f"nube/{clave}", fijos.nube("rotacion_malo", t))
+        n += _analisis(clave, respuestas.analizar("rotacion_malo", t))
+        _escribir(f"nube/{clave}", respuestas.nube("rotacion_malo", t))
         n += 1
     return n
 

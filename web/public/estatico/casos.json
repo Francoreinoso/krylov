@@ -1,5 +1,4 @@
 {
- "_aviso": "Ejemplo fijo para maquetar. Todos los números son inventados: no se muestran en el demo ni en el pitch.",
  "casos": [
   {
    "nombre": "rotacion",
@@ -8,7 +7,7 @@
    "sponsor": "Buk",
    "motor": "supervivencia",
    "sintetico": false,
-   "origen_datos": "Datos públicos de ejemplo, ficticios. No son datos de Buk.",
+   "origen_datos": "Datos públicos de ejemplo, ficticios, creados por IBM. No son datos de Buk.",
    "tiene_cartera": true
   },
   {
@@ -18,7 +17,7 @@
    "sponsor": null,
    "motor": "espacial",
    "sintetico": false,
-   "origen_datos": "Datos públicos reales de metales en un suelo.",
+   "origen_datos": "Datos públicos reales: 155 muestras de metales en un suelo junto al río Mosa, Países Bajos.",
    "tiene_cartera": false
   },
   {
@@ -28,7 +27,7 @@
    "sponsor": "AgendaPro",
    "motor": "jerarquico",
    "sintetico": false,
-   "origen_datos": "Datos públicos reales de citas médicas. No son datos de AgendaPro.",
+   "origen_datos": "Datos públicos reales: 110.527 citas médicas en Brasil (Kaggle, CC BY-NC-SA 4.0). No son datos de AgendaPro.",
    "tiene_cartera": false
   },
   {
@@ -38,7 +37,7 @@
    "sponsor": null,
    "motor": "estados",
    "sintetico": false,
-   "origen_datos": "Datos públicos reales de tarjetas de crédito.",
+   "origen_datos": "Datos públicos reales: clientes de tarjetas de crédito en Taiwán (UCI, CC BY 4.0).",
    "tiene_cartera": false
   }
  ]
