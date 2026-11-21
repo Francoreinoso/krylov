@@ -37,7 +37,7 @@ columnas:
   eje_valor: "Milímetros que se ha movido"
   extra: []
   elegidas_por: equipo
-etiquetas: { fraccion_acelerando: "Cuánta parte del muro se está acelerando", velocidad_fondo: "Qué tan rápido se mueve el muro en general", ruido: "Error de cada lectura del radar" }
+etiquetas: { fraccion_acelerando: "Cuánta parte del muro se está acelerando", falta_para_ceder: "Cuánto les falta, en general, a los sectores que se aceleran", ruido: "Error de cada lectura del radar, comparado con el movimiento de fondo" }
 costos:
   falso_si: { valor: 120000, min: 20000, max: 500000, etiqueta: "Costo de cerrar un sector que estaba estable (un turno sin producir ahí)", tipo: hipótesis, cifra: K-31 }
   falso_no: { valor: 2500000, min: 500000, max: 10000000, etiqueta: "Costo de un derrumbe con el sector abierto (equipos y producción)", tipo: hipótesis, cifra: K-32 }

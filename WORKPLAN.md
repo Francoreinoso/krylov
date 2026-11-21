@@ -510,7 +510,7 @@ con s_j el resumen aprendido de la unidad j y s(D) el del dataset. Así la dimen
 | `deformacion` | sectores: log-uniforme de 6 a 80 | de 24 a 200, hasta 15% faltantes | 36 sectores, 88 a 95 lecturas |
 | `cinetica` | líneas: de 2 a 16 | celdas de 5 a 12; medidas, de 3 al total, distinto en cada línea | 8 líneas, 3 a 5 celdas medidas de 8 |
 | `desgaste` | camiones: log-uniforme de 8 a 120 | de 3 a 20 muestras, a intervalos irregulares | 40 camiones, 4 a 10 muestras |
-| `sismico` | sectores: de 2 a 16 | las genera el proceso (tope 300); ventana observada log-uniforme de 2 a 24 h | 8 sectores, 6 h, 5 a 35 sismos |
+| `sismico` | sectores: de 2 a 16 | las genera el proceso (hasta 300 por sector; si alguno pasa, el dataset se sortea de nuevo); ventana observada log-uniforme de 2 a 24 h | 8 sectores, 6 h, 5 a 35 sismos |
 | `espacial` | muestras: log-uniforme de 30 a 400 | una por lugar; tres diseños de muestreo | 340 pozos |
 
 Todos los priors de abajo son puntos de partida. Antes de lanzar un entrenamiento se mira el predictivo a priori contra el archivo del demo y se ajusta; lo que quede va en `config.json` y PC 3 regenera el archivo si hace falta (S-24).
@@ -538,10 +538,12 @@ Por sector:
 Trayectoria:
   estable:      d_j(u) = v_j·u
   acelerando:   d_j(u) = v_j·u + A_j·log( u_f,j / (u_f,j − u) )       (velocidad A/(u_f − u): ley de velocidad inversa, Fukuzono 1985, Voight 1988)
-Lectura:        y_jk = d_j(u_k) + ε_jk,   ε_jk ~ Normal(0, σ_e)
+Lectura:        y_jk = d_j(u_k) + m_k + ε_jk,   ε_jk ~ Normal(0, σ_e)
+Modo común:     m_k: AR(1) entre lecturas, igual para todos los sectores, con amplitud de hasta 0.4 del sector típico.
+                No se infiere: el preprocesamiento lo resta (la mediana entre sectores en cada lectura).
 ```
 
-- **Local λ_j:** (z_j, log(u_f,j − 1)). Una cabeza da P(z_j = 1 | η, s_j) y el flujo local da el tiempo que falta, condicionado a z_j = 1.
+- **Local λ_j:** z_j y tres continuos, (log v_j, log(u_f,j − 1), log A_j). Una cabeza da P(z_j = 1 | η, s_j) y el flujo local da los tres continuos; el tiempo que falta y la aceleración cuentan solo con z_j = 1.
 - **Lo que se decide:** p_j = P(z_j = 1 y u_f,j ≤ 1 + H/T | datos), con H el horizonte del caso (`columnas.horizonte`, en las unidades de tiempo del archivo).
 - **Curva:** las lecturas, y el abanico de d_j de T a T + H con las muestras de (η, λ_j), de vuelta en las unidades del archivo. `marca`: la mediana y el rango de 90% de lo que falta para la falla.
 - **Rangos del simulador:** los del grupo `Diseño del dataset`: J de 6 a 80; K de 24 a 200, con hasta 15% de lecturas faltantes por sector. Tensores con relleno hasta 80 × 200 y máscara.
@@ -587,8 +589,8 @@ Diseño del dataset:
   M ~ LogUniforme(8, 120), entero                           cuántos camiones trae el archivo
   J_i ~ UniformeEntera(3, 20)                               cuántas muestras tiene el camión i
   t_i,ahora ~ Uniforme(0.5, 3)                              miles de horas de operación del camión i desde su última mantención
-  t_ij ~ Uniforme(0, t_i,ahora), ordenados                  cuándo se tomó cada muestra: intervalos irregulares
-  x_i ~ Normal(0, 1);  h_i ~ Uniforme(0.05, 0.5)            exigencia de la ruta; miles de horas hasta la próxima mantención
+  t_ij ~ Uniforme(0, t_i,ahora), ordenados                  cuándo se tomó cada muestra: intervalos irregulares; «hoy» es la última muestra del camión
+  x_i ~ Normal(0, 1);  h_i ~ Uniforme(0.05, 1)              exigencia de la ruta; miles de horas hasta la próxima mantención (de 50 a 1.000 horas)
 Globales η (5):
   μ_ν ~ Normal(log 0.5, 0.5),  σ_ν ~ HalfNormal(0.5)      ritmo de desgaste por mil horas, en log
   β ~ Normal(0.3, 0.3)                                      cuánto acelera el desgaste una ruta exigente
@@ -601,10 +603,10 @@ Medición:     y_ij = X_i(t_ij) + ε,   ε ~ Normal(0, σ_ε)
 Falla:        cuando X_i cruza 1
 ```
 
-- **Los camiones del archivo siguen en servicio:** el simulador descarta la trayectoria que ya cruzó el límite (X_i(t_ahora) < 0,92) y sortea otra. La red y el MCMC tienen que condicionar en lo mismo.
-- **Local λ_i:** (log ν_i, log X_i(t_ahora)).
+- **Los camiones del archivo siguen en servicio:** el simulador descarta el camión que ya cruzó el límite (X_i(t_ahora) < 0,92) y lo sortea entero de nuevo: ruta, horas, ritmo y trayectoria. La red y el MCMC tienen que condicionar en lo mismo.
+- **Local λ_i:** (log ν_i, log(X_i(t_ahora) + 0,01)), con t_ahora la última muestra del camión.
 - **Rangos del simulador:** los del grupo `Diseño del dataset`. Tensores con relleno hasta 120 × 20 y máscara. Los rangos de t_i,ahora y de h_i se ajustan con el predictivo a priori contra `datos/demo/flota.csv` y quedan en `config.json`.
-- **Lo que se decide:** p_i = P(X_i(t_ahora + h_i) ≥ 1 | datos). Dado (η, λ_i), el incremento hasta la mantención es Gamma(ν_i·h_i / c², c²): se estima con 64 sorteos de NumPy por muestra.
+- **Lo que se decide:** p_i = P(X_i(t_ahora + h_i) ≥ 1 | datos). Dado (η, λ_i), el incremento hasta la mantención es Gamma(ν_i·h_i / c², c²): se estima con 16 sorteos de NumPy por muestra (512 por cada versión de la flota).
 - **Curva:** las mediciones, y el abanico de X_i(t) hasta la próxima mantención, con la línea de falla en 1.
 - **MCMC de referencia:** NUTS con los incrementos latentes de cada tramo (cientos de variables positivas, sin conjugación con la medición gaussiana). Se espera lento; se informa lo que se mida.
 - **Método rápido de siempre:** una recta por camión, extrapolada, sin rango.
@@ -617,7 +619,7 @@ Datos: S sectores (2 a 16). Por sector, los sismos registrados en las T horas si
 Diseño del dataset:
   S ~ UniformeEntera(2, 16)                                 cuántos sectores trae el archivo
   T ~ LogUniforme(2, 24)                                    horas observadas desde la tronadura
-  N_s: lo genera el proceso, con tope de 300                cuántos sismos tiene el sector s (no se sortea aparte)
+  N_s: lo genera el proceso, hasta 300                      cuántos sismos tiene el sector s (no se sortea aparte); si algún sector pasa de 300, el dataset se descarta y se sortea otro
 Globales η (6):
   μ_μ ~ Normal(log 0.5, 0.7),  σ_μ ~ HalfNormal(0.6)      tasa de fondo por hora, en log
   n ~ Beta(3, 4)                                            cuántos sismos nuevos gatilla, en promedio, cada sismo (menor que 1)
@@ -627,11 +629,11 @@ Globales η (6):
 Por sector:   log μ_s ~ Normal(μ_μ, σ_μ);   log A_s ~ Normal(log 8, 0.6)    (sismos que gatilla directamente la tronadura)
 Intensidad:   λ_s(t) = μ_s + A_s·ω·e^(−ω·t) + Σ_{t_i < t} κ(m_i)·ω·e^(−ω·(t − t_i)),
               κ(m) = n·e^(α·(m − m_0)) / E[e^(α·(m − m_0))]          (proceso de Hawkes con núcleo exponencial)
-Magnitudes:   m_i − m_0 ~ Exponencial(b·ln 10),  con α < b·ln 10
+Magnitudes:   m_i − m_0 ~ Exponencial(b·ln 10),  con α < 0.95·b·ln 10
 ```
 
-- **Simulador:** por ramificación (inmigrantes de fondo, hijos de la tronadura, hijos de cada sismo), vectorizado por generaciones. Se trunca en 300 sismos por sector.
-- **Rangos del simulador:** los del grupo `Diseño del dataset`. El número de sismos por sector no se sortea: sale del proceso, y un sector sin sismos es un dato válido. Tensores con relleno hasta 16 × 300 y máscara; T entra como dato explícito.
+- **Simulador:** por ramificación (inmigrantes de fondo, hijos de la tronadura, hijos de cada sismo), vectorizado por generaciones. No se trunca: un dataset con algún sector sobre 300 sismos se descarta y se sortea otro (pasa en 1,3% de los datasets de 8 sectores).
+- **Rangos del simulador:** los del grupo `Diseño del dataset`. El número de sismos por sector no se sortea: sale del proceso, y un sector sin sismos es un dato válido. La tronadura entra como primera lectura de cada sector: tensores con relleno hasta 16 × 301 y máscara; T entra como dato explícito (en el caso, `columnas.ventana`).
 - **Local λ_s:** (log μ_s, log A_s).
 - **Lo que se decide:** p_s = P(al menos un sismo de magnitud ≥ M_c en las próximas H horas | historia). Con núcleo exponencial la intensidad esperada tiene forma cerrada: E[λ(T + u)] = μ/(1 − n) + (λ(T) − μ/(1 − n))·e^(−ω(1 − n)u). Se integra en [0, H], se multiplica por 10^(−b·(M_c − m_0)) y p_s = 1 − exp(−N). Es una aproximación de Poisson y va escrita en `limitaciones`; una prueba la compara con simular hacia adelante.
 - **Curva:** el número acumulado de sismos y el abanico del acumulado esperado en las próximas H horas.

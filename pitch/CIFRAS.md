@@ -164,6 +164,8 @@ Todas pendientes. Cada una se registra con máquina, hora y comando. Las mide PC
 | M-51 | Por tarjeta nueva: unidades en cada color, lo que cuesta no saber y examen con la verdad escondida | [pendiente] ×4. **No escribir ningún resultado antes de correr el motor** | A-29, A-32 | |
 | M-52 | Qué tarjetas responden con su red y cuáles salieron precalculadas | [pendiente: se fija a las 20:30] | A-34 | |
 | M-53 | Extraños que no son mineros y repiten la idea | [pendiente: de 3], dos veces | S-29 y sáb 19:00 | |
+| M-54 | `leyes`: examen con la verdad escondida, por color | De 147 bloques «conviene apartar», **138 estaban de verdad sobre el límite**; de 568 «puede ir a la planta», **6**; de 309 «no sabemos», 139. **Con datos simulados** | medido (PC 2, sáb 13:57, `examen_de_bloques` con la red, contra `datos/demo/leyes_verdad.csv`, 1.024 bloques) | |
+| M-55 | `leyes`: examen por tramos de la probabilidad que se dio | Dijimos 2% y pasó 1% (568 bloques); 26% y 30% (178); 71% y 66% (131); 98% y 94% (147). **Con datos simulados** | medido (lo mismo) | |
 
 ### Por motor (decisión D-26)
 
