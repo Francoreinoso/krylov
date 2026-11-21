@@ -81,7 +81,8 @@ Los dos últimos comandos tienen que dar el mismo identificador. Si uno falló, 
 
 ## Cómo trabajas
 
-1. Antes de cada tarea: `git pull --rebase` y lee `estado/TABLERO.md`. **Si el tablero dice otra cosa que esta lista, manda el tablero.**
+1. Antes de cada tarea: `git pull --rebase` y lee `estado/TABLERO.md`. **Si el tablero dice otra cosa que esta lista, manda el tablero.** Si la tarea que nombra el tablero ya está hecha, sigue con la próxima de esta lista.
+   - **Las horas de la tabla son topes, no horas de inicio (D-29).** Empieza cada tarea apenas existan sus insumos y toma la siguiente al terminar. Lo que espera a una red entrenada, a una corrida de MCMC o a una ventana sin entrenamiento se construye contra la red sin entrenar (o un punto de guardado intermedio exportado a una carpeta temporal) y datos simulados, se anota «pendiente de <insumo>» y se sigue.
 2. Haz la tarea contra su criterio de «listo cuando». Si lleva el doble de su duración, córtala o simplifícala y anótalo.
 3. Al terminar: skill `actualizar-estado`, con los números. Cada número que vaya a verse en pantalla o decirse en el pitch se lo pides registrar a PC 3.
 4. **Cada motor tiene primero su plan B.** El modelo en NumPyro y sus muestras precalculadas existen antes de que la red valide: PC 1 nunca espera a una red.
@@ -120,7 +121,7 @@ Después de las 18:00: respaldo técnico para las preguntas y, a las 22:00, el R
 
 ## Lista nocturna (el agente trabaja solo de 05:15 a 08:30)
 
-Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC2_AMORTIZACION.md. Solo eso. No toques el proceso de entrenamiento. Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
+Antes de dormir, la persona le dice al agente: *«Haz la lista nocturna de PC2_AMORTIZACION.md y, cuando la termines, sigue adelantando las tareas de día en orden (D-29). No toques el proceso de entrenamiento. Commits chicos. Si algo exige una decisión, anótalo en tu estado y pasa a lo siguiente.»*
 
 Es solo código, con pruebas de dos minutos como máximo. El detalle de cada una está en `WORKPLAN.md`, sección 6.3.
 
@@ -130,6 +131,8 @@ Es solo código, con pruebas de dos minutos como máximo. El detalle de cada una
 4. **A-N4.** `jerarquico`: simulador (con la asignación del SMS) y modelo en NumPyro.
 5. **A-N5.** `estados`: simulador con d_1 < d_2 < d_3 en el prior, y modelo en NumPyro con el filtro forward.
 6. **A-N6.** Codificador y flujo de `jerarquico` y `estados`, exportados sin entrenar.
+
+**Después de la lista (D-29):** el código de A-10 a A-15 (`analizar` de cada caso, `donde_medir`, cartera, nube), con sus pruebas sobre datos simulados y la red sin entrenar. Quedan para cuando el computador esté libre y las redes validadas: `validar-motor`, las corridas de MCMC, los tiempos que van al guion y pasar un motor a `red`.
 
 Reglas de la noche: solo `nucleo/` y `motor/`; ninguna corrida de MCMC ni entrenamiento nuevo, solo pruebas cortas que no le quiten el procesador al entrenamiento más de un par de minutos; no reiniciar ni tocar el proceso de entrenamiento; al terminar o al bloquearse, `actualizar-estado`.
 

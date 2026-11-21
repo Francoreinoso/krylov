@@ -93,6 +93,14 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - S-02 tiene respuesta (`pitch/VALIDACION.md`): 3 minutos en generales y finales, por ahora; se presenta desde nuestro computador, con audio y video. El guion de 3 minutos pasa a ser el principal; los de 90 segundos y 5 minutos quedan de respaldo hasta la charla de las 20:00. Cifra J-04.
 · Verificación de PC 3 y respuesta de la organización.
 
+**D-29 · sáb 21-nov 04:35 · Las horas del plan son topes, no horas de inicio: el trabajo se adelanta.**
+- Los tres computadores van adelantados (H0 cerrado, los dos entrenamientos corriendo desde antes de las 04:10). Esperar la hora escrita de cada tarea sería botar ese margen.
+- **Regla:** cada tarea se empieza apenas existen sus insumos, en el orden de la lista de su rol. Al terminar una se toma la siguiente, sin esperar su hora. Los agentes de noche hacen primero su lista nocturna y después siguen con las tareas de día de su rol, en orden. Si a una tarea le falta un insumo (una red entrenada, muestras del MCMC, un archivo de otro rol), se construye contra el ejemplo fijo, datos simulados o la red sin entrenar, se anota en el estado «pendiente de <insumo>» y se pasa a la siguiente.
+- **Lo que no se mueve**, porque no depende de la hora: un entrenamiento por computador; el MCMC nunca encima de un entrenamiento; los tiempos que van al guion se miden sin nada entrenando; un motor responde con `red` solo después de `validar-motor`; el contrato sigue congelado; cada rol en sus carpetas; lo que exige a una persona (enviar, desplegar, firmar una verificación, decidir, dormir) lo hace una persona; no se entrena después de las 16:00 y nada nuevo entra después de las 18:00.
+- Los hitos H1 a H3 y los H2 por motor quedan como **plazo máximo**. Un hito se puede pasar antes: PC 3 lo verifica y pone el tag cuando se cumplen sus criterios.
+- Adelantar no salta la verificación: «terminado» sigue siendo las cinco condiciones de `AGENTS.md`, y cada número sale de una ejecución.
+· Pedido por Rodrigo (PC 2), que editó por esta vez `AGENTS.md`, `WORKPLAN.md`, los tres `PC*.md` y una línea del tablero para escribir la regla. Regla 21 de `AGENTS.md`.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).

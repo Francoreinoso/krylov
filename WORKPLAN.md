@@ -300,6 +300,8 @@ P son las tareas de PC 1 (producto), A las de PC 2 (amortización) y S las de PC
 
 Regla de corte: **si una tarea lleva el doble de su duración, se corta o se simplifica, se anota en `estado/` y se sigue.** A las 18:00 el producto está terminado con lo que haya.
 
+**Regla de adelanto (D-29): las horas de este plan son topes, no horas de inicio.** Cada tarea se empieza apenas existen sus insumos, en el orden de la lista de su rol; al terminar una se toma la siguiente sin esperar su hora, y los agentes de noche siguen con las tareas de día cuando terminan su lista nocturna. Si falta un insumo (una red entrenada, muestras del MCMC, un archivo de otro rol), la tarea se construye contra el ejemplo fijo, datos simulados o la red sin entrenar, se anota «pendiente de <insumo>» y se pasa a la siguiente. No se adelanta lo que no depende de la hora: un entrenamiento por computador; el MCMC nunca encima de un entrenamiento; los tiempos del guion se miden sin nada entrenando; un motor responde con `red` solo después de `validar-motor`; lo que exige a una persona. Los hitos y los H2 por motor son plazos máximos y se pueden pasar antes.
+
 **Si el arranque se atrasa** respecto de las 03:00: se corre el bloque de la madrugada, pero nadie se duerme después de las 05:45 y PC 2 no se duerme sin dejar el entrenamiento corriendo. Lo que no alcanzó pasa a la lista nocturna del agente. El despertar y todo lo que viene después no se mueven.
 
 ### 6.1 Vista general
