@@ -8,15 +8,17 @@ Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en 
 
 **URL pública:** https://krylov-tan.vercel.app/ (P-02, 03:59). Verificada en tamaño teléfono y desde un teléfono (04:01). Falta confirmar con datos móviles.
 
+**⚠️ Para las 08:15 · PC 3 está con batería desde antes de las 07:15** (98%, unas 3 h 30 min): `supervivencia` alcanza a terminar a las 08:30, pero `jerarquico` (08:30 a 11:30) no. **Enchufarlo antes de lanzar `jerarquico`.**
+
 **📣 A PC 1 y PC 2: D-34 aprobada (07:12). Krylov responde en un chat.** El usuario elige el modelo, adjunta un archivo (el del demo o uno propio), asigna cada columna a su papel; la red responde y un modelo de lenguaje solo interpreta el JSON (regla 11 nueva). **Cambia el contrato:** `api.papeles`, `api.analizar_archivo`, `GET /api/papeles/{motor_id}`, `POST /api/analizar_archivo`, `POST /api/interpretar` (`contratos/CONTRATO.md`, secciones 2, 5 y 6). Lo que ya existía no cambia de forma. Riesgos y orden de corte en `DECISIONES.md`, D-34.
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🟡 tarea nueva grande | P-01 a P-03 y P-N1 a P-N3 verificados. Sin commits desde las 05:04. Ahora P-12 (D-34) |
+| producto (PC 1) | 🟡 tarea nueva grande | P-01 a P-03 y P-N1 a P-N3 verificados. Último commit 07:02 (la propuesta de chat). Ahora P-12 (D-34) |
 | amortizacion (PC 2) | 🟢 adelantado | `supervivencia` lista salvo la red (A-N2, A-10, A-13 en código). `espacial` entrena desde las 03:50. Tarea nueva A-19 (D-34) |
-| seguimiento (PC 3) | 🟢 adelantado | `supervivencia` entrena aquí: 7,5 millones de datasets. D-34 aplicada en el plan, el contrato y el guion |
+| seguimiento (PC 3) | 🟡 con batería | `supervivencia` entrena aquí: 9,2 millones de datasets a las 07:15, pérdida media −18,3. D-34 aplicada en el plan, el contrato y el guion |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
