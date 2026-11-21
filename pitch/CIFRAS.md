@@ -63,19 +63,19 @@ Todas pendientes. Cada una se registra con máquina, hora y comando. Las mide PC
 
 | Id | Cifra | Valor | Cuándo se mide | Verificó |
 |---|---|---|---|---|
-| M-01 | Terrenos simulados con que practicó el motor del terreno | pendiente | A-08 | |
-| M-02 | Minutos de entrenamiento del motor del terreno | pendiente | A-08 | |
+| M-01 | Terrenos simulados con que practicó el motor del terreno | **7.750.592 terrenos simulados** | medido (PC 2, sello de `espacial`, sáb 09:39, MacBook Air M4; `motor/artefactos/espacial/sello.json`) | |
+| M-02 | Minutos de entrenamiento del motor del terreno | **280 minutos** (03:50 a 08:30) | medido (PC 2, sello de `espacial`, sáb 09:39, MacBook Air M4; `motor/artefactos/espacial/sello.json`) | |
 | M-03 | Examen con datos reales, rotación: «dijimos N%, pasó M%», sobre cuántas personas | pendiente | A-10 | |
 | M-04 | Lo que cuesta no saber, rotación, con los costos por defecto | pendiente | A-10 | |
 | M-05 | Personas en cada color, rotación | pendiente | A-10 | |
 | M-06 | Qué pesa en rotación: un factor «seguro» y uno «no se puede saber» | pendiente. No escribir el nombre de ningún factor antes de correr el motor | A-10 | |
 | M-07 | Empresas simuladas de la nube | pendiente | A-13 | |
-| M-08 | «¿Dónde mido?»: análisis completos rehechos | pendiente | A-12 | |
-| M-09 | «¿Dónde mido?»: segundos con Krylov, sin nada entrenando en ese computador | pendiente | A-12, 12:00 | |
-| M-10 | Los mismos análisis con el método lento de siempre: minutos | pendiente. Decir exactamente qué se comparó: rehacer cada análisis completo. Un solo análisis lento del terreno tarda segundos | A-12, 12:00 | |
-| M-11 | Acierto cuando se dice 90%: método rápido de siempre, Krylov | pendiente | A-16 | |
+| M-08 | «¿Dónde mido?»: análisis completos rehechos | **228 análisis completos** rehechos | medido (PC 2, sello de `espacial`, sáb 09:39, MacBook Air M4; `motor/artefactos/espacial/sello.json`) | |
+| M-09 | «¿Dónde mido?»: segundos con Krylov, sin nada entrenando en ese computador | **0,69 s** con la red (medido con nada más entrenando en PC 2) | medido (PC 2, sello de `espacial`, sáb 09:39, MacBook Air M4; `motor/artefactos/espacial/sello.json`) | |
+| M-10 | Los mismos análisis con el método lento de siempre: minutos | **26.699 s (unas 7 horas y media)** para rehacer los mismos 228 análisis con el MCMC de referencia; un solo análisis lento tarda 117 s | medido (PC 2, sello de `espacial`, sáb 09:39, MacBook Air M4; `motor/artefactos/espacial/sello.json`). Decir exactamente eso: «rehacer los 228 análisis» | |
+| M-11 | Acierto cuando se dice 90%: método rápido de siempre, Krylov | Terreno, en simulaciones nuevas: el método rápido (kriging con parámetros fijos) cubre 89% y la red 90%. **No hay diferencia que contar** en el terreno; la frase del momento 4 sale (ver `pitch/GUION.md`). Rotación: lo que se decide, 0,58 el método rápido y 0,91 la red, pero esa red **no pasó su sello** (no se dice) | medido (PC 2, sellos de `espacial` 09:39 y `supervivencia` 09:54) | |
 | M-12 | Lo que vale medir en el mejor punto del terreno | pendiente | A-12 | |
-| M-13 | Examen con datos reales, terreno: mediciones escondidas que cayeron en el rango | pendiente | A-11 | |
+| M-13 | Examen con datos reales, terreno: mediciones escondidas que cayeron en el rango | **24 de 31** mediciones reales escondidas cayeron dentro del rango de 90% (77%) | medido (PC 3, sáb 10:04, `KRYLOV_MOTOR_ESPACIAL=red`, `api.analizar("terreno")`) | |
 | M-14 | Cartera: empresas analizadas y segundos. Si rotación salió precalculada, es el número de empresas precalculadas y no se dice «1.000» | pendiente | A-13 | |
 | M-15 | Prueba del asistente genérico: de tres intentos, cuántas respuestas distintas y cuántas dicen cuánto se pueden equivocar | pendiente | S-09 | |
 | M-16 | Extraños que repiten la idea, prueba de las 12:30 | pendiente: de 3 | S-13 | |
@@ -90,14 +90,14 @@ Una fila por motor y por medida. `sup` = rotación, `jer` = inasistencias, `est`
 
 | Id | Cifra | Valor | Cuándo se mide | Verificó |
 |---|---|---|---|---|
-| M-21 | Empresas simuladas con que practicó el motor de rotación | [pendiente] | A-10 | |
+| M-21 | Empresas simuladas con que practicó el motor de rotación | **12.739.616 empresas simuladas** (supervivencia, 04:05 a 08:30). **La red no pasó su sello (09:54): no se dice que esa tarjeta respondió con ella** | medido (PC 3, `motor/checkpoints/supervivencia/corrida.log`) | |
 | M-22 | Carteras simuladas con que practicaron los motores de inasistencias y de crédito | [pendiente], una por motor | A-14, A-15 | |
-| M-23 | Minutos de entrenamiento por motor (rotación, inasistencias, crédito; el del terreno es M-02) | [pendiente] | A-10, A-14, A-15 | |
+| M-23 | Minutos de entrenamiento por motor (rotación, inasistencias, crédito; el del terreno es M-02) | Terreno 280 min (M-02); rotación 267,5 min (PC 3, M3); inasistencias y crédito [pendiente] | A-10, A-14, A-15 | |
 | M-24 | Acierto del rango de 90% en simulaciones nuevas, por motor y en su peor grupo. Lámina técnica | [pendiente] ×4 | `validar-motor`: A-08, A-10, 13:00, 14:00 | |
-| M-25 | Segundos del método lento de siempre por archivo, por motor | [pendiente] ×4. Máquina y cuántos archivos se promediaron | A-08 (terreno, rotación), 11:30 (inasistencias), 12:30 (crédito) | |
+| M-25 | Segundos del método lento de siempre por archivo, por motor | Terreno 117 s por archivo (6 terrenos, M4); rotación 150,9 s en el archivo real y 109,2 s de promedio (M4, sello de las 09:54); inasistencias y crédito [pendiente] | A-08 (terreno, rotación), 11:30 (inasistencias), 12:30 (crédito) | |
 | M-26 | Milisegundos de Krylov por archivo, por motor, sin nada entrenando | [pendiente] ×4 | 12:00 y A-16 | |
 | M-27 | Cartera de 1.000 empresas: horas con el método lento (M-25 × 1.000, dicho como cálculo) contra segundos de Krylov (M-14) | [pendiente] | A-16 | |
-| M-28 | Diferencia entre Krylov y el método lento en los mismos archivos, por motor. Lámina técnica | [pendiente] ×4 | `validar-motor` | |
+| M-28 | Diferencia entre Krylov y el método lento en los mismos archivos, por motor. Lámina técnica | Terreno 0,263 desviaciones (pasa; en el archivo real la tendencia difiere 2,17 en β0); rotación 0,43 (**no pasa**, el límite es 0,3); inasistencias y crédito [pendiente] | `validar-motor` | |
 | M-29 | El archivo malo cae fuera de la nube y, corregido, dentro | **Ejes con nombre: sí y sí.** Con `fecha_salida`, el mejor factor solo adivina con AUC 1,0 (fuera; el límite de 5.000 empresas simuladas es 0,912); sin ella, 0,669 (dentro), igual que el archivo limpio. Segundo detector (resúmenes aprendidos): [pendiente de la red entrenada] | medido (PC 2, sáb 06:26; repetido en PC 3 a las 06:33 con `api.nube`) | |
 | M-30 | Qué manda en el terreno | [pendiente]. No escribir nada antes de correr el motor | A-11 | |
 | M-31 | Examen con datos reales, inasistencias | [pendiente] | A-14 | |

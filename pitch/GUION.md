@@ -50,9 +50,9 @@ Consecuencia: el negocio (precio, tamaño de mercado) ocupa una frase y una lám
 
 **Momento 4 · ¿Dónde mido? (1:25 a 2:25).** Pantalla: mapa del terreno. *(tecla T)*
 
-> «Ahora algo que una planilla no hace. Un terreno real: 155 mediciones de zinc en el suelo. Rojo, hay que limpiar. Verde, no hace falta. Ámbar, no sabemos. ¿Qué manda en este terreno? [Lo que salga: por ejemplo, la cercanía al río.] La pregunta que vale plata es otra: si puedo medir un punto más, ¿dónde?» *(clic en «¿Dónde mido?»)* «Para contestar, Krylov imaginó [N] resultados posibles y rehízo el análisis completo para cada uno. [X] segundos. Con el método lento de siempre, esos mismos análisis toman [M] minutos; y el método rápido que usa todo el mundo dice 90% seguro y acierta [P]%. Krylov acierta [Q]%. Medir acá vale [plata].» *(clic en el pin, elige «sale alto»)* «Mido, sale alto, y el mapa cambia.»
+> «Ahora algo que una planilla no hace. Un terreno real: 155 mediciones de zinc en el suelo. Rojo, hay que limpiar. Verde, no hace falta. Ámbar, no sabemos. ¿Qué manda en este terreno? [Lo que salga: por ejemplo, la cercanía al río.] La pregunta que vale plata es otra: si puedo medir un punto más, ¿dónde?» *(clic en «¿Dónde mido?»)* «Para contestar, Krylov imaginó 228 resultados posibles y rehízo el análisis completo para cada uno. Menos de un segundo. Con el método lento de siempre, esos mismos 228 análisis toman más de siete horas. Medir acá vale [plata].» *(clic en el pin, elige «sale alto»)* «Mido, sale alto, y el mapa cambia.»
 
-En el terreno la comparación es siempre la de los [N] análisis rehechos. Un solo análisis lento ahí tarda segundos, y no se dice otra cosa.
+En el terreno la comparación es siempre la de los 228 análisis rehechos (M-08, M-09, M-10: 0,69 s contra 26.699 s, medido en el sello de `espacial`). Un solo análisis lento ahí tarda unos dos minutos (117 s), y no se dice otra cosa. **Salió del momento 4 (sáb 10:04):** «el método rápido dice 90% y acierta [P]%; Krylov [Q]%». En simulaciones el método rápido cubre 89% y la red 90% (M-11): no hay diferencia que contar. Y en el examen con datos reales del terreno, el rango de 90% contuvo 24 de 31 mediciones (77%, M-13): si alguien pregunta por la exactitud, se dice ese número tal cual.
 
 **Momento 5 · Todos a la vez (2:25 a 2:40).** Pantalla: cartera. *(tecla C)*
 
