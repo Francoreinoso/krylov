@@ -37,6 +37,9 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 - sáb 07:15 · Ronda nocturna S-N4: `supervivencia` vivo (9,2 millones de datasets, punto de guardado 07:15, pérdida media −18,3, sin errores). **El computador está con batería** (98%, unas 3 h 30 min): alcanza hasta las 08:30, no para `jerarquico`; hay que enchufarlo antes de las 08:30. PC 1: último commit 07:02. PC 2: sin bloqueos abiertos.
 - sáb 07:26 · **Archivos de prueba para la subida (D-34)**: `datos/preparar/prueba_subida.py` deja `datos/demo/subida_rotacion_ventas.csv` (446 personas, 3 cargos), `_investigacion.csv` (961, 6) y `_rrhh.csv` (63, 2: bajo el mínimo de 200, para mostrar «faltan datos»), cada uno con su `_verdad.csv`. Subconjuntos reales del archivo de IBM por área, con columnas en español, en otro orden y con Sí/No. Probado con `nucleo.supervivencia.nube` y un caso en memoria: el núcleo los lee y los tres caen dentro de la nube (ventas x 0,66; investigación 0,669; RR. HH. 0,78). Cifra D-06. Asignación de papeles: `id`: `n_empleado` · `evento`: `renuncio` · `tiempo`: `anios_en_empresa` · `grupo`: `cargo` · `efectos`: `horas_extra`, `distancia_km`, `empresas_previas` · `suave`: `sueldo_mensual` · `encuestas`: `enc_ambiente`, `enc_trabajo`, `enc_relaciones`, `enc_equilibrio` (sobran `edad` y `area`).
 - sáb 07:26 · Ronda: PC 3 de nuevo enchufado (94%, corriente alterna). `supervivencia`: 9,6 millones de datasets, punto de guardado 07:15, pérdida media −15,5.
+- sáb 08:50 · **S-06b, primera parte:** `supervivencia` terminó sola a las 08:30 (paso 398.113, **12.739.616 datasets simulados, 267,5 min** en el M3, 0 errores). Exportada con `uv run python -m motor.supervivencia.exportar`: `codificador.onnx` (1,6 MB, un solo archivo), `flujo.npz` y `pesos.pt` en `motor/artefactos/supervivencia/`; onnxruntime contra torch hasta 1,6e-5 (n 200, 1.470 y 2.000), flujo NumPy contra torch 3,8e-6. Subida en 13b3e42. El sello lo corre PC 2 (D-33).
+- sáb 08:50 · Coordinación: había dos sesiones de Claude Code con el rol de PC 3 en este clon (la original y un fork). La persona decidió a las 08:18 que S-06b y lo que sigue los hace el fork; la original confirmó que solo lee.
+- sáb 08:52 · **S-06b hecha:** `jerarquico` con D-35, prueba de humo de 2 min con `--nuevo` (732 pasos, 11.712 datasets, 6,2 pasos/s con lote 16; SBC de 100: cobertura 0,894, los 20 parámetros uniformes al 99%, contracción 0,08) y corrida larga lanzada a las 08:52 hasta las 11:30, retomando ese punto. `caffeinate` activo, enchufado.
 - sáb 04:05 · S-05b, prueba de humo de `supervivencia` en el M3 (adelantada, a pedido de la persona): 3 minutos, 142.400 datasets, pérdida (media móvil) de 37 a 8,9, punto de guardado escrito. SBC de 200: cobertura del 90% en 0,906, contracción media 0,53, 8 de 32 parámetros con KS sobre el límite (todavía no calibra; es lo esperado a los 3 minutos).
 
 - sáb 07:15 · Ronda nocturna S-N4: `supervivencia` viva, 9.136.000 datasets, punto de guardado 07:05, sin errores; pérdida media móvil −16. **El computador quedó a batería** (98%, descargando, unas 3,5 h): alcanza hasta las 08:30, pero hay que enchufarlo. `git pull --rebase` falló una vez por dos *fetch* a la vez desde dos sesiones en este clon (`FETCH_HEAD` duplicado); `git fetch` y `git rebase origin/main` lo resolvieron.
@@ -52,16 +55,15 @@ Persona: [nombre] · Dueño de `casos/`, `datos/`, `pitch/`, `estado/TABLERO.md`
 
 | Qué | Valor |
 |---|---|
-| Motor | `supervivencia`, en PC 3 (MacBook Air M3, 16 GB), enchufado |
-| Comando exacto | `cd ~/Downloads/krylov && nohup caffeinate -dims uv run python -m motor.supervivencia.entrenar --dispositivo cpu --hasta 08:30 --guardar-cada-min 10 > motor/checkpoints/supervivencia/corrida.log 2>&1 < /dev/null &` (desacoplado: sigue aunque se cierre Claude Code o la terminal) |
-| Hora de inicio | sáb 04:05, retomando desde el paso 4.450 de la prueba de humo |
-| Puntos de guardado | `motor/checkpoints/supervivencia/ultimo.pt`, cada 10 minutos; avance en `registro.jsonl`; salida en `corrida.log` |
-| Mirar cómo va | `tail -n 1 motor/checkpoints/supervivencia/registro.jsonl` |
-| Si se cae | El mismo comando. La primera línea de `corrida.log` tiene que decir `[retomar] … paso N`. Nunca `--nuevo` |
-| Detener antes de las 08:30 | `pkill -INT -f "motor.supervivencia.entrenar"` (guarda y sale). A las 08:30 se detiene solo |
-| Siguiente entrenamiento (S-06b, 08:30) | `jerarquico`, hasta las 11:30, **con D-35 (08:14): la primera vez con `--nuevo`**. `git pull`; comprobar que `supervivencia` terminó (`pgrep -f motor.supervivencia.entrenar` no devuelve nada); `mkdir -p motor/checkpoints/jerarquico`; prueba de humo `uv run python -m motor.jerarquico.entrenar --minutos 2 --nuevo` y `uv run python -m motor.jerarquico.validar --sbc 100`; después `nohup caffeinate -dims uv run python -m motor.jerarquico.entrenar --dispositivo cpu --hasta 11:30 --guardar-cada-min 10 > motor/checkpoints/jerarquico/corrida.log 2>&1 < /dev/null &` (sin `--nuevo`: retoma la prueba de humo) |
-| El sello de `supervivencia` (D-33) | Lo corre **PC 2**, sin nada entrenando, después del sello de `espacial`: `git pull` y `uv run python -m motor.supervivencia.sello`. PC 3 solo exporta y sube la red |
-| Después (S-06b, 08:30) | **Primero `git pull`** (desde las 05:11 `exportar_onnx` deja un solo `codificador.onnx`, con los pesos dentro). Después `uv run python -m motor.supervivencia.exportar` y subir `motor/artefactos/supervivencia/` (pasos 7 y 8 de `estado/amortizacion.md`) |
+| Motor | `jerarquico` (inasistencias), con papeles opcionales (D-35), en PC 3 (MacBook Air M3, 16 GB), enchufado |
+| Comando exacto | `cd ~/Downloads/krylov && nohup caffeinate -dims uv run python -m motor.jerarquico.entrenar --dispositivo cpu --hasta 11:30 --guardar-cada-min 10 > motor/checkpoints/jerarquico/corrida.log 2>&1 < /dev/null &` (desacoplado) |
+| Hora de inicio | sáb 08:52, retomando desde el paso 732 de la prueba de humo (que fue con `--nuevo` a las 08:50) |
+| Puntos de guardado | `motor/checkpoints/jerarquico/ultimo.pt`, cada 10 minutos; avance en `registro.jsonl`; salida en `corrida.log` |
+| Mirar cómo va | `tail -n 1 motor/checkpoints/jerarquico/registro.jsonl` |
+| Si se cae | El mismo comando, **sin `--nuevo`**. La primera línea de `corrida.log` tiene que decir `[retomar] … paso N` |
+| Detener antes de las 11:30 | `pkill -INT -f "motor.jerarquico.entrenar"` (guarda y sale). A las 11:30 se detiene solo |
+| Después (11:30) | `git pull`; `uv run python -m motor.jerarquico.sello` en un computador sin nada entrenando (exporta, SBC, MCMC, nube, examen; termina en PASA o NO PASA). H2 de `jerarquico`: 13:00 |
+| Antes | `supervivencia`: 04:05 a 08:30, 12.739.616 datasets; exportada y subida (13b3e42); su sello lo corre PC 2 |
 
 ## Lista nocturna de PC 3 (el agente solo, 05:15 a 08:15)
 
@@ -130,6 +132,7 @@ La persona de PC 3 la aprobó completa con estos puntos a la vista; los riesgos 
 | `supervivencia` en el M3: SBC chico a los 3 minutos | cobertura del 90% en 0,906; contracción media 0,53; 8 de 32 con KS sobre el límite | `uv run python -m motor.supervivencia.validar --sbc 200` | 04:05 |
 | `jerarquico`: predictivo a priori contra el archivo real (1.980 citas) | No llega 0,210 → percentil 45 (simulado 0,05 a 0,54); mismo día 0,048 → 30; otro día 0,292 → 51; con SMS 0,266 → 47; citas del mismo día 0,333 → 54; con SMS 0,324 → 54; citas por paciente 1,73 → 64 | `uv run python -m motor.jerarquico.simular --revisar` (1.000 carteras simuladas) | 05:23 |
 | `supervivencia`: SBC intermedio a los 83 min (3,9 millones de datasets) | Cobertura del 90%: 0,904 (peor grupo 0,898); contracción media 0,74; 15 de 32 con KS sobre el límite | `uv run python -m motor.supervivencia.validar --sbc 200` | 05:36 |
+| `supervivencia`: entrenamiento de la noche en PC 3 | 12.739.616 datasets simulados en 267,5 min (MacBook Air M3, procesador, lote 32), 398.113 pasos | `motor/checkpoints/supervivencia/corrida.log` | 08:50 |
 | Prueba del asistente genérico: respuestas distintas de 3 | sin medir | S-09 | — |
 | Extraños que repiten la idea, prueba 1 (12:30) | sin medir | `ensayo-pitch` | — |
 | Extraños que repiten la idea, prueba 2 (19:00) | sin medir | `ensayo-pitch` | — |
