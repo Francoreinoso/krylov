@@ -90,8 +90,10 @@ Cada motor tiene además su versión con el método lento de siempre (MCMC), que
 
 ### 1.3 Las cuatro vistas
 
-**Vista 1 · Inicio: «¿Qué quieres saber?»**
-- Cuatro tarjetas: «Caso tipo Buk · ¿A quién conviene retener?», «Terreno · ¿Dónde limpio y dónde mido?», «Caso tipo AgendaPro · ¿Qué citas conviene confirmar?», «Crédito · ¿A quién le apruebo?».
+**Vista 1 · Inicio: chat «¿Qué quieres saber?» (D-34)**
+- Se elige uno de los cuatro modelos por su pregunta: «Caso tipo Buk · ¿A quién conviene retener?», «Terreno · ¿Dónde limpio y dónde mido?», «Caso tipo AgendaPro · ¿Qué citas conviene confirmar?», «Crédito · ¿A quién le apruebo?».
+- Se adjunta un archivo: el del demo viene precargado; también se puede subir uno propio con el mismo esquema. Se asigna cada columna a su papel con un selector que la app rellena según el tipo de columna.
+- La respuesta se pinta dentro del chat; debajo, la interpretación (modelo de lenguaje, o la plantilla sin conexión).
 - Abajo, en chico: «Casos de ejemplo con datos públicos. No son datos de estas empresas.»
 
 **Vista 2 · Respuesta.** Es la pantalla principal. De arriba abajo:
@@ -214,7 +216,7 @@ Esto es lo que PC 1 tiene que dejar funcionando sin tocar el teclado más de lo 
 
 | # | Acción | Qué aparece | Tiempo máximo |
 |---|---|---|---|
-| 1 | Se abre la app | Vista 1 con cuatro tarjetas | ya abierta |
+| 1 | Se abre la app | Chat con los cuatro modelos y sus archivos del demo precargados (D-34) | ya abierta |
 | 2 | Clic en la tarjeta de Buk | Vista 2 completa | 1 s |
 | 3 | Arrastrar el deslizador «reemplazar a alguien» | Colores, titular y número cambian mientras se arrastra | inmediato |
 | 4 | Tecla `M` | La nube con el archivo afuera, banda roja y motivo | 1 s |
@@ -265,7 +267,7 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿En qué se diferencia de subirle el archivo a un chat? | Lo probamos: el mismo archivo y la misma pregunta, tres veces. [Resultado de S-09.] Krylov da siempre la misma respuesta, mide la duda en plata y rinde un examen con datos reales. Y un chat no te dice dónde medir |
+| ¿En qué se diferencia de subirle el archivo a un chat? | El chat es la puerta; la respuesta la da una red que practicó con millones de casos simulados, y el modelo de lenguaje solo la cuenta en palabras: no pone ningún número (D-34). Lo probamos con un asistente genérico: el mismo archivo y la misma pregunta, tres veces. [Resultado de S-09.] Krylov da siempre la misma respuesta, mide la duda en plata y rinde un examen con datos reales. Y un chat no te dice dónde medir |
 | ¿Quién eligió las columnas y los costos? | Los costos, tú: son los deslizadores, y la respuesta cambia en vivo. Las columnas, nosotros: cada motor pide las que su modelo necesita (el tiempo en la empresa, las encuestas, el cargo), y la pantalla lo dice |
 | ¿Dónde está la simulación? | En todo. Cada tarjeta responde con una red que practicó con [N] millones de empresas o terrenos inventados con reglas conocidas. Antes de responder compara tu archivo con esos casos simulados. Y para decir dónde medir, simula cientos de resultados posibles de una medición que todavía no haces |
 | ¿De verdad reemplaza a un data scientist? | Reemplaza el análisis de rutina. Para una empresa que no tiene ninguno, es el primero |
@@ -274,9 +276,9 @@ La portada y el cierre van dentro de la app (tecla `L`), para no cambiar de vent
 | ¿Esto ya existe? | Es un campo de investigación activo (inferencia bayesiana amortizada) y hay consultoras que lo aplican a medida para cada cliente. Nosotros lo empaquetamos por tipo de pregunta, con sus reglas y su examen, para plataformas con miles de empresas. No se nombra a nadie como competencia y no se usan cifras ajenas |
 | ¿Qué impide que lo copien? | Hoy, poco: el equipo, que investiga en esto, y llegar primero. La ventaja se construye con cada motor nuevo y con el historial de exámenes |
 | ¿Qué existe hoy y qué es lámina? | Existe una app en línea con cuatro casos, cada uno con su modelo, y [N] redes entrenadas entre anoche y hoy [las que hayan pasado; las demás tarjetas dicen «precalculado»]. Series de tiempo y eventos raros son hoja de ruta |
-| ¿Suben cualquier archivo? | Todavía no. Cada motor responde un tipo de pregunta con un tipo de archivo. Agregar un tipo nuevo es escribir sus reglas y dejarlo practicando una noche |
+| ¿Suben cualquier archivo? | Cualquiera con el esquema de uno de los cuatro modelos: eliges el modelo y asignas cada columna a su papel (D-34). Si no calza, Krylov no responde y dice qué falta. Agregar un tipo nuevo de archivo es escribir sus reglas y dejarlo practicando una noche |
 | ¿Y si se equivoca? | Por eso el examen: escondemos datos reales y mostramos cuánto acertó. Y cuando el archivo no se parece a nada que conozca, no responde |
-| ¿Mis datos salen de la empresa? | No hace falta: los motores son chicos y pueden correr dentro de la empresa. Ningún modelo de lenguaje ve los datos |
+| ¿Mis datos salen de la empresa? | No hace falta: los motores son chicos y pueden correr dentro de la empresa. El modelo de lenguaje no ve el archivo, solo los números de la respuesta, y se puede apagar: queda la plantilla (D-34) |
 | ¿Quién paga y cuánto? | La plataforma que lo integra. Pensamos en US$ 20 al mes por empresa que lo use; es una hipótesis y lo decimos así |
 
 Técnicas, para quien las haga:
@@ -352,7 +354,7 @@ Dueño de `servicio/` y `web/`. Skills: `desplegar`, `preparar-demo`. Herramient
 | | 13:45 | 20 | Almuerzo | | |
 | P-10 | 14:05 | 25 | Panel del examen y pie. Rótulo «precalculado» cuando la respuesta trae `precalculado: true`. «Qué pesa» también en el mapa | Panel | Lee del JSON; no hay números escritos a mano |
 | P-11 | 14:30 | 30 | Modo demo: teclas `M`, `T`, `C`, `L`, semilla fija, pantalla completa. `exportar_estatico` con todas las claves del recorrido. Redespliegue | Atajos | El recorrido de 4.3 sale completo sin internet y en la URL con `?estatico=1` |
-| P-12 | | | **Cortada (D-26).** No hay «Sube tus datos». Sus 45 minutos van a recibir inasistencias y crédito (llegan a las 14:10 y 14:50) y a `exportar_estatico` con la implementación final de cada motor (16:00) | | |
+| P-12 | 07:30 | 120 | **Revive con D-34: chat, subida y asignación de papeles.** (a) Tope 10:30: el chat con los cuatro archivos del demo precargados, el selector de papeles (`GET /api/papeles`) y la respuesta dentro del chat, también en modo estático. (b) Tope 14:30: desplegar la API en Render, `POST /api/analizar_archivo` para un archivo propio y `POST /api/interpretar` (SDK `anthropic` solo en `servicio/`, clave en Render, revisión de que cada número del texto esté en el JSON, plantilla si no). Interpretaciones del demo precalculadas y rotuladas | Chat | El recorrido de 4.3 parte en el chat; un archivo que no es el del demo responde en menos de 2 s o el chat lo dice. **Orden de corte a las 16:00:** primero la interpretación, después la subida propia; el chat con los archivos del demo no se corta |
 | P-13 | 16:00 | 40 | Portada y cierre dentro de la app (tecla `L`) con el QR guardado como imagen y la franja de terrenos simulados. La vista 2 se lee en un teléfono | Láminas | El QR abre la URL y la respuesta se lee sin hacer zoom |
 | P-14 | 16:40 | 50 | Pulido para proyector con los textos de PC 3. Borrar código muerto. Último despliegue. Sacar lo que no funcione | Tag `congelado` | El recorrido sale dos veces seguidas en la URL pública |
 | | 17:30 | 30 | Skill `preparar-demo` completa | | Los 17 puntos marcados |
@@ -406,6 +408,7 @@ Reglas del calendario: las mediciones de tiempo se hacen sin ningún entrenamien
 | A-M1 | 05:35 | 75 | *Sesión B.* A-N2, lo único que falta de la lista de la madrugada. Después, el código de A-10 contra la red sin entrenar | `nucleo/supervivencia.py`, `motor/supervivencia/mcmc.py` | El criterio de A-N2 |
 | A-M2 | 06:50 | 40 | *Sesión A.* El código de la cartera de A-13, contra la red sin entrenar. *La persona:* responder el pedido de PC 1 (`unidad` en `analizar`) | `nucleo/api.cartera` | La prueba de la cartera pasa con datos simulados; el pedido tiene respuesta en el estado |
 | A-M3 | 07:30 | 15 | *La persona.* Validación intermedia de `espacial` sin detenerlo (SBC de 200, menos de un minuto). Por defecto sigue hasta las 08:30; detenerlo antes para adelantar A-08 y A-09 lo decide la persona, solo si ya valida y la pérdida lleva una hora plana | Números en el estado | Decisión anotada con su hora |
+| A-19 | 07:30 | 60 | *Sesión B (D-34).* `api.papeles(motor_id)` y `api.analizar_archivo(motor_id, tabla, columnas, costos)`: arma un caso en memoria con el caso base del motor y las columnas del usuario y llama al `analizar` del motor; `rojo_datos` o `rojo_modelo` con su motivo si no calza; los dos detectores de la nube sobre el archivo subido. Confirmar los papeles de los cuatro motores y el tamaño de `codificador.onnx` | `nucleo/api.py` | Un archivo del mismo esquema que no es el del demo responde con la forma de `analizar`; uno que no calza da rojo con su motivo. Tope 10:30 |
 | | 05:15 a 08:30 | | Tapa abierta, enchufado, en los dos computadores, se duerma o no | | |
 
 Si a las 04:55 `supervivencia` no tiene prueba de humo: no se trasnocha. El agente la termina de noche y se lanza a las 08:30 en PC 3; su H2 pasa a las 13:30 y `jerarquico` espera turno o va a Kaggle o Colab.

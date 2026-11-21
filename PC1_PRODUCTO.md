@@ -81,7 +81,7 @@ Ahora hay cuatro motores, uno por tarjeta: `supervivencia` (rotación), `jerarqu
 - **Toda respuesta trae `implementacion` (`red` o `mcmc`) y `precalculado`.** Cuando `precalculado` es `true`, la tarjeta y el pie llevan el rótulo «precalculado». No es un error: es el plan B de esa tarjeta, y la pantalla tiene que decir la verdad sobre quién responde.
 - **Hay un sello por motor:** `sello.json` (terreno) y `sello_<motor>.json`. Un campo en `null` no se muestra.
 - **La nube** trae además `detectores`. Se dibuja solo con los dos ejes con nombre y el punto del archivo; si `detectores` trae un motivo, va en la banda roja.
-- **«Sube tus datos» se cortó**, con su ruta, la capa de lenguaje y la clave de Anthropic en la app. No hay botón en el inicio ni tarea P-12. El pie nunca dice «Krylov eligió N columnas».
+- ~~**«Sube tus datos» se cortó**, con su ruta, la capa de lenguaje y la clave de Anthropic en la app.~~ **Revertido por D-34 (sáb 07:12):** el inicio es un chat; se elige el modelo, se adjunta un archivo (el del demo o uno propio) y se asigna cada columna a su papel; un modelo de lenguaje escribe la interpretación desde el JSON y nunca pone números (regla 11 nueva). Tarea P-12. El pie nunca dice «Krylov eligió N columnas»: las columnas las asigna el usuario.
 - **La cartera puede llegar precalculada y con menos de 1.000 empresas.** El contador muestra `n_analisis`, sea el que sea, y el rótulo «precalculado» si corresponde.
 
 ## Tus tareas, en orden
@@ -103,7 +103,7 @@ El detalle (entregable y criterio de cada una) está en `WORKPLAN.md`, sección 
 | P-09 | 12:30 | 75 | **«¿Dónde mido?»**: pines, análisis rehechos, clic, resultado, el mapa cambia. Es lo más importante del día |
 | P-10 | 14:05 | 25 | Panel del examen y pie. Conectar inasistencias (14:10) y crédito (14:50) cuando PC 2 avise |
 | P-11 | 14:30 | 30 | Modo demo: teclas `M`, `T`, `C`, `L`, semilla fija, pantalla completa. `exportar_estatico` completo. Redespliegue. **H3 a las 15:00** |
-| P-12 | 15:15 | 45 | **Cortada (D-26).** Su tiempo va a `exportar_estatico` con lo que PC 2 fije a las 16:00 (quién responde en cada tarjeta) y a pulido |
+| P-12 | 07:30 | 120 | **Revive con D-34.** (a) Tope 10:30: chat con los cuatro archivos del demo, selector de papeles (`GET /api/papeles`) y la respuesta dentro del chat, también en modo estático. (b) Tope 14:30: API en Render, `POST /api/analizar_archivo` y `POST /api/interpretar` (SDK `anthropic` solo en `servicio/`, clave en Render, revisión de números, plantilla si falla); interpretaciones del demo precalculadas y rotuladas. Orden de corte a las 16:00: primero la interpretación, después la subida propia |
 | P-13 | 16:00 | 40 | Portada y cierre dentro de la app (tecla `L`), con QR. Vista en teléfono |
 | P-14 | 16:40 | 50 | Pulido para proyector, borrar código muerto, último despliegue |
 | | 17:30 | 30 | Skill `preparar-demo`. **18:00: producto terminado** |

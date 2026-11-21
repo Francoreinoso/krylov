@@ -65,7 +65,7 @@ npm install tailwindcss @tailwindcss/vite  # solo si se elige Tailwind (2.3)
 npm install -g vercel                      # solo si hace falta desplegar por línea de comandos (2.6)
 ```
 
-Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANTHROPIC_API_KEY` desde D-34): una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. No hay clave de Anthropic: la capa de lenguaje se cortó (2.8).
+Variables de entorno, en un archivo `.env` que **no** se sube (y en Render, `ANTHROPIC_API_KEY` desde D-34): una `KRYLOV_MOTOR_<ID>` por motor (`KRYLOV_MOTOR_SUPERVIVENCIA`, `KRYLOV_MOTOR_JERARQUICO`, `KRYLOV_MOTOR_ESTADOS`, `KRYLOV_MOTOR_ESPACIAL`), con valor `mcmc` (por defecto) o `red`; las fija PC 2 cuando cada motor pasa `validar-motor`. En la web: `VITE_API_URL`. Desde D-34, en Render: `ANTHROPIC_API_KEY`, solo para interpretar (2.8).
 
 ### 2.2 Framework de la web
 
