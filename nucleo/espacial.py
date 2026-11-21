@@ -93,7 +93,8 @@ from functools import cache                                           # noqa: E4
 
 from nucleo import decision, flujo as flujo_numpy                    # noqa: E402
 from nucleo import casos as _casos                                   # noqa: E402
-from nucleo.casos import ErrorKrylov, implementacion, leer_columnas  # noqa: E402
+from nucleo import tabla as lector                                    # noqa: E402
+from nucleo.casos import ArchivoNoCalza, ErrorKrylov, implementacion, leer_columnas, tabla_del_caso  # noqa: E402
 from nucleo.preproceso import (LADO, acumular_por_bloque, canal_tendencia, canales_terreno, geometria_grilla,  # noqa: E402
                                indices_bloque, transformar_valor)
 
@@ -103,6 +104,16 @@ MAXIMO_DE_LUGARES = 40
 _FILA, _COLUMNA = (m.reshape(-1).astype(np.float64) for m in np.meshgrid(np.arange(LADO), np.arange(LADO), indexing="ij"))
 
 
+# Los papeles de columna que recibe la red de `espacial` (D-34). La tendencia (distancia a un río) necesita además esa
+# distancia en cada bloque del terreno (`caso["grilla"]`): un archivo subido sin grilla se responde sin tendencia.
+PAPELES = [
+    {"papel": "x", "cantidad": 1, "tipo": "numero", "texto": "Coordenada este de cada medición, en metros"},
+    {"papel": "y", "cantidad": 1, "tipo": "numero", "texto": "Coordenada norte de cada medición, en metros"},
+    {"papel": "valor", "cantidad": 1, "tipo": "numero", "texto": "Lo que se midió en ese lugar"},
+]
+MEDICIONES_MAXIMO = 400                                  # el simulador genera entre 30 y 400 mediciones
+
+
 def _numeros(textos: list[str]) -> np.ndarray:
     return np.array([float(t) for t in textos], dtype=np.float64)
 
@@ -110,8 +121,10 @@ def _numeros(textos: list[str]) -> np.ndarray:
 def leer_terreno(caso: dict, mediciones: list[dict] = (), sin_tendencia: bool = False) -> dict:
     """Las mediciones del caso (más las simuladas por el usuario) acumuladas por bloque, y la geometría de la grilla."""
     col = caso["columnas"]
-    tabla = leer_columnas(caso["dataset"])
-    x, y, valor = (_numeros(tabla[col[k]]) for k in ("x", "y", "valor"))
+    tabla = tabla_del_caso(caso)                         # el archivo del caso o la tabla subida (D-34)
+    x, y, valor = (lector.numeros(tabla, lector.nombres_del_papel(col, k, 1)[0]) for k in ("x", "y", "valor"))
+    if col.get("transformacion") == "log" and (valor <= 0).any():
+        raise ArchivoNoCalza(f"La columna «{col['valor']}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
     if mediciones:
         x, y, valor = (np.concatenate([v, [float(m[k]) for m in mediciones]]) for v, k in ((x, "x"), (y, "y"), (valor, "valor")))
     transformacion = col.get("transformacion")
@@ -285,11 +298,17 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
     """El mapa del terreno: probabilidad de superar el umbral por bloque, qué manda y el examen."""
     sin_tendencia = "quitar_tendencia" in transformaciones
     impl = implementacion("espacial")
-    terreno = leer_terreno(caso, mediciones, sin_tendencia)
+    try:
+        terreno = leer_terreno(caso, mediciones, sin_tendencia)
+    except ArchivoNoCalza as error:                      # un archivo subido que no calza con el modelo: rojo con su motivo
+        return {"implementacion": impl, "mapa": None, **lector.rojo(caso, error)}
     n = len(terreno["x"])
     if n < 30:
         return {"implementacion": impl, "mapa": None, "factores": None,
                 "semaforo": {"estado": "rojo_datos", "motivo": f"Hay {n} mediciones y hacen falta al menos 30.", "propuesta": None}}
+    if n > MEDICIONES_MAXIMO:
+        return {"implementacion": impl, "mapa": None, "factores": None,
+                "semaforo": {"estado": "rojo_modelo", "motivo": f"Hay {n} mediciones; la red practicó con terrenos de hasta {MEDICIONES_MAXIMO}.", "propuesta": None}}
 
     canales, media, escala = canales_de(terreno["suma"], terreno["cuenta"], terreno["raiz_dist"])
     r = inferir(canales[None], terreno["cuenta"][None], impl, _clave(caso, sin_tendencia))

@@ -130,3 +130,19 @@ def test_salvavidas_mapa_de_la_red_y_theta_del_mcmc(con_red, monkeypatch):
     assert "precalculado" in mixto["registro"][-1] and "precalculado" not in de_la_red["registro"][-1]
     assert mixto["sello_resumen"]["frase"] and not de_la_red["sello_resumen"]["frase"]        # el pie mixto, de casos/textos.yaml
     assert len(api.donde_medir("terreno")["candidatas"]) == 3
+
+
+def test_tabla_subida_sin_grilla_y_archivo_que_no_calza(con_red):
+    """D-34: un terreno subido (x, y, valor) se responde sin tendencia; si una columna no se puede leer, rojo con su motivo."""
+    from nucleo import casos, espacial
+    base = casos.cargar_caso("terreno")
+    tabla = casos.leer_columnas(base["dataset"])
+    columnas = {k: v for k, v in base["columnas"].items() if k != "tendencia"}
+    subido = {k: v for k, v in base.items() if k not in ("dataset", "grilla")} | {"tabla": tabla, "columnas": columnas}
+    costos = {"falso_si": 20000.0, "falso_no": 50000.0, "medicion": 3000.0}
+    r = espacial.analizar(subido, [], costos)
+    assert r["mapa"]["nx"] == 32 and len(r["mapa"]["puntos"]) == 155 and [p["papel"] for p in espacial.PAPELES] == ["x", "y", "valor"]
+    falta = espacial.analizar(subido | {"columnas": columnas | {"valor": "plomo_que_no_esta"}}, [], costos)
+    assert falta["mapa"] is None and falta["semaforo"]["estado"] == "rojo_datos" and "plomo_que_no_esta" in falta["semaforo"]["motivo"]
+    negativo = espacial.analizar(subido | {"tabla": tabla | {"zinc": ["-1"] * 155}}, [], costos)
+    assert negativo["semaforo"]["estado"] == "rojo_modelo"

@@ -51,3 +51,27 @@ def test_analizar_inasistencias(artefactos, monkeypatch, impl):
     json.dumps(r)
     assert api.analizar("inasistencias")["unidades"] == r["unidades"]                # semilla fija
     assert api.analizar("inasistencias", transformaciones=["quitar_factor:Age"])["codigo"] == "no_disponible"
+
+
+@pytest.mark.skipif(simular.leer_real() is None, reason="datos/demo/inasistencias.csv no se versiona")
+def test_tabla_subida_y_archivo_que_no_calza(artefactos, monkeypatch):
+    """D-34: el motor lee `caso["tabla"]`; si falta un papel o hay valores que el modelo no conoce, rojo con su motivo."""
+    from nucleo import jerarquico
+    monkeypatch.setattr(casos, "ARTEFACTOS", artefactos)
+    monkeypatch.setenv("KRYLOV_MOTOR_JERARQUICO", "red")
+    base = casos.cargar_caso("inasistencias")
+    tabla = casos.leer_columnas(base["dataset"])
+    subido = {k: v for k, v in base.items() if k not in ("dataset", "verdad")} | {"tabla": tabla}
+    costos = {"falso_si": 15.0, "falso_no": 40.0}
+    r, del_demo = jerarquico.analizar(subido, [], costos), jerarquico.analizar(base, [], costos)
+    assert [u["p"] for u in r["unidades"]] == [u["p"] for u in del_demo["unidades"]] and r["examen"] is None
+    assert {p["papel"] for p in jerarquico.PAPELES} <= set(base["columnas"])
+
+    def semaforo(**cambios):
+        return jerarquico.analizar(subido | cambios, [], costos)["semaforo"]
+    col = base["columnas"]
+    assert semaforo(columnas=col | {"efectos": col["efectos"][:3]})["estado"] == "rojo_datos"
+    sabado = semaforo(tabla=tabla | {"dia_semana": ["5"] * len(tabla["dia_semana"])})
+    assert sabado["estado"] == "rojo_modelo" and "dia_semana" in sabado["motivo"]
+    grande = semaforo(tabla={k: v * 2 for k, v in tabla.items()})
+    assert grande["estado"] == "rojo_modelo" and "3000" in grande["motivo"]

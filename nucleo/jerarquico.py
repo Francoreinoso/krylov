@@ -207,34 +207,52 @@ def paso_local(libre, z, respuesta, paciente, barrio_del_paciente, nodos: int = 
 # La respuesta de un caso de inasistencias
 # =========================================================================================
 
-from nucleo.casos import leer_columnas          # noqa: E402
+from nucleo import tabla                                     # noqa: E402
+from nucleo.casos import ArchivoNoCalza, tabla_del_caso     # noqa: E402
 
-from nucleo.tabla import si_no                  # noqa: E402
+
+# Los papeles de columna que recibe la red de `jerarquico` (D-34): es el esquema con que se entrenó, y no cambia.
+PAPELES = [
+    {"papel": "id", "cantidad": 1, "tipo": "texto", "texto": "Identificador de la cita"},
+    {"papel": "objetivo", "cantidad": 1, "tipo": "si_no", "texto": "No llegó (vacío en las citas por decidir)"},
+    {"papel": "paciente", "cantidad": 1, "tipo": "texto", "texto": "Persona: puede tener varias citas"},
+    {"papel": "grupo", "cantidad": 1, "tipo": "texto", "texto": "Grupo al que pertenece la persona (barrio, sede)"},
+    {"papel": "suave", "cantidad": 1, "tipo": "entero", "texto": "Días de espera entre agendar y la cita (0 = el mismo día)"},
+    {"papel": "categoria", "cantidad": 1, "tipo": "entero", "texto": "Día de la semana (0 = lunes … 4 = viernes)"},
+    {"papel": "tratamiento", "cantidad": 1, "tipo": "si_no", "texto": "Recibió recordatorio (1 o 0)"},
+    {"papel": "efectos", "cantidad": 5, "tipo": "numero", "texto": "Cinco factores de la persona: el primero es la edad y los otros cuatro son 1 o 0"},
+]
+CITAS_MAXIMO, BARRIOS_MAXIMO = 3000, 40          # el rango del simulador (`motor/jerarquico/simular.py`)
 
 
 def leer_caso(caso: dict) -> dict:
-    """El archivo de un caso por columnas del modelo, con pacientes y barrios como índices.
+    """El archivo de un caso (o la tabla subida) por columnas del modelo, con pacientes y barrios como índices.
 
     Devuelve `espera`, `dia`, `sms`, `edad`, `binarias` (n, 4), `respuesta` (1 = no llegó, NaN = por decidir), `id`,
     `paciente` (n,) en 0..P−1, `barrio` (n,) y `barrio_del_paciente` (P,) en 0..G−1.
+    Lanza `ArchivoNoCalza` si falta un papel, una columna no se puede leer o trae valores que el modelo no conoce.
     """
-    col, t = caso["columnas"], leer_columnas(caso["dataset"])
-    def numeros(nombre):
-        return np.array([float(v) for v in t[nombre]])
-    _, paciente = np.unique(np.array(t[col["paciente"]]), return_inverse=True)
-    _, barrio = np.unique(np.array(t[col["grupo"]]), return_inverse=True)
-    barrio_del_paciente = np.zeros(paciente.max() + 1, dtype=int)
-    barrio_del_paciente[paciente] = barrio
-    efectos = col["efectos"]
-    return {"espera": numeros(col["suave"]), "dia": numeros(col["categoria"]).astype(int), "sms": numeros(col["tratamiento"]),
-            "edad": numeros(efectos[0]), "binarias": np.stack([numeros(e) for e in efectos[1:]], axis=1),
-            "respuesta": np.array([si_no(v) for v in t[col["objetivo"]]]),
-            "id": t[col["id"]], "paciente": paciente, "barrio": barrio, "barrio_del_paciente": barrio_del_paciente}
+    col, t = caso["columnas"], tabla_del_caso(caso)
+    nombres = {p["papel"]: tabla.nombres_del_papel(col, p["papel"], p["cantidad"]) for p in PAPELES}
+    _, paciente = np.unique(np.array(tabla.columna(t, nombres["paciente"][0])), return_inverse=True)
+    _, barrio = np.unique(np.array(tabla.columna(t, nombres["grupo"][0])), return_inverse=True)
+    if len(paciente) > CITAS_MAXIMO or barrio.max(initial=0) + 1 > BARRIOS_MAXIMO:
+        raise ArchivoNoCalza(f"El archivo tiene {len(paciente)} filas en {barrio.max(initial=0) + 1} grupos; la red practicó con hasta "
+                             f"{CITAS_MAXIMO} filas en {BARRIOS_MAXIMO} grupos.", "rojo_modelo")
+    barrio_del_paciente = np.zeros(paciente.max(initial=0) + 1, dtype=int)
+    barrio_del_paciente[paciente] = barrio                    # si una persona figura en dos grupos, queda en el último
+    efectos = nombres["efectos"]
+    return {"espera": tabla.numeros(t, nombres["suave"][0], minimo=0), "dia": tabla.numeros(t, nombres["categoria"][0], 0, 4, enteros=True).astype(int),
+            "sms": tabla.numeros(t, nombres["tratamiento"][0], 0, 1, enteros=True), "edad": tabla.numeros(t, efectos[0], 0, 120),
+            "binarias": np.stack([tabla.numeros(t, e, 0, 1, enteros=True) for e in efectos[1:]], axis=1),
+            "respuesta": tabla.respuesta_si_no(t, nombres["objetivo"][0]),
+            "id": tabla.columna(t, nombres["id"][0]), "paciente": paciente, "barrio": barrio_del_paciente[paciente],
+            "barrio_del_paciente": barrio_del_paciente}
 
 
 from functools import cache                                   # noqa: E402
 
-from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
+from nucleo import casos as _casos, decision, flujo as flujo_numpy   # noqa: E402
 from nucleo.casos import ErrorKrylov, implementacion          # noqa: E402
 
 
@@ -273,7 +291,10 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         if t.removeprefix("quitar_factor:") in del_modelo:
             raise ErrorKrylov("Ese factor es parte del modelo de inasistencias y no se puede quitar.", "no_disponible")
     impl = implementacion("jerarquico")
-    datos = leer_caso(caso)
+    try:
+        datos = leer_caso(caso)
+    except ArchivoNoCalza as error:                         # un archivo subido que no calza con el modelo: rojo con su motivo
+        return {"implementacion": impl, **tabla.rojo(caso, error)}
     por_decidir = np.isnan(datos["respuesta"])
     conocidas = datos["respuesta"][~por_decidir]
     n = len(por_decidir)

@@ -57,12 +57,12 @@ def a_numeros(valores) -> np.ndarray:
 
 def columnas_extra(caso: dict, transformaciones: list[str]) -> dict[str, np.ndarray]:
     """Las columnas `extra` del caso (no entran al modelo, sí a los ejes con nombre), menos las que una corrección quitó."""
-    from nucleo.casos import leer_columnas
+    from nucleo.casos import tabla_del_caso
     quitadas = {t.removeprefix("quitar_factor:") for t in transformaciones if t.startswith("quitar_factor:")}
     nombres = [n for n in caso["columnas"].get("extra") or [] if n not in quitadas]
     if not nombres:
         return {}
-    tabla = leer_columnas(caso["dataset"])
+    tabla = tabla_del_caso(caso)
     return {n: np.nan_to_num(a_numeros(tabla[n]), nan=-1.0) for n in nombres}
 
 

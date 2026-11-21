@@ -91,3 +91,21 @@ def leer_columnas(ruta: str | Path) -> dict[str, list[str]]:
     with open(ruta, encoding="utf-8", newline="") as f:
         filas = list(csv.DictReader(f))
     return {nombre: [fila[nombre] for fila in filas] for nombre in (filas[0] if filas else {})}
+
+
+def tabla_del_caso(caso: dict) -> dict[str, list[str]]:
+    """Las columnas de datos de un caso, como texto: la tabla subida por el usuario (D-34) o el archivo `dataset` del YAML.
+
+    `api.analizar_archivo` arma un caso en memoria con `caso["tabla"]` (columna → lista de textos) y `caso["columnas"]`
+    (papel → nombre de columna). Los motores leen siempre por aquí y no saben de dónde vino la tabla.
+    """
+    return caso["tabla"] if caso.get("tabla") is not None else leer_columnas(caso["dataset"])
+
+
+class ArchivoNoCalza(Exception):
+    """El archivo no tiene lo que el modelo del motor necesita. `estado` es `rojo_datos` (falta algo o no se puede leer)
+    o `rojo_modelo` (se lee, pero no es de la familia de archivos con que practicó la red). El motor lo convierte en semáforo."""
+
+    def __init__(self, motivo: str, estado: str = "rojo_datos"):
+        super().__init__(motivo)
+        self.motivo, self.estado = motivo, estado

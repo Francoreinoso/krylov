@@ -190,20 +190,40 @@ def probabilidad_de_impago(libre, datos: dict) -> np.ndarray:
 from functools import cache                                   # noqa: E402
 
 from nucleo import casos as _casos, decision, flujo as flujo_numpy, tabla   # noqa: E402
-from nucleo.casos import ErrorKrylov, implementacion, leer_columnas          # noqa: E402
+from nucleo.casos import ArchivoNoCalza, ErrorKrylov, implementacion, tabla_del_caso          # noqa: E402
 
 VARIABLES = ("nivel", "uso", "pago_cero", "log_pago", "x")
 
 
+# Los papeles de columna que recibe la red de `estados` (D-34): es el esquema con que se entrenó, y no cambia.
+PAPELES = [
+    {"papel": "id", "cantidad": 1, "tipo": "texto", "texto": "Identificador del cliente"},
+    {"papel": "objetivo", "cantidad": 1, "tipo": "si_no", "texto": "No pagó el mes siguiente (vacío en los clientes por decidir)"},
+    {"papel": "atraso", "cantidad": MESES, "tipo": "entero", "texto": "Atraso de cada mes, del más antiguo al más reciente (códigos de −2 a 8)"},
+    {"papel": "saldo", "cantidad": MESES, "tipo": "numero", "texto": "Saldo de cada mes, en el mismo orden"},
+    {"papel": "pago", "cantidad": MESES, "tipo": "numero", "texto": "Pago de cada mes, en el mismo orden"},
+    {"papel": "cupo", "cantidad": 1, "tipo": "numero", "texto": "Cupo de la tarjeta"},
+    {"papel": "transiciones", "cantidad": 3, "tipo": "numero", "texto": "Tres datos del cliente de los que depende que mejore o empeore; el primero se lee en logaritmo"},
+]
+CLIENTES_MAXIMO = 2000
+
+
 def leer_caso(caso: dict) -> dict:
-    """Las variables del modelo del archivo de un caso, más `impago` (NaN = por decidir) e `id`."""
-    col, t = caso["columnas"], leer_columnas(caso["dataset"])
-    def numeros(nombres):
-        return np.array([[float(v) for v in t[n]] for n in nombres]).T
-    datos = variables_del_modelo(numeros(col["atraso"]), numeros(col["saldo"]), numeros(col["pago"]),
-                                 numeros([col["cupo"]])[:, 0], numeros(col["transiciones"]))
-    datos["impago"] = np.array([float(v) if v != "" else np.nan for v in t[col["objetivo"]]])
-    datos["id"] = t[col["id"]]
+    """Las variables del modelo del archivo de un caso (o de la tabla subida), más `impago` (NaN = por decidir) e `id`.
+
+    Lanza `ArchivoNoCalza` si falta un papel, una columna no se puede leer o trae valores que el modelo no conoce.
+    """
+    col, t = caso["columnas"], tabla_del_caso(caso)
+    nombres = {p["papel"]: tabla.nombres_del_papel(col, p["papel"], p["cantidad"]) for p in PAPELES}
+    def matriz(papel, **limites):
+        return np.stack([tabla.numeros(t, n, **limites) for n in nombres[papel]], axis=1)
+    cupo = tabla.numeros(t, nombres["cupo"][0], minimo=1e-9)
+    covariables = matriz("transiciones")
+    if (covariables[:, 0] <= 0).any():
+        raise ArchivoNoCalza(f"La columna «{nombres['transiciones'][0]}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
+    datos = variables_del_modelo(matriz("atraso", minimo=-2, maximo=8, enteros=True), matriz("saldo"), matriz("pago", minimo=0), cupo, covariables)
+    datos["impago"] = tabla.respuesta_si_no(t, nombres["objetivo"][0])
+    datos["id"] = tabla.columna(t, nombres["id"][0])
     return datos
 
 
@@ -241,7 +261,10 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         if t.removeprefix("quitar_factor:") in del_modelo:
             raise ErrorKrylov("Ese factor es parte del modelo de crédito y no se puede quitar.", "no_disponible")
     impl = implementacion("estados")
-    datos = leer_caso(caso)
+    try:
+        datos = leer_caso(caso)
+    except ArchivoNoCalza as error:                         # un archivo subido que no calza con el modelo: rojo con su motivo
+        return {"implementacion": impl, **tabla.rojo(caso, error)}
     por_decidir = np.isnan(datos["impago"])
     conocidos = datos["impago"][~por_decidir]
     n = len(datos["impago"])
