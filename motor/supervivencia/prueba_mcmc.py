@@ -69,7 +69,11 @@ def test_densidad_igual_a_la_cuenta_directa(PRIOR):
     assert abs(float(log_p) - directo) < 1e-8 * abs(directo), (float(log_p), directo)
 
 
-def test_nuts_da_unos_pasos():
+@pytest.mark.parametrize("config", [None, "motor/supervivencia/config_candidato.json"], ids=["vigente", "candidato"])
+def test_nuts_da_unos_pasos(config, monkeypatch):
+    if config:                                                # el prior candidato se elige igual que al entrenar y al validar
+        monkeypatch.setenv("KRYLOV_SUPERVIVENCIA_CONFIG", config)
+        assert simular.cargar_config()["prior"] == CANDIDATO
     d, _ = _empresa()
     r = mcmc.correr(d, calentamiento=30, muestras=20, cadenas=1)
     assert r["theta"].shape == (20, sv.DIM_THETA) and np.isfinite(r["theta"]).all()
