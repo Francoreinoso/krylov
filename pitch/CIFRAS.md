@@ -22,7 +22,7 @@ La columna «Verificó» lleva el nombre de la persona que abrió la fuente o re
 | J-01 | Criterios de evaluación | Originalidad 15%, ambición 20%, ejecución 20%, aspecto técnico 25%, impacto 20% | fuente | Bases, hack.platan.us/26-cl/bases | Agente, 21-nov |
 | J-02 | Quién llega a la final | Solo equipos con una demostración funcional | fuente | Bases | Agente, 21-nov |
 | J-03 | Revisión del código | El jurado puede apoyarse en una revisión automatizada del código | fuente | Bases, criterio de aspecto técnico | Agente, 21-nov |
-| J-04 | Duración del pitch | Sin publicar. Tres minutos en 2024; los tramos grabados de otras sedes de 2026 duran cerca de seis minutos con preguntas | sin confirmar | Se confirma en la charla del sábado a las 20:00 y con la consulta S-02 | |
+| J-04 | Duración del pitch | **3 minutos, en las generales y en las finales, por ahora.** No dijeron si hay preguntas del jurado. (Antes: tres minutos en 2024; los tramos grabados de otras sedes de 2026 duran cerca de seis con preguntas) | fuente | Respuesta de la organización a la consulta S-02, anotada en `pitch/VALIDACION.md` a las 03:55. Se vuelve a confirmar en la charla del sábado a las 20:00 | |
 | J-05 | Equipos en el track Simulaciones | 12 de 48 | fuente | Conteo de los README públicos de los equipos | Agente, 21-nov |
 
 ## Datos de los casos

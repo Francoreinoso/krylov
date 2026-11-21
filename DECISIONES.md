@@ -88,6 +88,11 @@ Las entradas D-01 a D-14 son historia: hablan de «Sondea», de «PC-0 a PC-3» 
 - **Datos crudos:** no hace falta copiar `datos_crudos/`. Rotación, terreno y crédito se bajaron de sus fuentes (S-03 a S-05). El archivo de inasistencias se bajó de una copia pública en GitHub del mismo archivo de Kaggle: 10.739.535 bytes, SHA-256 `9132d3e7…a27d`, 110.527 citas, 20,2% no llegó, 81 barrios (coincide con D-03). Queda en `datos/crudo/`, fuera del repositorio, por su licencia no comercial.
 · Hito H0, con las respuestas de la persona de PC 3.
 
+**D-28 · sáb 21-nov 04:00 · H0 cerrado: tag `h0`. El pitch se arma para 3 minutos.**
+- PC 1 empujó P-01 a las 03:52. Verificado corriendo en PC 3 a las 03:58: la API local responde los ejemplos fijos (`POST /api/analizar`), la web pinta el inicio con las cuatro tarjetas y la respuesta de rotación y del terreno; con la API detenida, la web lee `web/public/estatico/` y el pie dice «Modo estático». Los tres empujan a los dos repositorios: H0 pasa completo y se pone el tag `h0`.
+- S-02 tiene respuesta (`pitch/VALIDACION.md`): 3 minutos en generales y finales, por ahora; se presenta desde nuestro computador, con audio y video. El guion de 3 minutos pasa a ser el principal; los de 90 segundos y 5 minutos quedan de respaldo hasta la charla de las 20:00. Cifra J-04.
+· Verificación de PC 3 y respuesta de la organización.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
