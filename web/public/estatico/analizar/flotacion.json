@@ -1046,8 +1046,8 @@
   ]
  },
  "sello_resumen": {
-  "frase": "",
-  "medido": false
+  "frase": "Practicó con 43,2 millones de plantas simulados. Cuando da un rango de 90%, acierta 90,5%.",
+  "medido": true
  },
  "en_palabras": [
   "En 2 líneas, conviene ajustar, y saber más no cambiaría la decisión.",
@@ -1071,5 +1071,5 @@
  ],
  "sintetico": true,
  "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina.",
- "tiempo_ms": 217
+ "tiempo_ms": 187
 }

@@ -72,8 +72,8 @@
   ]
  },
  "sello_resumen": {
-  "frase": "",
-  "medido": false
+  "frase": "Practicó con 7,8 millones de terrenos simulados. Cuando da un rango de 90%, acierta 90,0%.",
+  "medido": true
  },
  "en_palabras": [
   "En 147 bloques, conviene apartar, y una muestra más no cambiaría la decisión.",
@@ -3861,5 +3861,5 @@
   "umbral": 500.0,
   "unidad_valor": "ppm de arsénico"
  },
- "tiempo_ms": 125
+ "tiempo_ms": 170
 }
