@@ -3,8 +3,8 @@ window.KRYLOV_CONFIG = {
   // La demo real del producto. De aquí salen el QR del cierre, el texto bajo el QR y lo que abre la tecla D.
   // Cuando el producto final (versión minera) esté publicado, se cambia esta dirección y nada más.
   demo: {
-    url: 'https://krylov-tan.vercel.app/',
-    texto: 'krylov-tan.vercel.app',
+    url: 'https://krylov-krylov.vercel.app/',
+    texto: 'krylov-krylov.vercel.app',
   },
   // Cifras que no salen de datos.js porque se midieron con el computador libre, no al generar los datos.
   cifras: {

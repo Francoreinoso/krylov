@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 18:31 · **Producto terminado (H6): tag `congelado` puesto a las 18:32** · Tope de redes: 20:30
+**Actualizado:** sáb 21-nov 20:10 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, ya cerrado: las cinco pasaron
 
-**URL pública:** https://krylov-tan.vercel.app/ · **sigue con las tarjetas de antes del pivote: Vercel limitó los despliegues por 24 horas (17:58).** El código y el estático están en `main`. Lo decide una persona: otra cuenta o proyecto de Vercel. Sin eso, el QR lleva a la app antigua.
+**URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
 
-**Cuatro de cinco tarjetas tienen su red validada** (`leyes`, `taludes`, `flotacion`, `sismicidad`); falta `flota`. D-38: el método lento va al final (A-36). D-39: el SBC por unidad se decide por el tamaño de la desviación. Detalle por motor: `estado/MODELOS.md`.
+**Las cinco tarjetas tienen su red validada** (`flota` pasó a las 19:35). El método lento (A-36) está corriendo en PC 3 para los cinco motores, por encargo de la persona de PC 3. Detalle por motor: `estado/MODELOS.md`.
 
 ## Los cinco casos
 
@@ -14,27 +14,27 @@ Valores de cada celda: `listo`, `en curso`, `pendiente`, `no pasa`, `cortado`. �
 
 | Caso | Motor | Datos | Simulador | Red | Sello | En la app | Método lento | Responde |
 |---|---|---|---|---|---|---|---|---|
-| leyes | espacial | listo | listo | listo | listo | listo | pendiente | red |
-| taludes | deformacion | listo | listo | listo | listo | listo | pendiente | red |
-| flotacion | cinetica | listo | listo | listo | listo | listo | pendiente | red |
-| flota | desgaste | listo | listo | en curso | pendiente | pendiente | pendiente | ejemplo |
-| sismicidad | sismico | listo | listo | listo | listo | en curso | pendiente | red |
+| leyes | espacial | listo | listo | listo | listo | listo | listo | red |
+| taludes | deformacion | listo | listo | listo | listo | listo | en curso | red |
+| flotacion | cinetica | listo | listo | listo | listo | listo | en curso | red |
+| flota | desgaste | listo | listo | listo | listo | en curso | en curso | red |
+| sismicidad | sismico | listo | listo | listo | listo | listo | en curso | red |
 
-Verificado en PC 3 a las 18:30, corriendo: `pytest nucleo motor servicio`, 98 pasan; con sus variables en `red`, `leyes` (147, 568 y 309 bloques), `taludes` (5, 29 y 2 sectores), `flotacion` (2, 3 y 3 líneas) y `sismicidad` (0, 4 y 4 sectores) responden verde. «En la app» es en local y en el estático de `main`, no en la URL pública.
+Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (147, 568 y 309 bloques), `taludes` (5, 29 y 2), `flotacion` (2, 3 y 3), `sismicidad` (0, 4 y 4) y `flota` (8, 31 y 1 camiones) responden verde. `flota` todavía no está en el estático ni en la URL pública.
 
 ## Semáforo
 
 | Rol | Estado | Nota |
 |---|---|---|
-| producto (PC 1) | 🔴 sin URL | P-21 a P-28 hechas y en `main`, pero Vercel no despliega por 24 horas. Falta `sismicidad` con su red (P-30) y cerrar P-29 |
-| amortizacion (PC 2) | 🟡 | `cinetica` PASA. Falta el veredicto de `desgaste` (validaba a las 18:15) y después A-35 y A-36 |
-| seguimiento (PC 3) | 🟢 | `deformacion` y `sismico` PASAN; nada entrenando. Cifras de los sellos registradas (M-48 a M-52) |
+| producto (PC 1) | 🟡 | URL nueva funcionando con cuatro tarjetas (P-28, P-30). Falta `flota` con `KRYLOV_MOTOR_DESGASTE=red`, exportar y redesplegar |
+| amortizacion (PC 2) | 🟢 | `desgaste` PASA (19:35): cinco de cinco. Quedan A-35 (README técnico) y revisar el método lento que PC 3 escribió |
+| seguimiento (PC 3) | 🟢 | Método lento de los cinco corriendo aquí, de a un dataset; cifras de `flota` registradas (M-48 a M-52) |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
-- **PC 1 · producto:** ahora **P-30**: exportar el estático con las cuatro redes (`sismicidad` incluida, y la frase del sello corregida) y cerrar **P-29**. El despliegue espera a que una persona resuelva Vercel.
-- **PC 2 · amortizacion:** ahora **A-34** (veredicto de `desgaste`) y avisar a PC 1 si pasa. Después **A-35** (README técnico) y **A-36** (método lento de `espacial`, `cinetica` y `desgaste`, sin nada entrenando).
-- **PC 3 · seguimiento:** H6 corrido y tag `congelado` puesto (18:32). Ahora ensayo con una persona (18:30), prueba con extraños (19:00, una persona) y **A-36** aquí para `deformacion` y `sismico` cuando PC 2 suba su `mcmc.py`.
+- **PC 1 · producto:** ahora exportar el estático con las cinco redes (`flota` incluida) y redesplegar; después cerrar **P-29** y preparar el demo (`preparar-demo`).
+- **PC 2 · amortizacion:** ahora **A-35** (README técnico). Después, revisar el código del método lento de los cuatro motores de series que PC 3 escribió fuera de `motor/` (ver `estado/seguimiento.md`) y decidir si entra a `motor/<id>/mcmc.py` y al sello.
+- **PC 3 · seguimiento:** ahora **A-36** para los cinco motores (corriendo). Después: ensayo de las 21:00, y la entrega (`preparar-entrega`, S-30).
 
 ## Qué cambió respecto del plan
 
@@ -44,6 +44,6 @@ Verificado en PC 3 a las 18:30, corriendo: `pytest nucleo motor servicio`, 98 pa
 
 ## Próxima decisión
 
-- **Ahora, una persona,** de D-37: la excepción de las 20:30, datos simulados rotulados, quién presenta; la clave de Anthropic para Render.
-- **Ahora, una persona:** Vercel (otra cuenta o proyecto), o el QR del pitch lleva a la app antigua. Y `flota`: entra al inicio solo si `desgaste` pasa antes de las 20:30.
-- **Decidido (17:25, persona de PC 3):** `sismicidad` sigue entrenando, sin método lento; fuera del inicio a las 18:00 y entra si su red pasa antes de las 20:30. **Falta `flota`:** lo decide la persona de PC 2. **17:40, PC 1 y PC 3 (S-31):** qué tarjetas quedan en `casos/INICIO`; hoy solo `leyes` responde con su motor.
+- **Una persona (PC 2 o quien decida):** si el método lento que escribió PC 3 entra a `motor/` y a los sellos. Si la diferencia con una red sale sobre 0,3, el sello de esa red dejaría de decir «pasa»: se decide con los números a la vista, no antes.
+- **Una persona,** de D-37: quién presenta; la clave de Anthropic para Render (la API sigue sin desplegar). Y el tercer espejo (`Francoreinoso/krylov`) que pide PC 1: cada computador tiene que aceptar la invitación y agregar la dirección de push.
+- **Decidido:** las cinco tarjetas quedan en `casos/INICIO` con su red; ninguna sale precalculada.

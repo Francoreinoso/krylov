@@ -10,7 +10,7 @@
 
 **El data scientist artificial de la minería.** Recibe los datos de una decisión de la mina y responde qué conviene hacer, cuánto cuesta no saber y dónde conviene medir más. Avisa cuando los datos no alcanzan.
 
-**Pruébalo:** https://krylov-tan.vercel.app/ (funciona sin servidor: las respuestas del recorrido están precalculadas junto a la web).
+**Pruébalo:** https://krylov-krylov.vercel.app/ (funciona sin servidor: las respuestas del recorrido están precalculadas junto a la web).
 
 Platanus Hack 26, Santiago · track Simulaciones · equipo 5.
 

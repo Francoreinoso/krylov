@@ -42,7 +42,7 @@ Debajo de cada tarjeta, su estado, leído de la tabla «Los cinco casos» de `es
 
 **Portada.** «Krylov» · «El data scientist artificial de la minería» · *(chico)* Platanus Hack 26 · track Simulaciones.
 
-**Cierre.** «Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.» · «En un segundo, porque ya practicó con millones de minas simuladas.» · QR a **https://krylov-tan.vercel.app/** con la leyenda «Escanea y mueve los costos tú» · Equipo: [nombres, cuando cada persona confirme que se pueden mostrar] · Pie chico: «Construido con Claude Code».
+**Cierre.** «Krylov sabe cuánto no sabe, y te dice cuánto vale averiguarlo.» · «En un segundo, porque ya practicó con millones de minas simuladas.» · QR a **https://krylov-krylov.vercel.app/** con la leyenda «Escanea y mueve los costos tú» · Equipo: [nombres, cuando cada persona confirme que se pueden mostrar] · Pie chico: «Construido con Claude Code».
 
 **Por confirmar antes de decir «millones de minas simuladas»:** hoy lo sostiene M-01 (7.750.592 terrenos del motor espacial). Los motores nuevos suman lo suyo (M-48). Si alguien pregunta «¿minas?»: «terrenos, muros, plantas, flotas y sectores simulados; el número exacto de cada uno está en la lámina técnica».
 

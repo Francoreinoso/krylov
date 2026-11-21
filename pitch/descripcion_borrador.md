@@ -8,7 +8,7 @@
 
 **El data scientist artificial de la minería.** Le das los datos de una decisión de la mina y te dice qué conviene hacer, **cuánto te cuesta no saber** y **dónde conviene medir más**. Y avisa cuando los datos no alcanzan.
 
-**Pruébalo:** https://krylov-tan.vercel.app/
+**Pruébalo:** https://krylov-krylov.vercel.app/
 
 ## El problema
 
