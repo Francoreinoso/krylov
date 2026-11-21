@@ -78,7 +78,7 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [ ] Exportación y app: exportada a `motor/artefactos/deformacion/` (un análisis en 181 ms); la tarjeta no responde con la red porque el sello dice «no pasa»
 - [ ] Método lento
 
-**Falta ahora:** que PC 2 mire por qué falla el SBC por unidad (sello del sáb 16:10) y el equipo decida: seguir entrenando después de la ronda 2, o adelantar su método lento para que `taludes` salga «precalculada».
+**Falta ahora:** volver a correr `uv run python -m motor.deformacion.validar` en PC 3 con el criterio de D-39 (sáb 17:10) y el punto de guardado que se quiera sellar. Con los números del sello de las 16:10 el SBC por unidad pasaría (desviaciones 0,064, 0,049 y 0,037; límite 0,1). El sesgo en los sectores que se aceleran sigue ahí y va en las limitaciones; por eso la red sigue entrenando hasta las 18:15. Hasta revalidar, vale el sello de las 16:10 (no pasa).
 
 ## `cinetica` · caso `flotacion`
 
@@ -108,15 +108,15 @@ Una sección por motor. La mantiene quien construye el motor (skill `actualizar-
 - [x] Predictivo a priori contra el archivo del demo: dentro de los percentiles 2 y 98 (`motor/cinetica/prueba_cinetica.py`)
 - [x] Red: el andamio de series, sin entrenar
 - [x] Prueba de humo: 305.536 datasets en 3 min (CPU, lote 128); la pérdida media bajó de 6,9 a 4,0; el SBC de 200 corre
-- [ ] Entrenamiento
-- [ ] SBC global
-- [ ] SBC por unidad
-- [ ] Cobertura de lo que se decide, por tamaño
-- [ ] Examen con la verdad escondida
-- [ ] Exportación y app
+- [x] Entrenamiento: 43.160.576 plantas simuladas, en PC 2 (GPU del Mac, lote 512). Corrió a ritmo normal 96 minutos; después el computador se frenó y en los 57 minutos siguientes avanzó solo 300 pasos
+- [x] SBC global: pasa; cobertura del 90% de los parámetros, 0,899 (2.000 datasets nuevos)
+- [x] SBC por unidad: pasa con el criterio de D-39 (tamaño de la desviación 0,072 en log k y 0,022 en el tope de recuperación; límite 0,1; 17.960 líneas). Con la prueba anterior no pasaba (χ² 92,2 en log k). Queda un corrimiento chico en log k, anotado en las limitaciones del sello
+- [x] Cobertura de lo que se decide, por tamaño: 0,905; peor tramo 0,904 (líneas con pocas lecturas)
+- [x] Examen con la verdad escondida: de 3 líneas con cerca de 1% de riesgo ninguna quedó bajo la meta; de 3 con cerca de 28%, ninguna; de 2 con cerca de 93%, las 2 (datos simulados, 8 líneas)
+- [ ] Exportación y app: exportada a `motor/artefactos/cinetica/`; el sello dice «pasa» (sáb 17:09) y `analizar("flotacion")` responde con la red en 64 ms (medido con otro entrenamiento corriendo; 37 ms sin nada). Falta que PC 1 active `KRYLOV_MOTOR_CINETICA=red` y vuelva a exportar
 - [ ] Método lento
 
-**Falta ahora:** lanzar su entrenamiento en la ronda 1 (A-26) cuando el equipo dé la partida.
+**Falta ahora:** que PC 1 active la red en la tarjeta (`KRYLOV_MOTOR_CINETICA=red`); volver a medir la latencia a las 18:15, sin nada entrenando; y el método lento al final (A-36).
 
 ## `desgaste` · caso `flota`
 

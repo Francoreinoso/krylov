@@ -47,6 +47,31 @@ def sbc_sin_sesgo(por_parametro: dict, tolerancia_rango: float = 0.03) -> tuple[
     return not fallan, fallan
 
 
+def desviacion_w(chi2_uniformidad: float, n: int) -> float:
+    """Tamaño de la desviación del histograma de rangos respecto del uniforme: w = √(χ²/n) (el «efecto w» de Cohen).
+
+    No depende de cuántos rangos se juntan: con 10 cajas, w·10 es la distancia cuadrática media de cada caja a su 10%,
+    en puntos porcentuales (w = 0,1 ↔ las cajas se alejan en promedio 1 punto de 10%). Por convención w < 0,1 es «chico».
+    """
+    return float(np.sqrt(chi2_uniformidad / n))
+
+
+def sbc_local_sin_sesgo(por_parametro: dict, tolerancia_w: float = 0.1, tolerancia_rango: float = 0.03) -> tuple[bool, list[str]]:
+    """El criterio del SBC local (D-39): desviación w bajo 0,1 y rango medio a menos de 0,03 de 0,5, por parámetro local.
+
+    Los rangos locales se juntan sobre todas las unidades de todos los datasets (decenas de miles), y las unidades de un
+    mismo dataset comparten η: no son independientes. La prueba χ² de `sbc_sin_sesgo`, pensada para un rango por dataset,
+    con ese n rechaza desviaciones de medio punto por caja que con 2.000 rangos no alcanza a ver, y su umbral supone
+    independencia. Aquí se acota el tamaño de la desviación, que no crece con n. La vara es la misma que la del global:
+    con 2.000 rangos el umbral del χ² equivale a w ≈ 0,11.
+
+    por_parametro: nombre → {"chi2_uniformidad", "rango_medio", "n"}. Devuelve (pasa, parámetros que fallan).
+    """
+    fallan = [nombre for nombre, v in por_parametro.items()
+              if desviacion_w(v["chi2_uniformidad"], v["n"]) >= tolerancia_w or abs(v["rango_medio"] - 0.5) >= tolerancia_rango]
+    return not fallan, fallan
+
+
 def recuperacion(por_parametro: dict) -> dict:
     """Recuperación de parámetros para el sello: correlación entre el valor verdadero y la media del posterior, en las simulaciones del SBC.
 

@@ -27,3 +27,16 @@ def test_umbral_del_sbc_y_comparacion_de_posteriores():
     referencia = rng.standard_normal((4000, 3))
     diferencia, razon = validacion.comparar_posteriores(referencia[:2000] * [1, 2, 1] + [0, 0, 0.5], referencia[2000:])
     assert diferencia[0] < 0.1 and abs(diferencia[2] - 0.5) < 0.1 and abs(razon[1] - 2) < 0.15
+
+
+def test_sbc_local_mide_el_tamano_de_la_desviacion_y_no_crece_con_n():
+    # D-39. Los locales de `cinetica` (17.960 líneas) y `deformacion` (50.800 sectores) del sábado 16:10: desviaciones chicas.
+    medidos = {"log_k": {"chi2_uniformidad": 92.16, "rango_medio": 0.5182, "n": 17960},
+               "log_v": {"chi2_uniformidad": 208.87, "rango_medio": 0.498, "n": 50800}}
+    assert validacion.sbc_local_sin_sesgo(medidos) == (True, [])
+    assert validacion.sbc_sin_sesgo(medidos)[0] is False                   # la prueba χ² con el n junto los rechazaba
+    # La misma forma del histograma con 10 veces más unidades da el mismo w: el veredicto no depende de n.
+    assert abs(validacion.desviacion_w(92.16, 17960) - validacion.desviacion_w(921.6, 179600)) < 1e-12
+    # Cajas a 1,5 puntos de 10% en promedio (w = 0,15) no pasan, y un rango medio corrido tampoco.
+    assert validacion.sbc_local_sin_sesgo({"a": {"chi2_uniformidad": 0.15**2 * 20000, "rango_medio": 0.5, "n": 20000}}) == (False, ["a"])
+    assert validacion.sbc_local_sin_sesgo({"b": {"chi2_uniformidad": 9.0, "rango_medio": 0.54, "n": 20000}}) == (False, ["b"])

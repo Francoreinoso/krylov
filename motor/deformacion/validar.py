@@ -25,6 +25,7 @@ LIMITACIONES = [
     "Dos regímenes por sector: estable (velocidad constante) o acelerando hacia la falla con la ley de velocidad inversa",
     "Un sector que se acelera y después frena no está en las reglas",
     "El modo común se resta con la mediana entre sectores: si la mitad del muro se acelera a la vez, se confunde con él",
+    "En los sectores que se aceleran, la red tiende a dar una velocidad de fondo algo alta y un «cuánto falta» algo corto: el lado prudente (medido el sáb 16:28 con 1,7 millones de muros simulados)",
     "Sin comparación todavía con el método lento",
 ]
 

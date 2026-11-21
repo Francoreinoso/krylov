@@ -25,6 +25,7 @@ LIMITACIONES = [
     "Celdas de 2 a 6 minutos; el cobre recuperado va entre 0 y 1",
     "La fracción lenta flota 8 veces más lento que la rápida (fijo)",
     "Una sola fracción rápida para toda la planta",
+    "El ritmo de flotación propio de cada línea sale con un corrimiento chico en simulaciones nuevas (rango medio 0,518 en vez de 0,5); la recuperación al final de la línea, que es lo que se decide, no lo muestra",
     "Sin comparación todavía con el método lento",
 ]
 

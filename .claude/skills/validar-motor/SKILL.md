@@ -36,10 +36,11 @@ Los comandos son orientativos: ajústalos al código real. `<id>` es el `motor_i
 
 ## Pasa si
 
-- SBC sin sesgo visible (criterios de D-32).
+- SBC sin sesgo visible: para los globales, los criterios de D-32; para los locales, el tamaño de la desviación de D-39 (w = √(χ²/n) bajo 0,1 y rango medio a menos de 0,03 de 0,5).
 - Cobertura de 90% entre 85% y 95%, para η y para lo que se decide, y sobre 80% en el peor tramo de tamaño.
-- El examen con la verdad escondida no contradice a la red de forma gruesa; el criterio exacto del motor queda escrito en `criterios` del sello.
 - Un análisis tarda menos de 1 segundo.
+
+**El examen con la verdad escondida se informa y no decide (D-39):** va en el sello y es lo que se dice en voz alta, pero con 8 o 36 unidades no aprueba ni reprueba una red.
 
 **«Pasa» no espera al MCMC (D-38).** Cuando la comparación exista se agrega al sello; si la diferencia con el MCMC convergido supera 0,3 desviaciones estándar del posterior en las medias de η, se informa y el equipo revisa el veredicto.
 

@@ -9,6 +9,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Hecho
 
+- sáb 17:10 · A-30 terminada: **`cinetica` PASA su sello** con el criterio local de D-39 (`motor/artefactos/cinetica/sello.json`, 17:09). 43.160.576 plantas simuladas, 2.000 datasets nuevos (17.960 líneas): cobertura del 90% de lo que se decide 0,905; parámetros 0,899; peor tramo 0,904; SBC global pasa; SBC local: tamaño de la desviación 0,072 en `log_k` y 0,022 en `logit_rmax` (límite 0,1). El sesgo chico de `log_k` va en `limitaciones`. Latencia 64 ms, medida con `desgaste` entrenando (a las 16:27, sin nada entrenando, 37 ms): se vuelve a medir a las 18:15. Sin método lento todavía (A-36).
+- sáb 17:10 · **D-39 escrita y aplicada** (propuesta de PC 2, la acepta Rodrigo): el SBC local se decide por el tamaño de la desviación (w = √(χ²/n) bajo 0,1) y no por el χ² con todas las unidades juntas; el examen se informa y no decide. Código en `motor/comun/validacion.py` y `series.py`, con su prueba (`pytest motor/comun/prueba_validacion.py`). Sin commit todavía: espera la aprobación de Rodrigo.
 - sáb 12:10 · Antes del pivote, y sigue sirviendo: `motor/comun/` (codificador, flujo, entrenamiento, validación), `nucleo/flujo.py`, `nucleo/decision.py`, `nucleo/tabla.py`, `nucleo/api.py` y el motor `espacial` completo, con su sello (PASA, 09:39). Detalle en `estado/historia/amortizacion_hasta_el_pivote.md`.
 - sáb 12:05 · Verificado al preparar el pivote, en este computador y con `estados` entrenando al lado: `KRYLOV_MOTOR_ESPACIAL=red`, `api.analizar("leyes")` responde verde en 0,10 s y `api.donde_medir("leyes")` rehace 480 análisis en 1,0 s. Los tiempos que van al guion se miden de nuevo sin nada entrenando (A-22).
 
@@ -39,6 +41,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- sáb 17:10 · **A PC 3 (D-39, `deformacion`):** por encargo directo de Rodrigo esta sesión editó archivos tuyos: `DECISIONES.md` (D-39), `WORKPLAN.md` 11.8 y la skill `validar-motor`. Tu pedido de las 16:28 queda resuelto así: criterio igual para los cuatro motores, por tamaño de la desviación. Con el sello de las 16:10, `deformacion` da 0,064, 0,049 y 0,037 (límite 0,1): pasaría. Falta que corras `uv run python -m motor.deformacion.validar` en tu computador después del `pull` (aquí no está su punto de guardado), con el punto de guardado que quieras sellar; el sesgo en los sectores que se aceleran ya va en `limitaciones`. Después: tablero, `estado/MODELOS.md` y cifras de `cinetica` en `pitch/CIFRAS.md`.
+- sáb 17:10 · **A PC 1:** `cinetica` pasó su sello: `KRYLOV_MOTOR_CINETICA=red` y volver a exportar `flotacion` (`exportar_estatico`). `deformacion` queda igual hasta que PC 3 la revalide. El sello no cambió de forma.
 - sáb 13:10 · **A PC 3:** por encargo directo de la persona de PC 2 esta sesión editó archivos tuyos: `DECISIONES.md` (D-38), `WORKPLAN.md`, `casos/INICIO` (las cuatro tarjetas descomentadas), las skills y el tablero en vivo (sección nueva que lee `estado/MODELOS.md`). Falta de tu lado: `PC3_SEGUIMIENTO.md` y la columna «Método lento» de `estado/TABLERO.md` todavía suponen el MCMC antes del entrenamiento; con D-38, «Método lento» pendiente no es atraso hasta A-36. Y hay una decisión abierta para las 17:30 al final de `DECISIONES.md` (ronda 2).
 - sáb 13:10 · **A PC 1:** el contrato ganó dos cosas opcionales (D-38). `papeles(motor_id)` trae `rangos` (tamaños con que practicó la red y una `frase` lista); un archivo sobre el máximo responde `amarillo` con aviso (submuestra de semilla fija) y bajo el mínimo `rojo_datos` con su motivo. La forma de `analizar` no cambió.
 - sáb 13:10 · **A PC 3:** registrar cifras solo cuando haya sello; hoy no hay ninguna nueva.
@@ -64,6 +68,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
+| `cinetica`: sello | PASA (D-39). 43.160.576 plantas simuladas, 153 min; cobertura del 90%: 0,905 (peor tramo 0,904); 64 ms por análisis con `desgaste` entrenando (37 ms sin nada entrenando, 16:27) | `uv run python -m motor.cinetica.validar`, `motor/artefactos/cinetica/sello.json` | 17:09 |
 | `leyes`: bloques por color (costos por defecto) | 147 conviene apartar, 568 puede ir a la planta, 309 no sabemos (1.024 bloques) | `api.analizar("leyes")` con la red | 12:05 |
 | `leyes`: lo que cuesta no saber | US$ 1.577.707 (supuestos K-22 y K-23) | lo mismo | 12:05 |
 | `leyes`: examen | 61 de 68 muestras escondidas dentro del rango de 90% | lo mismo | 12:05 |

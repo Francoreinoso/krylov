@@ -1,0 +1,94 @@
+{
+ "motor_id": "cinetica",
+ "implementacion": "red",
+ "pasa": true,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "sbc_local_sin_sesgo": true,
+  "cobertura_parametros_entre_85_y_95": true,
+  "cobertura_decision_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "analisis_bajo_1_s": true
+ },
+ "simulaciones_entrenamiento": 43160576,
+ "entrenamiento_min": 153,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.9048,
+ "cobertura_90_parametros": 0.8992,
+ "cobertura_90_locales": 0.9035,
+ "cobertura_90_peor_grupo": 0.9043,
+ "peor_grupo": "unidades con pocas lecturas",
+ "peor_grupo_de": "tamaño del archivo",
+ "sbc_pasa": true,
+ "sbc_local_pasa": true,
+ "recuperacion": {
+  "media": 0.851,
+  "minima": 0.657,
+  "parametro_de_la_minima": "log_sigma_R",
+  "por_parametro": {
+   "mu_k": 0.941,
+   "log_sigma_k": 0.851,
+   "mu_R": 0.787,
+   "log_sigma_R": 0.657,
+   "logit_phi": 0.917,
+   "log_sigma_y": 0.952
+  }
+ },
+ "rangos": {
+  "unidades": [
+   2,
+   16
+  ],
+  "celdas": [
+   5,
+   12
+  ],
+  "lecturas": [
+   3,
+   12
+  ],
+  "minutos_por_celda": [
+   2.0,
+   6.0
+  ]
+ },
+ "latencia_ms": 64,
+ "examen": {
+  "tipo": "verdad_escondida",
+  "n": 8,
+  "frase": "Cuando dijimos cerca de 1% de riesgo, quedó bajo la meta el 0%.",
+  "tramos": [
+   {
+    "dijimos": 0.009,
+    "paso": 0.0,
+    "n": 3
+   },
+   {
+    "dijimos": 0.276,
+    "paso": 0.0,
+    "n": 3
+   },
+   {
+    "dijimos": 0.934,
+    "paso": 1.0,
+    "n": 2
+   }
+  ]
+ },
+ "mcmc_datasets_comparados": null,
+ "mcmc_s_por_dataset": null,
+ "mcmc_diferencia_media": null,
+ "mcmc_r_hat_max": null,
+ "amortizacion": null,
+ "fecha": "2026-11-21",
+ "hora": "17:09",
+ "ensayo": false,
+ "limitaciones": [
+  "Entre 2 y 16 líneas, cada una medida en 3 a 12 celdas",
+  "Celdas de 2 a 6 minutos; el cobre recuperado va entre 0 y 1",
+  "La fracción lenta flota 8 veces más lento que la rápida (fijo)",
+  "Una sola fracción rápida para toda la planta",
+  "El ritmo de flotación propio de cada línea sale con un corrimiento chico en simulaciones nuevas (rango medio 0,518 en vez de 0,5); la recuperación al final de la línea, que es lo que se decide, no lo muestra",
+  "Sin comparación todavía con el método lento"
+ ]
+}

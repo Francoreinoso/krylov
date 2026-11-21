@@ -269,11 +269,12 @@ def exportar(esp: ModuleType, red: RedSeries, carpeta: Path, progreso: dict | No
 # ------------------------------------------------------------------------------ validar sin MCMC: SBC y cobertura por tramos de tamaño
 
 def _resumen_rangos(rangos: np.ndarray, verdad: np.ndarray, medias: np.ndarray, muestras: int) -> dict:
-    """Por parámetro: χ² de uniformidad del rango (10 cajas), rango medio, cobertura del 90% y recuperación."""
+    """Por parámetro: χ² de uniformidad del rango (10 cajas), su tamaño w = √(χ²/n), rango medio, cobertura del 90% y recuperación."""
     cajas = np.histogram(rangos, bins=10, range=(0, muestras + 1))[0]
     esperado = len(rangos) / 10
     r = np.corrcoef(verdad, medias)[0, 1] if np.std(verdad) > 0 and np.std(medias) > 0 else 0.0
     return {"chi2_uniformidad": round(float(((cajas - esperado) ** 2 / esperado).sum()), 2),
+            "desviacion_w": round(validacion.desviacion_w(float(((cajas - esperado) ** 2 / esperado).sum()), len(rangos)), 4),
             "rango_medio": round(float(rangos.mean() / muestras), 4),
             "cobertura_90": round(float(validacion.dentro_del_rango(rangos, muestras).mean()), 4),
             "recuperacion": round(float(r), 3), "n": int(len(rangos))}
@@ -341,7 +342,7 @@ def sbc(esp: ModuleType, red: RedSeries, datasets: int = 2000, muestras: int = 9
                               "cobertura_90_parametros": None, "cobertura_90_decision": round(float(dentro_dec[en].mean()), 4)})
     peor = min(por_tramo, key=lambda t: t["cobertura_90_decision"]) if por_tramo else None
     pasa_g, fallan_g = validacion.sbc_sin_sesgo(globales)
-    pasa_l, fallan_l = validacion.sbc_sin_sesgo(locales)
+    pasa_l, fallan_l = validacion.sbc_local_sin_sesgo(locales)          # D-39: por tamaño de la desviación, no por χ² con n junto
     return {"datasets": int(hechos), "muestras": muestras, "globales": globales, "locales": locales,
             "sbc_global_pasa": pasa_g, "sbc_global_fallan": fallan_g, "sbc_local_pasa": pasa_l, "sbc_local_fallan": fallan_l,
             "cobertura_90_parametros": round(float(dentro_eta.mean()), 4),
@@ -354,7 +355,8 @@ def sbc(esp: ModuleType, red: RedSeries, datasets: int = 2000, muestras: int = 9
 def sello(esp: ModuleType, informe_sbc: dict, progreso: dict, latencia_ms: int | None, examen: dict | None,
           limitaciones: list[str], ensayo: bool = False, mcmc: dict | None = None) -> dict:
     """El sello de un motor de series. Se escribe sin el MCMC de referencia: sus campos van en `null` y «pasa» se decide
-    con el SBC, la cobertura y la latencia. La comparación con el MCMC se agrega (`mcmc`) cuando exista, tal como salga."""
+    con el SBC (global: χ² de D-32; local: tamaño de la desviación, D-39), la cobertura y la latencia. El examen con la
+    verdad escondida se informa y no decide (D-39). La comparación con el MCMC se agrega (`mcmc`) cuando exista, tal como salga."""
     entre = lambda v: v is not None and 0.85 <= v <= 0.95          # noqa: E731
     criterios = {
         "sbc_sin_sesgo": bool(informe_sbc["sbc_global_pasa"]),

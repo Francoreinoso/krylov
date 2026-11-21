@@ -1,0 +1,61 @@
+{
+ "motor_id": "cinetica",
+ "nombres_eta": [
+  "mu_k",
+  "log_sigma_k",
+  "mu_R",
+  "log_sigma_R",
+  "logit_phi",
+  "log_sigma_y"
+ ],
+ "nombres_lam": [
+  "log_k",
+  "logit_rmax"
+ ],
+ "canales": 4,
+ "dim_cov": 2,
+ "dim_tam": 3,
+ "con_clase": false,
+ "max_unidades": 16,
+ "max_lecturas": 12,
+ "diseno": {
+  "unidades": [
+   2,
+   16
+  ],
+  "celdas": [
+   5,
+   12
+  ],
+  "lecturas": [
+   3,
+   12
+  ],
+  "minutos_por_celda": [
+   2.0,
+   6.0
+  ]
+ },
+ "prior": {
+  "mu_k_media": -1.3862943611198906,
+  "mu_k_desv": 0.6,
+  "sigma_k_escala": 0.5,
+  "mu_R_media": 2.1972245773362196,
+  "mu_R_desv": 0.6,
+  "sigma_R_escala": 0.6,
+  "phi_a": 4.0,
+  "phi_b": 2.0,
+  "sigma_y_media": -4.199705077879927,
+  "sigma_y_desv": 0.5
+ },
+ "arquitectura": "codificador por unidad (convoluciones 1D con máscara) + atención sobre unidades + flujo de acoplamiento afín global (8 capas) y local compartido (6 capas); NPE factorizada",
+ "entrenada": true,
+ "pasos": 84298,
+ "simulaciones_entrenamiento": 43160576,
+ "entrenamiento_min": 153.4,
+ "diferencias_exportacion": {
+  "onnx": 1.1920928955078125e-07,
+  "flujo_numpy": 3.5762786865234375e-07,
+  "flujo_local_numpy": 9.5367431640625e-07
+ }
+}
