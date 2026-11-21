@@ -1,4 +1,4 @@
-/* 6 a 9 · Las otras cuatro decisiones de la mina, cada una como una escena hecha de puntos que se mueve con
+/* 8 a 11 · Las otras cuatro decisiones de la mina, cada una como una escena hecha de puntos que se mueve con
    los datos del archivo de su caso (datos.js → series). Nada de lo que se mueve es adorno:
    - taludes: la pared de la mina, partida en sus sectores; cada sector se desplaza lo que el radar midió, hora a hora;
    - flotación: las líneas de estanques; la espuma de cada estanque brilla según el cobre que flotó ahí,
@@ -136,7 +136,7 @@
   function nombre(id) { return id.replace(/^S-0?/, 'Sector ').replace(/^L-0?/, 'Línea ').replace(/^CAEX-/, 'Camión '); }
   function reloj(el, texto) { if (el._h !== texto) { el.textContent = texto; el._h = texto; } }
 
-  // ============================== 6 · Taludes: la pared de la mina ==============================
+  // ============================== 8 · Taludes: la pared de la mina ==============================
   K.registrar('taludes', {
     tres: null, tQuieto: 14,
     crear: function (L) {
@@ -156,8 +156,8 @@
       const pos = [], au = [], ar = [], tinte = [];
       for (let s = 0; s < n; s++) {
         const col = tinteDe(S, S.unidades[s].id, ROJO);
-        for (let c = 0; c < 12; c++) for (let f = 0; f < 60; f++) {
-          const ux = (s + (c + azar()) / 12) / n, v = (f + azar() * 0.9) / 60, p = pared(ux, v);
+        for (let c = 0; c < 14; c++) for (let f = 0; f < 72; f++) {
+          const ux = (s + (c + azar()) / 14) / n, v = (f + azar() * 0.9) / 72, p = pared(ux, v);
           pos.push(p[0], p[1], p[2]); au.push(ux, v); ar.push(azar()); tinte.push(col[0], col[1], col[2]);
         }
       }
@@ -178,9 +178,9 @@
           float d = texture2D(uMov, vec2(aU.x, 0.5)).r;                    // de 0 a 1: milímetros sobre el máximo del archivo
           float dv = (aU.y - 0.52) / 0.32;
           float cuanto = d * (0.3 + 0.7 * exp(-dv * dv));                  // el centro de la pared se mueve más que el borde
-          vec3 p = position + vec3(0.0, -0.32, 1.0) * cuanto * 1.7;
+          vec3 p = position + vec3(0.0, -0.32, 1.0) * cuanto * 2.5;
           float dr = (aU.x - uBarre) / 0.011;
-          float radar = exp(-dr * dr);
+          float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.07) : 0.0);     // la franja del radar y su estela
           float k = smoothstep(0.05, 0.5, cuanto);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vColor = mix(mix(ARENA, aTinte, uResp * 0.7), aTinte, k) + ORO * radar * 0.85;
@@ -203,22 +203,60 @@
       this.etq = etiquetas(L, this.marcados.length, 'nota');
       const primero = this.marcados[0];
       this.etq.forEach(function (e, i) { if (i) e.classList.add(this.marcados[i] < primero ? 'izq' : 'alta'); }, this);
+      // en la columna de texto: lo que midió el radar en dos sectores de la misma pared, el que más se movió y el que menos
+      this.calmo = finales[finales.length - 1][1];
+      this.cv = L.querySelector('canvas.curva');
+      if (S.respuesta) this.cv.hidden = true; else this.ctx = this.cv.getContext('2d');
       this.tres = B.tres;
     },
-    alAjustar: function () { if (this.B) this.B.ajustar(); },
+    alAjustar: function () {
+      if (this.B) this.B.ajustar();
+      if (this.ctx) { this.rc = K.razon(1.5); this.cv.width = Math.round(800 * this.rc); this.cv.height = Math.round(250 * this.rc); }
+    },
+    curva: function (h, ahora) {
+      const ctx = this.ctx, S = this.S, x0 = 2, x1 = 500, y0 = 212, y1 = 52;
+      ctx.setTransform(this.rc, 0, 0, this.rc, 0, 0);
+      ctx.clearRect(0, 0, 800, 250);
+      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 25px "Instrument Sans", sans-serif'; ctx.textAlign = 'left';
+      ctx.fillText('Dos sectores de la misma pared, hora a hora:', x0, 24);
+      ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
+      ctx.fillStyle = '#7d7568'; ctx.font = '450 19px "JetBrains Mono", monospace';
+      ctx.fillText('0 h', x0, y0 + 30); ctx.textAlign = 'right'; ctx.fillText(Math.round(this.horas) + ' h', x1, y0 + 30);
+      const cabezas = [[this.calmo, '#9a9080'], [this.marcados[0], '#ff7a50']].map(function (par) {
+        const pts = S.unidades[par[0]].puntos;
+        let ultimo = null;
+        ctx.strokeStyle = par[1]; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
+        for (let i = 0; i < pts.length && pts[i][0] <= h; i++) {
+          const x = x0 + (pts[i][0] / this.horas) * (x1 - x0), y = y0 - (Math.max(0, pts[i][1]) / this.maximo) * (y0 - y1);
+          if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+          ultimo = [x, y];
+        }
+        ctx.stroke();
+        if (ultimo) { ctx.fillStyle = par[1]; ctx.beginPath(); ctx.arc(ultimo[0], ultimo[1], 6, 0, 6.2832); ctx.fill(); }
+        return { u: ultimo, color: par[1], texto: nombre(S.unidades[par[0]].id) + ': ' + K.coma(Math.max(0, ahora[par[0]]), 1) + ' mm' };
+      }, this);
+      if (cabezas[0].u && cabezas[1].u) {
+        const yCalmo = cabezas[0].u[1] + 8, yMovido = Math.min(cabezas[1].u[1] + 8, yCalmo - 32);
+        ctx.textAlign = 'left'; ctx.font = '600 25px "Instrument Sans", sans-serif';
+        ctx.fillStyle = cabezas[0].color; ctx.fillText(cabezas[0].texto, cabezas[0].u[0] + 16, yCalmo);
+        ctx.fillStyle = cabezas[1].color; ctx.fillText(cabezas[1].texto, cabezas[1].u[0] + 16, yMovido);
+      }
+    },
     cuadro: function (t) {
       const S = this.S, h = recorrido(t - 0.8, 13, 4.5) * this.horas;
       reloj(this.reloj, Math.floor(h) + ' h');
+      const ahora = [];
+      for (let s = 0; s < this.n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
+      if (this.ctx) this.curva(h, ahora);
       if (!this.tres) return;
-      const B = this.B, ahora = [];
-      for (let s = 0; s < this.n; s++) {
-        ahora[s] = leer(S.unidades[s].puntos, h, 0);
-        this.mov[s * 4] = Math.round(K.acotar(ahora[s] / this.maximo, 0, 1) * 255);
-      }
+      const B = this.B;
+      for (let s = 0; s < this.n; s++) this.mov[s * 4] = Math.round(K.acotar(ahora[s] / this.maximo, 0, 1) * 255);
       this.tex.needsUpdate = true;
       B.u.uT.value = t;
       this.barre.value = ((t * 0.21) % 1.2) - 0.1;                          // el barrido del radar
-      B.mirar(-0.5 + Math.sin(t * 0.17) * 0.07, 0.3, 35, [0.3, 1.9, 0.6], -430);
+      // la cámara se acerca a medida que la pared se mueve
+      const cerca = h / this.horas;
+      B.mirar(-0.5 + Math.sin(t * 0.17) * 0.07, 0.3, 36 - 4.5 * cerca, [0.3 + 1.0 * cerca, 1.9 - 0.2 * cerca, 0.6], -430);
       for (let i = 0; i < this.etq.length; i++) {
         const s = this.marcados[i], p = this.pared((s + 0.5) / this.n, 0.999), mm = ahora[s];
         poner(this.etq[i], B.camera, p[0], p[1] + 0.15, p[2], '<b>' + nombre(S.unidades[s].id) + '</b>se movió ' + K.coma(Math.max(0, mm), 1) + ' mm', mm > 0.22 * this.maximo);
@@ -226,7 +264,7 @@
     },
   });
 
-  // ============================== 7 · Flotación: las líneas de estanques ==============================
+  // ============================== 9 · Flotación: las líneas de estanques ==============================
   K.registrar('flotacion', {
     tres: null, tQuieto: 20,
     crear: function (L) {
@@ -244,6 +282,7 @@
       const DX = 2.05, DZ = 1.95, W = 1.55, D = 1.2, H = 1.5, Y0 = -0.9, GH = 2.6;
       const xDe = function (c) { return (c - (celdas - 1) / 2) * DX - 1.1; }, zDe = function (l) { return (l - (n - 1) / 2) * DZ; };
       const xG = (this.xG = xDe(celdas - 1) + DX * 0.86);
+      const zG = (this.zG = function (l) { return zDe(l) + D / 2 + 0.42; });      // la canaleta por donde corre lo recuperado
       this.zDe = zDe; this.Y0 = Y0; this.GH = GH;
       const pos = [], ab = [], medidas = [], sin = [];
       for (let l = 0; l < n; l++) {
@@ -254,7 +293,7 @@
             x0, y1, z0, x1, y1, z0, x1, y1, z0, x1, y1, z1, x1, y1, z1, x0, y1, z1, x0, y1, z1, x0, y1, z0,
             x0, Y0, z0, x0, y1, z0, x1, Y0, z0, x1, y1, z0, x1, Y0, z1, x1, y1, z1, x0, Y0, z1, x0, y1, z1);
           const rico = hay ? (pts[c][1] - (c ? pts[c - 1][1] : 0)) / salto : 0;          // el cobre que flotó en este estanque
-          for (let i = 0; i < 120; i++) {
+          for (let i = 0; i < 230; i++) {
             pos.push(x + (azar() - 0.5) * W * 0.88, azar() * H, z + (azar() - 0.5) * D * 0.88);
             ab.push(azar(), azar(), rico, hay ? pts[c][0] : -1);
           }
@@ -277,11 +316,35 @@
           gl_PointSize = (0.045 + 0.06 * aB.y + espuma * 0.11 * (0.45 + aB.z)) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, { uMin: this.minuto });
+      // La espuma rebalsa por el borde de cada estanque medido y corre por una canaleta hasta el final de la línea:
+      // es el cobre que se recuperó ahí (más partículas donde flotó más). Así se llena la columna del final.
+      const pr = [], ao = [];
+      for (let l = 0; l < n; l++) {
+        const pts = S.unidades[l].puntos;
+        for (let c = 0; c < pts.length; c++) {
+          const rico = (pts[c][1] - (c ? pts[c - 1][1] : 0)) / salto, cuantas = Math.round(16 + 130 * rico);
+          for (let i = 0; i < cuantas; i++) { pr.push(xDe(c) + (azar() - 0.5) * W * 0.9, Y0 + H, zDe(l) + D / 2); ao.push(azar(), 0.4 + 0.6 * rico, xG, pts[c][0]); }
+        }
+      }
+      B.puntos({ position: [pr, 3], aO: [ao, 4] }, `
+        attribute vec4 aO;        // fase, cuánto cobre flotó ahí, dónde termina la línea, minuto en que se midió ese estanque
+        uniform float uMin;
+        void main() {
+          float u = fract(uT * 0.17 + aO.x);
+          float cae = clamp(u / 0.16, 0.0, 1.0), corre = clamp((u - 0.16) / 0.84, 0.0, 1.0);
+          vec3 p = vec3(mix(position.x, aO.z, corre), position.y - 0.62 * cae * cae, position.z + 0.42 * cae);
+          float medida = smoothstep(aO.w - 1.0, aO.w + 0.5, uMin);
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          vColor = mix(ORO, COBRE, corre);
+          vA = medida * aO.y * (0.2 + 0.8 * sin(3.1416 * u));
+          gl_PointSize = (0.05 + 0.06 * aO.y) * uEsc / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`, { uMin: this.minuto });
       // al final de cada línea, una columna: el cobre recuperado hasta donde se midió
       const pg = [], ag = [], tg = [];
       for (let l = 0; l < n; l++) {
         const col = tinteDe(S, S.unidades[l].id, [1.0, 0.82, 0.45]);
-        for (let i = 0; i < 64; i++) { pg.push(xG, Y0 + ((i + 0.5) / 64) * GH, zDe(l)); ag.push(l, (i + 0.5) / 64); tg.push(col[0], col[1], col[2]); }
+        for (let i = 0; i < 64; i++) { pg.push(xG, Y0 + ((i + 0.5) / 64) * GH, zG(l)); ag.push(l, (i + 0.5) / 64); tg.push(col[0], col[1], col[2]); }
       }
       this.rec = { value: new Array(n).fill(0) };
       B.puntos({ position: [pg, 3], aG: [ag, 2], aTinte: [tg, 3] }, `
@@ -298,7 +361,7 @@
         }`, { uRec: this.rec });
       // la meta de la planta, a la misma altura en las ocho columnas
       const meta = [], yM = Y0 + this.meta * GH;
-      for (let k = 0; k < 40; k++) { const z = K.mezcla(zDe(0) - 1.1, zDe(n - 1) + 1.1, k / 40), z2 = K.mezcla(zDe(0) - 1.1, zDe(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
+      for (let k = 0; k < 40; k++) { const z = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, k / 40), z2 = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
       B.lineas(meta, 0xffffff, 0.95);
       this.etq = etiquetas(L, n, 'chica');
       this.etqMeta = etiquetas(L, 1, 'chica')[0];
@@ -313,17 +376,17 @@
       const B = this.B;
       B.u.uT.value = t;
       this.minuto.value = m;
-      B.mirar(-0.66 + Math.sin(t * 0.15) * 0.05, 0.52, 39, [0.6, 1.2, 0], -340);
+      B.mirar(-0.66 + Math.sin(t * 0.15) * 0.06, 0.5, 37, [2.0, 1.0, 0.4], -330);
       for (let l = 0; l < this.n; l++) {
         const pts = S.unidades[l].puntos, r = m < 0.4 ? 0 : leer(pts, m, 0);
         this.rec.value[l] = r;
-        poner(this.etq[l], B.camera, this.xG + 0.2, this.Y0 + this.GH + 0.2, this.zDe(l), '<b>' + nombre(S.unidades[l].id) + '</b> ' + Math.round(r * 100) + '%', m >= pts[0][0]);
+        poner(this.etq[l], B.camera, this.xG + 0.2, this.Y0 + this.GH + 0.2, this.zG(l), '<b>' + nombre(S.unidades[l].id) + '</b> ' + Math.round(r * 100) + '%', m >= pts[0][0]);
       }
-      poner(this.etqMeta, B.camera, this.xG, this.Y0 + this.meta * this.GH, this.zDe(0) - 1.1, 'Meta: ' + Math.round(this.meta * 100) + '%', true);
+      poner(this.etqMeta, B.camera, this.xG, this.Y0 + this.meta * this.GH, this.zG(0) - 1.1, 'Meta: ' + Math.round(this.meta * 100) + '%', true);
     },
   });
 
-  // ============================== 8 · Flota: los camiones en la rampa ==============================
+  // ============================== 10 · Flota: los camiones en la rampa ==============================
   K.registrar('flota', {
     tres: null, tQuieto: 17,
     crear: function (L) {
@@ -334,7 +397,7 @@
       S.unidades.forEach(function (un) { this.horas = Math.max(this.horas, un.puntos[un.puntos.length - 1][0]); }, this);
       this.falla = S.umbral || 1;
       if (!K.gl.ok) return;
-      const B = (this.B = base(30)), azar = K.azar(37), VUELTAS = 1.7, ALTO_COL = 2.0, PIE = 0.95;
+      const B = (this.B = base(30)), azar = K.azar(37), VUELTAS = 1.7, ALTO_COL = 2.6, PIE = 1.85;
       this.ALTO_COL = ALTO_COL; this.PIE = PIE;
       // la rampa: una espiral que sube desde el fondo del rajo
       const rampa = (this.rampa = function (s, afuera) {
@@ -343,46 +406,57 @@
       });
       const pos = [], ar = [], paso = 6.9 / VUELTAS;                          // lo que crece el radio en una vuelta
       for (let i = 0; i < 24000; i++) {
-        const s = -0.12 + azar() * 1.12, w = azar(), camino = w < 0.24;
+        const s = -0.12 + azar() * 1.12, cresta = azar() < 0.24, w = cresta ? 0.34 + azar() * 0.012 : azar(), camino = w < 0.34;
         // de la rampa hacia afuera: primero el camino, plano; después la pared, que sube hasta la vuelta siguiente
-        const sube = camino ? 0 : K.suave((w - 0.24) / 0.76) * (6.6 / VUELTAS), p = rampa(Math.max(s, -0.12), w * paso);
+        const sube = camino ? 0 : K.suave((w - 0.34) / 0.66) * (6.6 / VUELTAS), p = rampa(Math.max(s, -0.12), w * paso);
         if ((s < 0 && w > 0.5) || p[1] + sube > 3.5) continue;
-        pos.push(p[0], p[1] + sube + (azar() - 0.5) * 0.05, p[2]); ar.push(camino ? 1 : 0, azar());
+        pos.push(p[0], p[1] + sube + (azar() - 0.5) * 0.05, p[2]); ar.push(cresta ? 2 : (camino ? 1 : 0), azar());
       }
       for (let i = 0; i < 700; i++) { const a = azar() * 6.2832, r = Math.sqrt(azar()) * 3.0; pos.push(1.28 * r * Math.cos(a), -3.5 - 0.1 * azar(), r * Math.sin(a)); ar.push(0, azar()); }
       B.puntos({ position: [pos, 3], aR: [ar, 2] }, `
         attribute vec2 aR;
         void main() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          vColor = mix(ARENA, ARENA * 1.35, aR.x);
-          vA = 0.34 + 0.3 * aR.x + 0.14 * aR.y;
+          vColor = mix(ARENA, ARENA * 1.35, min(aR.x, 1.0));
+          vA = 0.26 + 0.2 * min(aR.x, 1.0) + 0.14 * aR.y + 0.16 * step(1.5, aR.x);
           gl_PointSize = (0.055 + 0.045 * aR.y) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`);
-      // un camión, en trazos: chasis, tolva, cabina y ruedas (x hacia adelante)
-      const T = [], caja = function (x0, x1, y0, y1, z0, z1) {
-        T.push(x0, y0, z0, x1, y0, z0, x1, y0, z0, x1, y0, z1, x1, y0, z1, x0, y0, z1, x0, y0, z1, x0, y0, z0,
-          x0, y1, z0, x1, y1, z0, x1, y1, z0, x1, y1, z1, x1, y1, z1, x0, y1, z1, x0, y1, z1, x0, y1, z0,
-          x0, y0, z0, x0, y1, z0, x1, y0, z0, x1, y1, z0, x1, y0, z1, x1, y1, z1, x0, y0, z1, x0, y1, z1);
+      // un camión, hecho de puntos para que se vea en cualquier pantalla: chasis, tolva, cabina, ruedas y dos focos
+      const T = [], tipo = [];
+      const punto = function (x, y, z, k) { T.push(x, y, z); tipo.push(k || 0); };
+      const arista = function (a, b) {                                                  // puntos seguidos a lo largo de una arista
+        const largo = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), cuantos = Math.max(2, Math.ceil(largo / 0.055));
+        for (let i = 0; i <= cuantos; i++) punto(K.mezcla(a[0], b[0], i / cuantos), K.mezcla(a[1], b[1], i / cuantos), K.mezcla(a[2], b[2], i / cuantos));
       };
-      caja(-0.75, 0.75, 0.24, 0.42, -0.34, 0.34);
-      caja(0.38, 0.72, 0.42, 0.8, -0.34, 0.02);
-      const perfil = [[-0.72, 0.44], [0.3, 0.44], [0.42, 0.9], [0.84, 0.9], [0.84, 1.0], [-0.86, 1.0]];
-      [-0.4, 0.4].forEach(function (z) { perfil.forEach(function (p, i) { const q = perfil[(i + 1) % perfil.length]; T.push(p[0], p[1], z, q[0], q[1], z); }); });
-      perfil.forEach(function (p) { T.push(p[0], p[1], -0.4, p[0], p[1], 0.4); });
-      [[-0.42, -0.38], [-0.42, 0.38], [0.46, -0.38], [0.46, 0.38]].forEach(function (c) {
-        for (let k = 0; k < 8; k++) { const a = (k / 8) * 6.2832, b = ((k + 1) / 8) * 6.2832; T.push(c[0] + Math.cos(a) * 0.26, 0.26 + Math.sin(a) * 0.26, c[1], c[0] + Math.cos(b) * 0.26, 0.26 + Math.sin(b) * 0.26, c[1]); }
+      const caja = function (x0, x1, y0, y1, z0, z1) {
+        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].forEach(function (q, i, lista) {
+          const r = lista[(i + 1) % 4];
+          arista([q[0], q[1], z0], [r[0], r[1], z0]); arista([q[0], q[1], z1], [r[0], r[1], z1]); arista([q[0], q[1], z0], [q[0], q[1], z1]);
+        });
+      };
+      caja(-0.8, 0.8, 0.26, 0.46, -0.36, 0.36);                                         // chasis
+      caja(0.42, 0.78, 0.46, 0.86, -0.36, 0.02);                                        // cabina
+      const perfil = [[-0.74, 0.48], [0.3, 0.48], [0.44, 0.96], [0.9, 0.96], [0.9, 1.08], [-0.9, 1.08]];   // tolva, con visera
+      perfil.forEach(function (q, i) {
+        const r = perfil[(i + 1) % perfil.length];
+        arista([q[0], q[1], -0.43], [r[0], r[1], -0.43]); arista([q[0], q[1], 0.43], [r[0], r[1], 0.43]); arista([q[0], q[1], -0.43], [q[0], q[1], 0.43]);
       });
-      const pt = [], ac = [], tt = [];
+      [[-0.48, -0.42], [-0.48, 0.42], [0.5, -0.42], [0.5, 0.42]].forEach(function (c) {     // ruedas
+        for (let k = 0; k < 22; k++) { const a = (k / 22) * 6.2832; punto(c[0] + Math.cos(a) * 0.29, 0.29 + Math.sin(a) * 0.29, c[1]); }
+        for (let k = 0; k < 8; k++) { const a = (k / 8) * 6.2832; punto(c[0] + Math.cos(a) * 0.13, 0.29 + Math.sin(a) * 0.13, c[1]); }
+      });
+      punto(0.84, 0.52, -0.26, 1); punto(0.84, 0.52, 0.26, 1);                          // focos
+      const ESC = 1.45, pt = [], ac = [], tt = [];
       for (let i = 0; i < n; i++) {
-        const col = tinteDe(S, S.unidades[i].id, null);
-        for (let k = 0; k < T.length; k += 3) { pt.push(T[k] * 0.82, T[k + 1] * 0.82, T[k + 2] * 0.82); ac.push(i); tt.push.apply(tt, col || [0, 0, 0]); }
+        const col = tinteDe(S, S.unidades[i].id, null) || [0, 0, 0];
+        for (let k = 0; k < tipo.length; k++) { pt.push(T[k * 3] * ESC, T[k * 3 + 1] * ESC, T[k * 3 + 2] * ESC); ac.push(i, tipo[k]); tt.push(col[0], col[1], col[2]); }
       }
       this.cam = { value: [] }; this.est = { value: [] };
       for (let i = 0; i < n; i++) { this.cam.value.push(new THREE.Vector4()); this.est.value.push(new THREE.Vector2()); }
       const comun = { uCam: this.cam, uEst: this.est, uResp: { value: S.respuesta ? 1 : 0 } };
       const cabecera = `
-        attribute float aCam;
+        attribute vec2 aCam;           // qué camión es, y si este punto es un foco (o la marca de la falla, en la columna)
         attribute vec3 aTinte;
         uniform vec4 uCam[${n}];       // dónde va cada camión (x, y, z) y hacia dónde mira
         uniform vec2 uEst[${n}];       // su desgaste (0 a 1: 1 es la falla) y cuánto se ve
@@ -391,34 +465,36 @@
           vec3 c = des < 0.55 ? mix(OXIDO, COBRE, des / 0.55) : mix(COBRE, ROJO, smoothstep(0.55, 0.9, des));
           return mix(c, aTinte, uResp);
         }`;
-      B.trazos({ position: [pt, 3], aCam: [ac, 1], aTinte: [tt, 3] }, cabecera + `
+      B.puntos({ position: [pt, 3], aCam: [ac, 2], aTinte: [tt, 3] }, cabecera + `
         void main() {
-          int i = int(aCam + 0.5);
+          int i = int(aCam.x + 0.5);
           vec4 c = uCam[i];
-          float co = cos(c.w), si = sin(c.w);
+          float co = cos(c.w), si = sin(c.w), des = uEst[i].x;
           vec3 p = vec3(position.x * co - position.z * si, position.y, position.x * si + position.z * co) + c.xyz;
-          vColor = colorDe(uEst[i].x);
-          vA = uEst[i].y;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+          float alerta = smoothstep(0.8, 0.95, des) * (0.5 + 0.5 * sin(uT * 7.0));       // el que está por fallar, parpadea
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          vColor = aCam.y > 0.5 ? vec3(1.0, 0.95, 0.8) : colorDe(des) * (1.0 + 0.9 * alerta);
+          vA = uEst[i].y * (aCam.y > 0.5 ? 1.7 : 0.5 + 0.5 * alerta);
+          gl_PointSize = (aCam.y > 0.5 ? 0.17 : 0.062) * uEsc / -mv.z;
+          gl_Position = projectionMatrix * mv;
         }`, comun);
       // sobre cada camión, su desgaste: la columna se llena hasta donde va; arriba, la marca de la falla
       const pc = [], acol = [], fc = [], tc = [];
       for (let i = 0; i < n; i++) {
         const col = tinteDe(S, S.unidades[i].id, null) || [0, 0, 0];
-        for (let k = 0; k < 30; k++) { pc.push(0, 0, 0); acol.push(i); fc.push((k + 0.5) / 30, 0); tc.push(col[0], col[1], col[2]); }
-        for (let k = 0; k < 5; k++) { pc.push((k - 2) * 0.075, 0, 0); acol.push(i); fc.push(1.0, 1); tc.push(col[0], col[1], col[2]); }
+        for (let k = 0; k < 36; k++) { pc.push(0, 0, 0); acol.push(i, 0); fc.push((k + 0.5) / 36); tc.push(col[0], col[1], col[2]); }
+        for (let k = 0; k < 7; k++) { pc.push((k - 3) * 0.1, 0, 0); acol.push(i, 1); fc.push(1.0); tc.push(col[0], col[1], col[2]); }
       }
-      B.puntos({ position: [pc, 3], aCam: [acol, 1], aF: [fc, 2], aTinte: [tc, 3] }, cabecera + `
-        attribute vec2 aF;             // la altura dentro de la columna (0 a 1) y si es la marca de la falla
+      B.puntos({ position: [pc, 3], aCam: [acol, 2], aF: [fc, 1], aTinte: [tc, 3] }, cabecera + `
+        attribute float aF;            // la altura dentro de la columna (0 a 1)
         void main() {
-          int i = int(aCam + 0.5);
-          float des = uEst[i].x;
-          float lleno = step(aF.x, des);
-          vec4 mv = modelViewMatrix * vec4(uCam[i].xyz + vec3(0.0, ${PIE.toFixed(2)} + aF.x * ${ALTO_COL.toFixed(2)}, 0.0), 1.0);
+          int i = int(aCam.x + 0.5);
+          float des = uEst[i].x, lleno = step(aF, des);
+          vec4 mv = modelViewMatrix * vec4(uCam[i].xyz + vec3(0.0, ${PIE.toFixed(2)} + aF * ${ALTO_COL.toFixed(2)}, 0.0), 1.0);
           mv.x += position.x;                                               // la marca de la falla, siempre de frente
-          vColor = aF.y > 0.5 ? ROJO : mix(ARENA, colorDe(des), lleno);
-          vA = uEst[i].y * (aF.y > 0.5 ? 0.95 : 0.3 + 0.8 * lleno);
-          gl_PointSize = (aF.y > 0.5 ? 0.07 : 0.045 + 0.075 * lleno) * uEsc / -mv.z;
+          vColor = aCam.y > 0.5 ? ROJO : mix(ARENA, colorDe(des), lleno);
+          vA = uEst[i].y * (aCam.y > 0.5 ? 1.0 : 0.3 + 0.9 * lleno);
+          gl_PointSize = (aCam.y > 0.5 ? 0.09 : 0.05 + 0.1 * lleno) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, comun);
       this.etq = etiquetas(L, 2, 'nota');
@@ -432,10 +508,10 @@
       if (!this.tres) return;
       const B = this.B, orden = [];
       B.u.uT.value = t;
-      B.mirar(0.35 + t * 0.022, 0.72, 50, [0, 1.2, 0], -400);
+      B.mirar(0.35 + t * 0.03, 0.66, 48, [0, 0.8, 0], -480);
       for (let i = 0; i < this.n; i++) {
         const pts = S.unidades[i].puntos, des = K.acotar(leer(pts, h, 0) / this.falla, 0, 1);
-        const s = (((i / this.n + t * 0.006) % 1) + 1) % 1, p = this.rampa(s, 0.45), q = this.rampa(s + 0.004, 0.45);
+        const s = (((i / this.n + t * 0.013) % 1) + 1) % 1, p = this.rampa(s, 0.7), q = this.rampa(s + 0.004, 0.7);
         this.cam.value[i].set(p[0], p[1], p[2], Math.atan2(q[2] - p[2], q[0] - p[0]));
         this.est.value[i].set(des, K.acotar(s / 0.03, 0, 1) * K.acotar((1 - s) / 0.03, 0, 1));
         orden.push([des, i, p]);
@@ -443,13 +519,15 @@
       orden.sort(function (a, b) { return b[0] - a[0]; });
       for (let k = 0; k < this.etq.length; k++) {
         const o = orden[k];
-        poner(this.etq[k], B.camera, o[2][0], o[2][1] + this.PIE + this.ALTO_COL + 0.1, o[2][2],
-          '<b>' + nombre(S.unidades[o[1]].id) + '</b>desgaste: ' + Math.floor(o[0] * 100) + '% del límite', o[0] > 0.8 && this.est.value[o[1]].y > 0.9);
+        // la etiqueta no se muestra mientras su camión pasa por debajo del reloj: dos textos nunca se pisan
+        const y = o[2][1] + this.PIE + this.ALTO_COL + 0.1, q = K.proyectar(o[2][0], y, o[2][2], B.camera), libre = !(q.x > 1130 && q.y < 390);
+        poner(this.etq[k], B.camera, o[2][0], y, o[2][2],
+          '<b>' + nombre(S.unidades[o[1]].id) + '</b>desgaste: ' + Math.floor(o[0] * 100) + '% del límite', libre && o[0] > 0.8 && this.est.value[o[1]].y > 0.9);
       }
     },
   });
 
-  // ============================== 9 · Sismicidad: los túneles después de la explosión ==============================
+  // ============================== 11 · Sismicidad: los túneles después de la explosión ==============================
   K.registrar('sismicidad', {
     tres: null, tQuieto: 16,
     crear: function (L) {
