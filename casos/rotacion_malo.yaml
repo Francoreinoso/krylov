@@ -1,0 +1,35 @@
+# El archivo malo del demo (tarea S-08): el caso de rotación con una columna extra que delata la respuesta.
+# No aparece en el inicio. En el demo se carga con la tecla M.
+# Sirve para el arco: rojo («no se parece a nada que haya visto») → propone quitar la columna → verde.
+nombre: rotacion_malo
+tarjeta:
+  titulo: "¿A quién conviene retener?"
+  empresa_o_industria: "Caso tipo Buk · archivo con un problema"
+  sponsor: Buk
+  oculto: true
+pregunta: "¿A qué personas conviene ofrecerles un plan de retención?"
+motor: supervivencia
+unidad: { singular: persona, plural: personas }
+rotulos:
+  actuar: "Conviene retener"
+  no_actuar: "No hace falta"
+  en_duda: "No sabemos si conviene"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+columnas:
+  id: EmployeeNumber
+  evento: Attrition
+  tiempo: YearsAtCompany
+  grupo: JobRole
+  efectos: [OverTime, DistanceFromHome, NumCompaniesWorked]
+  suave: MonthlyIncome
+  encuestas: [EnvironmentSatisfaction, JobSatisfaction, RelationshipSatisfaction, WorkLifeBalance]
+  extra: [fecha_salida]        # la columna que delata la respuesta. No entra a la red: la detecta la nube con ejes con nombre (D-26)
+  disponibles: 36
+  elegidas_por: equipo
+costos:
+  falso_si: { valor: 1500, min: 200, max: 5000, etiqueta: "Costo de un plan de retención", tipo: hipótesis, cifra: K-01 }
+  falso_no: { valor: 6000, min: 1000, max: 20000, etiqueta: "Costo de reemplazar a alguien", tipo: hipótesis, cifra: K-02 }
+moneda: USD
+dataset: datos/demo/rotacion_malo.csv
+origen_datos: "Datos públicos de ejemplo con una columna agregada por nosotros para mostrar un archivo malo."
+sintetico: false

@@ -1,0 +1,15 @@
+# Copia este archivo como CLAUDE.local.md en la raíz del repositorio.
+# Deja UNA sola línea de rol y UNA sola línea de import: las de este computador.
+# CLAUDE.local.md está en .gitignore: cada computador tiene el suyo y no se sube.
+
+ROL: producto
+@PC1_PRODUCTO.md
+
+# Otras opciones (borra las que no sean de este computador):
+# ROL: amortizacion
+# @PC2_AMORTIZACION.md
+#
+# ROL: seguimiento
+# @PC3_SEGUIMIENTO.md
+
+Persona a cargo de este computador: [nombre]

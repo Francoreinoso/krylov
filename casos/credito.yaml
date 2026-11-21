@@ -1,0 +1,38 @@
+# Caso de uso. Dueño: seguimiento. Formato: contratos/CONTRATO.md, sección 4. Skill: `agregar-caso`.
+# Tarea S-05. Se toma una muestra de 2.000 filas con semilla fija.
+# Usar la copia en CSV con encabezados legibles (UCI_Credit_Card.csv): ahí la respuesta se llama
+# `default.payment.next.month` y el script de preparación la renombra a `default`. No existe PAY_1: de PAY_0 se pasa a PAY_2.
+nombre: credito
+tarjeta:
+  titulo: "¿A quién le apruebo el crédito?"
+  empresa_o_industria: "Crédito"
+  sponsor: null
+  oculto: false
+pregunta: "¿A qué clientes conviene no aprobar, y en cuáles no se sabe?"
+motor: estados
+unidad: { singular: cliente, plural: clientes }
+rotulos:
+  actuar: "Mejor no aprobar"
+  no_actuar: "Aprobar"
+  en_duda: "No sabemos si conviene"
+  costo_de_no_saber: "Lo que te cuesta no saber"
+columnas:
+  id: ID
+  objetivo: default            # impago del mes siguiente: el próximo paso de la cadena. Vacío en el 20% por decidir
+  # Seis meses de historial, del más antiguo (abril) al más reciente (septiembre). Se usan todas las columnas de historial.
+  atraso: [PAY_6, PAY_5, PAY_4, PAY_3, PAY_2, PAY_0]      # códigos −2 a 8; −2, −1 y 0 no son atrasos (sin uso, pagó todo, pago mínimo)
+  saldo: [BILL_AMT6, BILL_AMT5, BILL_AMT4, BILL_AMT3, BILL_AMT2, BILL_AMT1]   # hay 590 saldos negativos y 7% sobre el cupo
+  pago: [PAY_AMT6, PAY_AMT5, PAY_AMT4, PAY_AMT3, PAY_AMT2, PAY_AMT1]          # muchos ceros
+  cupo: LIMIT_BAL
+  transiciones: [LIMIT_BAL, AGE, EDUCATION]               # de qué dependen los cambios de estado
+  extra: []
+  disponibles: 25
+  elegidas_por: equipo
+costos:
+  falso_si: { valor: 800, min: 100, max: 3000, etiqueta: "Ganancia perdida por rechazar a quien pagaba", tipo: hipótesis, cifra: K-03 }
+  falso_no: { valor: 2500, min: 500, max: 10000, etiqueta: "Pérdida por aprobar a quien no pagó", tipo: hipótesis, cifra: K-04 }
+moneda: USD
+dataset: datos/demo/credito.csv
+verdad: datos/demo/credito_verdad.csv
+origen_datos: "Datos públicos reales: clientes de tarjetas de crédito en Taiwán (UCI, CC BY 4.0)."
+sintetico: false

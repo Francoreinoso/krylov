@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git remote -v)",
+      "Bash(git fetch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git pull --rebase)",
+      "Bash(git pull --rebase *)",
+      "Bash(git push)",
+      "Bash(git push origin main)",
+      "Bash(git push origin --tags)",
+      "Bash(git push origin main --tags)",
+      "Bash(git tag *)",
+      "Bash(git ls-remote *)",
+      "Bash(uv venv *)",
+      "Bash(uv sync)",
+      "Bash(uv sync *)",
+      "Bash(uv add *)",
+      "Bash(uv pip *)",
+      "Bash(uv run *)",
+      "Bash(npm install)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm --prefix web install)",
+      "Bash(npm --prefix web install *)",
+      "Bash(npm --prefix web run *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(date)",
+      "Bash(date *)",
+      "Bash(caffeinate *)",
+      "Bash(pmset -g *)",
+      "Bash(curl -s http://localhost:*)",
+      "Bash(curl -s http://127.0.0.1:*)"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  }
+}

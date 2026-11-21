@@ -1,0 +1,7 @@
+# Tarjetas de la pantalla de inicio, en orden. La primera abre el demo.
+# Una tarjeta que no funcione a las 18:00 del sábado se borra de esta lista.
+# rotacion_malo no va aquí: es el archivo malo del demo (tecla M) y está marcado `oculto`.
+rotacion
+terreno
+inasistencias
+credito

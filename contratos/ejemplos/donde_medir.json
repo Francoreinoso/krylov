@@ -1,0 +1,53 @@
+{
+ "_aviso": "Ejemplo fijo para maquetar. Todos los números son inventados: no se muestran en el demo ni en el pitch.",
+ "caso": "terreno",
+ "candidatas": [
+  {
+   "puesto": 1,
+   "etiqueta": "A",
+   "x": 180186,
+   "y": 331408,
+   "valor_de_medir": 41200,
+   "costo_medicion": 3000,
+   "valor_neto": 38200,
+   "resultados_posibles": {
+    "bajo": 240,
+    "medio": 610,
+    "alto": 1480
+   }
+  },
+  {
+   "puesto": 2,
+   "etiqueta": "B",
+   "x": 179576,
+   "y": 330920,
+   "valor_de_medir": 22900,
+   "costo_medicion": 3000,
+   "valor_neto": 19900,
+   "resultados_posibles": {
+    "bajo": 310,
+    "medio": 700,
+    "alto": 1320
+   }
+  },
+  {
+   "puesto": 3,
+   "etiqueta": "C",
+   "x": 181162,
+   "y": 332628,
+   "valor_de_medir": 9100,
+   "costo_medicion": 3000,
+   "valor_neto": 6100,
+   "resultados_posibles": {
+    "bajo": 180,
+    "medio": 420,
+    "alto": 990
+   }
+  }
+ ],
+ "mensaje_parada": null,
+ "analisis_rehechos": 480,
+ "tiempo_ms": 900,
+ "implementacion": "red",
+ "precalculado": false
+}

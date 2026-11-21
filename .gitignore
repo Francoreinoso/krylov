@@ -1,0 +1,43 @@
+# Rol y permisos de cada computador (no se comparten)
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Secretos. El repositorio es público: nada de claves.
+.env
+.env.*
+!.env.ejemplo
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+web/dist/
+web/.vite/
+.vercel/
+
+# Puntos de guardado intermedios y bancos de simulación (pesan mucho; se regeneran)
+motor/checkpoints/
+motor/banco/
+*.npy
+*.npz
+
+# Lo que SÍ se versiona de un motor: motor/artefactos/<motor_id>/{modelo.onnx,pesos.pt,config.json,sello.json}
+!motor/artefactos/**
+
+# Las respuestas precalculadas SÍ se versionan: web/public/estatico/
+
+# Archivos de datos cuya licencia no permite publicarlos (se anotan aquí uno por uno)
+# datos/demo/inasistencias.csv
+
+# Sistema y editores
+.DS_Store
+.idea/
+.vscode/
+
+# Videos crudos del respaldo (el final se sube a mano)
+pitch/video/crudo/

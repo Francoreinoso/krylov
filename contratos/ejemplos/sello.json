@@ -1,0 +1,36 @@
+{
+ "_aviso": "Ejemplo fijo para maquetar. Todos los números son inventados: no se muestran en el demo ni en el pitch.",
+ "motor_id": "espacial",
+ "implementacion": "red",
+ "simulaciones_entrenamiento": 12000000,
+ "entrenamiento_min": 190,
+ "casos_validacion": 5000,
+ "cobertura_90": 0.903,
+ "cobertura_90_peor_grupo": 0.871,
+ "peor_grupo": "muy pocas mediciones",
+ "sbc_pasa": true,
+ "cobertura_90_metodo_rapido": 0.74,
+ "latencia_ms": 60,
+ "mcmc_datasets_comparados": 8,
+ "mcmc_s_por_dataset": 45.0,
+ "mcmc_diferencia_media": 0.08,
+ "amortizacion": {
+  "que_se_compara": "rehacer 480 análisis completos para «¿Dónde mido?»",
+  "mcmc_s": 21600,
+  "red_s": 0.9
+ },
+ "nube_malo_cae_fuera": null,
+ "minutos_de_punta_a_punta": 240,
+ "fecha": "2026-11-21",
+ "maquina": "MacBook Air M4 16 GB",
+ "limitaciones": [
+  "Terrenos en dos dimensiones",
+  "Hasta 400 mediciones",
+  "Grilla de 32 por 32 bloques"
+ ],
+ "frases": [
+  "Practicó con 12 millones de terrenos simulados.",
+  "Cuando da un rango de 90%, acierta 90,3%. El método rápido de siempre acierta 74%.",
+  "En el tipo de terreno más difícil acierta 87,1%."
+ ]
+}
