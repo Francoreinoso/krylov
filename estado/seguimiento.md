@@ -92,6 +92,19 @@ La persona de PC 3 la aprobó completa con estos puntos a la vista; los riesgos 
 
 **Lo que sí tiene la propuesta, y vale:** que el jurado vea a la misma red responder un archivo que no es el del demo. Eso se puede mostrar sin chat, sin subida y sin cambiar el contrato: archivos reales nuevos del mismo esquema como casos ocultos (otros 2.000 clientes de crédito, otros 30 barrios de inasistencias), precalculados y en vivo, con un botón «Probar con otro archivo».
 
+## Hallazgo: punto de corte (sáb 10:38, por la prueba S-09)
+
+El asistente genérico de S-09 pone el corte de rotación en 25%; Krylov, en 20%. La regla del contrato (sección 3) es `corte = C_si / (C_si + C_no)`, que vale cuando acertar no cuesta nada. Pero en tres casos la acción se paga también cuando sí hacía falta: el plan de retención (rotación), confirmar la cita (inasistencias) y limpiar el bloque (terreno). Con los costos como están escritos, lo que se arriesga al no actuar es «reemplazo − plan», no «reemplazo»:
+
+| Caso | Hoy | Corte hoy | Corte si `falso_no` es lo que se pierde de más (`falso_no − falso_si`) |
+|---|---|---|---|
+| Rotación | 1.500 y 6.000 | 20% | 25% (1.500 / 6.000) |
+| Inasistencias | 15 y 40 | 27% | 37,5% (15 / 40) |
+| Terreno | 20.000 y 50.000 | 29% | 40% (20.000 / 50.000) |
+| Crédito | 800 y 2.500 | 24% | sin cambio: rechazar a quien no paga no cuesta nada |
+
+Arreglo más simple, sin tocar código: en los YAML de esos tres casos, `falso_no` pasa a ser lo que se pierde de más («Lo que pierdes si se va sin plan: reemplazo menos el plan», 4.500; 25; 30.000) y se registra en `CIFRAS.md`. Cambia los colores y «lo que cuesta no saber», así que lo decide el equipo con PC 1 y PC 2 antes de regenerar el estático (P-05).
+
 ## Bloqueos
 
 - (ninguno)

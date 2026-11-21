@@ -32,9 +32,11 @@ El mismo archivo de rotación y la misma pregunta («¿A quién conviene retener
 
 | Intento | A quién dijo que había que retener (resumen) | ¿Dio un número en plata? | ¿Dijo cuánto se puede equivocar? |
 |---|---|---|---|
-| 1 | | | |
+| 1 (10:38) | 49 de 294 (umbral 25% = 1.500 / 6.000); ensamble de regresión logística y gradient boosting. De esas 49, renunciaron de verdad 33 (67%); encontró 33 de las 54 renuncias reales | Sí: «costo de la incertidumbre residual» US$ 122.307 (y US$ 181.258 de «no saber nada») | Da una probabilidad por persona y un AUC global de 0,835; ningún rango por persona |
 | 2 | | | |
 | 3 | | | |
+
+**Nota del intento 1 (10:38):** el asistente pone el punto de corte en 25% (retener si 6.000 × p > 1.500, porque el plan se paga también a quien se iba a ir). Krylov usa 20% (1.500 / (1.500 + 6.000)), que solo es correcto si el plan no cuesta nada cuando sí hacía falta. Ver `estado/seguimiento.md`, «Hallazgo: punto de corte».
 
 Si las tres respuestas coinciden y dicen cuánto se pueden equivocar, **no se usa** como argumento y la respuesta a «¿por qué no un chat?» se apoya solo en el mapa y en «¿Dónde mido?». No se nombra a ningún producto como el malo; se dice «un asistente genérico».
 
