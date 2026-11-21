@@ -44,6 +44,7 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 2. **S-N2 · fuentes de las cifras.** Abrir cada enlace de `pitch/CIFRAS.md` (lista en `WORKPLAN.md`, sección 12) y anotar en una columna aparte lo que dice la página hoy. No se firma «Verificó»: eso lo hace una persona en S-10.
 3. **S-N3 · entrega en borrador.** Borrador de `project-description.md` y de la estructura del README, sin cifras que no estén en `pitch/CIFRAS.md`. **No tocar la línea del README dirigida a modelos de lenguaje:** queda como decisión pendiente para S-16.
 4. **S-N4 · ronda de lectura cada hora** (06:15, 07:15, 08:15): `git pull --rebase`, leer los estados de PC 1 y PC 2 y la última línea de `motor/checkpoints/supervivencia/registro.jsonl`. Si alguien dejó un bloqueo, o el entrenamiento dejó de escribir puntos de guardado, destacarlo arriba en el tablero para las 08:15.
+5. **Después, por D-29, las tareas de día que no exigen a una persona ni procesador pesado, en orden:** S-07 (revisar el caso de inasistencias contra su YAML) y S-08 (archivo malo: `datos/demo/rotacion_malo.csv`, rotación más `fecha_salida` solo para quienes renunciaron, declarada en `columnas.extra` de `casos/rotacion_malo.yaml`). S-09 y S-10 exigen a una persona: no se hacen de noche.
 
 ## Bloqueos
 
@@ -63,6 +64,7 @@ Regla: solo esto, solo en `casos/`, `datos/`, `pitch/` y `estado/`, commits chic
 | sáb 03:58 · cierre H0 | P-01 de PC 1: `uv run uvicorn servicio.app:app --port 8010` y `npm run dev`; inicio con 4 tarjetas, respuesta de rotación y del terreno; API detenida → «Modo estático» | D-28: tag `h0`. Pitch de 3 minutos (J-04). Orden de tarjetas: manda `casos/INICIO` |
 | sáb 04:02 · P-02 | https://krylov-tan.vercel.app/ en navegador con tamaño de teléfono (375×812): inicio, rotación, pie «Modo estático»; `casos.json` 95 ms, `analizar/rotacion.json` 358 ms | `deploy-url` de `platanus-hack-project.jsonc` pasa a la URL de Vercel. Tablero al día |
 | sáb 04:36 | `supervivencia` en PC 3: paso 49.470, 1,58 millones de datasets, punto de guardado a las 04:35:33, sin errores en `corrida.log`, `caffeinate` activo, enchufado. PC 1: P-03 sin commit desde las 03:59 (vence 05:00). PC 2: lista nocturna todavía sin escribir (A-05 es a las 05:10) | Guion: versión de 3 minutos como principal; «294 personas reales» → «la respuesta de 294 personas del archivo» (el archivo es ficticio). Tablero: aviso de `codificador.onnx.data` copiado a PC 1. Lista nocturna de PC 3 escrita |
+| sáb 04:38 · P-03 | `npm ci` (dependencia nueva de fuente) y `npm run dev`, `/?estatico=1`: tarjetas en el orden de `casos/INICIO`; rotación con lista de más a menos riesgo, punto de corte 20%, «qué pesa» con etiquetas y pie. `supervivencia`: 1,74 millones de datasets | Tablero: P-03 hecho, aviso de `npm ci`, la tarea siguiente y la que viene después. D-29 cambió dos veces (04:35 los tres, 04:36 solo PC 2, 04:38 los tres): queda para los tres; la lista nocturna de PC 3 sigue con S-07 y S-08 |
 
 ## Números medidos
 
