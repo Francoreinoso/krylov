@@ -103,7 +103,9 @@ html, body {
   transition-delay: var(--d, 0s);
 }
 [data-paso].visto { opacity: 1; transform: none; filter: none; }
-[data-hasta].ido { opacity: 0 !important; transform: translateY(-20px) !important; filter: blur(6px) !important; transition-delay: 0s !important; }
+/* lo que sale se va rápido y lo que entra espera a que se haya ido: nunca hay dos textos encima uno del otro */
+[data-hasta].ido { opacity: 0 !important; transform: translateY(-20px) !important; filter: blur(6px) !important; transition-delay: 0s !important; transition-duration: .2s !important; }
+[data-paso="1"], [data-paso="2"] { --d: .26s; }
 
 .quieto [data-paso], .quieto .lamina, .quieto #gl { transition: none !important; }
 .quieto * { animation: none !important; }
@@ -111,13 +113,13 @@ html, body {
 /* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
 .sin-gl .lamina[data-gl] { background: center / cover no-repeat; }
 .sin-gl .lamina[data-gl] > :not(aside) { visibility: hidden; }
-.sin-gl #l-mundos { background-image: url(respaldo/03.jpg); }
-.sin-gl #l-vision { background-image: url(respaldo/04.jpg); }
-.sin-gl #l-leyes { background-image: url(respaldo/05.jpg); }
-.sin-gl #l-taludes { background-image: url(respaldo/06.jpg); }
-.sin-gl #l-flotacion { background-image: url(respaldo/07.jpg); }
-.sin-gl #l-flota { background-image: url(respaldo/08.jpg); }
-.sin-gl #l-sismicidad { background-image: url(respaldo/09.jpg); }
+.sin-gl #l-mundos { background-image: url(respaldo/04.jpg); }
+.sin-gl #l-vision { background-image: url(respaldo/06.jpg); }
+.sin-gl #l-leyes { background-image: url(respaldo/07.jpg); }
+.sin-gl #l-taludes { background-image: url(respaldo/08.jpg); }
+.sin-gl #l-flotacion { background-image: url(respaldo/09.jpg); }
+.sin-gl #l-flota { background-image: url(respaldo/10.jpg); }
+.sin-gl #l-sismicidad { background-image: url(respaldo/11.jpg); }
 
 /* ---------- Tipografía ---------- */
 
@@ -344,25 +346,29 @@ html, body {
 #l-valor .marca { left: 110px; top: 78px; display: flex; align-items: center; gap: 44px; }
 #l-valor .marca .t1 { font-size: 132px; line-height: 1; letter-spacing: .03em; }
 #l-valor .marca .t3 { font-size: 50px; line-height: 1.06; padding-left: 44px; border-left: 4px solid var(--cobre); }
-#l-valor .gancho { left: 110px; top: 256px; width: 1700px; }
-#l-valor .gancho .p { font-size: 46px; color: var(--tinta); }
-#l-valor .antes { left: 110px; top: 338px; display: flex; align-items: center; gap: 44px; }
-#l-valor .antes .num { position: relative; font-size: 180px; color: var(--tenue); }
-/* la cifra de antes queda tachada cuando entra la de Krylov */
-#l-valor .antes .num::after { content: ""; position: absolute; left: -14px; right: -14px; top: 56%; height: 7px; background: var(--cobre); transform: scaleX(0); transform-origin: 0 50%; transition: transform .5s cubic-bezier(.3, .7, .2, 1) 1.5s; }
-#l-valor .antes.visto .num::after { transform: scaleX(1); }
-#l-valor .antes .p { font-size: 40px; }
-#l-valor .ahora { left: 110px; top: 506px; }
-#l-valor .ahora .num { font-size: 280px; color: var(--cobre); }
-#l-valor .ahora .p { font-size: 42px; color: var(--tinta); margin-top: 42px; }
-.quieto #l-valor .antes .num::after { transition: none; }
+#l-valor .gancho { left: 110px; top: 226px; width: 1700px; }
+#l-valor .gancho .p { font-size: 44px; color: var(--tinta); }
+/* dos filas iguales: quién, cuánto tarda, y su barra (en el lienzo) a la misma escala */
+#l-valor .fila { left: 110px; width: 1700px; }
+#l-valor .fila .quien { display: flex; align-items: baseline; gap: 30px; white-space: nowrap; }
+#l-valor .fila .quien .t3 { font-size: 52px; }
+#l-valor .fila .quien .p { font-size: 31px; }
+#l-valor .antes { top: 318px; }
+#l-valor .antes .quien .t3 { color: var(--suave); }
+#l-valor .antes .num { font-size: 164px; color: var(--suave); margin-top: 6px; }
+#l-valor .ahora { top: 608px; }
+#l-valor .ahora .quien .t3 { color: var(--cobre); }
+#l-valor .ahora .quien .p { color: var(--tinta); }
+#l-valor .ahora .num { font-size: 250px; color: var(--cobre); margin-top: 4px; }
 
 /* =====================================================================
    6 a 9 · Las otras cuatro decisiones, cada una con su escena
    ===================================================================== */
 
-.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f2 0%, #0b0a09b8 32%, transparent 52%); }
+/* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
+.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09f5 38%, #0b0a0990 46%, transparent 54%); }
 .sobre-serie .capa-etq { position: absolute; inset: 0; }
+.sobre-serie canvas.curva { position: absolute; left: 110px; bottom: 100px; width: 800px; height: 250px; }
 .sobre-serie .columna { left: 110px; top: 92px; width: 800px; display: flex; flex-direction: column; gap: 26px; }
 .sobre-serie .columna .t2 { font-size: 86px; }
 .sobre-serie .columna > .p { font-size: 35px; width: 760px; }
@@ -412,3 +418,16 @@ html, body {
 #l-cierre .qr .dato { color: var(--cobre); font-size: 26px; margin-top: 4px; text-transform: none; letter-spacing: .02em; }
 #l-cierre .qr .equipo { font-size: 26px; line-height: 1.35; color: var(--tenue); margin-top: 18px; }
 #l-cierre .qr .equipo b { color: var(--suave); }
+
+/* =====================================================================
+   2 · Generative AI para datasets   ·   3 · En el pasado vs. hoy
+   ===================================================================== */
+
+#l-paradigma canvas, #l-flujo canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-paradigma .columna { left: 110px; top: 96px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+#l-paradigma .columna .t2 { font-size: 88px; text-wrap: wrap; }
+#l-paradigma .columna .p { font-size: 35px; width: 780px; }
+#l-paradigma .columna .tecnica { font-size: 29px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 26px; }
+#l-paradigma .columna .tecnica b { color: var(--cobre); font-weight: 650; }
+#l-flujo .cabeza { left: 110px; top: 84px; width: 1260px; }
+#l-flujo .cabeza .t2 { font-size: 74px; }

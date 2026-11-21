@@ -1,4 +1,4 @@
-/* 2 · Bayesian Amortized Inference: entra un archivo, sale la respuesta; y otro, y otro.
+/* 5 · Bayesian Amortized Inference: entra un archivo, sale la respuesta; y otro, y otro.
    Cada tarjeta que entra es un banco distinto y cada mapa que sale es lo que la red respondió para ese banco
    (datos.js → rafaga, generado con nucleo/espacial.inferir). El deck anima esas respuestas; no las calcula. */
 (function () {

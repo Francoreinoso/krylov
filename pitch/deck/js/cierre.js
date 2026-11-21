@@ -1,7 +1,7 @@
-/* 10 · Cierre: mientras se lee el mensaje, las respuestas siguen saliendo.
+/* 12 · Cierre: mientras se lee el mensaje, las respuestas siguen saliendo.
    El contador es una cuenta, no una medición: los segundos que pasaron desde la primera pulsación del pitch, divididos
    por lo que tarda un análisis con la red (latencia_ms del sello: 10 ms) y con el método lento (M-25: 117 s).
-   Los mapas son los mismos de la lámina 2: la respuesta de la red para 32 bancos distintos. */
+   Los mapas son los mismos de la lámina de la ráfaga: la respuesta de la red para 32 bancos distintos. */
 (function () {
   'use strict';
   const K = window.K;
