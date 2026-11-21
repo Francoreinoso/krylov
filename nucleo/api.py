@@ -81,7 +81,7 @@ def analizar(caso: str, transformaciones: list[str] = (), costos: dict | None = 
         "unidades": None, "resumen_colores": None, "factores": None, "columnas": None,
         "semaforo": {"estado": "verde", "motivo": "", "propuesta": None}, "examen": None,
         "sello_resumen": {"frase": "", "medido": False}, "en_palabras": [],
-        "rotulos": c["rotulos"], "registro": [],
+        "rotulos": c["rotulos"], "unidad": c["unidad"], "registro": [],
         "sintetico": bool(c.get("sintetico", False)), "origen_datos": c["origen_datos"],
     }
     respuesta.update(propio)

@@ -68,6 +68,7 @@ def test_analizar_agrega_lo_comun(motor_de_juguete):
     ejemplo = json.loads((EJEMPLOS / "analizar_tabla.json").read_text(encoding="utf-8"))
     assert set(ejemplo) - {"_aviso"} <= set(r), set(ejemplo) - set(r)
     assert r["motor_id"] == "estados" and r["implementacion"] == "mcmc" and r["precalculado"] is True
+    assert r["unidad"] == {"singular": "cliente", "plural": "clientes"}                # pedido de PC 1 (campo nuevo, aprobado por Rodrigo)
     assert r["resumen_colores"] == {"actuar": 1, "no_actuar": 1, "en_duda": 1}
     assert r["costo_de_no_saber"]["valor"] == round(sum(u["duda"] for u in r["unidades"])) > 0
     assert r["titular"].startswith("1 cliente está en duda. No saber te cuesta ")

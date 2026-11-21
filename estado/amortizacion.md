@@ -78,6 +78,13 @@ Lo que el ensayo de las 05:31 mostró y **no es resultado** (60 terrenos, 40 pas
 - **Se lanzó a las 03:50 y no a las 05:05**, porque todo lo mínimo estaba listo; el comando termina solo a las 08:30.
 - **`git pull --rebase --autostash`** en este computador: dos sesiones comparten el clon y `pull --rebase` falla si la otra tiene cambios sin commit. El autostash los guarda y los repone intactos (comprobado con `md5`).
 
+## Relevo (sáb 05:52): dos sesiones nuevas reemplazan a las de la madrugada
+
+La sesión A original (la que escribió casi todo este archivo) y la sesión B original dejan de trabajar. Siguen dos chats nuevos, con el mismo reparto por archivos:
+
+- **Sesión A nueva:** lo compartido, `espacial`, `estados`, `jerarquico`. Pendiente, en orden: mirar el entrenamiento una vez por hora; A-M3 a las 07:30 con la persona; el sello de `estados` y de `jerarquico` (como `motor/espacial/sello.py`); la nube de esos dos motores; el método rápido de siempre para A-16; el README técnico. A las 08:30, con la persona: sección «A las 08:30» de este archivo, y después lanzar `estados`.
+- **Sesión B nueva:** `supervivencia` completa. Pendiente, en orden: A-N2 (paso local con cuadratura adaptativa en el cargo, y modelo en NumPyro), `analizar` de rotación (A-10), la cartera de rotación (con `nucleo/cartera.py`), la nube con `rotacion_malo` (con `nucleo/nube.py`) y su `sello.py`.
+
 ## Reparto de sesiones en PC 2
 
 Un dueño por motor. Antes de tomar un motor sin dueño, anótate aquí y súbelo; nadie edita los archivos de otro.
@@ -87,7 +94,7 @@ Un dueño por motor. Antes de tomar un motor sin dueño, anótate aquí y súbel
 | Lo compartido y `api.py` | `pyproject.toml`, `motor/comun/`, `nucleo/flujo.py`, `nucleo/preproceso.py`, `nucleo/decision.py`, `nucleo/api.py`, `nucleo/nube.py` | A | sáb 03:24 |
 | `espacial` | `motor/espacial/`, `nucleo/espacial.py` | A | sáb 03:24 |
 | `supervivencia` | `motor/supervivencia/`, `nucleo/supervivencia.py` | B | sáb 03:24 |
-| `jerarquico` | `motor/jerarquico/`, `nucleo/jerarquico.py` | A | sáb 05:12 |
+| `jerarquico` | `motor/jerarquico/`, `nucleo/jerarquico.py` | A (nueva) | sáb 05:12 |
 | `estados` | `motor/estados/`, `nucleo/estados.py` | A | sáb 04:51 |
 
 Cada motor expone en su módulo de `nucleo/` una función `analizar(caso, transformaciones, costos)` que devuelve el diccionario de `contratos/CONTRATO.md`; `nucleo/api.py` (sesión A) la llama. `estado/amortizacion.md` lo editan todas las sesiones: cambios chicos, `git pull --rebase --autostash` justo antes, y commit de inmediato.
@@ -156,13 +163,14 @@ Cambios de interfaz se anotan aquí, con hora.
 
 ## Bloqueos
 
-- sáb 05:50 · **A-N2 (paso local y NumPyro de `supervivencia`) no está avanzando:** `nucleo/supervivencia.py` no cambia desde las 04:00 y ninguna otra sesión de este computador figura trabajando. De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15. La sesión A no toca esos archivos sin que la persona lo diga. **Pregunta para Rodrigo: ¿reactivas la sesión B o tomo yo `supervivencia`?**
-- sáb 05:50 · **Pedido de PC 1, `unidad` en `analizar`:** es un campo nuevo en el contrato congelado; lo decide una persona. Mi recomendación: sí, agregar `"unidad": {"singular", "plural"}` copiado del YAML del caso; es una línea en `nucleo/api.py` y no cambia nada de lo que existe. Queda sin hacer hasta que Rodrigo lo diga y PC 3 lo anote en `DECISIONES.md`.
+- sáb 05:50 · A-N2 (paso local y NumPyro de `supervivencia`) estuvo detenido desde las 04:00: la sesión B había terminado su turno. **Resuelto a las 05:52:** Rodrigo abre dos sesiones nuevas (ver «Relevo»). De A-N2 dependen `analizar` de rotación (A-10), la cartera del demo y la nube con `rotacion_malo`: es el camino crítico del H2 de las 12:15.
+- sáb 05:52 · Resuelto: `analizar` ya trae `unidad` (`{"singular", "plural"}`, copiado del YAML del caso). Lo aprobó Rodrigo a las 05:52; es un campo nuevo y no cambia ninguno de los que había.
 
 - sáb 04:07 · Resuelto: lo de la batería; PC 2 está enchufado y cargando (`pmset -g batt`: AC Power).
 
 ## Pedidos a otros
 
+- sáb 05:52 · Sesión A → PC 3: anotar en `DECISIONES.md` el campo nuevo `unidad` en la respuesta de `analizar` (pedido de PC 1, aprobado por Rodrigo), y agregarlo a `contratos/CONTRATO.md` sección 6 y a los ejemplos fijos. → PC 1: ya puedes leer `respuesta.unidad.singular` y `.plural`.
 - sáb 05:50 · Sesión A → PC 3, dos plantillas de `casos/textos.yaml` que salen mal con los datos de hoy: (1) `examen.tabla` dice «De **las** clientes…» en crédito (necesita el artículo por caso, como `verbo_por_caso`); (2) `en_palabras.hay_actuar` y `hay_en_duda` dicen «En **1 citas**» cuando hay una sola (falta la variante en singular, como en `titular`). Además, en el terreno hay cuatro frases posibles y caben tres: hoy «En este terreno manda…» nunca alcanza a salir; si la quieres, dime cuál sacar.
 - sáb 05:30 · PC 2 → PC 3: Rodrigo ajustó el plan de PC 2 porque el equipo no necesariamente duerme antes de las 08:00 (A-05 cambiada, A-M1 a A-M3 nuevas en `WORKPLAN.md` 6.3; editó esas filas por esta vez). Falta lo tuyo: la entrada en `DECISIONES.md`, el tablero y, si PC 1 y PC 3 tampoco duermen, sus filas de las 05:15. `jerarquico` y `estados` están listos para lanzar: si `supervivencia` valida antes de las 08:30, `jerarquico` puede partir antes en PC 3.
 - sáb 05:11 · Sesión A → PC 3, para cuando armes los textos: los nombres en pantalla de los factores no están en los casos. Si agregas a `casos/credito.yaml` un bloque `etiquetas: {LIMIT_BAL: "Cupo de la tarjeta", AGE: "Edad", EDUCATION: "Educación"}`, `nucleo/estados.py` ya lo lee; sin eso muestra el nombre de la columna. No cambia la forma del contrato.
