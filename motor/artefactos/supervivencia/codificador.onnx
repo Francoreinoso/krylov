@@ -1,111 +1,111 @@
 
-pytorch2.15.0:ﬂÖb
-±	
+pytorch2.15.0:áùb
+Ì	
 filas
 val_5val_6node_MatMul_6"MatMulJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.0: torch.nn.modules.linear.Linear/linear: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J¶
 pkg.torch.onnx.fx_nodeã%linear : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%filas, %p_phi_0_weight, %p_phi_0_bias), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'phi', 'phi.0', 'linear']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes['', 'phi', 'phi.0', 'linear']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-≤	
+Ó	
 val_6
 
 phi.0.biaslinearnode_linear"AddJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.0: torch.nn.modules.linear.Linear/linear: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J¶
 pkg.torch.onnx.fx_nodeã%linear : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%filas, %p_phi_0_weight, %p_phi_0_bias), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'phi', 'phi.0', 'linear']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes['', 'phi', 'phi.0', 'linear']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-˝
+π	
 linearrelu	node_relu"ReluJ´
 	namespaceù: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.1: torch.nn.modules.activation.ReLU/relu: aten.relu.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']JÉ
 pkg.torch.onnx.fx_nodei%relu : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear,), kwargs = {})J:
-pkg.torch.onnx.name_scopes['', 'phi', 'phi.1', 'relu']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes['', 'phi', 'phi.1', 'relu']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
     return F.relu(input, inplace=self.inplace)
-µ	
+Ò	
 relu
 val_7val_8node_MatMul_8"MatMulJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.2: torch.nn.modules.linear.Linear/linear_1: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']Jß
 pkg.torch.onnx.fx_nodeå%linear_1 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%relu, %p_phi_2_weight, %p_phi_2_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'phi', 'phi.2', 'linear_1']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes ['', 'phi', 'phi.2', 'linear_1']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-ª	
+˜	
 val_8
 
 phi.2.biaslinear_1node_linear_1"AddJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.2: torch.nn.modules.linear.Linear/linear_1: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']Jß
 pkg.torch.onnx.fx_nodeå%linear_1 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%relu, %p_phi_2_weight, %p_phi_2_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'phi', 'phi.2', 'linear_1']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes ['', 'phi', 'phi.2', 'linear_1']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-ã	
+«	
 linear_1relu_1node_relu_1"ReluJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/phi: torch.nn.modules.container.Sequential/phi.3: torch.nn.modules.activation.ReLU/relu_1: aten.relu.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Já
 pkg.torch.onnx.fx_nodem%relu_1 : [num_users=3] = call_function[target=torch.ops.aten.relu.default](args = (%linear_1,), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'phi', 'phi.3', 'relu_1']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 57, in forward
+pkg.torch.onnx.name_scopes['', 'phi', 'phi.3', 'relu_1']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 57, in forward
     h = self.phi(filas)                                                        # (B, n, d)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
     return F.relu(input, inplace=self.inplace)
-ß
+ª
 grupo
 val_14	unsqueezenode_unsqueeze"	UnsqueezeJa
 	namespaceT: motor.supervivencia.red.CodificadorSupervivencia/unsqueeze: aten.unsqueeze.defaultJp
 pkg.torch.onnx.class_hierarchyN['motor.supervivencia.red.CodificadorSupervivencia', 'aten.unsqueeze.default']Jè
 pkg.torch.onnx.fx_nodeu%unsqueeze : [num_users=1] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%grupo, -1), kwargs = {})J/
-pkg.torch.onnx.name_scopes['', 'unsqueeze']J◊
-pkg.torch.onnx.stack_trace∏File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 59, in forward
+pkg.torch.onnx.name_scopes['', 'unsqueeze']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 59, in forward
     pertenece = (grupo.unsqueeze(-1) == cargos).to(h.dtype)                    # (B, n, G)
-ˇ
+ì
 	unsqueeze
 arangeeq_6	node_eq_6"EqualJT
 	namespaceG: motor.supervivencia.red.CodificadorSupervivencia/eq_6: aten.eq.TensorJh
 pkg.torch.onnx.class_hierarchyF['motor.supervivencia.red.CodificadorSupervivencia', 'aten.eq.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%eq_6 : [num_users=1] = call_function[target=torch.ops.aten.eq.Tensor](args = (%unsqueeze, %arange), kwargs = {})J*
-pkg.torch.onnx.name_scopes['', 'eq_6']J◊
-pkg.torch.onnx.stack_trace∏File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 59, in forward
+pkg.torch.onnx.name_scopes['', 'eq_6']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 59, in forward
     pertenece = (grupo.unsqueeze(-1) == cargos).to(h.dtype)                    # (B, n, G)
-≠
+¡
 eq_6_to_copynode__to_copy"Cast*	
 to†J_
 	namespaceR: motor.supervivencia.red.CodificadorSupervivencia/_to_copy: aten._to_copy.defaultJo
 pkg.torch.onnx.class_hierarchyM['motor.supervivencia.red.CodificadorSupervivencia', 'aten._to_copy.default']Jû
 pkg.torch.onnx.fx_nodeÉ%_to_copy : [num_users=3] = call_function[target=torch.ops.aten._to_copy.default](args = (%eq_6,), kwargs = {dtype: torch.float32})J.
-pkg.torch.onnx.name_scopes['', '_to_copy']J◊
-pkg.torch.onnx.stack_trace∏File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 59, in forward
+pkg.torch.onnx.name_scopes['', '_to_copy']JÎ
+pkg.torch.onnx.stack_traceÃFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 59, in forward
     pertenece = (grupo.unsqueeze(-1) == cargos).to(h.dtype)                    # (B, n, G)
-ø
+”
 _to_copy
 val_27sum_1
 node_sum_1"	ReduceSum*
@@ -114,200 +114,200 @@ node_sum_1"	ReduceSum*
 	namespaceN: motor.supervivencia.red.CodificadorSupervivencia/sum_1: aten.sum.dim_IntListJn
 pkg.torch.onnx.class_hierarchyL['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sum.dim_IntList']Jç
 pkg.torch.onnx.fx_nodes%sum_1 : [num_users=4] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%_to_copy, [1]), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'sum_1']J‘
-pkg.torch.onnx.stack_traceµFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 60, in forward
+pkg.torch.onnx.name_scopes['', 'sum_1']JË
+pkg.torch.onnx.stack_trace…File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 60, in forward
     tamano = pertenece.sum(dim=1)                                              # (B, G)
-¶
+∫
 _to_copy	transposenode_transpose"	Transpose*
 perm@ @@†J]
 	namespaceP: motor.supervivencia.red.CodificadorSupervivencia/transpose: aten.transpose.intJl
 pkg.torch.onnx.class_hierarchyJ['motor.supervivencia.red.CodificadorSupervivencia', 'aten.transpose.int']Jê
 pkg.torch.onnx.fx_nodev%transpose : [num_users=1] = call_function[target=torch.ops.aten.transpose.int](args = (%_to_copy, 1, 2), kwargs = {})J/
-pkg.torch.onnx.name_scopes['', 'transpose']J—
-pkg.torch.onnx.stack_trace≤File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 61, in forward
+pkg.torch.onnx.name_scopes['', 'transpose']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 61, in forward
     promedio = (pertenece.transpose(1, 2) @ h) / tamano.clamp(min=1.0).unsqueeze(-1)
-ì
+ß
 	transpose
 relu_1matmulnode_matmul"MatMulJ[
 	namespaceN: motor.supervivencia.red.CodificadorSupervivencia/matmul: aten.matmul.defaultJm
 pkg.torch.onnx.class_hierarchyK['motor.supervivencia.red.CodificadorSupervivencia', 'aten.matmul.default']Jí
 pkg.torch.onnx.fx_nodex%matmul : [num_users=1] = call_function[target=torch.ops.aten.matmul.default](args = (%transpose, %relu_1), kwargs = {})J,
-pkg.torch.onnx.name_scopes['', 'matmul']J—
-pkg.torch.onnx.stack_trace≤File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 61, in forward
+pkg.torch.onnx.name_scopes['', 'matmul']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 61, in forward
     promedio = (pertenece.transpose(1, 2) @ h) / tamano.clamp(min=1.0).unsqueeze(-1)
-˝
+ë
 sum_1
 val_16clamp
 node_clamp"ClipJY
 	namespaceL: motor.supervivencia.red.CodificadorSupervivencia/clamp: aten.clamp.defaultJl
 pkg.torch.onnx.class_hierarchyJ['motor.supervivencia.red.CodificadorSupervivencia', 'aten.clamp.default']Jà
 pkg.torch.onnx.fx_noden%clamp : [num_users=1] = call_function[target=torch.ops.aten.clamp.default](args = (%sum_1, 1.0), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'clamp']J—
-pkg.torch.onnx.stack_trace≤File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 61, in forward
+pkg.torch.onnx.name_scopes['', 'clamp']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 61, in forward
     promedio = (pertenece.transpose(1, 2) @ h) / tamano.clamp(min=1.0).unsqueeze(-1)
-´
+ø
 clamp
 val_14unsqueeze_1node_unsqueeze_1"	UnsqueezeJc
 	namespaceV: motor.supervivencia.red.CodificadorSupervivencia/unsqueeze_1: aten.unsqueeze.defaultJp
 pkg.torch.onnx.class_hierarchyN['motor.supervivencia.red.CodificadorSupervivencia', 'aten.unsqueeze.default']Jë
 pkg.torch.onnx.fx_nodew%unsqueeze_1 : [num_users=1] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%clamp, -1), kwargs = {})J1
-pkg.torch.onnx.name_scopes['', 'unsqueeze_1']J—
-pkg.torch.onnx.stack_trace≤File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 61, in forward
+pkg.torch.onnx.name_scopes['', 'unsqueeze_1']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 61, in forward
     promedio = (pertenece.transpose(1, 2) @ h) / tamano.clamp(min=1.0).unsqueeze(-1)
-˘
+ç
 matmul
 unsqueeze_1divnode_div"DivJT
 	namespaceG: motor.supervivencia.red.CodificadorSupervivencia/div: aten.div.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.div.Tensor']Jç
 pkg.torch.onnx.fx_nodes%div : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%matmul, %unsqueeze_1), kwargs = {})J)
-pkg.torch.onnx.name_scopes['', 'div']J—
-pkg.torch.onnx.stack_trace≤File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 61, in forward
+pkg.torch.onnx.name_scopes['', 'div']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 61, in forward
     promedio = (pertenece.transpose(1, 2) @ h) / tamano.clamp(min=1.0).unsqueeze(-1)
-¯
+å
 sum_1
 val_16tmpn2"AddJY
 	namespaceL: motor.supervivencia.red.CodificadorSupervivencia/log1p: aten.log1p.defaultJl
 pkg.torch.onnx.class_hierarchyJ['motor.supervivencia.red.CodificadorSupervivencia', 'aten.log1p.default']JÑ
 pkg.torch.onnx.fx_nodej%log1p : [num_users=1] = call_function[target=torch.ops.aten.log1p.default](args = (%sum_1,), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'log1p']J€
-pkg.torch.onnx.stack_traceºFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'log1p']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-
+Ñ
 tmplog1pn3"LogJY
 	namespaceL: motor.supervivencia.red.CodificadorSupervivencia/log1p: aten.log1p.defaultJl
 pkg.torch.onnx.class_hierarchyJ['motor.supervivencia.red.CodificadorSupervivencia', 'aten.log1p.default']JÑ
 pkg.torch.onnx.fx_nodej%log1p : [num_users=1] = call_function[target=torch.ops.aten.log1p.default](args = (%sum_1,), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'log1p']J€
-pkg.torch.onnx.stack_traceºFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'log1p']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-µ
+…
 log1p
 val_14unsqueeze_2node_unsqueeze_2"	UnsqueezeJc
 	namespaceV: motor.supervivencia.red.CodificadorSupervivencia/unsqueeze_2: aten.unsqueeze.defaultJp
 pkg.torch.onnx.class_hierarchyN['motor.supervivencia.red.CodificadorSupervivencia', 'aten.unsqueeze.default']Jë
 pkg.torch.onnx.fx_nodew%unsqueeze_2 : [num_users=1] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%log1p, -1), kwargs = {})J1
-pkg.torch.onnx.name_scopes['', 'unsqueeze_2']J€
-pkg.torch.onnx.stack_traceºFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'unsqueeze_2']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-â
+ù
 unsqueeze_2
 val_17div_1
 node_div_1"DivJV
 	namespaceI: motor.supervivencia.red.CodificadorSupervivencia/div_1: aten.div.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.div.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%div_1 : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%unsqueeze_2, 7.0), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'div_1']J€
-pkg.torch.onnx.stack_traceºFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'div_1']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-ì
+ß
 div
 div_1catnode_cat"Concat*
 axisˇˇˇˇˇˇˇˇˇ†JU
 	namespaceH: motor.supervivencia.red.CodificadorSupervivencia/cat: aten.cat.defaultJj
 pkg.torch.onnx.class_hierarchyH['motor.supervivencia.red.CodificadorSupervivencia', 'aten.cat.default']Jã
 pkg.torch.onnx.fx_nodeq%cat : [num_users=1] = call_function[target=torch.ops.aten.cat.default](args = ([%div, %div_1], -1), kwargs = {})J)
-pkg.torch.onnx.name_scopes['', 'cat']J€
-pkg.torch.onnx.stack_traceºFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'cat']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-∫	
+ˆ	
 cat
 val_18val_19node_MatMul_19"MatMulJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.0: torch.nn.modules.linear.Linear/linear_2: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J¶
 pkg.torch.onnx.fx_nodeã%linear_2 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%cat, %p_psi_0_weight, %p_psi_0_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'psi', 'psi.0', 'linear_2']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes ['', 'psi', 'psi.0', 'linear_2']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-ø	
+˚	
 val_19
 
 psi.0.biaslinear_2node_linear_2"AddJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.0: torch.nn.modules.linear.Linear/linear_2: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J¶
 pkg.torch.onnx.fx_nodeã%linear_2 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%cat, %p_psi_0_weight, %p_psi_0_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'psi', 'psi.0', 'linear_2']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes ['', 'psi', 'psi.0', 'linear_2']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-è	
+À	
 linear_2relu_2node_relu_2"ReluJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.1: torch.nn.modules.activation.ReLU/relu_2: aten.relu.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Já
 pkg.torch.onnx.fx_nodem%relu_2 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_2,), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'psi', 'psi.1', 'relu_2']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'psi', 'psi.1', 'relu_2']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
     return F.relu(input, inplace=self.inplace)
-¿	
+¸	
 relu_2
 val_20val_21node_MatMul_21"MatMulJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.2: torch.nn.modules.linear.Linear/linear_3: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J©
 pkg.torch.onnx.fx_nodeé%linear_3 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%relu_2, %p_psi_2_weight, %p_psi_2_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'psi', 'psi.2', 'linear_3']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes ['', 'psi', 'psi.2', 'linear_3']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-¬	
+˛	
 val_21
 
 psi.2.biaslinear_3node_linear_3"AddJØ
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.2: torch.nn.modules.linear.Linear/linear_3: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J©
 pkg.torch.onnx.fx_nodeé%linear_3 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%relu_2, %p_psi_2_weight, %p_psi_2_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'psi', 'psi.2', 'linear_3']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes ['', 'psi', 'psi.2', 'linear_3']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-è	
+À	
 linear_3relu_3node_relu_3"ReluJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/psi: torch.nn.modules.container.Sequential/psi.3: torch.nn.modules.activation.ReLU/relu_3: aten.relu.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Já
 pkg.torch.onnx.fx_nodem%relu_3 : [num_users=2] = call_function[target=torch.ops.aten.relu.default](args = (%linear_3,), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'psi', 'psi.3', 'relu_3']J≥
-pkg.torch.onnx.stack_traceîFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 62, in forward
+pkg.torch.onnx.name_scopes['', 'psi', 'psi.3', 'relu_3']JÔ
+pkg.torch.onnx.stack_trace–File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 62, in forward
     h_cargo = self.psi(torch.cat([promedio, torch.log1p(tamano).unsqueeze(-1) / 7.0], dim=-1))
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
     return F.relu(input, inplace=self.inplace)
-€
+Ô
 sum_1
 scalar_tensor_defaultgtnode_gt"GreaterJR
 	namespaceE: motor.supervivencia.red.CodificadorSupervivencia/gt: aten.gt.TensorJh
 pkg.torch.onnx.class_hierarchyF['motor.supervivencia.red.CodificadorSupervivencia', 'aten.gt.Tensor']Jî
 pkg.torch.onnx.fx_nodez%gt : [num_users=1] = call_function[target=torch.ops.aten.gt.Tensor](args = (%sum_1, %scalar_tensor_default), kwargs = {})J(
 pkg.torch.onnx.name_scopes
-['', 'gt']J•
-pkg.torch.onnx.stack_traceÜFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 63, in forward
+['', 'gt']Jπ
+pkg.torch.onnx.stack_traceöFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 63, in forward
     hay_cargo = (tamano > 0).to(h.dtype)
-Å
+ï
 gt
 _to_copy_1node__to_copy_1"Cast*	
 to†Ja
 	namespaceT: motor.supervivencia.red.CodificadorSupervivencia/_to_copy_1: aten._to_copy.defaultJo
 pkg.torch.onnx.class_hierarchyM['motor.supervivencia.red.CodificadorSupervivencia', 'aten._to_copy.default']Jû
 pkg.torch.onnx.fx_nodeÉ%_to_copy_1 : [num_users=2] = call_function[target=torch.ops.aten._to_copy.default](args = (%gt,), kwargs = {dtype: torch.float32})J0
-pkg.torch.onnx.name_scopes['', '_to_copy_1']J•
-pkg.torch.onnx.stack_traceÜFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 63, in forward
+pkg.torch.onnx.name_scopes['', '_to_copy_1']Jπ
+pkg.torch.onnx.stack_traceöFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 63, in forward
     hay_cargo = (tamano > 0).to(h.dtype)
-¬
+÷
 _to_copy
 val_14sum_2
 node_sum_2"	ReduceSum*
@@ -316,10 +316,10 @@ node_sum_2"	ReduceSum*
 	namespaceN: motor.supervivencia.red.CodificadorSupervivencia/sum_2: aten.sum.dim_IntListJn
 pkg.torch.onnx.class_hierarchyL['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sum.dim_IntList']Jé
 pkg.torch.onnx.fx_nodet%sum_2 : [num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%_to_copy, [-1]), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'sum_2']J÷
-pkg.torch.onnx.stack_trace∑File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 64, in forward
+pkg.torch.onnx.name_scopes['', 'sum_2']JÍ
+pkg.torch.onnx.stack_traceÀFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 64, in forward
     todas = pertenece.sum(dim=-1)              # (B, n): 1 en cada fila con cargo v√°lido
-è
+£
 sum_1
 val_27sum_3
 node_sum_3"	ReduceSum*
@@ -328,10 +328,10 @@ node_sum_3"	ReduceSum*
 	namespaceN: motor.supervivencia.red.CodificadorSupervivencia/sum_3: aten.sum.dim_IntListJn
 pkg.torch.onnx.class_hierarchyL['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sum.dim_IntList']Jê
 pkg.torch.onnx.fx_nodev%sum_3 : [num_users=2] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%sum_1, [1], True), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'sum_3']J§
-pkg.torch.onnx.stack_traceÖFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 65, in forward
+pkg.torch.onnx.name_scopes['', 'sum_3']J∏
+pkg.torch.onnx.stack_traceôFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 65, in forward
     n = tamano.sum(dim=1, keepdim=True)
-™
+æ
 filas
 val_27mean	node_mean"
 ReduceMean*
@@ -340,65 +340,65 @@ ReduceMean*
 	namespaceF: motor.supervivencia.red.CodificadorSupervivencia/mean: aten.mean.dimJg
 pkg.torch.onnx.class_hierarchyE['motor.supervivencia.red.CodificadorSupervivencia', 'aten.mean.dim']Jà
 pkg.torch.onnx.fx_noden%mean : [num_users=2] = call_function[target=torch.ops.aten.mean.dim](args = (%filas, [1], True), kwargs = {})J*
-pkg.torch.onnx.name_scopes['', 'mean']Jÿ
-pkg.torch.onnx.stack_traceπFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 66, in forward
+pkg.torch.onnx.name_scopes['', 'mean']JÏ
+pkg.torch.onnx.stack_traceÕFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 66, in forward
     promedio_columnas = filas.mean(dim=1, keepdim=True)                        # (B, 1, 11)
-æ
+“
 filas
 meansubnode_sub"SubJT
 	namespaceG: motor.supervivencia.red.CodificadorSupervivencia/sub: aten.sub.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sub.Tensor']JÖ
 pkg.torch.onnx.fx_nodek%sub : [num_users=2] = call_function[target=torch.ops.aten.sub.Tensor](args = (%filas, %mean), kwargs = {})J)
-pkg.torch.onnx.name_scopes['', 'sub']J¶
-pkg.torch.onnx.stack_traceáFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 67, in forward
+pkg.torch.onnx.name_scopes['', 'sub']J∫
+pkg.torch.onnx.stack_traceõFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 67, in forward
     centradas = filas - promedio_columnas
-Æ
+¬
 subtranspose_1node_transpose_1"	Transpose*
 perm@ @@†J_
 	namespaceR: motor.supervivencia.red.CodificadorSupervivencia/transpose_1: aten.transpose.intJl
 pkg.torch.onnx.class_hierarchyJ['motor.supervivencia.red.CodificadorSupervivencia', 'aten.transpose.int']Jç
 pkg.torch.onnx.fx_nodes%transpose_1 : [num_users=1] = call_function[target=torch.ops.aten.transpose.int](args = (%sub, 1, 2), kwargs = {})J1
-pkg.torch.onnx.name_scopes['', 'transpose_1']JŸ
-pkg.torch.onnx.stack_trace∫File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 68, in forward
+pkg.torch.onnx.name_scopes['', 'transpose_1']JÌ
+pkg.torch.onnx.stack_traceŒFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 68, in forward
     covarianza = (centradas.transpose(1, 2) @ centradas) / n.unsqueeze(-1)     # (B, 11, 11)
-£
+∑
 transpose_1
 submatmul_1node_matmul_1"MatMulJ]
 	namespaceP: motor.supervivencia.red.CodificadorSupervivencia/matmul_1: aten.matmul.defaultJm
 pkg.torch.onnx.class_hierarchyK['motor.supervivencia.red.CodificadorSupervivencia', 'aten.matmul.default']Jì
 pkg.torch.onnx.fx_nodey%matmul_1 : [num_users=1] = call_function[target=torch.ops.aten.matmul.default](args = (%transpose_1, %sub), kwargs = {})J.
-pkg.torch.onnx.name_scopes['', 'matmul_1']JŸ
-pkg.torch.onnx.stack_trace∫File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 68, in forward
+pkg.torch.onnx.name_scopes['', 'matmul_1']JÌ
+pkg.torch.onnx.stack_traceŒFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 68, in forward
     covarianza = (centradas.transpose(1, 2) @ centradas) / n.unsqueeze(-1)     # (B, 11, 11)
-≥
+«
 sum_3
 val_14unsqueeze_3node_unsqueeze_3"	UnsqueezeJc
 	namespaceV: motor.supervivencia.red.CodificadorSupervivencia/unsqueeze_3: aten.unsqueeze.defaultJp
 pkg.torch.onnx.class_hierarchyN['motor.supervivencia.red.CodificadorSupervivencia', 'aten.unsqueeze.default']Jë
 pkg.torch.onnx.fx_nodew%unsqueeze_3 : [num_users=1] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%sum_3, -1), kwargs = {})J1
-pkg.torch.onnx.name_scopes['', 'unsqueeze_3']JŸ
-pkg.torch.onnx.stack_trace∫File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 68, in forward
+pkg.torch.onnx.name_scopes['', 'unsqueeze_3']JÌ
+pkg.torch.onnx.stack_traceŒFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 68, in forward
     covarianza = (centradas.transpose(1, 2) @ centradas) / n.unsqueeze(-1)     # (B, 11, 11)
-è
+£
 matmul_1
 unsqueeze_3div_2
 node_div_2"DivJV
 	namespaceI: motor.supervivencia.red.CodificadorSupervivencia/div_2: aten.div.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.div.Tensor']Jë
 pkg.torch.onnx.fx_nodew%div_2 : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%matmul_1, %unsqueeze_3), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'div_2']JŸ
-pkg.torch.onnx.stack_trace∫File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 68, in forward
+pkg.torch.onnx.name_scopes['', 'div_2']JÌ
+pkg.torch.onnx.stack_traceŒFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 68, in forward
     covarianza = (centradas.transpose(1, 2) @ centradas) / n.unsqueeze(-1)     # (B, 11, 11)
-Ã
+·
 mean
 val_27squeezenode_squeeze"SqueezeJY
 	namespaceL: motor.supervivencia.red.CodificadorSupervivencia/squeeze: aten.squeeze.dimJj
 pkg.torch.onnx.class_hierarchyH['motor.supervivencia.red.CodificadorSupervivencia', 'aten.squeeze.dim']JÖ
 pkg.torch.onnx.fx_nodek%squeeze : [num_users=1] = call_function[target=torch.ops.aten.squeeze.dim](args = (%mean, 1), kwargs = {})J-
-pkg.torch.onnx.name_scopes['', 'squeeze']Jù
-pkg.torch.onnx.stack_traceFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 71, in forward
+pkg.torch.onnx.name_scopes['', 'squeeze']J≤
+pkg.torch.onnx.stack_traceìFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 71, in forward
     promedio_columnas.squeeze(1),
-≈
+Ÿ
 div_2
 val_53viewnode_Reshape_61"Reshape*
 	allowzero†JW
@@ -406,151 +406,153 @@ node_div_2"DivJV
 !pkg.onnxscript.rewriter.rule_nameMaterializeReshapeShapeJk
 pkg.torch.onnx.class_hierarchyI['motor.supervivencia.red.CodificadorSupervivencia', 'aten.view.default']Jô
 pkg.torch.onnx.fx_node%view : [num_users=1] = call_function[target=torch.ops.aten.view.default](args = (%div_2, [%sym_size_int_6, 121]), kwargs = {})J*
-pkg.torch.onnx.name_scopes['', 'view']Jµ
-pkg.torch.onnx.stack_traceñFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 72, in forward
+pkg.torch.onnx.name_scopes['', 'view']J…
+pkg.torch.onnx.stack_trace™File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 72, in forward
     ESCALA_COVARIANZA * covarianza.flatten(start_dim=1),
-’
+È
 view
 val_32mul_4
 node_mul_4"MulJV
 	namespaceI: motor.supervivencia.red.CodificadorSupervivencia/mul_4: aten.mul.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.mul.Tensor']JÑ
 pkg.torch.onnx.fx_nodej%mul_4 : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%view, 4.0), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'mul_4']Jµ
-pkg.torch.onnx.stack_traceñFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 72, in forward
+pkg.torch.onnx.name_scopes['', 'mul_4']J…
+pkg.torch.onnx.stack_trace™File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 72, in forward
     ESCALA_COVARIANZA * covarianza.flatten(start_dim=1),
-˚
+£
 sum_2
 val_14unsqueeze_4node_unsqueeze_4"	UnsqueezeJõ
 	namespaceç: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/unsqueeze_4: aten.unsqueeze.defaultJõ
 pkg.torch.onnx.class_hierarchyy['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.unsqueeze.default']Jë
 pkg.torch.onnx.fx_nodew%unsqueeze_4 : [num_users=3] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%sum_2, -1), kwargs = {})JB
-pkg.torch.onnx.name_scopes$['', 'pooling_filas', 'unsqueeze_4']J´
-pkg.torch.onnx.stack_traceåFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes$['', 'pooling_filas', 'unsqueeze_4']J”
+pkg.torch.onnx.stack_trace¥File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 40, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 40, in forward
     m = mascara.unsqueeze(-1)  # (..., n, 1)
-«	
+É
+
 relu_1
 val_33val_34node_MatMul_34"MatMulJ 
 	namespaceº: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/pooling_filas.logits: torch.nn.modules.linear.Linear/linear_4: aten.linear.defaultJª
 pkg.torch.onnx.class_hierarchyò['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J«
 pkg.torch.onnx.fx_node¨%linear_4 : [num_users=2] = call_function[target=torch.ops.aten.linear.default](args = (%relu_1, %p_pooling_filas_logits_weight, %p_pooling_filas_logits_bias), kwargs = {})JW
-pkg.torch.onnx.name_scopes9['', 'pooling_filas', 'pooling_filas.logits', 'linear_4']JÊ
-pkg.torch.onnx.stack_trace«File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes9['', 'pooling_filas', 'pooling_filas.logits', 'linear_4']J¢
+pkg.torch.onnx.stack_traceÉFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 41, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 41, in forward
     logits = self.logits(h)  # (..., n, cabezas)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-ÿ	
+î
+
 val_34
 pooling_filas.logits.biaslinear_4node_linear_4"AddJ 
 	namespaceº: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/pooling_filas.logits: torch.nn.modules.linear.Linear/linear_4: aten.linear.defaultJª
 pkg.torch.onnx.class_hierarchyò['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J«
 pkg.torch.onnx.fx_node¨%linear_4 : [num_users=2] = call_function[target=torch.ops.aten.linear.default](args = (%relu_1, %p_pooling_filas_logits_weight, %p_pooling_filas_logits_bias), kwargs = {})JW
-pkg.torch.onnx.name_scopes9['', 'pooling_filas', 'pooling_filas.logits', 'linear_4']JÊ
-pkg.torch.onnx.stack_trace«File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes9['', 'pooling_filas', 'pooling_filas.logits', 'linear_4']J¢
+pkg.torch.onnx.stack_traceÉFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 41, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 41, in forward
     logits = self.logits(h)  # (..., n, cabezas)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-Ó
+ñ
 val_16
 unsqueeze_4sub_1
 node_sub_1"SubJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/sub_1: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%sub_1 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (1.0, %unsqueeze_4), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_1']J 
-pkg.torch.onnx.stack_trace´File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_1']JÚ
+pkg.torch.onnx.stack_trace”File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-Î
+ì
 sub_1
 val_35mul_5
 node_mul_5"MulJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/mul_5: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jé
 pkg.torch.onnx.fx_nodet%mul_5 : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%sub_1, 1000000000.0), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_5']J 
-pkg.torch.onnx.stack_trace´File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_5']JÚ
+pkg.torch.onnx.stack_trace”File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-Í
+í
 linear_4
 mul_5sub_2
 node_sub_2"SubJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/sub_2: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%sub_2 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (%linear_4, %mul_5), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_2']J 
-pkg.torch.onnx.stack_trace´File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_2']JÚ
+pkg.torch.onnx.stack_trace”File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-¸
+§
 sub_2
 val_36amaxn0_2"	ReduceMax*
 keepdims†Jè
 	namespaceÅ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/amax: aten.amax.defaultJñ
 pkg.torch.onnx.class_hierarchyt['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.amax.default']Jç
 pkg.torch.onnx.fx_nodes%amax : [num_users=1] = call_function[target=torch.ops.aten.amax.default](args = (%sub_2, [-2], True), kwargs = {})J;
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'amax']J 
-pkg.torch.onnx.stack_trace´File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'amax']JÚ
+pkg.torch.onnx.stack_trace”File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-Õ
+ı
 linear_4
 amaxsub_3
 node_sub_3"SubJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/sub_3: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jä
 pkg.torch.onnx.fx_nodep%sub_3 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (%linear_4, %amax), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_3']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sub_3']J◊
+pkg.torch.onnx.stack_trace∏File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-’
+˝
 sub_3
 unsqueeze_4mul_6
 node_mul_6"MulJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/mul_6: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jé
 pkg.torch.onnx.fx_nodet%mul_6 : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%sub_3, %unsqueeze_4), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_6']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_6']J◊
+pkg.torch.onnx.stack_trace∏File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-≥
+€
 mul_6expnode_exp"ExpJå
 	namespace: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/exp: aten.exp.defaultJï
 pkg.torch.onnx.class_hierarchys['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.exp.default']JÄ
 pkg.torch.onnx.fx_nodef%exp : [num_users=1] = call_function[target=torch.ops.aten.exp.default](args = (%mul_6,), kwargs = {})J:
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'exp']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'exp']J◊
+pkg.torch.onnx.stack_trace∏File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-—
+˘
 exp
 unsqueeze_4mul_7
 node_mul_7"MulJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/mul_7: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jå
 pkg.torch.onnx.fx_noder%mul_7 : [num_users=2] = call_function[target=torch.ops.aten.mul.Tensor](args = (%exp, %unsqueeze_4), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_7']JØ
-pkg.torch.onnx.stack_traceêFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'mul_7']J◊
+pkg.torch.onnx.stack_trace∏File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-£
+À
 mul_7
 val_36sum_4
 node_sum_4"	ReduceSum*
@@ -559,57 +561,57 @@ node_sum_4"	ReduceSum*
 	namespaceÖ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/sum_4: aten.sum.dim_IntListJô
 pkg.torch.onnx.class_hierarchyw['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sum.dim_IntList']Jë
 pkg.torch.onnx.fx_nodew%sum_4 : [num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul_7, [-2], True), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sum_4']J¡
-pkg.torch.onnx.stack_trace¢File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'sum_4']JÈ
+pkg.torch.onnx.stack_trace File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-Ì
+ï
 sum_4
 val_16clamp_1node_clamp_1"ClipJì
 	namespaceÖ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/clamp_1: aten.clamp.defaultJó
 pkg.torch.onnx.class_hierarchyu['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.clamp.default']Jä
 pkg.torch.onnx.fx_nodep%clamp_1 : [num_users=1] = call_function[target=torch.ops.aten.clamp.default](args = (%sum_4, 1.0), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_filas', 'clamp_1']J¡
-pkg.torch.onnx.stack_trace¢File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_filas', 'clamp_1']JÈ
+pkg.torch.onnx.stack_trace File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-ﬂ
+á
 mul_7
 clamp_1div_3
 node_div_3"DivJé
 	namespaceÄ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/div_3: aten.div.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.div.Tensor']Jä
 pkg.torch.onnx.fx_nodep%div_3 : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%mul_7, %clamp_1), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'div_3']J¡
-pkg.torch.onnx.stack_trace¢File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'div_3']JÈ
+pkg.torch.onnx.stack_trace File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-é
+∂
 div_3transpose_2node_transpose_2"	Transpose*
 perm@ @@†Jó
 	namespaceâ: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/transpose_2: aten.transpose.intJó
 pkg.torch.onnx.class_hierarchyu['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.transpose.int']Jë
 pkg.torch.onnx.fx_nodew%transpose_2 : [num_users=1] = call_function[target=torch.ops.aten.transpose.int](args = (%div_3, -1, -2), kwargs = {})JB
-pkg.torch.onnx.name_scopes$['', 'pooling_filas', 'transpose_2']JΩ
-pkg.torch.onnx.stack_traceûFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes$['', 'pooling_filas', 'transpose_2']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-É
+´
 transpose_2
 relu_1matmul_2node_matmul_2"MatMulJï
 	namespaceá: motor.supervivencia.red.CodificadorSupervivencia/pooling_filas: motor.comun.codificador.PoolingAtencion/matmul_2: aten.matmul.defaultJò
 pkg.torch.onnx.class_hierarchyv['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.matmul.default']Jñ
 pkg.torch.onnx.fx_node|%matmul_2 : [num_users=1] = call_function[target=torch.ops.aten.matmul.default](args = (%transpose_2, %relu_1), kwargs = {})J?
-pkg.torch.onnx.name_scopes!['', 'pooling_filas', 'matmul_2']JΩ
-pkg.torch.onnx.stack_traceûFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes!['', 'pooling_filas', 'matmul_2']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-“
+˙
 matmul_2
 val_54view_1node_Reshape_64"Reshape*
 	allowzero†Jë
@@ -617,142 +619,144 @@ node_div_3"DivJé
 !pkg.onnxscript.rewriter.rule_nameMaterializeReshapeShapeJñ
 pkg.torch.onnx.class_hierarchyt['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.view.default']Jü
 pkg.torch.onnx.fx_nodeÑ%view_1 : [num_users=1] = call_function[target=torch.ops.aten.view.default](args = (%matmul_2, [%sym_size_int_6, 512]), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_filas', 'view_1']JΩ
-pkg.torch.onnx.stack_traceûFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 73, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_filas', 'view_1']JÂ
+pkg.torch.onnx.stack_trace∆File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 73, in forward
     self.pooling_filas(h, todas),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-í
+∫
 
 _to_copy_1
 val_14unsqueeze_5node_unsqueeze_5"	UnsqueezeJú
 	namespaceé: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/unsqueeze_5: aten.unsqueeze.defaultJõ
 pkg.torch.onnx.class_hierarchyy['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.unsqueeze.default']Jñ
 pkg.torch.onnx.fx_node|%unsqueeze_5 : [num_users=3] = call_function[target=torch.ops.aten.unsqueeze.default](args = (%_to_copy_1, -1), kwargs = {})JC
-pkg.torch.onnx.name_scopes%['', 'pooling_cargos', 'unsqueeze_5']J∂
-pkg.torch.onnx.stack_traceóFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes%['', 'pooling_cargos', 'unsqueeze_5']Jﬁ
+pkg.torch.onnx.stack_traceøFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 40, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 40, in forward
     m = mascara.unsqueeze(-1)  # (..., n, 1)
-ÿ	
+î
+
 relu_3
 val_43val_44node_MatMul_44"MatMulJÃ
 	namespaceæ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/pooling_cargos.logits: torch.nn.modules.linear.Linear/linear_5: aten.linear.defaultJª
 pkg.torch.onnx.class_hierarchyò['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
 pkg.torch.onnx.fx_nodeÆ%linear_5 : [num_users=2] = call_function[target=torch.ops.aten.linear.default](args = (%relu_3, %p_pooling_cargos_logits_weight, %p_pooling_cargos_logits_bias), kwargs = {})JY
-pkg.torch.onnx.name_scopes;['', 'pooling_cargos', 'pooling_cargos.logits', 'linear_5']JÒ
-pkg.torch.onnx.stack_trace“File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes;['', 'pooling_cargos', 'pooling_cargos.logits', 'linear_5']J≠
+pkg.torch.onnx.stack_traceéFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 41, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 41, in forward
     logits = self.logits(h)  # (..., n, cabezas)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-Í	
+¶
+
 val_44
 pooling_cargos.logits.biaslinear_5node_linear_5"AddJÃ
 	namespaceæ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/pooling_cargos.logits: torch.nn.modules.linear.Linear/linear_5: aten.linear.defaultJª
 pkg.torch.onnx.class_hierarchyò['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J…
 pkg.torch.onnx.fx_nodeÆ%linear_5 : [num_users=2] = call_function[target=torch.ops.aten.linear.default](args = (%relu_3, %p_pooling_cargos_logits_weight, %p_pooling_cargos_logits_bias), kwargs = {})JY
-pkg.torch.onnx.name_scopes;['', 'pooling_cargos', 'pooling_cargos.logits', 'linear_5']JÒ
-pkg.torch.onnx.stack_trace“File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes;['', 'pooling_cargos', 'pooling_cargos.logits', 'linear_5']J≠
+pkg.torch.onnx.stack_traceéFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 41, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 41, in forward
     logits = self.logits(h)  # (..., n, cabezas)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-˚
+£
 val_16
 unsqueeze_5sub_4
 node_sub_4"SubJè
 	namespaceÅ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/sub_4: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%sub_4 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (1.0, %unsqueeze_5), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_4']J’
-pkg.torch.onnx.stack_trace∂File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_4']J˝
+pkg.torch.onnx.stack_traceﬁFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-˝
+•
 sub_4
 val_35mul_12node_mul_12"MulJê
 	namespaceÇ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/mul_12: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jè
 pkg.torch.onnx.fx_nodeu%mul_12 : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%sub_4, 1000000000.0), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_12']J’
-pkg.torch.onnx.stack_trace∂File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_12']J˝
+pkg.torch.onnx.stack_traceﬁFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-˘
+°
 linear_5
 mul_12sub_5
 node_sub_5"SubJè
 	namespaceÅ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/sub_5: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jå
 pkg.torch.onnx.fx_noder%sub_5 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (%linear_5, %mul_12), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_5']J’
-pkg.torch.onnx.stack_trace∂File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_5']J˝
+pkg.torch.onnx.stack_traceﬁFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-ë
+π
 sub_5
 val_36amax_1n0_3"	ReduceMax*
 keepdims†Jí
 	namespaceÑ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/amax_1: aten.amax.defaultJñ
 pkg.torch.onnx.class_hierarchyt['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.amax.default']Jè
 pkg.torch.onnx.fx_nodeu%amax_1 : [num_users=1] = call_function[target=torch.ops.aten.amax.default](args = (%sub_5, [-2], True), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'amax_1']J’
-pkg.torch.onnx.stack_trace∂File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'amax_1']J˝
+pkg.torch.onnx.stack_traceﬁFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 44, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 44, in forward
     maximo = (logits - (1.0 - m) * MUY_NEGATIVO).amax(dim=-2, keepdim=True)
-ﬁ
+Ü
 linear_5
 amax_1sub_6
 node_sub_6"SubJè
 	namespaceÅ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/sub_6: aten.sub.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sub.Tensor']Jå
 pkg.torch.onnx.fx_noder%sub_6 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (%linear_5, %amax_1), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_6']J∫
-pkg.torch.onnx.stack_traceõFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sub_6']J‚
+pkg.torch.onnx.stack_trace√File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-Á
+è
 sub_6
 unsqueeze_5mul_13node_mul_13"MulJê
 	namespaceÇ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/mul_13: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jè
 pkg.torch.onnx.fx_nodeu%mul_13 : [num_users=1] = call_function[target=torch.ops.aten.mul.Tensor](args = (%sub_6, %unsqueeze_5), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_13']J∫
-pkg.torch.onnx.stack_traceõFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_13']J‚
+pkg.torch.onnx.stack_trace√File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-Õ
+ı
 mul_13exp_1
 node_exp_1"ExpJê
 	namespaceÇ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/exp_1: aten.exp.defaultJï
 pkg.torch.onnx.class_hierarchys['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.exp.default']JÉ
 pkg.torch.onnx.fx_nodei%exp_1 : [num_users=1] = call_function[target=torch.ops.aten.exp.default](args = (%mul_13,), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'exp_1']J∫
-pkg.torch.onnx.stack_traceõFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'exp_1']J‚
+pkg.torch.onnx.stack_trace√File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-Á
+è
 exp_1
 unsqueeze_5mul_14node_mul_14"MulJê
 	namespaceÇ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/mul_14: aten.mul.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.mul.Tensor']Jè
 pkg.torch.onnx.fx_nodeu%mul_14 : [num_users=2] = call_function[target=torch.ops.aten.mul.Tensor](args = (%exp_1, %unsqueeze_5), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_14']J∫
-pkg.torch.onnx.stack_traceõFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'mul_14']J‚
+pkg.torch.onnx.stack_trace√File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 45, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 45, in forward
     pesos = torch.exp((logits - maximo) * m) * m
-≤
+⁄
 mul_14
 val_36sum_5
 node_sum_5"	ReduceSum*
@@ -761,57 +765,57 @@ node_sum_5"	ReduceSum*
 	namespaceÜ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/sum_5: aten.sum.dim_IntListJô
 pkg.torch.onnx.class_hierarchyw['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.sum.dim_IntList']Jí
 pkg.torch.onnx.fx_nodex%sum_5 : [num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%mul_14, [-2], True), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sum_5']JÃ
-pkg.torch.onnx.stack_trace≠File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'sum_5']JÙ
+pkg.torch.onnx.stack_trace’File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-˙
+¢
 sum_5
 val_16clamp_2node_clamp_2"ClipJî
 	namespaceÜ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/clamp_2: aten.clamp.defaultJó
 pkg.torch.onnx.class_hierarchyu['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.clamp.default']Jä
 pkg.torch.onnx.fx_nodep%clamp_2 : [num_users=1] = call_function[target=torch.ops.aten.clamp.default](args = (%sum_5, 1.0), kwargs = {})J?
-pkg.torch.onnx.name_scopes!['', 'pooling_cargos', 'clamp_2']JÃ
-pkg.torch.onnx.stack_trace≠File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes!['', 'pooling_cargos', 'clamp_2']JÙ
+pkg.torch.onnx.stack_trace’File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-Ó
+ñ
 mul_14
 clamp_2div_4
 node_div_4"DivJè
 	namespaceÅ: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/div_4: aten.div.TensorJî
 pkg.torch.onnx.class_hierarchyr['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.div.Tensor']Jã
 pkg.torch.onnx.fx_nodeq%div_4 : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%mul_14, %clamp_2), kwargs = {})J=
-pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'div_4']JÃ
-pkg.torch.onnx.stack_trace≠File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes['', 'pooling_cargos', 'div_4']JÙ
+pkg.torch.onnx.stack_trace’File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 48, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 48, in forward
     pesos = pesos / pesos.sum(dim=-2, keepdim=True).clamp(min=1.0)
-õ
+√
 div_4transpose_3node_transpose_3"	Transpose*
 perm@ @@†Jò
 	namespaceä: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/transpose_3: aten.transpose.intJó
 pkg.torch.onnx.class_hierarchyu['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.transpose.int']Jë
 pkg.torch.onnx.fx_nodew%transpose_3 : [num_users=1] = call_function[target=torch.ops.aten.transpose.int](args = (%div_4, -1, -2), kwargs = {})JC
-pkg.torch.onnx.name_scopes%['', 'pooling_cargos', 'transpose_3']J»
-pkg.torch.onnx.stack_trace©File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes%['', 'pooling_cargos', 'transpose_3']J
+pkg.torch.onnx.stack_trace—File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-ê
+∏
 transpose_3
 relu_3matmul_3node_matmul_3"MatMulJñ
 	namespaceà: motor.supervivencia.red.CodificadorSupervivencia/pooling_cargos: motor.comun.codificador.PoolingAtencion/matmul_3: aten.matmul.defaultJò
 pkg.torch.onnx.class_hierarchyv['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.matmul.default']Jñ
 pkg.torch.onnx.fx_node|%matmul_3 : [num_users=1] = call_function[target=torch.ops.aten.matmul.default](args = (%transpose_3, %relu_3), kwargs = {})J@
-pkg.torch.onnx.name_scopes"['', 'pooling_cargos', 'matmul_3']J»
-pkg.torch.onnx.stack_trace©File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes"['', 'pooling_cargos', 'matmul_3']J
+pkg.torch.onnx.stack_trace—File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-ﬂ
+á
 matmul_3
 val_54view_2node_Reshape_67"Reshape*
 	allowzero†Jí
@@ -819,30 +823,30 @@ node_div_4"DivJè
 !pkg.onnxscript.rewriter.rule_nameMaterializeReshapeShapeJñ
 pkg.torch.onnx.class_hierarchyt['motor.supervivencia.red.CodificadorSupervivencia', 'motor.comun.codificador.PoolingAtencion', 'aten.view.default']Jü
 pkg.torch.onnx.fx_nodeÑ%view_2 : [num_users=1] = call_function[target=torch.ops.aten.view.default](args = (%matmul_3, [%sym_size_int_6, 512]), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'view_2']J»
-pkg.torch.onnx.stack_trace©File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 74, in forward
+pkg.torch.onnx.name_scopes ['', 'pooling_cargos', 'view_2']J
+pkg.torch.onnx.stack_trace—File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 74, in forward
     self.pooling_cargos(h_cargo, hay_cargo),
-  File "/Users/clementeferrer/Downloads/krylov/motor/comun/codificador.py", line 50, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/comun/codificador.py", line 50, in forward
     return (pesos.transpose(-1, -2) @ h).flatten(start_dim=-2)
-¢
+∑
 sum_3lognode_log"LogJU
 	namespaceH: motor.supervivencia.red.CodificadorSupervivencia/log: aten.log.defaultJj
 pkg.torch.onnx.class_hierarchyH['motor.supervivencia.red.CodificadorSupervivencia', 'aten.log.default']JÄ
 pkg.torch.onnx.fx_nodef%log : [num_users=1] = call_function[target=torch.ops.aten.log.default](args = (%sum_3,), kwargs = {})J)
-pkg.torch.onnx.name_scopes['', 'log']Jì
-pkg.torch.onnx.stack_traceuFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 75, in forward
+pkg.torch.onnx.name_scopes['', 'log']J®
+pkg.torch.onnx.stack_traceâFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 75, in forward
     torch.log(n) - 6.5,
-±
+∆
 log
 val_51sub_7
 node_sub_7"SubJV
 	namespaceI: motor.supervivencia.red.CodificadorSupervivencia/sub_7: aten.sub.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sub.Tensor']JÉ
 pkg.torch.onnx.fx_nodei%sub_7 : [num_users=1] = call_function[target=torch.ops.aten.sub.Tensor](args = (%log, 6.5), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'sub_7']Jì
-pkg.torch.onnx.stack_traceuFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 75, in forward
+pkg.torch.onnx.name_scopes['', 'sub_7']J®
+pkg.torch.onnx.stack_traceâFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 75, in forward
     torch.log(n) - 6.5,
-´
+ø
 
 _to_copy_1
 val_27sum_6
@@ -852,20 +856,20 @@ node_sum_6"	ReduceSum*
 	namespaceN: motor.supervivencia.red.CodificadorSupervivencia/sum_6: aten.sum.dim_IntListJn
 pkg.torch.onnx.class_hierarchyL['motor.supervivencia.red.CodificadorSupervivencia', 'aten.sum.dim_IntList']Jï
 pkg.torch.onnx.fx_node{%sum_6 : [num_users=1] = call_function[target=torch.ops.aten.sum.dim_IntList](args = (%_to_copy_1, [1], True), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'sum_6']J∂
-pkg.torch.onnx.stack_traceóFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 76, in forward
+pkg.torch.onnx.name_scopes['', 'sum_6']J 
+pkg.torch.onnx.stack_trace´File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 76, in forward
     hay_cargo.sum(dim=1, keepdim=True) / self.cargos_max,
-ˇ
+ì
 sum_6
 scalar_tensor_default_1div_5
 node_div_5"DivJV
 	namespaceI: motor.supervivencia.red.CodificadorSupervivencia/div_5: aten.div.TensorJi
 pkg.torch.onnx.class_hierarchyG['motor.supervivencia.red.CodificadorSupervivencia', 'aten.div.Tensor']Jõ
 pkg.torch.onnx.fx_nodeÄ%div_5 : [num_users=1] = call_function[target=torch.ops.aten.div.Tensor](args = (%sum_6, %scalar_tensor_default_1), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'div_5']J∂
-pkg.torch.onnx.stack_traceóFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 76, in forward
+pkg.torch.onnx.name_scopes['', 'div_5']J 
+pkg.torch.onnx.stack_trace´File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 76, in forward
     hay_cargo.sum(dim=1, keepdim=True) / self.cargos_max,
-ù
+≤
 squeeze
 mul_4
 view_1
@@ -877,10 +881,11 @@ node_cat_1"Concat*
 	namespaceJ: motor.supervivencia.red.CodificadorSupervivencia/cat_1: aten.cat.defaultJj
 pkg.torch.onnx.class_hierarchyH['motor.supervivencia.red.CodificadorSupervivencia', 'aten.cat.default']J¥
 pkg.torch.onnx.fx_nodeô%cat_1 : [num_users=1] = call_function[target=torch.ops.aten.cat.default](args = ([%squeeze, %mul_4, %view_1, %view_2, %sub_7, %div_5], -1), kwargs = {})J+
-pkg.torch.onnx.name_scopes['', 'cat_1']Jí
-pkg.torch.onnx.stack_tracetFile "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 69, in forward
+pkg.torch.onnx.name_scopes['', 'cat_1']Jß
+pkg.torch.onnx.stack_traceàFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 69, in forward
     junto = torch.cat(
- 	
+Ü
+
 cat_1
 rho.0.weight
 
@@ -892,26 +897,27 @@ rho.0.biaslinear_6node_linear_6"Gemm*
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/rho: torch.nn.modules.container.Sequential/rho.0: torch.nn.modules.linear.Linear/linear_6: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J®
 pkg.torch.onnx.fx_nodeç%linear_6 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%cat_1, %p_rho_0_weight, %p_rho_0_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'rho', 'rho.0', 'linear_6']JÔ
-pkg.torch.onnx.stack_trace–File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 80, in forward
+pkg.torch.onnx.name_scopes ['', 'rho', 'rho.0', 'linear_6']J´
+pkg.torch.onnx.stack_traceåFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 80, in forward
     return self.rho(junto)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
-À
+á	
 linear_6relu_4node_relu_4"ReluJ≠
 	namespaceü: motor.supervivencia.red.CodificadorSupervivencia/rho: torch.nn.modules.container.Sequential/rho.1: torch.nn.modules.activation.ReLU/relu_4: aten.relu.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.activation.ReLU', 'aten.relu.default']Já
 pkg.torch.onnx.fx_nodem%relu_4 : [num_users=1] = call_function[target=torch.ops.aten.relu.default](args = (%linear_6,), kwargs = {})J<
-pkg.torch.onnx.name_scopes['', 'rho', 'rho.1', 'relu_4']JÔ
-pkg.torch.onnx.stack_trace–File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 80, in forward
+pkg.torch.onnx.name_scopes['', 'rho', 'rho.1', 'relu_4']J´
+pkg.torch.onnx.stack_traceåFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 80, in forward
     return self.rho(junto)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/activation.py", line 143, in forward
     return F.relu(input, inplace=self.inplace)
-À	
+á
+
 relu_4
 rho.2.weight
 
@@ -923,12 +929,12 @@ rho.2.biasresumennode_linear_7"Gemm*
 	namespace°: motor.supervivencia.red.CodificadorSupervivencia/rho: torch.nn.modules.container.Sequential/rho.2: torch.nn.modules.linear.Linear/linear_7: aten.linear.defaultJπ
 pkg.torch.onnx.class_hierarchyñ['motor.supervivencia.red.CodificadorSupervivencia', 'torch.nn.modules.container.Sequential', 'torch.nn.modules.linear.Linear', 'aten.linear.default']J©
 pkg.torch.onnx.fx_nodeé%linear_7 : [num_users=1] = call_function[target=torch.ops.aten.linear.default](args = (%relu_4, %p_rho_2_weight, %p_rho_2_bias), kwargs = {})J>
-pkg.torch.onnx.name_scopes ['', 'rho', 'rho.2', 'linear_7']JÔ
-pkg.torch.onnx.stack_trace–File "/Users/clementeferrer/Downloads/krylov/motor/supervivencia/red.py", line 80, in forward
+pkg.torch.onnx.name_scopes ['', 'rho', 'rho.2', 'linear_7']J´
+pkg.torch.onnx.stack_traceåFile "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/motor/supervivencia/red.py", line 80, in forward
     return self.rho(junto)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/container.py", line 259, in forward
     input = module(input)
-  File "/Users/clementeferrer/Downloads/krylov/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
+  File "/Users/SilentMath/Platanus Hack/platanus-hack-26-cl-team-5/.venv/lib/python3.12/site-packages/torch/nn/modules/linear.py", line 134, in forward
     return F.linear(input, self.weight, self.bias)
 main_graph*îÄB
 phi.0.biasJÄù”hΩCoæ$5xæŸ_æb$s>:…0>˝>Ì6.ΩÂLR>«òæsZOΩf^,æWƒJ=7¡æ~$ˇ<%Uæ%uæƒ·F<KÈ˜< ´TΩèAMæ¡,Cø`§ßæÖJæ¸/‡=™Õæ≤êöæi&iæ≠Üæÿ›ÜæaeÕæÙè>ß\qΩw—úæ5vçæÆ¢æ.qæª˜æç.¸Ωl\ædúæõ§fæ%>¬_Å>Çq…=[zCæE‹vΩï¨æœøñæ∫É4æñÉYΩ≠/%>ô¥æ∞oΩ·ÚñæF¥æ[0êæÍEÖæÔY >É4Ä=LpÇ>£(jæ≤t=ãMæì<ì>—Bù>yiHæfh¨æoÆ≤æÚÁãæKî¬=]]$>’ëï>	>Ej.æ˙¶æ/¥•> z⁄=
