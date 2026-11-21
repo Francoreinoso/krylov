@@ -40,7 +40,7 @@ Verificado en PC 3 a las 13:20, corriendo: `pytest nucleo` pasa (34) y `leyes` r
 
 - **D-38 (13:10):** el método lento pasa al final (A-36, desde las 19:00 o antes si un computador queda libre); el sello se escribe sin él. Se adelanta solo para una tarjeta cuya red no pasó. Cada modelo sortea cuántas unidades y lecturas trae el archivo; fuera de ese rango, `rojo_datos`.
 - **Lo que D-38 deja sin respaldo:** `flota` y `sismicidad` validan a las 18:15, después del cierre. Sin método lento previo, a las 18:00 no tienen con qué responder (ver «Próxima decisión»).
-- **S-27 adelantada:** el deck minero ya está en `pitch/deck/` (13:00). En el tablero en vivo, «Método lento» ahora va última.
+- **S-27 adelantada:** el deck minero ya está en `pitch/deck/` (13:00). El tablero en vivo todavía dibuja «Método lento» tercera: PC 3 no tiene permiso de push en `krylov-panel` (pedido a PC 2).
 
 ## Próxima decisión
 
