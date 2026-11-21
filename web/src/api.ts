@@ -2,12 +2,24 @@
 // Pide a la API; si no hay API configurada, si no responde en 1,5 s o si la URL trae
 // ?estatico=1, lee la copia precalculada de /estatico/<archivo>.json.
 
-import type { Analisis, Calce, Casos, DondeMedir, Nube, Papeles } from './tipos'
+import type { Analisis, Calce, CalcePapel, Casos, DondeMedir, Interpretacion, Nube, Papeles } from './tipos'
 
 const API_URL: string =
   import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? 'http://localhost:8010' : '')
 const TOPE_MS = 1500
+const TOPE_ARCHIVO_MS = 25000 // el servidor gratuito puede estar dormido
+const TOPE_INTERPRETAR_MS = 12000 // el modelo de lenguaje escribe después de los números y no los bloquea
 const forzarEstatico = new URLSearchParams(window.location.search).has('estatico')
+
+// Hay servidor al que preguntar: un archivo propio y una interpretación nueva lo necesitan.
+export const hayApi = Boolean(API_URL) && !forzarEstatico
+
+// Un archivo propio exige la API; sin ella el chat lo dice en vez de responder otra cosa.
+export class SinServidor extends Error {
+  constructor() {
+    super('No hay servidor')
+  }
+}
 
 export type Origen = 'api' | 'estatico'
 
@@ -21,9 +33,10 @@ export function clave(caso: string, transformaciones: string[] = []): string {
   return [caso, ...transformaciones.map((t) => t.replace(':', '-'))].join('__')
 }
 
-async function desdeApi<T>(ruta: string, cuerpo?: object): Promise<T> {
+async function desdeApi<T>(ruta: string, cuerpo?: object, topeMs = TOPE_MS, senal?: AbortSignal): Promise<T> {
   const control = new AbortController()
-  const tope = setTimeout(() => control.abort(), TOPE_MS)
+  const tope = setTimeout(() => control.abort(), topeMs)
+  senal?.addEventListener('abort', () => control.abort())
   try {
     const r = await fetch(`${API_URL}/api/${ruta}`, {
       method: cuerpo ? 'POST' : 'GET',
@@ -55,6 +68,56 @@ async function pedir<T>(ruta: string, archivo: string, cuerpo?: object): Promise
   return { datos: await desdeEstatico<T>(archivo), origen: 'estatico' }
 }
 
+// Un archivo subido, en un formulario: sin copia estática posible.
+async function conArchivo<T>(ruta: string, campos: Record<string, string | Blob>): Promise<T> {
+  if (!hayApi) throw new SinServidor()
+  const form = new FormData()
+  for (const [k, v] of Object.entries(campos)) form.append(k, v)
+  const control = new AbortController()
+  const tope = setTimeout(() => control.abort(), TOPE_ARCHIVO_MS)
+  let r: Response
+  try {
+    r = await fetch(`${API_URL}/api/${ruta}`, { method: 'POST', body: form, signal: control.signal })
+  } catch {
+    throw new SinServidor()
+  } finally {
+    clearTimeout(tope)
+  }
+  const cuerpo = await r.json().catch(() => null)
+  if (!r.ok) throw new Error(cuerpo?.error ?? `El servidor respondió ${r.status}`)
+  return cuerpo as T
+}
+
+// Sin modelo de lenguaje: las frases de plantilla que ya trae la respuesta.
+export const plantilla = (a: Analisis): Interpretacion => ({
+  texto: a.en_palabras.join(' ') || a.titular,
+  origen: 'plantilla',
+  proveedor: null,
+  precalculado: false,
+})
+
+// La interpretación de una respuesta. `clave` es la del archivo del demo (tiene copia estática);
+// en un archivo propio es null y, sin servidor, queda la plantilla.
+async function interpretar(analisis: Analisis, clave: string | null, senal?: AbortSignal): Promise<Interpretacion> {
+  if (hayApi) {
+    try {
+      return await desdeApi<Interpretacion>('interpretar', analisis, TOPE_INTERPRETAR_MS, senal)
+    } catch {
+      if (senal?.aborted) throw new DOMException('Cancelada', 'AbortError')
+    }
+  }
+  if (clave) {
+    try {
+      return await desdeEstatico<Interpretacion>(`interpretar/${clave}`)
+    } catch {
+      // Sigue con la plantilla.
+    }
+  }
+  return plantilla(analisis)
+}
+
+export type ColumnasConfirmadas = Record<string, Pick<CalcePapel, 'columnas' | 'transformacion'>>
+
 // Despierta al servidor gratuito apenas carga la página; la respuesta no importa.
 export function despertarApi(): void {
   if (API_URL && !forzarEstatico) fetch(`${API_URL}/api/salud`).catch(() => {})
@@ -71,5 +134,9 @@ export const api = {
     pedir<Nube>('nube', `nube/${clave(caso, transformaciones)}`, { caso, transformaciones }),
   papeles: (motor: string) => pedir<Papeles>(`papeles/${motor}`, `papeles/${motor}`),
   calce: (caso: string) => pedir<Calce>(`calce/${caso}`, `calce/${caso}`),
+  calcePropio: (archivo: File, motor: string) => conArchivo<Calce>('calce', { archivo, motor_id: motor }),
+  analizarArchivo: (archivo: File, motor: string, columnas: ColumnasConfirmadas) =>
+    conArchivo<Analisis>('analizar_archivo', { archivo, motor_id: motor, columnas: JSON.stringify(columnas) }),
+  interpretar,
   dondeMedir: (caso: string) => pedir<DondeMedir>('donde-medir', `donde-medir/${clave(caso)}`, { caso, mediciones: [] }),
 }

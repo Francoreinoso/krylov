@@ -1,6 +1,8 @@
-// Lectura mínima de un CSV en el navegador: nombre, filas y columnas. No se analiza todavía.
+// Lectura mínima de un CSV en el navegador: nombre, filas y columnas, para mostrar la ficha del
+// adjunto. El archivo mismo viaja al servidor, que es quien lo lee para el calce y el análisis.
 
 export interface InfoCsv {
+  archivo: File
   nombre: string
   filas: number
   columnas: string[]
@@ -15,5 +17,5 @@ export async function leerCsv(archivo: File): Promise<InfoCsv> {
     .split(separador)
     .map((c) => c.trim().replace(/^"(.*)"$/, '$1'))
     .filter(Boolean)
-  return { nombre: archivo.name, filas: Math.max(0, lineas.length - 1), columnas }
+  return { archivo, nombre: archivo.name, filas: Math.max(0, lineas.length - 1), columnas }
 }

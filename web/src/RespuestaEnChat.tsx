@@ -1,10 +1,12 @@
 // Una respuesta de Krylov dentro del chat: el titular, que aparece palabra por palabra, y el panel
-// que pidió la pregunta, con los mismos componentes de la vista 2. Debajo, las acciones.
+// que pidió la pregunta, con los mismos componentes de la vista 2. Debajo, la interpretación y las
+// acciones.
 
 import { useEffect, useState, type ReactNode } from 'react'
 import { FONDO, ORDEN } from './colores'
 import Deslizadores from './Deslizadores'
 import Examen from './Examen'
+import Interpretacion from './Interpretacion'
 import ListaUnidades from './ListaUnidades'
 import Mapa from './Mapa'
 import Nube from './Nube'
@@ -21,7 +23,7 @@ export interface DatosRespuesta {
   analisis: Analisis
   nube: DatosNube | null
   donde: DondeMedir | null
-  archivoPropio: boolean
+  clave: string | null // la del archivo del demo; null en un archivo propio
 }
 
 const UNIDADES_EN_CHAT = 12
@@ -62,7 +64,7 @@ interface Props {
 }
 
 export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
-  const { intencion, analisis, nube, donde, archivoPropio } = datos
+  const { intencion, analisis, nube, donde, clave } = datos
   const d = useDecision(analisis)
   const [animar] = useState(() => Date.now() - creado < RECIENTE_MS && !quieto())
   const [copiado, setCopiado] = useState(false)
@@ -110,8 +112,8 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
 
   return (
     <div>
-      {archivoPropio && (
-        <p className="mb-3 inline-block rounded-full bg-en-duda/15 px-3 py-1 text-xs">Respondí con el archivo de ejemplo del caso: todavía no analizo archivos propios.</p>
+      {clave === null && (
+        <p className="mb-3 inline-block rounded-full bg-superficie px-3 py-1 text-xs">Tu archivo · columnas confirmadas por ti</p>
       )}
 
       <p className="condensado text-xl leading-snug font-semibold text-balance">
@@ -199,6 +201,8 @@ export default function RespuestaEnChat({ datos, creado, alAbrir }: Props) {
             )}
           </>
         )}
+
+        <Interpretacion analisis={analisis} clave={clave} d={d} />
 
         <div className="flex flex-wrap items-center gap-1">
           <BotonAccion titulo="Copiar" alHacer={copiar}>

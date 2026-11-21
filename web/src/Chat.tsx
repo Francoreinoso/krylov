@@ -1,9 +1,10 @@
-// Inicio tipo chat. No hay modelo de lenguaje: las preguntas son plantillas (preguntas.ts) y cada
-// respuesta sale del JSON del motor. Por ahora el archivo propio solo se lee; la respuesta usa el
-// archivo de ejemplo del caso y lo dice.
+// Inicio tipo chat (D-34). Las preguntas son plantillas (preguntas.ts) y cada respuesta sale del JSON
+// del motor. Antes de la primera respuesta se confirma el calce de columnas (D-35): el del equipo en
+// un archivo del demo; en un archivo propio, el que propone el servidor, que después lo analiza con
+// la red del motor. Un archivo propio exige el servidor: sin él, el chat lo dice.
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { api, despertarApi, type Origen } from './api'
+import { api, despertarApi, SinServidor, type ColumnasConfirmadas, type Origen } from './api'
 import CalceEnChat, { asignacionDe, mismaAsignacion, type Asignacion } from './CalceEnChat'
 import Compositor from './Compositor'
 import { leerCsv, type InfoCsv } from './csv'
@@ -30,13 +31,15 @@ interface Conversacion {
   archivo: InfoCsv | null // el archivo propio que se subió en esta conversación
   pendiente: string | null // la pregunta que espera a que se elija un modelo
   calceListo: boolean // se confirmó qué columna cumple cada papel
+  columnas: ColumnasConfirmadas | null // el calce confirmado del archivo propio
   mensajes: Mensaje[]
 }
 
 const FRASE = 'Sé cuánto no sé, y te digo cuánto vale averiguarlo.'
-const SIN_ARCHIVO_PROPIO = 'Todavía no analizo archivos propios: respondo con el archivo de ejemplo del caso.'
+const SIN_SERVIDOR =
+  'Para analizar un archivo propio necesito el servidor, y no responde ahora. Puedo responder con el archivo del demo: quita el adjunto y pregunta de nuevo.'
 const OTRAS_COLUMNAS =
-  'Con otras columnas tengo que analizar el archivo de nuevo en el servidor, y todavía no está en línea. Respondo con las columnas del caso.'
+  'En el archivo del demo respondo con las columnas que eligió el equipo. Para probar otras, súbelo como archivo propio.'
 const ESCRITORIO = '(min-width: 1024px)'
 
 let siguienteId = 0
@@ -46,6 +49,7 @@ const nueva = (caso: Caso | null = null): Conversacion => ({
   archivo: null,
   pendiente: null,
   calceListo: false,
+  columnas: null,
   mensajes: [],
 })
 
@@ -107,7 +111,7 @@ export default function Chat() {
     setEstado((s) => {
       const actual = s.conversaciones.find((c) => c.id === s.activa)
       if (actual && actual.mensajes.length === 0) {
-        return { ...s, conversaciones: s.conversaciones.map((c) => (c.id === actual.id ? { ...c, caso, calceListo: false } : c)) }
+        return { ...s, conversaciones: s.conversaciones.map((c) => (c.id === actual.id ? { ...c, caso, calceListo: false, columnas: null } : c)) }
       }
       const c = nueva(caso)
       return { conversaciones: [c, ...s.conversaciones], activa: c.id }
@@ -117,9 +121,16 @@ export default function Chat() {
     cerrarLateralEnTelefono()
   }
 
-  const responder = async (id: number, caso: Caso, intencion: Intencion, archivoPropio: boolean) => {
+  // `propio` es el archivo subido con su calce confirmado; sin él responde el archivo del demo.
+  const responder = async (id: number, caso: Caso, intencion: Intencion, propio: { archivo: InfoCsv; columnas: ColumnasConfirmadas } | null) => {
     setPensando(id)
     try {
+      if (propio) {
+        const analisis = await api.analizarArchivo(propio.archivo.archivo, caso.motor, propio.columnas)
+        setOrigen('api')
+        decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube: null, donde: null, clave: null } })
+        return
+      }
       const r = await api.analizar(caso.nombre)
       const analisis = r.datos
       const [nube, donde] = await Promise.all([
@@ -127,53 +138,78 @@ export default function Chat() {
         intencion === 'donde_medir' ? api.dondeMedir(caso.nombre).then((d) => d.datos) : null,
       ])
       setOrigen(r.origen)
-      decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube, donde, archivoPropio } })
+      decir(id, { de: 'krylov', tipo: 'respuesta', datos: { intencion, analisis, nube, donde, clave: caso.nombre } })
     } catch (e) {
-      decir(id, { de: 'krylov', tipo: 'texto', texto: `No pude responder: ${(e as Error).message}` })
+      decir(id, { de: 'krylov', tipo: 'texto', texto: e instanceof SinServidor ? SIN_SERVIDOR : `No pude responder: ${(e as Error).message}` })
     } finally {
       setPensando(null)
     }
   }
 
   // Antes de la primera respuesta, el chat muestra qué columna del archivo cumple cada papel.
-  const mostrarCalce = async (id: number, caso: Caso, intencion: Intencion) => {
+  const mostrarCalce = async (id: number, caso: Caso, intencion: Intencion, archivo: InfoCsv | null) => {
     setPensando(id)
+    const modelo = MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor
     try {
-      const [calce, papeles] = await Promise.all([api.calce(caso.nombre), api.papeles(caso.motor)])
+      const [calce, papeles] = await Promise.all([
+        archivo ? api.calcePropio(archivo.archivo, caso.motor) : api.calce(caso.nombre).then((c) => c.datos),
+        api.papeles(caso.motor),
+      ])
       decir(id, {
         de: 'krylov',
         tipo: 'texto',
-        texto: `Antes de analizar, revisa qué columna del archivo cumple cada papel del modelo de ${MOTOR_EN_PALABRAS[caso.motor]?.toLowerCase() ?? caso.motor}.`,
+        texto: archivo
+          ? `Leí las columnas de ${archivo.nombre}. Esta es mi propuesta de qué columna cumple cada papel del modelo de ${modelo}: revísala antes de analizar.`
+          : `Antes de analizar, revisa qué columna del archivo cumple cada papel del modelo de ${modelo}.`,
       })
-      decir(id, { de: 'krylov', tipo: 'calce', calce: calce.datos, papeles: papeles.datos.papeles, intencion, confirmado: false })
-    } catch {
+      decir(id, { de: 'krylov', tipo: 'calce', calce, papeles: papeles.datos.papeles, intencion, confirmado: false })
+    } catch (e) {
+      if (archivo) {
+        decir(id, { de: 'krylov', tipo: 'texto', texto: e instanceof SinServidor ? SIN_SERVIDOR : `No pude leer tu archivo: ${(e as Error).message}` })
+        return
+      }
       // Sin calce que mostrar, se analiza con las columnas del caso.
       modificar(id, (c) => ({ ...c, calceListo: true }))
-      await responder(id, caso, intencion, false)
+      await responder(id, caso, intencion, null)
     } finally {
       setPensando((p) => (p === id ? null : p))
     }
   }
 
   const confirmarCalce = (id: number, mensaje: number, caso: Caso, calce: Calce, intencion: Intencion, asignacion: Asignacion) => {
+    const propio = calce.origen !== 'equipo' && conv.archivo !== null
+    const columnas: ColumnasConfirmadas | null = propio
+      ? Object.fromEntries(
+          Object.entries(asignacion).map(([papel, cols]) => [papel, { columnas: cols, transformacion: calce.calce[papel]?.transformacion ?? null }]),
+        )
+      : null
     modificar(id, (c) => ({
       ...c,
       calceListo: true,
+      columnas,
       mensajes: c.mensajes.map((m) => (m.id === mensaje && m.de === 'krylov' && m.tipo === 'calce' ? { ...m, confirmado: true } : m)),
     }))
-    if (!mismaAsignacion(asignacion, asignacionDe(calce))) decir(id, { de: 'krylov', tipo: 'texto', texto: OTRAS_COLUMNAS })
-    responder(id, caso, intencion, false)
+    if (!propio && !mismaAsignacion(asignacion, asignacionDe(calce))) decir(id, { de: 'krylov', tipo: 'texto', texto: OTRAS_COLUMNAS })
+    responder(id, caso, intencion, columnas && conv.archivo ? { archivo: conv.archivo, columnas } : null)
   }
 
   // Qué hacer con una pregunta, una vez que hay modelo.
-  const atender = (id: number, caso: Caso, pregunta: string, archivo: InfoCsv | null, recienElegido: boolean, calceListo: boolean) => {
+  const atender = (
+    id: number,
+    caso: Caso,
+    pregunta: string,
+    archivo: InfoCsv | null,
+    recienElegido: boolean,
+    calceListo: boolean,
+    columnas: ColumnasConfirmadas | null,
+  ) => {
     const intencion = interpretar(pregunta, preguntasDe(caso))
-    if (intencion && !calceListo && archivo === null) {
-      mostrarCalce(id, caso, intencion)
+    if (intencion && !calceListo) {
+      mostrarCalce(id, caso, intencion, archivo)
       return
     }
     if (intencion) {
-      responder(id, caso, intencion, archivo !== null)
+      responder(id, caso, intencion, archivo && columnas ? { archivo, columnas } : null)
       return
     }
     decir(id, {
@@ -197,7 +233,8 @@ export default function Chat() {
     const caso = conv.caso ?? reconocido
     setTexto('')
     setAdjunto(null)
-    modificar(id, (c) => ({ ...c, caso, archivo, pendiente: caso ? null : pregunta }))
+    // Un archivo nuevo pide confirmar de nuevo su calce.
+    modificar(id, (c) => ({ ...c, caso, archivo, pendiente: caso ? null : pregunta, ...(adj ? { calceListo: false, columnas: null } : {}) }))
     decir(id, { de: 'tu', texto: pregunta, adjunto: adj ?? undefined })
 
     if (!caso) {
@@ -207,20 +244,19 @@ export default function Chat() {
         de: 'krylov',
         tipo: 'texto',
         texto: `Leí ${adj.nombre}: ${adj.filas.toLocaleString('es-CL')} filas y ${adj.columnas.length} columnas. ¿Qué quieres saber?`,
-        nota: SIN_ARCHIVO_PROPIO,
         accion: 'preguntas',
       })
     } else {
-      atender(id, caso, pregunta, archivo, reconocido !== null && !casoElegido, conv.calceListo && conv.caso !== null)
+      atender(id, caso, pregunta, archivo, reconocido !== null && !casoElegido, conv.calceListo && conv.caso !== null && !adj, adj ? null : conv.columnas)
     }
   }
 
   // Elegir un modelo desde las tarjetas que ofrece Krylov retoma la pregunta que quedó esperando.
   const elegirModelo = (caso: Caso) => {
     const { id, pendiente, archivo } = conv
-    modificar(id, (c) => ({ ...c, caso, pendiente: null, calceListo: false }))
+    modificar(id, (c) => ({ ...c, caso, pendiente: null, calceListo: false, columnas: null }))
     decir(id, { de: 'tu', texto: caso.titulo })
-    atender(id, caso, pendiente ?? '', archivo, true, false)
+    atender(id, caso, pendiente ?? '', archivo, true, false, null)
   }
 
   const adjuntar = async (archivo: File | undefined) => {
@@ -270,7 +306,7 @@ export default function Chat() {
       alEnviar={() => enviar()}
       alAdjuntar={() => selectorArchivo.current?.click()}
       alQuitarAdjunto={() => setAdjunto(null)}
-      alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c, calceListo: false }))}
+      alElegirCaso={(c) => modificar(conv.id, (x) => ({ ...x, caso: c, calceListo: false, columnas: null }))}
     />
   )
 

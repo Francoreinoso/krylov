@@ -8,11 +8,15 @@ export type Asignacion = Record<string, string[]>
 
 const VACIA = ''
 
-const ORIGEN: Record<Calce['origen'], string> = {
-  equipo: 'Columnas elegidas por el equipo para este caso',
-  modelo: 'Columnas propuestas por Claude',
-  regla: 'Columnas propuestas por tipo de dato',
-}
+// La pantalla dice quién propuso: «Claude» solo si de verdad fue Claude.
+const origen = (c: Calce) =>
+  c.origen === 'equipo'
+    ? 'Columnas elegidas por el equipo para este caso'
+    : c.origen === 'regla'
+      ? 'Columnas propuestas según el nombre y el tipo de cada columna'
+      : c.proveedor === 'claude'
+        ? 'Columnas propuestas por Claude, que leyó un resumen de cada columna (nunca las filas)'
+        : 'Columnas propuestas por un modelo de prueba'
 
 export const asignacionDe = (calce: Calce): Asignacion =>
   Object.fromEntries(Object.entries(calce.calce).map(([papel, c]) => [papel, c.columnas]))
@@ -68,7 +72,7 @@ export default function CalceEnChat({
   return (
     <div className="aparecer rounded-2xl border border-linea p-4">
       <p className="text-sm text-tinta-suave">
-        {ORIGEN[calce.origen]}
+        {origen(calce)}
         {calce.precalculado && ' · precalculado'}
       </p>
       <dl className="mt-3 divide-y divide-linea">

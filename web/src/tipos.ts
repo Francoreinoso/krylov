@@ -103,6 +103,7 @@ export interface Analisis {
   }
   sello_resumen: { frase: string; medido: boolean }
   rotulos: Record<Estado | 'costo_de_no_saber', string>
+  en_palabras: string[]
   registro: string[]
   tiempo_ms: number
   sintetico: boolean
@@ -149,11 +150,23 @@ export interface CalcePapel {
 }
 
 export interface Calce {
-  caso: string
+  caso: string | null // null en un archivo propio
   motor_id: string
   calce: Record<string, CalcePapel>
   columnas: string[]
   no_usadas: string[]
   origen: 'equipo' | 'modelo' | 'regla'
+  proveedor?: Proveedor | null // quién escribió la propuesta, cuando la hizo un modelo de lenguaje
+  precalculado: boolean
+}
+
+// `groq` es solo para pruebas locales; en el demo y en Render escribe Claude.
+export type Proveedor = 'claude' | 'groq'
+
+// D-34: el texto corto que acompaña a una respuesta. Sus números salen del JSON del motor.
+export interface Interpretacion {
+  texto: string
+  origen: 'modelo' | 'plantilla'
+  proveedor: Proveedor | null
   precalculado: boolean
 }
