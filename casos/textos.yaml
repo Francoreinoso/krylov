@@ -71,15 +71,14 @@ examen:
   # Sin artículo ni unidad, para que sirva en los cuatro casos de lista. Con datos simulados, la pantalla agrega
   # «con datos simulados» (el caso trae `sintetico: true`): la respuesta escondida es la del archivo `<caso>_verdad.csv`.
   tabla: "Cuando dijimos cerca de {dijimos}% de riesgo, {paso_verbo} el {paso}%."
-  verbo_por_caso: { taludes: "cedió", flotacion: "quedó bajo la meta", flota: "falló antes de su mantención", sismicidad: "tuvo un temblor fuerte",
-                    rotacion: "se fue", inasistencias: "no llegó", credito: "no pagó" }   # la segunda línea es de los casos retirados; se borra en A-32
+  verbo_por_caso: { taludes: "cedió", flotacion: "quedó bajo la meta", flota: "falló antes de su mantención", sismicidad: "tuvo un temblor fuerte" }
   espacial: "Escondimos {n} muestras y las adivinamos: {k} cayeron dentro del rango que dimos."
   con_datos_simulados: "Con datos simulados: la respuesta correcta estaba escondida y Krylov no la vio."
   sin_medir: "Exactitud en medición."
 
 sello:
-  practico: "Practicó con {millones} millones de {casos_simulados} simulados."
-  casos_simulados_por_motor: { espacial: "terrenos", deformacion: "muros", cinetica: "plantas", desgaste: "flotas", sismico: "minas" }
+  practico: "Practicó con {millones} millones de {casos_simulados}."        # el adjetivo va en cada motor, por la concordancia
+  casos_simulados_por_motor: { espacial: "mapas simulados", deformacion: "muros simulados", cinetica: "plantas simuladas", desgaste: "flotas simuladas", sismico: "minas simuladas" }
   cobertura: "Cuando da un rango de 90%, acierta {cobertura}%."
   peor_grupo: "En el caso más difícil ({peor_grupo}) acierta {cobertura_peor}%."
   contra_lento: "Da lo mismo que el método lento de siempre, que tarda {minutos_lento} minutos; Krylov tarda {ms} milisegundos."
@@ -126,6 +125,7 @@ curva:
   limite: "Límite"
   falta: "Faltan entre {bajo} y {alto} {unidad_tiempo}."            # taludes: `curva.marca`
   sin_curva: "Esta unidad no tiene curva."
+  fuera: "El rango sigue subiendo más allá del gráfico."        # cuando el abanico sale por arriba y la web corta el eje
 
 nube:
   # Se muestra solo en los motores que la entreguen (D-37). Los nombres de los ejes salen de la respuesta de `nube`.

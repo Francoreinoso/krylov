@@ -31,6 +31,7 @@ columnas:
   umbral: 1.0                  # desde esta magnitud el temblor se considera fuerte (supuesto del demo, K-61)
   magnitud_minima: -1.0        # la más chica que los sensores registran completa
   horizonte: 6                 # se decide sobre las próximas 6 horas
+  ventana: 6                   # horas observadas desde la tronadura (un archivo subido no la hereda: usa la de su calce o la hora del último temblor)
   unidad_tiempo: "horas"
   unidad_valor: "magnitud"
   eje_tiempo: "Horas desde la tronadura"
