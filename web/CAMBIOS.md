@@ -206,3 +206,11 @@ Revisión WCAG 2.1 AA con la skill `accessibility-review`, medida en Chrome a 39
 - **Sin medir:** los cuadros por segundo de las escenas en un notebook y en un teléfono.
 - **Sin hacer:** `design-critique` y `ux-copy` con sus skills (la crítica de diseño y el repaso de textos se hicieron a mano, mirando cada vista en Chrome); el repaso con Impeccable y Humanizer quedó fuera por decisión del equipo.
 - **Texto flojo que sale del motor:** el examen de la pared dice «Cuando dijimos cerca de 0% de riesgo, cedió el 0%»: elige el primer tramo. Es de `nucleo/`.
+
+## Tercer bloque (domingo, 03:00)
+
+### 14 · La roca sigue al mouse
+- **Cambio:** con el mouse sobre el terreno, el punto y la tarjeta son los del bloque apuntado; al sacar el mouse, el recorrido automático sigue desde ahí. El clic y el arrastre quedan como estaban.
+- **Por qué:** quien mira un terreno pregunta por el lugar que apunta; el punto que viajaba solo se leía como azar.
+- **Archivos:** `src/escena/marco.ts` (`seguirAlMouse`). El deck no se tocó.
+- **Devolver:** borrar `seguirAlMouse` y su llamada en `arrancar`.

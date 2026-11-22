@@ -44,6 +44,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - dom 02:56 · P-35 terminada: dos desajustes entre lo que la pantalla dice y lo que hace el código. El calce propuesto por un modelo de lenguaje ahora dice lo que se le manda («el nombre, un resumen y tres valores de ejemplo de cada columna; nunca filas completas», como `servicio/calce.py`), y el navegador rechaza un archivo sobre 5 MB, igual que el servidor (antes dejaba pasar hasta 8 MB y el rechazo llegaba después de la animación). Verificación: `cd web && npm run build && npm run prueba && npm run lint`, y en Chrome un CSV de 6 MB: «pesa 6 MB, y una decisión cabe en menos de 5 MB». La frase nueva del calce no se vio en pantalla: en local el calce lo propone la regla.
 
+- dom 03:05 · P-36 terminada: en la roca, la tarjeta dice lo que hay bajo el mouse (lo pidió la persona de PC 1). Mientras el mouse está sobre el terreno, el punto se queda ahí y la tarjeta muestra la decisión, el arsénico y el rango de ese bloque; al salir, el recorrido automático sigue desde ese lugar. El deck no se tocó: se envuelve el foco de su lámina desde `web/src/escena/marco.ts`, así que en el deck el recorrido sigue igual. Con el dedo sigue valiendo el clic. Verificación: `cd web && npm run build && npm run prueba && npm run lint`, y en Chrome con la tecla `1`: el punto queda bajo el mouse (medido en dos lugares y con captura) y fuera del terreno el recorrido vuelve.
+
 ## En curso
 
 - dom 01:52 · Sin tarea en curso. Queda para una persona: probar en Safari, en el proyector y en un teléfono de verdad.
