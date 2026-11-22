@@ -11,6 +11,10 @@ const TOPE_ARCHIVO_MS = 25000 // el servidor gratuito puede estar dormido
 const TOPE_INTERPRETAR_MS = 12000 // el modelo de lenguaje escribe después de los números y no los bloquea
 const TOPE_DONDE_MEDIR_MS = 8000 // rehace cientos de análisis; en el computador del escenario tarda cerca de 1 s
 const forzarEstatico = new URLSearchParams(window.location.search).has('estatico')
+// En la URL pública (VITE_ESTATICO_PRIMERO=1) lo del demo sale de su copia y la API queda solo para un
+// archivo propio: el servidor gratuito sigue calculando lo que la web ya dejó de esperar, y con
+// varias pestañas abiertas se queda sin memoria.
+const estaticoPrimero = import.meta.env.VITE_ESTATICO_PRIMERO === '1'
 
 // Hay servidor al que preguntar: un archivo propio y una interpretación nueva lo necesitan.
 export const hayApi = Boolean(API_URL) && !forzarEstatico
@@ -70,6 +74,13 @@ async function desdeEstatico<T>(archivo: string): Promise<T> {
 }
 
 async function pedir<T>(ruta: string, archivo: string, cuerpo?: object, topeMs = TOPE_MS): Promise<Respuesta<T>> {
+  if (estaticoPrimero) {
+    try {
+      return { datos: await desdeEstatico<T>(archivo), origen: 'estatico' }
+    } catch {
+      // Sin copia: se pregunta a la API.
+    }
+  }
   if (API_URL && !forzarEstatico) {
     try {
       return { datos: await desdeApi<T>(ruta, cuerpo, topeMs), origen: 'api' }
@@ -111,6 +122,13 @@ export const plantilla = (a: Analisis): Interpretacion => ({
 // La interpretación de una respuesta. `clave` es la del archivo del demo (tiene copia estática);
 // en un archivo propio es null y, sin servidor, queda la plantilla.
 async function interpretar(analisis: Analisis, clave: string | null, senal?: AbortSignal): Promise<Interpretacion> {
+  if (estaticoPrimero && clave) {
+    try {
+      return await desdeEstatico<Interpretacion>(`interpretar/${clave}`)
+    } catch {
+      // Sin copia: se pregunta a la API.
+    }
+  }
   if (hayApi) {
     try {
       return await desdeApi<Interpretacion>('interpretar', analisis, TOPE_INTERPRETAR_MS, senal)
