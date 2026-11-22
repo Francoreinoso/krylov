@@ -1,6 +1,6 @@
 # Contrato entre los tres computadores
 
-**Estado: vigente desde el pivote a minería (D-37, sáb 12:10). La forma de las respuestas es la misma que se congeló en H0; D-37 agregó un campo opcional (`curva`) y un formato de archivo (series). Otros cambios, solo con una entrada en `DECISIONES.md` y aviso a los otros dos roles.**
+**Estado: vigente desde el pivote a minería (D-37, sáb 12:10). La forma de las respuestas es la misma que se congeló en H0; D-37 agregó un campo opcional (`curva`) y un formato de archivo (series); D-42 (dom 22-nov) agregó campos opcionales que la web puede ignorar (sección 6, «Campos de D-42»). Otros cambios, solo con una entrada en `DECISIONES.md` y aviso a los otros dos roles.**
 
 > Hackathon: proyecto chico, el producto se termina el sábado a las 18:00. Este contrato es lo mínimo para que nadie espere a nadie. No lo amplíes.
 
@@ -20,7 +20,7 @@ Convenciones: campos en español y `snake_case`; plata en la moneda del caso, si
 
 ## 1. Datos de entrada (CSV)
 
-Separador coma, punto decimal, primera fila con encabezados.
+Separador coma, punto decimal, primera fila con encabezados. Un archivo subido (D-42) puede venir además como lo guarda Excel en español (punto y coma y coma decimal, con punto de miles), con tabulaciones, en UTF-8 con o sin BOM, UTF-16 o Windows-1252/latin-1, y con columnas de más: `nucleo/api.py` (`leer_tabla`) lo lee igual.
 
 **Motor `espacial` (caso `leyes`).** Una fila por muestra: columnas `x`, `y`, `valor` y, opcional, `tendencia` (con ella el caso trae además `grilla`, un CSV con `x`, `y` y esa misma tendencia para cada celda). Entre 30 y 400 filas. El banco se lleva a una grilla fija de 32×32 celdas (una sola escala para los dos ejes; si dos muestras caen en la misma celda se promedian). Las unidades son las celdas de esa grilla, que en pantalla se llaman bloques.
 
@@ -63,7 +63,9 @@ def analizar_archivo(motor_id: str, tabla: "pandas.DataFrame | bytes", columnas:
                      costos: dict | None = None, mediciones: list[dict] = ()) -> dict: ...
 ```
 
-`cartera()` se cortó con el pivote (D-37) y se retira en la tarea A-32.
+`cartera()` se cortó con el pivote (D-37); desde D-42 tampoco existen `/api/cartera`, `tiene_cartera` ni `sponsor` en las tarjetas.
+
+**`casos()`.** Cada tarjeta trae `nombre`, `titulo`, `empresa_o_industria`, `motor`, `sintetico`, `origen_datos` y, desde D-42, `quien` (quién toma esa decisión en la faena) y `archivo` (qué archivo se sube, en una línea), de `tarjeta.quien` y `tarjeta.archivo` del YAML del caso; `null` si el caso no los trae.
 
 **`papeles(motor_id)`.** Los papeles de columna que recibe la red del motor, con `minimo`, `maximo`, tipo y textos, y el caso base de donde salen rótulos, unidad y costos por omisión (el primer caso de `casos/INICIO` que usa ese motor):
 
@@ -201,8 +203,9 @@ Reglas: `cifra` es el id de una fila de `pitch/CIFRAS.md`. `min` y `max` son los
 
 **No cambió con el pivote (D-34, D-35).** El modelo de lenguaje hace dos cosas y ninguna más:
 
+- **Quién es.** `KRYLOV_LENGUAJE` elige el proveedor: `groq` en la API pública de Render (D-41, con `GROQ_API_KEY`) o `claude` (con `ANTHROPIC_API_KEY`). Las dos claves van en variables de entorno, nunca en el repositorio. Cada calce e interpretación dice quién la escribió en `propuesto_por` (sección 6, «Campos de D-42»), con el modelo que de verdad respondió.
 - **Propone el calce.** `servicio/` le manda los papeles del motor (`papeles(motor_id)`, con `texto_largo`) y un resumen de cada columna del archivo: nombre, tipo, valores distintos, rango, porcentaje vacío y tres valores de ejemplo. Nunca filas completas. Devuelve, por papel, `columnas`, `transformacion` (de la lista cerrada), `motivo` y `confianza`, más `no_usadas`. El servicio valida que cada columna exista y cada transformación esté en la lista; el usuario ve el calce y lo confirma antes de `analizar_archivo`. Sin clave o sin internet, el calce sale de una regla por tipo de columna (`origen: "regla"`).
-- **Interpreta.** `servicio/` lo llama con el JSON de una respuesta (`POST /api/interpretar`) y devuelve un texto corto. No elige el motor, no calcula y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON; si alguno no está, o si no hay clave (`ANTHROPIC_API_KEY`, variable de entorno de Render, nunca en el repositorio) o no hay internet, devuelve la plantilla.
+- **Interpreta.** `servicio/` lo llama con el JSON de una respuesta (`POST /api/interpretar`) y devuelve un texto corto. No elige el motor, no calcula y no agrega cifras: el servicio revisa que cada número del texto esté en el JSON; si alguno no está, o si no hay clave o no hay internet, devuelve la plantilla.
 
 `titular` y `en_palabras` salen siempre de las plantillas de `casos/textos.yaml`, escritas por `seguimiento` y llenadas con los números del JSON: son el respaldo y lo que se ve primero. Para los archivos del demo, el calce y la interpretación se precalculan en `web/public/estatico/` y van rotulados.
 
@@ -224,7 +227,7 @@ Base `/api`. Errores: `{"error": "frase en español", "codigo": "..."}` con esta
 | `POST /api/interpretar` | Chat | `interpretar/<clave>.json` para los archivos del demo, rotulado | — |
 | `POST /api/calce` | Chat, antes de analizar | `calce/<caso>.json` para los archivos del demo, rotulado | — |
 
-`<clave>` = nombre del caso, más `__` y cada transformación o medición en orden (`leyes__A-alto`). `exportar_estatico` escribe todas las claves que el recorrido del demo puede pedir: cada caso del inicio, `leyes_pocos`, y para `leyes` las tres mejores candidatas con sus tres resultados posibles.
+`<clave>` = nombre del caso, más `__` y cada transformación o medición en orden (`leyes__A-alto`). `exportar_estatico` escribe todas las claves que el recorrido del demo puede pedir: cada caso del inicio, `leyes_pocos`, y para `leyes` las tres mejores candidatas con sus tres resultados posibles. Desde D-42 escribe además el recorrido del archivo de prueba de cada caso (`web/public/pruebas/subida_<caso>.csv`): `prueba/calce/<caso>.json` (lo que daría `POST /api/calce`, con la regla y, donde la regla no puede saber la escala, la que agrega el equipo; `propuesto_por` dice cuál) y `prueba/analizar/<caso>.json` (lo que daría `POST /api/analizar_archivo` con ese calce tal cual), los dos con `precalculado: true`. Los archivos van en JSON compacto.
 
 ### `POST /api/analizar`
 
@@ -321,9 +324,21 @@ Respuesta (`ejemplos/sello.json`): el contenido de `motor/artefactos/<motor_id>/
 
 ### `POST /api/analizar_archivo`, `POST /api/interpretar` y `POST /api/calce`
 
-- `POST /api/analizar_archivo`: multipart con `archivo`, `motor_id`, `columnas` (JSON), `costos` (JSON, opcional). Responde como `POST /api/analizar`.
-- `POST /api/interpretar`: el JSON de una respuesta → `{"texto": str, "origen": "modelo" | "plantilla"}`. Los números de la respuesta se muestran antes; el texto llega después y no los bloquea.
-- `POST /api/calce`: multipart con `archivo` y `motor_id` → `{"calce": {papel: {"columnas": [...], "transformacion": {...} | null, "motivo": str, "confianza": "alta" | "media" | "baja"}}, "no_usadas": [...], "origen": "modelo" | "regla"}`.
+- `POST /api/analizar_archivo`: multipart con `archivo`, `motor_id`, `columnas` (JSON), `costos` (JSON, opcional). Responde como `POST /api/analizar`. Un archivo que no se lee o no calza responde 200 con `rojo_datos` o `rojo_modelo` y un motivo que dice qué pasó y qué hacer (desde D-42, también la columna en otra escala, que antes era un 400). Con 400 y la forma de error solo responden: un archivo de más de 5 MB (`archivo_grande`), `columnas` o `costos` que no son un objeto JSON y un campo que falta (`peticion_invalida`), y un motor que no existe o no responde (`motor_desconocido`, `no_disponible`). Lo imprevisto es un 500 con la misma forma (`error_interno`), nunca una traza.
+- `POST /api/interpretar`: el JSON de una respuesta → `{"texto": str, "origen": "modelo" | "plantilla", "proveedor": "claude" | "groq" | null, "propuesto_por": {...}, "precalculado": bool}`. Los números de la respuesta se muestran antes; el texto llega después y no los bloquea.
+- `POST /api/calce`: multipart con `archivo`, `motor_id` y `caso` (opcional) → `{"calce": {papel: {"columnas": [...], "transformacion": {...} | null, "motivo": str, "confianza": "alta" | "media" | "baja"}}, "columnas": [...], "no_usadas": [...], "origen": "modelo" | "regla", "proveedor": "claude" | "groq" | null, "propuesto_por": {...}}`. Un archivo que no se lee es un 400 con `codigo: "archivo_ilegible"` y el mismo motivo que daría `analizar_archivo`. `GET /api/calce/{caso}` (archivo del demo) trae `origen: "equipo"`.
+- **Una transformación** es `{"nombre": ..., <parámetros>}`, de la lista cerrada de `nucleo/preproceso.py`: `{"nombre": "dividir", "por": 60}` (minutos a horas), `{"nombre": "dividir", "por": 100}` (porcentaje a fracción), `{"nombre": "log"}`, `{"nombre": "anios_desde_fecha", "hasta": "2026-11-21"}` (`hasta` opcional), `{"nombre": "dias_entre", "desde": "<otra columna>"}`, `{"nombre": "reescalar_ordinal", "de": [...], "a": [...]}`, `{"nombre": "si_no_a_binario"}`, `{"nombre": "categoria_a_codigo"}`. Los parámetros sin usar no vienen.
+
+### Campos de D-42 (dom 22-nov)
+
+Todos opcionales: una web que no los conoce sigue funcionando, y los ejemplos fijos de `contratos/ejemplos/` ya los traen.
+
+- **`mapa.bajo` y `mapa.alto`** (`leyes`): el rango de 90% de cada bloque (media ± 1,645 desviaciones del predictivo de la red, llevado a las unidades del caso), alineados con `mapa.media`, con un decimal y `null` fuera del banco.
+- **`unidades[].posteriori`** (casos de lista): la distribución completa de lo que se decide en la unidad, desde las mismas muestras con que el motor decide: `{"bajo": 3.59, "medio": 7.66, "alto": 18.68, "muestras": 1024, "cuantiles": [64 valores]}` (`bajo` y `alto` son los cuantiles 5% y 95%; `cuantiles`, los 64 cuantiles equiespaciados `(k + 0,5)/64`; cuatro decimales). Qué es en cada caso: `taludes`, las horas que faltan para ceder, entre las versiones en que el sector se acelera, y solo en los sectores que se aceleran en al menos la mitad de ellas (lo mismo que `curva.marca`; en los demás no viene la clave); `flotacion`, el cobre recuperado al final de la línea; `flota`, el riesgo de fallar antes de la mantención, y `sismicidad`, el de un temblor fuerte en el horizonte (las 32 `muestras_p`).
+- **`unidades[].serie`** (casos de lista): las lecturas de la unidad tal como las leyó el motor, después del calce y sus transformaciones, ordenadas por tiempo: `[[tiempo, valor], ...]` con tres decimales. En `sismicidad`, cada temblor con su magnitud (no la cuenta acumulada de la curva). Va en todas las unidades, también en las que no traen `curva`.
+- **`escena`** (todas las respuestas de `analizar` y `analizar_archivo`): lo del caso que dibuja la escena, de `columnas` del YAML o del calce: `umbral`, `horizonte`, `tiempo_final`, `magnitud_minima`, `unidad_tiempo`, `unidad_valor`, `eje_tiempo`, `eje_valor`; solo las que el caso define. Por ejemplo, `flotacion`: `{"umbral": 0.84, "tiempo_final": 28, "unidad_tiempo": "minutos", ...}`; `leyes`: `{"umbral": 500, "unidad_valor": "ppm de arsénico"}`.
+- **`lugares`** (`POST /api/donde-medir`): todos los lugares candidatos, de más a menos valor, `[{"x": 9, "y": 153, "valor_de_medir": 8943}, ...]`. Los tres primeros son `candidatas`; `analisis_rehechos` = lugares × 12 resultados posibles.
+- **`propuesto_por`** (calce e interpretación): `{"tipo": "modelo", "proveedor": "Groq", "modelo": "openai/gpt-oss-120b"}` cuando escribió un modelo de lenguaje (`proveedor` es `Groq` o `Anthropic`, y `modelo` el identificador que devolvió el proveedor); si no, `{"tipo": "regla" | "plantilla" | "equipo", "proveedor": null, "modelo": null}`. Lo de un proveedor nunca se rotula con el nombre de otro.
 
 ## 7. Artefactos de un motor
 

@@ -7,6 +7,9 @@ Correr, con una variable `red` por cada motor que pasó su sello (`motor/artefac
 Los demás motores: KRYLOV_MOTOR_DEFORMACION, KRYLOV_MOTOR_DESGASTE, KRYLOV_MOTOR_SISMICO. Sin variable, el
 motor responde con su método lento precalculado si existe; si no, sale el ejemplo fijo. Al final imprime quién
 responde cada tarjeta, para comprobar el rótulo antes de subir.
+
+También escribe el recorrido del archivo de prueba de cada caso (`web/public/pruebas/subida_<caso>.csv`, el botón
+«probar con un archivo de ejemplo»): `prueba/calce/<caso>` y `prueba/analizar/<caso>`, para que funcione sin servidor.
 """
 
 import json
@@ -14,8 +17,8 @@ import shutil
 from pathlib import Path
 
 from nucleo import api as nucleo
-from servicio import fijos, respuestas
-from servicio.calce import calce_del_demo
+from servicio import fijos, lenguaje, respuestas
+from servicio.calce import calce_del_demo, proponer_calce
 from servicio.interpretar import interpretar
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -23,12 +26,19 @@ DESTINO = RAIZ / "web" / "public" / "estatico"
 CASOS = RAIZ / "casos"
 # Tecla M: banda roja con el motivo. El segundo (una serie demasiado corta) se exporta solo si su caso existe.
 ARCHIVOS_QUE_NO_ALCANZAN = ("leyes_pocos", "taludes_corto")
+PRUEBAS = RAIZ / "web" / "public" / "pruebas"
+# Lo que la regla de columnas no puede leer en un archivo de prueba y el equipo agrega al calce: en `subida_flota.csv`
+# el desgaste viene como hierro en el aceite y el camión falla a 120 ppm (`datos/preparar/subida.py`, «Calce esperado»).
+ESCALA_DEL_EQUIPO = {
+    "flota": {"valor": ({"nombre": "dividir", "por": 120},
+                        "En este archivo de prueba el camión falla con 120 ppm de hierro en el aceite: se divide por 120 para que la falla sea 1")},
+}
 
 
 def _escribir(ruta: str, datos: dict) -> None:
     archivo = DESTINO / f"{ruta}.json"
     archivo.parent.mkdir(parents=True, exist_ok=True)
-    archivo.write_text(json.dumps(datos, ensure_ascii=False, indent=1), encoding="utf-8")
+    archivo.write_text(json.dumps(datos, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")     # compacto: lo baja un teléfono
 
 
 def _analisis(clave: str, datos: dict) -> int:
@@ -58,6 +68,25 @@ def _si_existe(ruta: str, pedir) -> int:
     return 1
 
 
+def _prueba(nombre: str, motor_id: str) -> int:
+    """El calce y el análisis del archivo de prueba de un caso, como los darían `POST /api/calce` y `POST /api/analizar_archivo`.
+
+    El calce sale de la regla (sin modelo de lenguaje: así es igual en cada corrida), más la escala que el equipo agrega
+    donde la regla no puede saberla; `propuesto_por` dice cuál de los dos. El análisis usa ese calce tal cual."""
+    archivo = PRUEBAS / f"subida_{nombre}.csv"
+    if not archivo.exists():
+        return 0
+    contenido = archivo.read_bytes()
+    calce = proponer_calce(motor_id, contenido, nombre, usar_modelo=False)
+    for papel, (transformacion, motivo) in ESCALA_DEL_EQUIPO.get(nombre, {}).items():
+        calce["calce"][papel].update(transformacion=transformacion, motivo=motivo, confianza="alta")
+        calce["origen"], calce["propuesto_por"] = "equipo", lenguaje.propuesto_por(None, "equipo")
+    columnas = {papel: {"columnas": v["columnas"], "transformacion": v["transformacion"]} for papel, v in calce["calce"].items()}
+    _escribir(f"prueba/calce/{nombre}", {**calce, "precalculado": True})
+    _escribir(f"prueba/analizar/{nombre}", {**nucleo.analizar_archivo(motor_id, contenido, columnas), "precalculado": True})
+    return 2
+
+
 def exportar() -> tuple[int, dict[str, str]]:
     shutil.rmtree(DESTINO, ignore_errors=True)
     lista = respuestas.inicio()
@@ -70,9 +99,6 @@ def exportar() -> tuple[int, dict[str, str]]:
         datos = respuestas.analizar(nombre)
         quien[nombre] = _quien(datos)
         n += _analisis(nombre, datos)
-        if c["tiene_cartera"]:
-            _escribir(f"cartera/{nombre}", respuestas.cartera(nombre))
-            n += 1
         if c["motor"] == "espacial":
             donde = respuestas.donde_medir(nombre)
             # En vivo tarda más de 2 s (regla 7): se sirve precalculado, con el tiempo medido al generarlo.
@@ -87,6 +113,7 @@ def exportar() -> tuple[int, dict[str, str]]:
         n += _si_existe(f"sello/{c['motor']}", lambda: respuestas.sello(c["motor"]))
         n += _si_existe(f"papeles/{c['motor']}", lambda: nucleo.papeles(c["motor"]))
         n += _si_existe(f"calce/{nombre}", lambda: calce_del_demo(nombre))
+        n += _prueba(nombre, c["motor"])
     # P-27: la tarjeta cuyo motor todavía no responde no sale en el inicio ni se exporta.
     visibles = {c["nombre"] for c in lista["casos"]}
     for c in respuestas.casos()["casos"]:

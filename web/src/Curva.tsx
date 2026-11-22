@@ -3,7 +3,7 @@
 // ancho es mucha duda. Tiene que leerse desde la última fila: textos grandes y pocas marcas.
 // Los rótulos salen de casos/textos.yaml (`textos`); sin ellos, la curva se dibuja sin rótulos.
 
-import { useId, useState } from 'react'
+import { useId } from 'react'
 import { FONDO } from './colores'
 import type { Curva as DatosCurva, Estado, Textos, Unidad } from './tipos'
 
@@ -185,14 +185,6 @@ export default function Curva({ curva, textos, escalones = false }: Props) {
       )}
     </figure>
   )
-}
-
-// La unidad cuya curva se dibuja: al abrir, la de más duda entre las que traen curva.
-export function useUnidadElegida(unidades: Unidad[] | null) {
-  return useState<string | null>(() => {
-    const conCurva = unidades?.filter((u) => u.curva) ?? []
-    return conCurva.length ? conCurva.reduce((a, b) => (b.duda > a.duda ? b : a)).id : null
-  })
 }
 
 // Arriba el nombre de la unidad, su decisión y, si viene, cuánto falta en grande; abajo su curva.

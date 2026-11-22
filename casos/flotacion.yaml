@@ -9,11 +9,13 @@
 # La verdad escondida (la recuperación real al final de cada línea) va en flotacion_verdad.csv.
 nombre: flotacion
 tarjeta:
-  titulo: "¿Se me está yendo cobre al relave?"
-  empresa_o_industria: "Flotación · planta"
+  titulo: "¿Cuánto cobre se está perdiendo?"
+  quien: "Jefe de planta"
+  archivo: "Lo que se midió en los primeros estanques de cada línea: cuánto cobre se recuperó, minuto a minuto."
+  empresa_o_industria: "La planta · flotación"
   sponsor: null
   oculto: false
-pregunta: "Con lo medido en las primeras celdas: ¿qué líneas van a terminar bajo la meta de recuperación, cuáles van bien y en cuáles no se sabe todavía?"
+pregunta: "Con lo medido en los primeros estanques: ¿qué líneas van a terminar bajo la meta de recuperación, cuáles van bien y en cuáles no se sabe todavía?"
 motor: cinetica
 unidad: { singular: línea, plural: líneas }
 rotulos:
@@ -41,5 +43,5 @@ moneda: USD
 dataset: datos/demo/flotacion.csv
 verdad: datos/demo/flotacion_verdad.csv      # columnas: unidad, recuperacion_final, bajo_la_meta
 verdad_columna: bajo_la_meta
-origen_datos: "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina."
+origen_datos: "Planta simulada: 8 líneas medidas en sus primeros estanques. No son datos de ninguna minera."
 sintetico: true

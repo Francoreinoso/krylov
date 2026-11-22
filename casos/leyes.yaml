@@ -11,11 +11,13 @@
 # Si S-23 encuentra pozos reales con licencia abierta, se cambia `dataset` y `origen_datos`; nada más.
 nombre: leyes
 tarjeta:
-  titulo: "¿Este bloque va a la planta o se aparta?"
-  empresa_o_industria: "Leyes y arsénico · rajo abierto"
+  titulo: "¿Proceso esta roca o la aparto?"
+  quien: "Geólogo de producción"
+  archivo: "Las muestras de los pozos de una explosión: dónde está cada pozo y cuánto arsénico trae."
+  empresa_o_industria: "La roca · el rajo"
   sponsor: null
   oculto: false
-pregunta: "Con las muestras de los pozos de tronadura: ¿qué bloques pueden ir a la planta, cuáles traen demasiado arsénico, en cuáles no se sabe y dónde conviene tomar una muestra más?"
+pregunta: "Con las muestras de los pozos de la explosión: ¿qué bloques pueden ir a la planta, cuáles traen demasiado arsénico, en cuáles no se sabe y dónde conviene tomar una muestra más?"
 motor: espacial
 unidad: { singular: bloque, plural: bloques }
 rotulos:
@@ -34,5 +36,5 @@ costos:
 moneda: USD
 dataset: datos/demo/leyes.csv
 verdad_bloques: datos/demo/leyes_verdad.csv   # la ley verdadera de cada bloque; no entra al motor (examen de A-22)
-origen_datos: "Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina."
+origen_datos: "Banco de roca simulado: 340 pozos con arsénico y cobre. No son datos de ninguna minera."
 sintetico: true

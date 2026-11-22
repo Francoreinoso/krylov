@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
-/* La cara del deck (pitch/deck/deck.css): basalto, curvas topográficas, cobre, óxido de cobre y oro.
-   Titulares en Big Shoulders Display, texto en Instrument Sans, datos en JetBrains Mono.
-   Un solo diseño: Lámina, el escenario negro del deck. */
+/* La cara del deck (pitch/deck/deck.css), que es la misma app (D-42): basalto, cobre, óxido de cobre y oro.
+   Titulares en Big Shoulders Display, texto en Archivo, datos en JetBrains Mono. Las tipografías son las del deck,
+   servidas desde /deck/vendor: un solo archivo de cada una en el repositorio. */
 
 @font-face {
   font-family: "Big Shoulders Display";
   font-style: normal;
   font-display: swap;
   font-weight: 100 900;
-  src: url(/fuentes/big-shoulders-display-latin-ext-wght-normal.woff2) format("woff2-variations");
+  src: url(/deck/vendor/big-shoulders-display-latin-ext-wght-normal.woff2) format("woff2-variations");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
@@ -17,25 +17,25 @@
   font-style: normal;
   font-display: swap;
   font-weight: 100 900;
-  src: url(/fuentes/big-shoulders-display-latin-wght-normal.woff2) format("woff2-variations");
+  src: url(/deck/vendor/big-shoulders-display-latin-wght-normal.woff2) format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Instrument Sans";
+  font-family: "Archivo";
   font-style: normal;
   font-display: swap;
-  font-weight: 400 700;
-  font-stretch: 75% 100%;
-  src: url(/fuentes/instrument-sans-latin-ext-standard-normal.woff2) format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(/deck/vendor/archivo-latin-ext-standard-normal.woff2) format("woff2-variations");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: "Instrument Sans";
+  font-family: "Archivo";
   font-style: normal;
   font-display: swap;
-  font-weight: 400 700;
-  font-stretch: 75% 100%;
-  src: url(/fuentes/instrument-sans-latin-standard-normal.woff2) format("woff2-variations");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(/deck/vendor/archivo-latin-standard-normal.woff2) format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -43,11 +43,12 @@
   font-style: normal;
   font-display: swap;
   font-weight: 100 800;
-  src: url(/fuentes/jetbrains-mono-latin-wght-normal.woff2) format("woff2-variations");
+  src: url(/deck/vendor/jetbrains-mono-latin-wght-normal.woff2) format("woff2-variations");
 }
 
+/* Los mismos tokens de :root en deck.css. */
 @theme {
-  --font-sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-titular: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 
@@ -56,34 +57,22 @@
   --color-linea: #2d2924;
   --color-tinta: #f4efe6;
   --color-tinta-suave: #b9b0a1;
-  --color-tenue: #8a8274;
+  --color-tenue: #847c6f;
   --color-cobre: #e2854a;
   --color-oxido: #36c2ae;
   --color-oro: #eec25a;
   --color-actuar: #e4603c;
   --color-en-duda: #eec25a;
   --color-no-actuar: #1fa87a;
-  --color-acento: #e2854a;
-  --color-sobre-acento: #0b0a09;
 }
 
-/* Tokens que no generan utilidades. --color-trama: las rayas de la duda (lo lee también el canvas).
-   --color-curva: las curvas de nivel del fondo. --abanico: el abanico de cada curva, en un azul que no se
-   confunde con los tres colores de decisión ni con el cobre de lo que cuesta no saber. */
+/* Tokens que no generan utilidades. --color-trama: las rayas de la duda (lo lee también el lienzo).
+   --abanico: el abanico de cada curva, en un azul que no se confunde con los tres colores de decisión. */
 :root {
-  --radio-caja: 2px;
-  --sombra: none;
   --color-trama: #0b0a09b3;
-  --color-curva: #f4efe60f;
   --abanico: #6fa8ff;
   color-scheme: dark;
-  /* Lámina: el escenario negro del deck. */
-  --color-fondo: #070605;
-  --color-superficie: #12100d;
-  --color-linea: #2a2520;
-  --color-curva: #f4efe608;
 }
-
 
 html {
   font-size: 17px;
@@ -94,45 +83,53 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* En la capa de componentes: así un color de Tailwind (text-oxido) le gana al de .dato. */
 @layer components {
-/* Titulares y cifras: Big Shoulders, apretado y en bloque. */
-.titular {
-  font-family: var(--font-titular);
-  font-weight: 800;
-  letter-spacing: 0.005em;
-  line-height: 0.95;
-  text-wrap: balance;
-}
+  /* Titulares y cifras: Big Shoulders, apretado y en bloque, como en el deck. */
+  .titular {
+    font-family: var(--font-titular);
+    font-weight: 800;
+    letter-spacing: 0.005em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
 
-/* Rótulo de dato, como el pie de las láminas: mono, versalitas tenues. */
-.dato {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  line-height: 1.45;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-tenue);
-}
+  /* La duda se ve como trama, no solo como color. */
+  .achurado {
+    background-color: var(--color-en-duda);
+    background-image: repeating-linear-gradient(-45deg, transparent 0 3px, var(--color-trama) 3px 5px);
+  }
 
-/* La duda se ve como trama, no solo como color. */
-.achurado {
-  background-color: var(--color-en-duda);
-  background-image: repeating-linear-gradient(-45deg, transparent 0 3px, var(--color-trama) 3px 5px);
-}
-}
-
-.desliza-lista {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-linea) transparent;
-}
-
-@layer components {
-/* Panel rectangular de borde fino, como los dos cronómetros de la lámina 2. */
-.panel {
-  border: 1px solid var(--color-linea);
-  background: color-mix(in srgb, var(--color-superficie) 70%, transparent);
-}
+  /* Un selector de la app, no el del navegador: borde fino, letra de datos y una flecha de cobre. */
+  .selector {
+    position: relative;
+  }
+  .selector select {
+    appearance: none;
+    width: 100%;
+    border: 1px solid var(--color-linea);
+    background: var(--color-superficie);
+    color: var(--color-tinta);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    padding: 0.55rem 2.4rem 0.55rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .selector select:hover {
+    border-color: var(--color-cobre);
+  }
+  .selector::after {
+    content: "";
+    position: absolute;
+    right: 0.95rem;
+    top: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 2px solid var(--color-cobre);
+    border-bottom: 2px solid var(--color-cobre);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
 }
 
 /* Deslizador de costos: riel fino, pulgar de cobre. */
@@ -172,53 +169,40 @@ body {
   outline-offset: 3px;
 }
 
-/* La caja del chat marca el foco en su borde, no en el campo. */
-.compositor textarea:focus-visible {
-  outline: none;
-}
-
-/* «Calculando…»: un brillo de cobre que recorre el texto. */
-@keyframes brillo {
-  from {
-    background-position: 100% 0;
-  }
-  to {
-    background-position: -100% 0;
-  }
-}
-.brillo {
-  background: linear-gradient(90deg, var(--color-tenue) 0%, var(--color-tenue) 40%, var(--color-cobre) 50%, var(--color-tenue) 60%, var(--color-tenue) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: brillo 1.6s linear infinite;
-}
-
-/* Lo que llega después del titular sube y se enfoca, como los pasos del deck. */
-@keyframes aparecer {
+/* La entrada por pasos del deck: un fundido corto; los títulos suben 12 px (deck.css, tokens de entrada). */
+@keyframes entra {
   from {
     opacity: 0;
-    transform: translateY(10px);
-    filter: blur(4px);
   }
 }
-.aparecer {
-  animation: aparecer 0.55s cubic-bezier(0.16, 0.8, 0.2, 1) both;
+@keyframes sube {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.entra {
+  animation: entra 0.4s cubic-bezier(0.16, 0.8, 0.2, 1) both;
+}
+.sube {
+  animation: sube 0.4s cubic-bezier(0.16, 0.8, 0.2, 1) both;
+}
+/* Una columna del archivo que baja a su papel en el calce. */
+@keyframes llega {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+}
+.llega {
+  animation: llega 0.5s cubic-bezier(0.16, 0.8, 0.2, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     transition: none !important;
+    animation: none !important;
   }
-  .brillo,
-  .aparecer {
-    animation: none;
-  }
-}
-
-/* Las vistas de antes (Respuesta en pantalla completa, VistaClasica) usan este nombre. */
-.condensado {
-  font-family: var(--font-titular);
-  font-weight: 800;
 }

@@ -3,8 +3,8 @@
 # No aparece en el inicio (`oculto: true`). Dueño: seguimiento.
 nombre: leyes_pocos
 tarjeta:
-  titulo: "¿Este bloque va a la planta o se aparta?"
-  empresa_o_industria: "Leyes y arsénico · un banco con muy pocas muestras"
+  titulo: "¿Proceso esta roca o la aparto?"
+  empresa_o_industria: "La roca · un banco con muy pocas muestras"
   sponsor: null
   oculto: true
 pregunta: "El mismo banco, con solo 12 pozos muestreados: ¿alcanza para decidir?"
@@ -24,5 +24,5 @@ costos:
   medicion: { valor: 1500, etiqueta: "Costo de una muestra más (perforar y analizar)", tipo: hipótesis, cifra: K-24 }
 moneda: USD
 dataset: datos/demo/leyes_pocos.csv
-origen_datos: "Banco de tronadura simulado, con solo 12 de sus 340 pozos. No son datos de ninguna mina."
+origen_datos: "El mismo banco de roca simulado, con solo 12 de sus 340 pozos. No son datos de ninguna minera."
 sintetico: true

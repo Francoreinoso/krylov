@@ -1,20 +1,12 @@
-import type { Analisis, Caso } from './tipos'
+import type { Analisis } from './tipos'
 
-// La línea chica de cada caso. Con sponsor, siempre «… · datos públicos de ejemplo» (CONTRATO.md, sección 4).
-export const lineaDelCaso = (caso: Caso) =>
-  caso.sponsor ? `${caso.empresa_o_industria} · datos públicos de ejemplo` : caso.empresa_o_industria
+// El nombre de una unidad en pantalla, como en el deck (pitch/deck/js/decisiones.js, nombre()): «Sector 25» y no
+// «S-25», «Camión 05» y no «CAEX-05». En un archivo propio se respeta el nombre que trae.
+export const nombreDeUnidad = (id: string, propio: boolean) =>
+  propio ? id : id.replace(/^S-0?/, 'Sector ').replace(/^L-0?/, 'Línea ').replace(/^CAEX-/, 'Camión ')
 
-// Quién respondió, para el pie. En rojo no hubo respuesta, así que no se le atribuye a nadie.
-export function quienRespondio(analisis: Analisis): string {
-  if (analisis._aviso) return 'Ejemplo fijo con números inventados: este modelo todavía no responde'
-  if (analisis.semaforo.estado.startsWith('rojo')) return 'Krylov no respondió con este archivo'
-  return analisis.precalculado ? 'Precalculado con el método lento de siempre' : 'Respondió la red que practicó con casos simulados'
-}
-
-// Quién respondió, como rótulo corto del pie de las láminas.
-export function rotuloQuien(a: Analisis): { texto: string; corto: string; clase: string; borde: string } {
-  if (a._aviso) return { texto: 'Ejemplo · números inventados', corto: 'Ejemplo', clase: 'text-tenue', borde: 'border-linea' }
-  if (a.semaforo.estado.startsWith('rojo')) return { texto: 'No respondió', corto: 'No respondió', clase: 'text-actuar', borde: 'border-actuar' }
-  if (a.precalculado) return { texto: 'Precalculado', corto: 'Precalculado', clase: 'text-oro', borde: 'border-oro' }
-  return { texto: 'Responde la red', corto: 'Responde la red', clase: 'text-oxido', borde: 'border-oxido' }
+// Quién respondió, en una línea. En rojo no hubo respuesta, así que no se le atribuye a nadie (regla 5).
+export function quienRespondio(a: Analisis): string {
+  if (a.semaforo.estado.startsWith('rojo')) return 'Krylov no respondió con este archivo'
+  return a.precalculado && a.implementacion === 'mcmc' ? 'Respondió el método lento de siempre, calculado antes' : 'Respondió la red, que practicó con casos simulados'
 }

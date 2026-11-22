@@ -12,11 +12,13 @@
 # reingreso ni promete evitar un accidente. Los costos hablan de producción y daños, no de personas.
 nombre: sismicidad
 tarjeta:
-  titulo: "¿Puede volver a entrar la gente?"
-  empresa_o_industria: "Sismicidad · mina subterránea"
+  titulo: "¿Ya puede volver a entrar la gente?"
+  quien: "Jefe de turno subterráneo"
+  archivo: "Los temblores registrados desde la explosión: en qué sector, a qué hora y de qué magnitud."
+  empresa_o_industria: "Los túneles · minería subterránea"
   sponsor: null
   oculto: false
-pregunta: "Con los temblores registrados desde la tronadura: ¿qué sectores conviene mantener cerrados, en cuáles se puede reingresar y en cuáles no se sabe?"
+pregunta: "Con los temblores registrados desde la explosión: ¿qué sectores conviene mantener cerrados, en cuáles se puede reingresar y en cuáles no se sabe?"
 motor: sismico
 unidad: { singular: sector, plural: sectores }
 rotulos:
@@ -34,11 +36,11 @@ columnas:
   ventana: 6                   # horas observadas desde la tronadura (un archivo subido no la hereda: usa la de su calce o la hora del último temblor)
   unidad_tiempo: "horas"
   unidad_valor: "magnitud"
-  eje_tiempo: "Horas desde la tronadura"
+  eje_tiempo: "Horas desde la explosión"
   eje_valor: "Temblores acumulados"
   extra: []
   elegidas_por: equipo
-etiquetas: { fondo: "Cuánto tiembla la mina sin tronadura", contagio: "Cuántos temblores nuevos gatilla cada temblor", apagado: "Qué tan rápido se calma la roca", tamanos: "Cuántos temblores chicos hay por cada grande" }
+etiquetas: { fondo: "Cuánto tiembla la roca sin explosiones", contagio: "Cuántos temblores nuevos gatilla cada temblor", apagado: "Qué tan rápido se calma la roca", tamanos: "Cuántos temblores chicos hay por cada grande" }
 costos:
   falso_si: { valor: 150000, min: 20000, max: 600000, etiqueta: "Costo de mantener cerrado un sector que estaba tranquilo (medio turno sin producir)", tipo: hipótesis, cifra: K-62 }
   falso_no: { valor: 1500000, min: 300000, max: 8000000, etiqueta: "Costo de un temblor fuerte con el sector abierto (daños y detención)", tipo: hipótesis, cifra: K-63 }
@@ -46,5 +48,5 @@ moneda: USD
 dataset: datos/demo/sismicidad.csv
 verdad: datos/demo/sismicidad_verdad.csv     # columnas: unidad, sismos_fuertes_en_el_horizonte, hubo_sismo_fuerte
 verdad_columna: hubo_sismo_fuerte
-origen_datos: "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina."
+origen_datos: "Túneles simulados: 8 sectores y los temblores de las 6 horas que siguen a una explosión. No son datos de ninguna minera."
 sintetico: true

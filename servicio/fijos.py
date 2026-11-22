@@ -32,10 +32,8 @@ def _copia(nombre: str) -> dict:
 
 
 def _motor_de(caso: str) -> str:
-    # Los casos derivados (rotacion_malo) usan el motor de su caso base.
-    base = caso.removesuffix("_malo")
     for c in casos()["casos"]:
-        if c["nombre"] == base:
+        if c["nombre"] == caso:
             return c["motor"]
     raise PeticionInvalida(f"No conozco el caso «{caso}».", "caso_desconocido")
 
@@ -64,29 +62,15 @@ def casos() -> dict:
 
 
 def analizar(caso: str, transformaciones=(), mediciones=()) -> dict:
-    motor = _motor_de(caso)
-    if motor == "espacial":
+    """El mapa de ejemplo en `leyes`; en los casos de lista, el ejemplo fijo de cada uno, con curva (D-37)."""
+    if _motor_de(caso) == "espacial":
         return _copia("analizar_espacial.json")
-    if caso.endswith("_malo") and not transformaciones:
-        return _copia("analizar_rojo.json")
-    # Los casos mineros de lista tienen su propio ejemplo fijo, con curva (D-37).
-    if (EJEMPLOS / f"analizar_{caso}.json").exists():
-        return _copia(f"analizar_{caso}.json")
-    respuesta = _copia("analizar_tabla.json")
-    respuesta["caso"] = caso
-    respuesta["motor_id"] = motor
-    return respuesta
-
-
-def cartera(caso: str) -> dict:
-    respuesta = _copia("cartera.json")
-    respuesta["caso"] = caso
-    return respuesta
+    return _copia(f"analizar_{caso}.json")
 
 
 def donde_medir(caso: str, mediciones=()) -> dict:
     if _motor_de(caso) != "espacial":
-        raise PeticionInvalida("«¿Dónde mido?» solo existe en los casos con mapa.", "sin_mapa")
+        raise PeticionInvalida("«¿Dónde perforo?» solo existe en la decisión con mapa.", "sin_mapa")
     return _copia("donde_medir.json")
 
 

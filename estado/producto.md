@@ -33,15 +33,20 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 20:39 · Render con Groq verificado (`GROQ_API_KEY` puesta por la persona de PC 1; despliegue manual, porque Render no se entera de los push): `/api/calce` sale `modelo · groq` en `taludes`, `flota` y `leyes`, y `/api/interpretar` también. Arreglado en `servicio/calce.py`: el modelo de lenguaje no recibía lo que mide el caso y en `leyes` elegía `cobre_pct` sin `log`; ahora elige `arsenico_ppm` con `log` y responde lo mismo que la regla (178, 365 y 481). Límite conocido: en `subida_flota` nadie propone dividir `hierro_ppm` por 120 (el archivo no lo dice), y sin eso responde 400 `rojo_modelo` con su motivo.
 - sáb 22:09 · P-30: URL pública redesplegada (commits `ab0d2b0` y `d64ffa3`). `flota` con su red en el estático (las cinco responden `red`); la pregunta del usuario en el chat ahora se distingue de la respuesta (texto claro, fondo cobre). Vercel con `VITE_API_URL=https://krylov-api.onrender.com`, así que en https://krylov-krylov.vercel.app/ se puede subir un archivo propio. Con solo esa variable, la web le pedía a Render seis análisis a la vez y Render se quedó sin memoria dos veces (512 MB); arreglado con `VITE_ESTATICO_PRIMERO=1`: lo del demo sale del estático y la API queda solo para el archivo propio. Verificado en la URL pública: `subida_leyes.csv` → calce 2 s, análisis 3 s, texto 3 s; 178, 481 y 365, como en Render.
 
+- dom 00:58 · P-31 terminada (D-42, bloque 1): la app y el deck son la misma cosa. Cada respuesta se dibuja en la escena de la lámina de su decisión (7 a 11) con los módulos de `pitch/deck/js` sin tocarlos, dentro de un marco (`web/escena.html`, `web/src/escena/`), con los datos de la respuesta. Inicio con la portada y la lámina de las seis preguntas en vivo, y la subida del archivo como acción principal (archivo de ejemplo a un clic). Soltar un archivo: sus filas caen como puntos, se ordenan con las columnas y entran al núcleo mientras dure la espera real; cronómetro que separa red, columnas y viaje. Calce que dice quién propuso y escribe «minutos ÷ 60». Tecla `M`: los puntos se quedan en la puerta. Cierre con el texto del deck. Archivo, sin `.dato` ni plata arriba. Backend: campos nuevos opcionales (`mapa.bajo/alto`, `posteriori`, `serie`, `escena`, `lugares`, `propuesto_por`, `quien`, `archivo`), una sola posteriori para la API y el deck, subidas de extraños sin 500, un análisis a la vez, código muerto fuera, estático con los archivos de prueba guardados. Detalle y cómo devolver cada vista: `web/CAMBIOS.md`. Verificación: `cd web && npm run build && npm run prueba && npm run lint` (45 pruebas, 0 avisos) y `uv run pytest servicio nucleo -q` (53); recorrido en Chrome (Playwright) en desarrollo contra la API nueva y en `vite preview` sin servidor: teclas 1 a 5, M, L, D, «Perforar en A», los cinco archivos de prueba, sin errores de consola.
+
 ## En curso
 
-- sáb 18:05 · P-29: `preparar-demo` y el resto del código muerto (`/clasico`, ruta `/api/cartera`). Tope 18:00. Después, P-30: cada red que pase hasta las 20:30.
+- dom 00:58 · P-32: textos de toda la app alineados con el deck, teléfono (390×844), puente con el deck (tecla D) y yacimiento. Último push de fondo: 07:00.
 
 ## Bloqueos
 
 - sáb 17:58 · P-28, redespliegue: Vercel rechaza el commit `f2e4f96` con «Deployment rate limited — retry in 24 hours» (estado del commit en `Silent-math/krylov`). La URL pública sigue con las tarjetas de antes del pivote. El código y el estático están en `main` y en los dos repositorios. Lo decide una persona: otra cuenta o proyecto de Vercel sobre el espejo, o un `vercel deploy --prod` desde la CLI con otra cuenta. En el escenario el demo corre en local, así que no bloquea el demo; sí el QR.
 
 ## Pedidos a otros
+
+- dom 00:58 · P-31, a una persona: redesplegar Render a mano (servicio `krylov-api`) para que los archivos propios respondan con su escena (hoy, con la API anterior, responden con el respaldo) y poner `MALLOC_ARENA_MAX=2` en sus variables (pico de memoria con seis análisis a la vez: 318 MB, 270 MB con la variable).
+- dom 00:58 · P-31, a PC 2: los `limitaciones` de los sellos (`motor/artefactos/*/sello.json`) todavía dicen «celdas», «muros simulados» y «tronadura».
 
 - sáb 20:18 · A PC 2: con `subida_flota.csv` y `hierro_ppm` sin dividir por 120, `desgaste` desborda (`np.exp` en `nucleo/desgaste.py:91`, 105 y 145), deja NaN en `curva` y el semáforo sale **verde**. Debería dar `rojo_modelo`. En `servicio/` ya no se cae (400), pero el veredicto es del motor.
 - sáb 20:18 · A PC 3: el modelo de lenguaje en Render es Groq, no Claude (decisión de la persona de PC 1). Falta su entrada en `DECISIONES.md`; en el pitch, de Anthropic solo «se construyó con Claude Code».
@@ -72,6 +77,9 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 | Qué | Valor | Cómo se midió | Hora |
 |---|---|---|---|
+| Memoria de la API, seis análisis a la vez | 514 MB antes, 318 MB ahora, 270 MB con `MALLOC_ARENA_MAX=2` | uvicorn local con las cinco redes, RSS máximo | dom 00:30 |
+| `analizar` por la API local, con los campos de D-42 | leyes 36 ms, taludes 665, flotacion 224, flota 593, sismicidad 233 | uvicorn local | dom 00:30 |
+| Peso del estático | 664 kB en disco (era 512 kB); 160 kB comprimido lo que baja el demo | `du` y gzip | dom 00:55 |
 | Tiempo de la tarjeta de `leyes` en la URL pública, desde un teléfono | sin medir | — | — |
 | Tiempo de «¿Dónde perforo?» en el computador del escenario | sin medir | — | — |
 | Cálculo de «¿Dónde perforo?» de `leyes` (480 análisis rehechos), al exportar | 2.869 ms (antes 3.358 ms) | `exportar_estatico` en PC 1, `tiempo_ms` | sáb 16:40 |

@@ -44,8 +44,8 @@ FALTANTES_TOLERADAS = 0.15          # un sector con más faltantes que esto qued
 MIN_LECTURAS_SECTOR = math.ceil(DISENO["lecturas"][0] * (1 - DISENO["faltantes"][1]))   # 21
 RANGOS = {"unidades": {"minimo": DISENO["unidades"][0], "maximo": DISENO["unidades"][1]},
           "lecturas_por_unidad": {"minimo": DISENO["lecturas"][0], "maximo": DISENO["lecturas"][1]},
-          "frase": "Practiqué con muros de 6 a 80 sectores, medidos de 24 a 200 veces en la ventana, con hasta 15% de lecturas faltantes."}
-PRACTICA = (f"practiqué con muros de {DISENO['unidades'][0]} a {DISENO['unidades'][1]} sectores, "
+          "frase": "Practiqué con paredes de 6 a 80 sectores, medidos de 24 a 200 veces en la ventana, con hasta 15% de lecturas faltantes."}
+PRACTICA = (f"practiqué con paredes de {DISENO['unidades'][0]} a {DISENO['unidades'][1]} sectores, "
             f"cada uno con al menos {DISENO['lecturas'][0]} lecturas en la ventana")
 
 PRIOR = {
@@ -62,8 +62,8 @@ CASTIGO_ESTABLE = 20.0              # en `cantidad`: un sector estable queda 20 
 TOPE_BANDA = 20.0                   # el abanico de la curva no sube más de 20 veces la escala e sobre la última lectura
 
 PAPELES = [
-    {"papel": "unidad", "cantidad": 1, "tipo": "texto", "texto": "El sector del muro",
-     "texto_largo": "A qué sector del muro (prisma o grupo de píxeles del radar) pertenece cada lectura."},
+    {"papel": "unidad", "cantidad": 1, "tipo": "texto", "texto": "El sector de la pared",
+     "texto_largo": "A qué sector de la pared (prisma o grupo de píxeles del radar) pertenece cada lectura."},
     {"papel": "tiempo", "cantidad": 1, "tipo": "numero", "texto": "Cuándo se leyó",
      "texto_largo": "Cuándo se tomó la lectura, en horas (o días) desde que parte la ventana."},
     {"papel": "valor", "cantidad": 1, "tipo": "numero", "texto": "Cuánto se ha movido",
@@ -199,10 +199,10 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         datos = series.leer(caso)
         horizonte = float(col["horizonte"])
         if not all(np.isfinite(v).all() for v in datos["y"]) or not all(np.isfinite(t).all() for t in datos["t"]):
-            raise ArchivoNoCalza("Hay lecturas sin número (vacías o con texto) en el tiempo o en el desplazamiento.")
+            raise ArchivoNoCalza("Hay lecturas sin número (vacías o con texto) en el tiempo o en el desplazamiento: corrígelas o borra esas filas.")
         datos, grilla, aviso_grilla = a_grilla(datos)
         if len(grilla) < DISENO["lecturas"][0]:
-            raise ArchivoNoCalza(f"La ventana tiene {len(grilla)} lecturas por sector y {PRACTICA}.")
+            raise ArchivoNoCalza(f"La ventana tiene {len(grilla)} lecturas por sector y {PRACTICA}: sube más lecturas de cada sector.")
         k_min = max(MIN_LECTURAS_SECTOR, math.ceil(len(grilla) * (1 - FALTANTES_TOLERADAS)))
         datos, aviso = series.revisar_tamano(caso, datos, {"unidades": DISENO["unidades"], "lecturas": (k_min, len(grilla))}, PRACTICA)
         if horizonte <= 0:
@@ -218,19 +218,20 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     acelera, log_falta = lam[..., 3] > 0.5, lam[..., 1]
     muestras_p = (acelera & (log_falta <= np.log(h))).mean(axis=1).T                   # (U, m): P(cede en el horizonte | η_i, datos)
     e = float(np.exp(log_e))
-    curvas = []
+    curvas, se_decide = [], []          # lo que se decide: cuánto falta para ceder, solo en los sectores que se aceleran
     for j, (tj, yj) in enumerate(zip(datos["t"], datos["y"])):
         u_banda = np.linspace(1.0, 1.0 + h, series.PUNTOS_BANDA)
         args = [lam[:, :, j, c, None] for c in range(4)]
         d = trayectoria(u_banda, *args) - trayectoria(np.array([1.0]), *args)           # lo que se mueve desde ahora
         ancla = float(np.mean(yj[-3:]))
         banda = ancla + e * np.minimum(d, TOPE_BANDA).reshape(-1, len(u_banda))
-        marca = None
+        marca, falta = None, None
         if acelera[:, :, j].mean() >= 0.5:
-            falta = (np.exp(log_falta[:, :, j][acelera[:, :, j]]) * ventana)
+            falta = np.exp(log_falta[:, :, j][acelera[:, :, j]]) * ventana                # entre las versiones en que se acelera
             bajo, medio, alto = (round(float(v), 1) for v in np.quantile(falta, [0.05, 0.5, 0.95]))
             texto = lambda v: f"{v:.0f}" if v >= 10 else f"{v:.1f}".replace(".", ",")     # noqa: E731
             marca = {"texto": f"Faltan entre {texto(bajo)} y {texto(alto)} {unidad_t}", "bajo": bajo, "medio": medio, "alto": alto}
+        se_decide.append(falta)
         curvas.append(series.curva(tj, yj, inicio + u_banda * ventana, banda, caso, None, marca=marca, decimales=2))
     p = PRIOR
     globales = {"fraccion_acelerando": (eta[:, 0], -1.670, 1.056),          # logit π con π ~ Beta(1,5; 6): media ψ(1,5) − ψ(6), desviación √(ψ'(1,5) + ψ'(6))
@@ -239,7 +240,7 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     ids = datos["ids"]
     return {
         "implementacion": impl,
-        "unidades": series.unidades(ids, muestras_p, costos, curvas),
+        "unidades": series.unidades(ids, muestras_p, costos, curvas, se_decide, list(zip(datos["t"], datos["y"]))),
         "factores": series.factores(caso, globales),
         "columnas": {"usadas": [col["unidad"], col["tiempo"], col["valor"]], "disponibles": col.get("disponibles", 3),
                      "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},

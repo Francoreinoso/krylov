@@ -10,11 +10,9 @@ públicos) queda para la demostración de tiempos y para el examen con datos rea
 
 - `terreno`     el caso estrella (`CASO`, hoy `leyes`): api.analizar, con el mapa y sus rótulos. La clave se llama
                 `terreno` porque es el terreno que dibujan las láminas 4 y 5, sea cual sea el caso.
-                El rango creíble por bloque (5% a 95%) no viene en la respuesta de la API: se calcula aquí con las
-                mismas funciones de `nucleo/espacial.py` y se comprueba que la media coincide con la de la API.
-- `donde`       api.donde_medir del caso estrella: los tres mejores lugares. Además, `lugares`: todos los lugares
-                candidatos con su valor, repitiendo el cálculo de `nucleo/espacial.donde_medir` (se comprueba que
-                los tres mejores coinciden con los de la API).
+                El rango creíble por bloque (5% a 95%) es el de la respuesta de la API (`mapa.bajo` y `mapa.alto`, D-42).
+- `donde`       api.donde_medir del caso estrella: los tres mejores lugares y, en `lugares`, todos los lugares
+                candidatos con su valor, tal como los entrega la API (D-42).
 - `mediciones`  api.analizar(CASO, mediciones=[...]) para cada letra y cada resultado posible (bajo, medio, alto):
                 el mapa rehecho por la red. En el deck se anima este resultado.
 - `real`        api.analizar("terreno"): el mapa del terreno real (155 mediciones de zinc junto al río Mosa) y su
@@ -30,9 +28,9 @@ públicos) queda para la demostración de tiempos y para el examen con datos rea
                 no responda, la lámina dibuja solo los datos; al volver a correr este script, aparece la respuesta.
                 Con respuesta, además `posteriori`: por unidad, 64 cuantiles de la posteriori de lo que se decide
                 (horas que faltan, cobre al final de la línea, riesgo de que el camión falle antes de su mantención,
-                riesgo de un temblor fuerte). Son las mismas muestras con que el motor arma su respuesta, capturadas mientras
-                responde: aquí no se vuelve a muestrear ni se ajusta ninguna curva. Es lo que dibuja el zoom de
-                cada lámina (`js/zoom.js`).
+                riesgo de un temblor fuerte). Es la `posteriori` de cada unidad en la respuesta de la API (D-42), que
+                el motor arma con las mismas muestras con que decide: aquí no se vuelve a muestrear ni se ajusta ninguna
+                curva. Es lo que dibuja el zoom de cada lámina (`js/zoom.js`).
 - `sello`       copia de `motor/artefactos/espacial/sello.json`.
 
 Tarda unos segundos. No hay que correrlo con un entrenamiento andando más de lo que dura.
@@ -51,7 +49,6 @@ import json
 import os
 import sys
 import time
-from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 os.environ["KRYLOV_MOTOR_ESPACIAL"] = "red"
@@ -61,8 +58,7 @@ os.chdir(RAIZ)
 
 import numpy as np  # noqa: E402
 
-from nucleo import api, casos, decision, deformacion, espacial  # noqa: E402
-from nucleo import series as nucleo_series  # noqa: E402
+from nucleo import api, casos, decision, espacial  # noqa: E402
 
 CASO = "leyes"            # el caso estrella: láminas 4 y 5
 REAL = "terreno"          # datos reales públicos: el encargo de los 228 análisis (M-08 a M-10) y el examen
@@ -73,38 +69,25 @@ LIMITE_RAFAGA = 0.7       # el límite fijo, en unidades estandarizadas, con que
 SEMILLA = 2026
 TERRENOS_SIMULADOS = 256
 TERRENOS_PRACTICA = 3000
-Z90 = 1.645
 ESTADO = {"no_actuar": 0, "en_duda": 1, "actuar": 2}
-CUANTILES = 64            # con cuántos cuantiles se guarda la posteriori de cada unidad
 
 
 def mapa_con_rango(nombre: str, mediciones: list[dict]) -> dict:
-    """La respuesta de la API más el tope del rango creíble de 90% por bloque, en las unidades del caso."""
+    """La respuesta de la API con su mapa por bloque: la media y el rango creíble de 90% (`mapa.bajo`, `mapa.alto`), en las unidades del caso."""
     r = api.analizar(nombre, mediciones=mediciones)
     assert r["implementacion"] == "red" and not r["precalculado"], "el mapa tiene que salir de la red"
     m = r["mapa"]
-
-    caso = casos.cargar_caso(nombre)
-    terreno = espacial.leer_terreno(caso, mediciones)
-    canales, media, escala = espacial.canales_de(terreno["suma"], terreno["cuenta"], terreno["raiz_dist"])
-    inf = espacial.inferir(canales[None], terreno["cuenta"][None], "red", espacial._clave(caso, False))
-    mu, desv = inf["media"][0], inf["desviacion"][0]
-
-    def a_unidades(v):
-        return espacial._a_unidades_del_caso(v, float(media), float(escala), terreno["transformacion"]).reshape(-1)
-
-    centro, alto, bajo = a_unidades(mu), a_unidades(mu + Z90 * desv), a_unidades(mu - Z90 * desv)
     dentro = [i for i, v in enumerate(m["media"]) if v is not None]
-    assert np.allclose([m["media"][i] for i in dentro], centro[dentro], rtol=2e-4, atol=0.06), "la media no coincide con la de la API"
+    assert all(m["bajo"][i] <= m["media"][i] <= m["alto"][i] for i in dentro), "la media tiene que quedar dentro de su rango"
 
     costos = {k: v["valor"] for k, v in r["costos"].items()}
     p = np.array([m["p"][i] for i in dentro])
     estado = decision.decidir_espacial(p, costos["falso_si"], costos["falso_no"])["estado"]
     return {
         "respuesta": r, "dentro": dentro,
-        "media": [round(float(centro[i])) for i in dentro],
-        "alto": [round(float(alto[i])) for i in dentro],
-        "bajo": [round(float(bajo[i])) for i in dentro],         # el otro extremo del intervalo de credibilidad de 90%
+        "media": [round(m["media"][i]) for i in dentro],
+        "alto": [round(m["alto"][i]) for i in dentro],
+        "bajo": [round(m["bajo"][i]) for i in dentro],           # el otro extremo del intervalo de credibilidad de 90%
         "p": [m["p"][i] for i in dentro],
         "estado": [ESTADO[e] for e in estado],
         "colores": r["resumen_colores"],
@@ -134,49 +117,14 @@ def ficha(nombre: str, c: dict) -> dict:
     }
 
 
-def lugares_con_valor(nombre: str, candidatas: list[dict]) -> list[dict]:
-    """Todos los lugares candidatos de «¿Dónde perforo?» con lo que vale medir en cada uno.
-
-    La API entrega solo los tres mejores. Aquí se repite el cálculo de `nucleo/espacial.donde_medir`
-    con sus mismas funciones, y se comprueba que los tres mejores coinciden con los de la API.
-    """
-    caso = casos.cargar_caso(nombre)
-    costos = casos.costos_numericos(caso, None)
-    terreno = espacial.leer_terreno(caso, [])
-    dentro, suma, cuenta = terreno["dentro"], terreno["suma"], terreno["cuenta"]
-    clave = espacial._clave(caso, False)
-    lado = espacial.LADO
-
-    def total_de_duda(sumas, cuentas):
-        canales, media, escala = espacial.canales_de(sumas, cuentas, terreno["raiz_dist"])
-        r = espacial.inferir(canales, cuentas, "red", clave, espacial.MUESTRAS_POSTERIOR)
-        p = espacial.probabilidad_de_superar(r["media"], r["desviacion"], espacial._umbral_estandarizado(terreno, media, escala))
-        d = decision.decidir_espacial(p, costos["falso_si"], costos["falso_no"])
-        return (d["duda"] * dentro).sum(axis=(1, 2)), d, r, media, escala
-
-    total, d, r, media, escala = total_de_duda(suma[None], cuenta[None])
-    lugares = espacial._lugares_candidatos(d["estado"][0], d["duda"][0], cuenta, dentro)
-    tau2 = float(np.exp(2 * r["theta"].reshape(-1, len(espacial.NOMBRES_THETA))[:, 4]).mean())
-    f, c = np.divmod(lugares, lado)
-    k = espacial.RESULTADOS_POR_LUGAR
-    desv = np.sqrt(r["desviacion"][0][f, c] ** 2 + tau2)
-    cuantil = np.array([espacial._cuantil_normal(q) for q in (np.arange(k) + 0.5) / k])
-    resultado = (r["media"][0][f, c][:, None] + desv[:, None] * cuantil[None, :]) * float(escala[0]) + float(media[0])
-    n = len(lugares)
-    sumas = np.broadcast_to(suma, (n, k, lado, lado)).copy()
-    cuentas = np.broadcast_to(cuenta, (n, k, lado, lado)).copy()
-    sumas[np.arange(n), :, f, c] += resultado
-    cuentas[np.arange(n), :, f, c] += 1
-    totales = total_de_duda(sumas.reshape(-1, lado, lado), cuentas.reshape(-1, lado, lado))[0].reshape(n, k)
-    valor = float(total[0]) - totales.mean(axis=1)
-
-    geo = terreno["geometria"]
-    salida = [{"x": round(geo["x0"] + (c[i] + 0.5) * geo["lado"]), "y": round(geo["y0"] + (f[i] + 0.5) * geo["lado"]),
-               "valor_de_medir": round(float(valor[i]))} for i in np.argsort(-valor, kind="stable")]
-    for mia, suya in zip(salida, candidatas):
-        assert (mia["x"], mia["y"]) == (suya["x"], suya["y"]) and abs(mia["valor_de_medir"] - suya["valor_de_medir"]) <= 1, \
-            f"los lugares no coinciden con los de la API: {mia} / {suya}"
-    return salida
+def lugares_con_valor(donde: dict) -> list[dict]:
+    """Todos los lugares candidatos de «¿Dónde perforo?» con lo que vale medir en cada uno, de la respuesta de la API.
+    Se comprueba que los tres primeros son las tres candidatas."""
+    lugares = donde["lugares"]
+    for mia, suya in zip(lugares, donde["candidatas"]):
+        assert (mia["x"], mia["y"], mia["valor_de_medir"]) == (suya["x"], suya["y"], suya["valor_de_medir"]), \
+            f"los lugares no coinciden con las candidatas: {mia} / {suya}"
+    return lugares
 
 
 def orilla_del_rio(nombre: str) -> list[list[float]]:
@@ -228,58 +176,28 @@ def rafaga() -> dict:
     }
 
 
-@contextmanager
-def capturar(modulo, nombre: str):
-    """Mientras dure, guarda los argumentos y el resultado de cada llamada a `modulo.nombre`, sin cambiar lo que hace."""
-    original, vistas = getattr(modulo, nombre), []
-
-    def envuelta(*args, **kwargs):
-        resultado = original(*args, **kwargs)
-        vistas.append((args, resultado))
-        return resultado
-
-    setattr(modulo, nombre, envuelta)
-    try:
-        yield vistas
-    finally:
-        setattr(modulo, nombre, original)
-
-
-def posteriori(nombre: str, r: dict, vistas: dict) -> dict:
-    """Por unidad, la posteriori de lo que se decide, como cuantiles de las muestras que el motor usó para responder.
+def posteriori(nombre: str, r: dict) -> dict:
+    """Por unidad, la posteriori de lo que se decide: la `posteriori` que trae cada unidad en la respuesta de la API (D-42).
 
     - taludes: horas que faltan para ceder, entre las muestras en que el sector se acelera (lo mismo que su `marca`);
+      solo los sectores que se aceleran en al menos la mitad de las muestras;
     - flotacion: el último punto del abanico de su curva (el cobre al final de la línea);
     - sismicidad y flota: el riesgo que muestra su gráfico de intervalos (un temblor fuerte en el horizonte; que el
       camión falle antes de su mantención), uno por cada versión creíble de la faena (las `muestras_p` con que se decide).
     Se comprueba contra lo que la API publicó para esa unidad.
     """
-    (ids, muestras_p, _, _), _ = vistas["unidades"][-1]
-    _, (_, lam, _) = vistas["posterior"][-1]
-    de_la_api = {u["id"]: u for u in r["unidades"]}
     salida = {}
-    for j, uid in enumerate(ids):
-        curva = de_la_api[uid].get("curva")
+    for u in r["unidades"]:
+        q, curva = u.get("posteriori"), u.get("curva")
+        if q is None:
+            continue
         if nombre == "taludes":
-            acelera = lam[:, :, j, 3] > 0.5
-            if acelera.mean() < 0.5:
-                continue
-            ventana = vistas["normalizar_tiempo"][-1][1][2]
-            v = np.exp(lam[:, :, j, 1][acelera]) * ventana
-            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
-            assert abs(bajo - curva["marca"]["bajo"]) < 0.06 and abs(alto - curva["marca"]["alto"]) < 0.06, "las horas no coinciden con la marca de la API"
+            assert abs(q["bajo"] - curva["marca"]["bajo"]) < 0.06 and abs(q["alto"] - curva["marca"]["alto"]) < 0.06, "las horas no coinciden con la marca de la API"
         elif nombre in ("sismicidad", "flota"):
-            v = np.asarray(muestras_p[j], dtype=float)
-            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
-            assert abs(v.mean() - de_la_api[uid]["p"]) < 0.006, "la probabilidad no coincide con la de la API"
-        else:
-            v = np.asarray(vistas["curva"][j][0][3], dtype=float)[:, -1]
-            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
-            if curva:
-                assert abs(bajo - curva["bajo"][-1]) < 2e-3 and abs(alto - curva["alto"][-1]) < 2e-3, "el final del abanico no coincide con la curva de la API"
-        cuantiles = np.quantile(v, (np.arange(CUANTILES) + 0.5) / CUANTILES)
-        salida[uid] = {"bajo": round(float(bajo), 4), "medio": round(float(medio), 4), "alto": round(float(alto), 4),
-                       "muestras": int(v.size), "cuantiles": [round(float(q), 4) for q in cuantiles]}
+            assert abs(float(np.median(u["muestras_p"])) - q["medio"]) < 0.006, "la posteriori no sale de las `muestras_p` de la API"
+        elif curva:
+            assert abs(q["bajo"] - curva["bajo"][-1]) < 2e-3 and abs(q["alto"] - curva["alto"][-1]) < 2e-3, "el final del abanico no coincide con la curva de la API"
+        salida[u["id"]] = q
     return salida
 
 
@@ -302,10 +220,7 @@ def serie(nombre: str) -> dict:
     sello = json.loads((artefactos / "sello.json").read_text()) if (artefactos / "sello.json").exists() else None
     if (artefactos / "codificador.onnx").exists() and sello and sello.get("pasa"):
         os.environ["KRYLOV_MOTOR_" + caso["motor"].upper()] = "red"
-    with ExitStack() as pila:
-        vistas = {f: pila.enter_context(capturar(m, f)) for m, f in
-                  ((nucleo_series, "posterior"), (nucleo_series, "curva"), (nucleo_series, "unidades"), (deformacion, "normalizar_tiempo"))}
-        r = api.analizar(nombre)
+    r = api.analizar(nombre)
     if "error" not in r and r.get("unidades") and r.get("implementacion") in ("red", "mcmc") and not r["semaforo"]["estado"].startswith("rojo"):
         respuesta = {
             "implementacion": r["implementacion"], "precalculado": r["precalculado"], "colores": r["resumen_colores"],
@@ -317,7 +232,7 @@ def serie(nombre: str) -> dict:
             "punto_de_corte": r.get("punto_de_corte"),
             # de cada unidad: su decisión, el riesgo que estima la red y su intervalo de credibilidad de 90%, y su curva
             "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "rango": [u.get("rango_bajo"), u.get("rango_alto")], "curva": u.get("curva")} for u in r["unidades"]},
-            "posteriori": posteriori(nombre, r, vistas),
+            "posteriori": posteriori(nombre, r),
         }
         # El examen de las decisiones: de las unidades donde decidió (actuar o no actuar), en cuántas acertó según la
         # verdad escondida del archivo simulado. Las que dejó «en duda» no cuentan: ahí dijo que no sabía.
@@ -373,7 +288,7 @@ def examen_de_puntos(nombre: str) -> dict:
     m = r["media"][0][f, c]
     assert T["transformacion"] == "log"
     a_unidades = lambda z: np.exp(z * float(escala) + float(media))  # noqa: E731
-    est, bajo, alto, verdad = a_unidades(m), a_unidades(m - Z90 * desv), a_unidades(m + Z90 * desv), T["valor"][esc]
+    est, bajo, alto, verdad = a_unidades(m), a_unidades(m - espacial.Z90 * desv), a_unidades(m + espacial.Z90 * desv), T["valor"][esc]
     return {"n": int(len(esc)), "dentro": int(((verdad >= bajo) & (verdad <= alto)).sum()), "limite": float(T["umbral"]),
             "unidad": T["unidad_valor"], "puntos": [[round(float(e), 1), round(float(b), 1), round(float(h), 1), float(v)]
                                                     for e, b, h, v in zip(est, bajo, alto, verdad)]}
@@ -450,7 +365,7 @@ def main() -> None:
         "terreno": {**ficha(CASO, base), "examen_bloques": examen_bloques},
         "donde": {
             "candidatas": donde["candidatas"], "analisis_rehechos": donde["analisis_rehechos"],
-            "lugares": lugares_con_valor(CASO, donde["candidatas"]), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
+            "lugares": lugares_con_valor(donde), "resultados_por_lugar": espacial.RESULTADOS_POR_LUGAR,
             "implementacion": donde["implementacion"], "precalculado": donde["precalculado"], "tiempo_ms_aqui": donde["tiempo_ms"],
         },
         "mediciones": mediciones,

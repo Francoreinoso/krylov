@@ -29,9 +29,9 @@ DISENO = {
 }
 RANGOS = {"unidades": {"minimo": DISENO["unidades"][0], "maximo": DISENO["unidades"][1]},
           "lecturas_por_unidad": {"minimo": DISENO["lecturas"][0], "maximo": DISENO["lecturas"][1]},
-          "frase": "Practiqué con plantas de 2 a 16 líneas, cada una medida en 3 a 12 celdas."}
+          "frase": "Practiqué con plantas de 2 a 16 líneas, cada una medida en 3 a 12 de sus estanques."}
 PRACTICA = (f"practiqué con plantas de {DISENO['unidades'][0]} a {DISENO['unidades'][1]} líneas, "
-            f"cada una medida en al menos {DISENO['lecturas'][0]} celdas")
+            f"cada una medida en al menos {DISENO['lecturas'][0]} de sus estanques")
 
 PRIOR = {
     "mu_k_media": float(np.log(0.25)), "mu_k_desv": 0.6, "sigma_k_escala": 0.5,
@@ -48,9 +48,9 @@ PAPELES = [
     {"papel": "unidad", "cantidad": 1, "tipo": "texto", "texto": "La línea de flotación",
      "texto_largo": "A qué línea de la planta pertenece cada medición."},
     {"papel": "tiempo", "cantidad": 1, "tipo": "numero", "texto": "Minutos en la línea",
-     "texto_largo": "Cuántos minutos lleva la pulpa en la línea al salir de la celda donde se midió."},
+     "texto_largo": "Cuántos minutos lleva la pulpa en la línea al salir del estanque donde se midió."},
     {"papel": "valor", "cantidad": 1, "tipo": "numero", "texto": "Cobre recuperado, de 0 a 1",
-     "texto_largo": "Qué parte del cobre que entró ya se recuperó a la salida de esa celda, entre 0 y 1."},
+     "texto_largo": "Qué parte del cobre que entró ya se recuperó a la salida de ese estanque, entre 0 y 1."},
 ]
 
 
@@ -98,7 +98,7 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         datos = series.leer(caso)
         meta, t_final = float(col["umbral"]), float(col["tiempo_final"])
         if any(np.any((y <= 0) | (y >= 1)) for y in datos["y"]):
-            raise ArchivoNoCalza("El cobre recuperado tiene que venir entre 0 y 1 (por ejemplo 0,85 y no 85).", "rojo_modelo")
+            raise ArchivoNoCalza("El cobre recuperado tiene que venir entre 0 y 1 (0,85 y no 85): si viene en porcentaje, divídelo por 100 al asignar las columnas.", "rojo_modelo")
         datos, aviso = series.revisar_tamano(caso, datos, DISENO, PRACTICA)
         t, mascara = series.con_relleno(datos["t"])
         y, _ = series.con_relleno(datos["y"])
@@ -106,9 +106,11 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         c_min, c_max = DISENO["minutos_por_celda"]
         if not (0.85 * c_min <= celda <= 1.15 * c_max) or not (DISENO["celdas"][0] * c_min <= t_final <= DISENO["celdas"][1] * c_max):
             raise ArchivoNoCalza(f"Las mediciones van cada {celda:.3g} {col.get('unidad_tiempo', 'minutos')} y la línea dura {t_final:g}: "
-                                 f"practiqué con celdas de {c_min:g} a {c_max:g} minutos y líneas de hasta {DISENO['celdas'][1] * c_max:g}.")
+                                 f"practiqué con estanques de {c_min:g} a {c_max:g} minutos cada uno y líneas de hasta {DISENO['celdas'][1] * c_max:g}. "
+                                 f"Revisa que el tiempo venga en minutos.")
         if t.max() > t_final * 1.001:
-            raise ArchivoNoCalza(f"Hay mediciones después del final de la línea ({t_final:g} {col.get('unidad_tiempo', 'minutos')}).")
+            raise ArchivoNoCalza(f"Hay mediciones después del final de la línea ({t_final:g} {col.get('unidad_tiempo', 'minutos')}): "
+                                 f"revisa que el tiempo venga en minutos desde que la pulpa entra a la línea.")
     except ArchivoNoCalza as error:
         return series.lector.rojo(caso, error)
     x, cov, tam = preparar(t, y, mascara, np.float64(t_final))
@@ -128,7 +130,8 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     ids = datos["ids"]
     return {
         "implementacion": impl,
-        "unidades": series.unidades(ids, muestras_p, costos, curvas),
+        "unidades": series.unidades(ids, muestras_p, costos, curvas, [final[:, :, j] for j in range(len(ids))],    # el cobre al final de la línea
+                                   list(zip(datos["t"], datos["y"]))),
         "factores": series.factores(caso, globales),
         "columnas": {"usadas": [col["unidad"], col["tiempo"], col["valor"]], "disponibles": col.get("disponibles", 3),
                      "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},

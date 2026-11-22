@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Krylov · escena</title>
+    <!-- Una lámina del deck, con los datos de una respuesta de Krylov (D-42). La abre la app dentro de un marco. -->
+    <link rel="stylesheet" href="/deck/deck.css" />
+    <style>
+      /* Lo que en el deck es del recorrido (la marca, la cuenta de láminas, la barra de avance y las notas) aquí sobra. */
+      #marca, #cuenta, #avance, #panel-notas, #pausa { display: none !important; }
+      html, body { background: #0b0a09; }
+      /* En la app, la portada deja abajo el lugar de la caja para subir el archivo (la pone la app encima). */
+      #l-valor .portada { justify-content: flex-start; padding-top: 30px; }
+      #l-valor .portada .t1 { font-size: 214px; }
+    </style>
+  </head>
+  <body>
+    <div id="escenario">
+      <canvas id="curvas"></canvas>
+      <canvas id="gl"></canvas>
+    </div>
+    <div id="avance"></div>
+    <div id="cuenta"></div>
+    <div id="panel-notas"></div>
+    <script type="module" src="/src/escena/marco.ts"></script>
+  </body>
+</html>

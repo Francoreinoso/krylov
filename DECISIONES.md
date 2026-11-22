@@ -304,6 +304,14 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Qué se dice:** de Anthropic, solo que Krylov se construyó con Claude Code. No se dice que un modelo de Claude esté integrado en la app. Groq no es sponsor del evento: no se nombra en el pitch.
 · Decide la persona de PC 1; lo escribe PC 3.
 
+**D-42 · dom 22-nov 00:45 · Última iteración de la app: la app y el deck pasan a ser la misma cosa.** Lo encarga Rodrigo (persona del equipo) a las 00:00, con el producto congelado (tag `congelado`) y el deck cerrado (`pitch/deck/CAMBIOS.md`). El encargo pedía anotarlo como D-41, pero ese número ya era la decisión de Groq; queda como D-42.
+
+- **Qué se hace:** cuando alguien sube un archivo, sus filas entran a la red como en la lámina «Entra un archivo, sale la respuesta», y la respuesta aparece en la misma escena de la lámina de esa decisión, con el foco que viaja y la tarjeta con la distribución, pero con los datos del archivo. Para que sea literalmente la misma, la app corre los módulos de `pitch/deck/js/` sin tocarlos, dentro de un marco, con los datos de la respuesta. La plata deja de ser protagonista (como en el deck), los textos se alinean con el deck y se cambia la tipografía a la del deck.
+- **Lo que choca con el plan, dicho:** pasa por encima del congelamiento de las 18:00 y de la regla 14 de `AGENTS.md`, solo para `web/`, `servicio/`, los textos de `casos/` y lo mínimo de `nucleo/api.py` (campos nuevos y opcionales en las respuestas: el intervalo de 90% de cada bloque, la posteriori de cada unidad y todos los lugares candidatos de «¿Dónde perforo?»; es un cambio de contrato y está en `contratos/CONTRATO.md`). No se toca `motor/`, no se reentrena, no se corre el método lento, no entra `torch` a `servicio/`. Del deck solo cambia el enganche de la tecla `D` y `datos/generar.py` pasa a usar la misma función que la API para la posteriori (sin regenerar `datos.js`).
+- **Lo que no se negocia:** las reglas 1, 5, 7, 8, 9, 11 y 22 de `AGENTS.md`. La URL pública sigue haciendo el recorrido sin servidor, y la web nueva funciona contra la API vieja (sin los campos nuevos muestra el respaldo).
+- **Cómo se vuelve atrás:** el tag `web-original` es la app antes de este encargo; `web/CAMBIOS.md` dice, vista por vista, qué cambió y el comando para devolverla.
+· Decide Rodrigo; lo escribe PC 1.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).

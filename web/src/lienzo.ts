@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react'
 
-// Llama a `dibujar` con un contexto del tamaño en pantalla del canvas, cada vez que cambian las
-// dependencias o el tamaño.
-export function useLienzo(dibujar: (ctx: CanvasRenderingContext2D, ancho: number, alto: number) => void, deps: unknown[]) {
+// Llama a `dibujar` con un contexto del tamaño en pantalla del canvas, cada vez que cambia `dibujar` (quien la usa la
+// memoriza con sus datos) o el tamaño.
+export function useLienzo(dibujar: (ctx: CanvasRenderingContext2D, ancho: number, alto: number) => void) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     const canvas = ref.current
@@ -24,7 +24,7 @@ export function useLienzo(dibujar: (ctx: CanvasRenderingContext2D, ancho: number
     const observador = new ResizeObserver(pintar)
     observador.observe(canvas)
     return () => observador.disconnect()
-  }, deps)
+  }, [dibujar])
   return ref
 }
 

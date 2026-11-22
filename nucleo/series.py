@@ -29,6 +29,7 @@ MUESTRAS_LOCALES = 32               # por cada una, muestras de lo propio de cad
 SEMILLA = 0
 TRAMOS_EXAMEN = ((0.0, 0.1), (0.1, 0.5), (0.5, 1.01))
 MAX_PUNTOS_CURVA, PUNTOS_BANDA = 60, 12
+CUANTILES = 64                      # con cuántos cuantiles se resume la posteriori de lo que se decide en cada unidad
 
 
 # ------------------------------------------------------------------------------ leer el archivo largo
@@ -70,9 +71,9 @@ def revisar_tamano(caso: dict, series: dict, diseno: dict, practica: str) -> tup
     con_lecturas = [j for j, t in enumerate(series["t"]) if len(t) >= k_min]
     if len(series["ids"]) < u_min:
         cuantas = f"Hay 1 {caso['unidad']['singular']}" if len(series["ids"]) == 1 else f"Hay {len(series['ids'])} {plural}"
-        raise ArchivoNoCalza(f"{cuantas} y {practica}.")
+        raise ArchivoNoCalza(f"{cuantas} y {practica}: sube un archivo con más {plural}.")
     if len(con_lecturas) < u_min:
-        raise ArchivoNoCalza(f"Solo {len(con_lecturas)} {plural} tienen al menos {k_min} mediciones, y {practica}.")
+        raise ArchivoNoCalza(f"Solo {len(con_lecturas)} {plural} tienen al menos {k_min} mediciones, y {practica}: sube más mediciones de cada {caso['unidad']['singular']}.")
     avisos = []
     cortas = len(series["ids"]) - len(con_lecturas)
     if cortas:
@@ -108,7 +109,9 @@ def _red(carpeta: str) -> dict:
     from pathlib import Path
     carpeta = Path(carpeta)
     config = json.loads((carpeta / "config.json").read_text(encoding="utf-8"))
-    sesion = onnxruntime.InferenceSession(str(carpeta / "codificador.onnx"), providers=["CPUExecutionProvider"])
+    opciones = onnxruntime.SessionOptions()
+    opciones.enable_cpu_mem_arena = False        # el servidor tiene 512 MB: la memoria de cada análisis se devuelve al terminar
+    sesion = onnxruntime.InferenceSession(str(carpeta / "codificador.onnx"), opciones, providers=["CPUExecutionProvider"])
     return {"config": config, "sesion": sesion, "flujo": _flujo.cargar(str(carpeta / "flujo.npz")),
             "local": _flujo.cargar(str(carpeta / "flujo_local.npz"))}
 
@@ -200,12 +203,32 @@ def curva(t: np.ndarray, y: np.ndarray, t_banda: np.ndarray, muestras: np.ndarra
             "eje_t": col.get("eje_tiempo", ""), "eje_y": col.get("eje_valor", ""), "marca": marca}
 
 
-def unidades(ids: list[str], muestras_p: np.ndarray, costos: dict, curvas: list[dict]) -> list[dict]:
-    """`unidades` del contrato con su `curva`. Con más de 60, la curva va solo en las 24 con más duda y en las de `actuar`."""
-    por_id = dict(zip(ids, curvas))
+def posteriori(muestras: np.ndarray) -> dict:
+    """La posteriori de lo que se decide en una unidad, desde sus muestras: el rango de 90% (cuantiles 5% y 95%), la
+    mediana y 64 cuantiles equiespaciados, con 4 decimales. Es lo que dibuja la distribución completa de la unidad."""
+    v = np.asarray(muestras, dtype=np.float64).reshape(-1)
+    bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
+    cuantiles = np.quantile(v, (np.arange(CUANTILES) + 0.5) / CUANTILES)
+    return {"bajo": round(float(bajo), 4), "medio": round(float(medio), 4), "alto": round(float(alto), 4),
+            "muestras": int(v.size), "cuantiles": [round(float(q), 4) for q in cuantiles]}
+
+
+def unidades(ids: list[str], muestras_p: np.ndarray, costos: dict, curvas: list[dict],
+             se_decide: list[np.ndarray | None], medidas: list[tuple[np.ndarray, np.ndarray]]) -> list[dict]:
+    """`unidades` del contrato con su `curva`, su `posteriori` y su `serie` (D-42), alineadas con `ids`.
+
+    Con más de 60 unidades, la curva va solo en las 24 con más duda y en las de `actuar`. `se_decide` trae, por unidad,
+    las muestras de lo que se decide (o None: esa unidad va sin posteriori); `medidas`, sus lecturas (tiempo, valor) tal
+    como las leyó el motor, ordenadas por tiempo.
+    """
+    por_id = dict(zip(ids, zip(curvas, se_decide, medidas)))
     filas = lector.unidades(ids, muestras_p, costos)                 # ya ordenadas de mayor a menor duda
     for n, u in enumerate(filas):
-        u["curva"] = por_id[u["id"]] if len(filas) <= 60 or n < 24 or u["estado"] == "actuar" else None
+        curva, muestras, (t, y) = por_id[u["id"]]
+        u["curva"] = curva if len(filas) <= 60 or n < 24 or u["estado"] == "actuar" else None
+        if muestras is not None:
+            u["posteriori"] = posteriori(muestras)
+        u["serie"] = [[round(float(a), 3), round(float(b), 3)] for a, b in zip(t, y)]
     return filas
 
 

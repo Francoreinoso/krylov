@@ -69,24 +69,36 @@ def nombres_del_papel(col: dict, papel: str, cantidad: int) -> list[str]:
     nombres = [] if valor is None else list(valor) if isinstance(valor, (list, tuple)) else [valor]
     if len(nombres) != cantidad:
         cuantas = "una columna" if cantidad == 1 else f"{cantidad} columnas"
-        raise ArchivoNoCalza(f"El papel «{papel}» necesita {cuantas} y tiene {len(nombres)}.")
+        raise ArchivoNoCalza(f"El papel «{papel}» necesita {cuantas} y tiene {len(nombres)}: asígnale {cuantas} al confirmar las columnas.")
     return nombres
 
 
 def columna(tabla: dict, nombre: str) -> list[str]:
     if nombre not in tabla:
-        raise ArchivoNoCalza(f"El archivo no trae la columna «{nombre}».")
+        raise ArchivoNoCalza(f"El archivo no trae la columna «{nombre}»: elige una de las columnas que sí trae.")
     return tabla[nombre]
+
+
+def no_es_numero(nombre: str, valores: list[str]) -> str | None:
+    """La frase que dice cuál es la primera celda de la columna que no es un número (o está vacía); None si todas lo son."""
+    for n, v in enumerate(valores, start=1):
+        try:
+            if np.isfinite(float(v)):
+                continue
+        except ValueError:
+            pass
+        dice = f"dice «{v.strip()}»" if v.strip() else "está vacía"
+        return f"La columna «{nombre}» tiene que traer solo números, y en la fila {n} de datos {dice}: corrige ese valor o borra la fila."
+    return None
 
 
 def numeros(tabla: dict, nombre: str, minimo: float | None = None, maximo: float | None = None, enteros: bool = False) -> np.ndarray:
     """Una columna como números, sin vacíos. Si no se puede leer: `rojo_datos`; si se sale del rango que el modelo conoce: `rojo_modelo`."""
-    try:
-        valores = np.array([float(v) for v in columna(tabla, nombre)])
-    except ValueError:
-        raise ArchivoNoCalza(f"La columna «{nombre}» tiene celdas vacías o que no son números.") from None
-    if not np.isfinite(valores).all():
-        raise ArchivoNoCalza(f"La columna «{nombre}» tiene celdas vacías o que no son números.")
+    texto = columna(tabla, nombre)
+    motivo = no_es_numero(nombre, texto)
+    if motivo:
+        raise ArchivoNoCalza(motivo)
+    valores = np.array([float(v) for v in texto])
     fuera = (valores < minimo if minimo is not None else False) | (valores > maximo if maximo is not None else False)
     if np.any(fuera) or (enteros and np.any(valores != np.round(valores))):
         rango = f"entre {minimo:g} y {maximo:g}" if minimo is not None and maximo is not None else f"desde {minimo:g}" if minimo is not None else f"hasta {maximo:g}"

@@ -42,7 +42,7 @@ def calce_del_demo(nombre: str) -> dict:
     columnas = _encabezado(caso)
     return {"caso": nombre, "motor_id": caso["motor"], "calce": calce,
             "columnas": columnas, "no_usadas": [c for c in columnas if c not in usadas],
-            "origen": "equipo", "precalculado": True}
+            "origen": "equipo", "propuesto_por": lenguaje.propuesto_por(None, "equipo"), "precalculado": True}
 
 
 # ------------------------------------------------------------------------------------------------
@@ -229,7 +229,7 @@ def validar(propuesto: dict, papeles: list[dict], tabla: dict[str, list[str]]) -
 
 
 def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str, list[str]],
-                      pistas: dict[str, str]) -> tuple[dict, str] | None:
+                      pistas: dict[str, str]) -> tuple[dict, lenguaje.Escrito] | None:
     nombres = [c["nombre"] for c in resumen]
     pedido = {"papeles": [{k: p[k] for k in ("papel", "minimo", "maximo", "tipo", "texto_largo")} for p in papeles],
               "columnas": resumen}
@@ -239,11 +239,11 @@ def _calce_por_modelo(papeles: list[dict], resumen: list[dict], tabla: dict[str,
     if escrito is None:
         return None
     try:
-        propuesto = json.loads(escrito[0])
+        propuesto = json.loads(escrito.texto)
     except json.JSONDecodeError:
         return None
     calce = validar(propuesto, papeles, tabla) if isinstance(propuesto, dict) else None
-    return (calce, escrito[1]) if calce else None
+    return (calce, escrito) if calce else None
 
 
 def _pistas(caso: str | None, motor_id: str) -> dict[str, str]:
@@ -264,31 +264,34 @@ def _pistas(caso: str | None, motor_id: str) -> dict[str, str]:
     return pistas
 
 
-def proponer_calce(motor_id: str, contenido: bytes, caso: str | None = None) -> dict:
+def proponer_calce(motor_id: str, contenido: bytes, caso: str | None = None, usar_modelo: bool = True) -> dict:
     """El calce de un archivo subido, con la forma de `calce_del_demo`. Lanza `PeticionInvalida` si el archivo no se lee.
 
-    `caso` es la tarjeta elegida en el chat: de su YAML sale una pista para la regla (el modelo de lenguaje no la necesita)."""
+    `caso` es la tarjeta elegida en el chat: de su YAML sale una pista para la regla (el modelo de lenguaje no la necesita).
+    Con `usar_modelo=False` responde solo la regla, sin red: así lo precalcula el modo estático."""
     respuesta = api.papeles(motor_id)
     if "error" in respuesta:
         raise PeticionInvalida(respuesta["error"], respuesta["codigo"])
     try:
-        columnas = api._columnas_de_texto(contenido)                 # el mismo lector que usa `analizar_archivo`
+        columnas = api.leer_tabla(contenido)                         # el mismo lector que usa `analizar_archivo`
     except ArchivoNoCalza as e:
         raise PeticionInvalida(e.motivo, "archivo_ilegible") from None
     resumen = resumen_columnas(columnas)
     pistas = _pistas(caso, motor_id)
-    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen, columnas, pistas)
+    del_modelo = _calce_por_modelo(respuesta["papeles"], resumen, columnas, pistas) if usar_modelo else None
+    escrito = None
     if del_modelo:
-        (calce, proveedor), origen = del_modelo, "modelo"
+        (calce, escrito), origen = del_modelo, "modelo"
     else:
         calce = calce_por_regla(respuesta["papeles"], resumen, pistas)
         valor = calce.get("valor")
         if pistas.get("transformacion_valor") and valor and valor["columnas"]:
             valor["transformacion"] = {"nombre": pistas["transformacion_valor"]}
             valor["motivo"] = "El nombre calza con lo que mide el caso; se usa la misma escala que en el archivo del demo"
-        calce, proveedor, origen = unidades_por_regla(respuesta["papeles"], resumen, calce, columnas), None, "regla"
+        calce, origen = unidades_por_regla(respuesta["papeles"], resumen, calce, columnas), "regla"
     usadas = {c for v in calce.values() for c in v["columnas"]}
     nombres = list(columnas)
     return {"caso": None, "motor_id": motor_id, "calce": calce, "columnas": nombres,
-            "no_usadas": [c for c in nombres if c not in usadas], "origen": origen, "proveedor": proveedor,
+            "no_usadas": [c for c in nombres if c not in usadas], "origen": origen,
+            "proveedor": escrito.proveedor if escrito else None, "propuesto_por": lenguaje.propuesto_por(escrito, "regla"),
             "precalculado": False}

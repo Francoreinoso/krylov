@@ -1,12 +1,14 @@
 """La única puerta al modelo de lenguaje (CONTRATO.md, sección 5; D-34 y D-35).
 
 El modelo de lenguaje propone el calce de columnas e interpreta una respuesta; nunca pone números.
-`pedir` devuelve `(texto, proveedor)` o `None`, y quien la llama usa entonces la plantilla o la regla:
-sin clave, sin internet, con un error del servicio o con una negativa, el demo sigue igual.
+`pedir` devuelve un `Escrito` (el texto, el proveedor y el modelo que respondió) o `None`, y quien la
+llama usa entonces la plantilla o la regla: sin clave, sin internet, con un error del servicio o con una
+negativa, el demo sigue igual.
 
-Proveedor por `KRYLOV_LENGUAJE`: `claude` (por omisión; el de Render y el del demo) o `groq`, que es
-solo para pruebas locales mientras no hay clave de Anthropic. Lo que escribe `groq` nunca se precalcula
-ni se rotula como Claude.
+Proveedor por `KRYLOV_LENGUAJE`: `groq` (el de la API pública en Render desde D-41, con `GROQ_API_KEY`)
+o `claude` (por omisión, con `ANTHROPIC_API_KEY`). Cada calce e interpretación dice quién la escribió en
+`propuesto_por`, con el modelo que de verdad respondió: lo de un proveedor nunca se rotula con el nombre
+de otro. El modo estático solo guarda interpretaciones de Claude (`servicio/exportar_estatico.py`).
 """
 
 from __future__ import annotations
@@ -14,12 +16,27 @@ from __future__ import annotations
 import json
 import os
 from functools import cache
+from typing import NamedTuple
 
 import anthropic
 import httpx
 
 TOPE_S = 8.0
 MAX_TOKENS = 2000
+NOMBRE_DEL_PROVEEDOR = {"claude": "Anthropic", "groq": "Groq"}
+
+
+class Escrito(NamedTuple):
+    texto: str
+    proveedor: str          # `claude` o `groq`
+    modelo: str             # el identificador del modelo que respondió, según el proveedor
+
+
+def propuesto_por(escrito: Escrito | None, sin_modelo: str) -> dict:
+    """Quién escribió un calce o una interpretación (D-42): el modelo, o `sin_modelo` (la regla, la plantilla o el equipo)."""
+    if escrito is None:
+        return {"tipo": sin_modelo, "proveedor": None, "modelo": None}
+    return {"tipo": "modelo", "proveedor": NOMBRE_DEL_PROVEEDOR[escrito.proveedor], "modelo": escrito.modelo}
 
 
 def proveedor() -> str:
@@ -35,7 +52,7 @@ def _cliente() -> anthropic.Anthropic:
     return anthropic.Anthropic(timeout=TOPE_S, max_retries=1)
 
 
-def _pedir_claude(sistema: str, usuario: str, esquema: dict | None) -> str | None:
+def _pedir_claude(sistema: str, usuario: str, esquema: dict | None) -> tuple[str | None, str] | None:
     config: dict = {"effort": "low"}
     if esquema:
         config["format"] = {"type": "json_schema", "schema": esquema}
@@ -53,7 +70,7 @@ def _pedir_claude(sistema: str, usuario: str, esquema: dict | None) -> str | Non
         return None
     if respuesta.stop_reason != "end_turn":
         return None
-    return next((b.text for b in respuesta.content if b.type == "text"), None)
+    return next((b.text for b in respuesta.content if b.type == "text"), None), respuesta.model
 
 
 def _sin_listas_largas(esquema):
@@ -63,8 +80,8 @@ def _sin_listas_largas(esquema):
     return [_sin_listas_largas(v) for v in esquema] if isinstance(esquema, list) else esquema
 
 
-def _pedir_groq(sistema: str, usuario: str, esquema: dict | None) -> str | None:
-    """Solo pruebas locales: en Render y en el demo responde Claude. API compatible con la de OpenAI, sin SDK."""
+def _pedir_groq(sistema: str, usuario: str, esquema: dict | None) -> tuple[str | None, str] | None:
+    """Groq, el proveedor de la API pública (D-41). API compatible con la de OpenAI, sin SDK."""
     if esquema:
         sistema += "\n\nResponde solo con un objeto JSON que cumpla este esquema:\n" + json.dumps(
             _sin_listas_largas(esquema), ensure_ascii=False, separators=(",", ":"))
@@ -79,15 +96,18 @@ def _pedir_groq(sistema: str, usuario: str, esquema: dict | None) -> str | None:
         r = httpx.post("https://api.groq.com/openai/v1/chat/completions", json=cuerpo, timeout=TOPE_S,
                        headers={"Authorization": f"Bearer {os.environ['GROQ_API_KEY']}"})
         r.raise_for_status()
-        return r.json()["choices"][0]["message"]["content"]
+        cuerpo_r = r.json()
+        return cuerpo_r["choices"][0]["message"]["content"], cuerpo_r.get("model") or cuerpo["model"]
     except (httpx.HTTPError, KeyError, IndexError, ValueError):
         return None
 
 
-def pedir(sistema: str, usuario: str, esquema: dict | None = None) -> tuple[str, str] | None:
-    """El texto que escribe el modelo y quién lo escribió, o `None` si no hay modelo que responda."""
+def pedir(sistema: str, usuario: str, esquema: dict | None = None) -> Escrito | None:
+    """El texto que escribe el modelo, con el proveedor y el modelo que lo escribieron, o `None` si no hay modelo que responda."""
     if not disponible():
         return None
     quien = proveedor()
-    texto = (_pedir_groq if quien == "groq" else _pedir_claude)(sistema, usuario, esquema)
-    return (texto.strip(), quien) if texto and texto.strip() else None
+    respuesta = (_pedir_groq if quien == "groq" else _pedir_claude)(sistema, usuario, esquema)
+    if respuesta is None or not (respuesta[0] or "").strip():
+        return None
+    return Escrito(respuesta[0].strip(), quien, respuesta[1])

@@ -13,11 +13,13 @@
 # geomecánica; no la reemplaza.
 nombre: taludes
 tarjeta:
-  titulo: "¿Es ruido o el muro va a ceder?"
-  empresa_o_industria: "Taludes y relaves · radar"
+  titulo: "¿La pared aguanta el turno?"
+  quien: "Ingeniero geotécnico"
+  archivo: "Lo que midió el radar: cuánto se movió cada sector de la pared, lectura por lectura."
+  empresa_o_industria: "La pared · el radar"
   sponsor: null
   oculto: false
-pregunta: "Con lo que el radar midió en las últimas 48 horas: ¿qué sectores del muro conviene cerrar, cuáles pueden seguir abiertos y en cuáles no se sabe? ¿Cuánto falta?"
+pregunta: "Con lo que el radar midió en las últimas 48 horas: ¿qué sectores de la pared conviene cerrar, cuáles pueden seguir abiertos y en cuáles no se sabe? ¿Cuánto falta?"
 motor: deformacion
 unidad: { singular: sector, plural: sectores }
 rotulos:
@@ -37,7 +39,7 @@ columnas:
   eje_valor: "Milímetros que se ha movido"
   extra: []
   elegidas_por: equipo
-etiquetas: { fraccion_acelerando: "Cuánta parte del muro se está acelerando", falta_para_ceder: "Cuánto les falta, en general, a los sectores que se aceleran", ruido: "Error de cada lectura del radar, comparado con el movimiento de fondo" }
+etiquetas: { fraccion_acelerando: "Cuánta parte de la pared se está acelerando", falta_para_ceder: "Cuánto les falta, en general, a los sectores que se aceleran", ruido: "Error de cada lectura del radar, comparado con el movimiento de fondo" }
 costos:
   falso_si: { valor: 120000, min: 20000, max: 500000, etiqueta: "Costo de cerrar un sector que estaba estable (un turno sin producir ahí)", tipo: hipótesis, cifra: K-31 }
   falso_no: { valor: 2500000, min: 500000, max: 10000000, etiqueta: "Costo de un derrumbe con el sector abierto (equipos y producción)", tipo: hipótesis, cifra: K-32 }
@@ -45,5 +47,5 @@ moneda: USD
 dataset: datos/demo/taludes.csv
 verdad: datos/demo/taludes_verdad.csv        # columnas: unidad, acelerando, horas_hasta_ceder, cede_en_el_horizonte
 verdad_columna: cede_en_el_horizonte
-origen_datos: "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina."
+origen_datos: "Pared simulada: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna minera."
 sintetico: true

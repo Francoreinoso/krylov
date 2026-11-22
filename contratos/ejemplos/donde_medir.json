@@ -45,6 +45,68 @@
    }
   }
  ],
+ "lugares": [
+  {
+   "x": 180186,
+   "y": 331408,
+   "valor_de_medir": 41200
+  },
+  {
+   "x": 179576,
+   "y": 330920,
+   "valor_de_medir": 22900
+  },
+  {
+   "x": 181162,
+   "y": 332628,
+   "valor_de_medir": 9100
+  },
+  {
+   "x": 180590,
+   "y": 330963,
+   "valor_de_medir": 7280
+  },
+  {
+   "x": 180012,
+   "y": 331301,
+   "valor_de_medir": 5824
+  },
+  {
+   "x": 180744,
+   "y": 332076,
+   "valor_de_medir": 4659
+  },
+  {
+   "x": 180991,
+   "y": 331068,
+   "valor_de_medir": 3727
+  },
+  {
+   "x": 180245,
+   "y": 330971,
+   "valor_de_medir": 2982
+  },
+  {
+   "x": 179923,
+   "y": 331783,
+   "valor_de_medir": 2386
+  },
+  {
+   "x": 179618,
+   "y": 331260,
+   "valor_de_medir": 1909
+  },
+  {
+   "x": 180607,
+   "y": 331851,
+   "valor_de_medir": 1527
+  },
+  {
+   "x": 179926,
+   "y": 331926,
+   "valor_de_medir": 1222
+  }
+ ],
  "mensaje_parada": null,
  "analisis_rehechos": 480,
  "tiempo_ms": 900,

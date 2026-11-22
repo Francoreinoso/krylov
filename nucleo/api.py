@@ -24,6 +24,7 @@ import importlib
 import io
 import json
 import os
+import re
 import time
 
 from nucleo import casos as _casos, decision, tabla as lector, textos
@@ -68,9 +69,10 @@ def casos() -> dict:
             continue
         tarjetas.append({
             "nombre": caso["nombre"], "titulo": caso["tarjeta"]["titulo"],
-            "empresa_o_industria": caso["tarjeta"]["empresa_o_industria"], "sponsor": caso["tarjeta"].get("sponsor"),
+            "empresa_o_industria": caso["tarjeta"]["empresa_o_industria"],
+            "quien": caso["tarjeta"].get("quien"), "archivo": caso["tarjeta"].get("archivo"),     # quién decide y qué archivo sube (D-42)
             "motor": caso["motor"], "sintetico": bool(caso.get("sintetico", False)),
-            "origen_datos": caso["origen_datos"], "tiene_cartera": "cartera" in caso,
+            "origen_datos": caso["origen_datos"],
         })
     return {"casos": tarjetas}
 
@@ -80,46 +82,10 @@ def analizar(caso: str, transformaciones: list[str] = (), costos: dict | None = 
     """La respuesta completa de un caso: decisión por unidad (o por bloque), qué pesa, examen y semáforo."""
     inicio = time.perf_counter()
     c = cargar_caso(caso)
-    motor_id = c["motor"]
     numeros = costos_numericos(c, costos)
-    argumentos = {"mediciones": list(mediciones)} if motor_id == "espacial" else {}
-    propio = _motor(motor_id, "analizar")(c, list(transformaciones), numeros, **argumentos)
-
-    impl = propio.get("implementacion", implementacion(motor_id))
-    respuesta = {
-        "caso": caso, "motor_id": motor_id, "implementacion": impl, "precalculado": impl == "mcmc",
-        "titular": None, "costo_de_no_saber": None,
-        "costos": bloque_costos(c, numeros),
-        "punto_de_corte": round(decision.punto_de_corte(numeros["falso_si"], numeros["falso_no"]), 3),
-        "unidades": None, "resumen_colores": None, "factores": None, "columnas": None,
-        "semaforo": {"estado": "verde", "motivo": "", "propuesta": None}, "examen": None,
-        "sello_resumen": {"frase": "", "medido": False}, "en_palabras": [],
-        "rotulos": c["rotulos"], "unidad": c["unidad"], "registro": [],
-        "sintetico": bool(c.get("sintetico", False)), "origen_datos": c["origen_datos"],
-    }
-    respuesta.update(propio)
-
-    total = None
-    if not respuesta["semaforo"]["estado"].startswith("rojo"):
-        total = propio.get("costo_total")
-        if total is None and respuesta["unidades"] is not None:
-            total = sum(u["duda"] for u in respuesta["unidades"])
-        if respuesta["resumen_colores"] is None and respuesta["unidades"] is not None:
-            respuesta["resumen_colores"] = decision.resumen_colores([u["estado"] for u in respuesta["unidades"]])
-        if total is not None:
-            respuesta["costo_de_no_saber"] = {"valor": round(total), "moneda": c["moneda"]}
-    # Los textos salen de las plantillas de casos/textos.yaml, llenadas con estos números. Lo que el motor ya trajo, se respeta.
-    if respuesta["titular"] is None:
-        respuesta["titular"] = textos.titular(c, respuesta["semaforo"], respuesta["resumen_colores"], total)
-    if not respuesta["en_palabras"]:
-        respuesta["en_palabras"] = textos.en_palabras(c, respuesta["resumen_colores"], respuesta["factores"])
-    if respuesta["examen"] and not respuesta["examen"].get("frase"):
-        respuesta["examen"]["frase"] = textos.examen(c, respuesta["examen"]) or ""
-    if not respuesta["sello_resumen"]["frase"]:
-        respuesta["sello_resumen"] = _sello_resumen(motor_id, impl)
-    respuesta.pop("costo_total", None)
-    respuesta["tiempo_ms"] = round((time.perf_counter() - inicio) * 1000)
-    return respuesta
+    argumentos = {"mediciones": list(mediciones)} if c["motor"] == "espacial" else {}
+    propio = _motor(c["motor"], "analizar")(c, list(transformaciones), numeros, **argumentos)
+    return _respuesta(c, caso, numeros, propio, inicio)
 
 
 @_con_errores
@@ -127,7 +93,7 @@ def donde_medir(caso: str, mediciones: list[dict] = ()) -> dict:
     """Solo casos espaciales: los tres lugares donde una medición más vale más plata."""
     c = cargar_caso(caso)
     if c["motor"] != "espacial":
-        raise ErrorKrylov("«¿Dónde mido?» solo existe para casos con mapa.", "sin_mapa")
+        raise ErrorKrylov("«¿Dónde perforo?» solo existe en la decisión con mapa.", "sin_mapa")
     return _motor("espacial", "donde_medir")(c, costos_numericos(c, None), list(mediciones))
 
 
@@ -196,7 +162,7 @@ def _rangos(motor_id: str) -> dict | None:
     if "n_min" not in prior:
         return None
     return {"muestras": {"minimo": prior["n_min"], "maximo": prior["n_max"]},
-            "frase": f"Practiqué con terrenos de {prior['n_min']} a {prior['n_max']} muestras."}
+            "frase": f"Practiqué con bancos de {prior['n_min']} a {prior['n_max']} muestras."}
 
 
 @_con_errores
@@ -211,30 +177,88 @@ def _celda(valor) -> str:
     return "" if valor is None or (isinstance(valor, float) and valor != valor) else str(valor)
 
 
-def _columnas_de_texto(tabla) -> dict[str, list[str]]:
-    """La tabla subida como columnas de texto. Acepta el CSV (bytes o texto), un diccionario columna → valores o un DataFrame."""
-    if isinstance(tabla, (bytes, bytearray)):
+_SEPARADORES = (",", ";", "\t")
+_NUMERO_CON_COMA = re.compile(r"[-+]?(\d+|\d{1,3}(\.\d{3})+)(,\d+)?")      # 0,85 · 1.234,5 · 12: como lo escribe Excel en español
+_NO_ES_CSV = ("Esto no parece un CSV: puede ser un Excel, una imagen o un PDF. En Excel, «Guardar como» y elige "
+              "«CSV (delimitado por comas)», y sube ese archivo.")
+
+
+def _texto_del_archivo(contenido: bytes) -> str:
+    """Los bytes de un CSV como texto: UTF-8 (con o sin BOM), UTF-16 (el «texto Unicode» de Excel) o Windows-1252/latin-1."""
+    if contenido[:4] == b"PK\x03\x04":                         # un .xlsx es un zip
+        raise ArchivoNoCalza(_NO_ES_CSV)
+    if contenido[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return contenido.decode("utf-16")
+    for codificacion in ("utf-8-sig", "cp1252"):
         try:
-            tabla = bytes(tabla).decode("utf-8-sig")
+            return contenido.decode(codificacion)
         except UnicodeDecodeError:
-            tabla = bytes(tabla).decode("latin-1")
+            pass
+    return contenido.decode("latin-1")                          # nunca falla: cada byte es una letra
+
+
+def _decimales_con_punto(columnas: dict[str, list[str]]) -> dict[str, list[str]]:
+    """Las columnas escritas con coma decimal (y punto de miles), pasadas a punto decimal. Solo si toda la columna se lee así."""
+    for nombre, valores in columnas.items():
+        llenos = [v.strip() for v in valores if v.strip()]
+        if any("," in v for v in llenos) and all(_NUMERO_CON_COMA.fullmatch(v) for v in llenos):
+            columnas[nombre] = [v.strip().replace(".", "").replace(",", ".") for v in valores]
+    return columnas
+
+
+def _leer_csv(texto: str) -> dict[str, list[str]]:
+    """Un CSV en texto a columnas. El separador (coma, punto y coma o tabulación) sale de la primera fila."""
+    texto = texto.lstrip("\ufeff").replace("\x00", "")
+    if not texto.strip():
+        raise ArchivoNoCalza("El archivo está vacío: sube un CSV con una fila de encabezados y tus datos debajo.")
+    if sum(not (c.isprintable() or c in "\t\r\n") for c in texto[:4096]) > 0.01 * min(len(texto), 4096):
+        raise ArchivoNoCalza(_NO_ES_CSV)
+    primera = texto.split("\n", 1)[0]
+    separador = max(_SEPARADORES, key=primera.count)
+    filas = []
+    try:
+        for n, fila in enumerate(csv.reader(io.StringIO(texto), delimiter=separador), start=1):
+            if any(celda.strip() for celda in fila):
+                filas.append((n, fila))
+    except csv.Error:
+        raise ArchivoNoCalza("El archivo no se lee como una tabla: revisa que las comillas estén cerradas.") from None
+    encabezado = [nombre.strip() for nombre in filas[0][1]]
+    while encabezado and not encabezado[-1]:                      # Excel deja separadores sobrantes al final de la fila
+        encabezado.pop()
+    if "" in encabezado:
+        raise ArchivoNoCalza(f"La columna {encabezado.index('') + 1} no tiene nombre en el encabezado: ponle uno.")
+    repetida = next((nombre for nombre in encabezado if encabezado.count(nombre) > 1), None)
+    if repetida:
+        raise ArchivoNoCalza(f"La columna «{repetida}» aparece dos veces en el encabezado: cambia uno de los nombres.")
+    if len(filas) == 1:
+        raise ArchivoNoCalza("El archivo trae solo la fila de encabezados, sin datos: agrega tus mediciones debajo.")
+    ancho = len(encabezado)
+    for n, fila in filas[1:]:
+        if len(fila) < ancho or any(celda.strip() for celda in fila[ancho:]):
+            nombre_sep = {",": "coma", ";": "punto y coma", "\t": "tabulación"}[separador]
+            raise ArchivoNoCalza(f"La fila {n} tiene {len(fila)} valores y el encabezado {ancho} columnas: revisa que todas las filas "
+                                 f"usen el mismo separador ({nombre_sep}) y que ningún texto lo lleve adentro sin comillas.")
+    return _decimales_con_punto({nombre: [fila[j] for _, fila in filas[1:]] for j, nombre in enumerate(encabezado)})
+
+
+def leer_tabla(tabla) -> dict[str, list[str]]:
+    """La tabla subida como columnas de texto. Acepta el CSV (bytes o texto), un diccionario columna → valores o un DataFrame.
+
+    Lo que no se puede leer lanza `ArchivoNoCalza` con una frase que dice qué pasó y qué hacer. La usan `analizar_archivo`
+    y el calce de `servicio/`, así los dos leen el archivo igual."""
+    if isinstance(tabla, (bytes, bytearray)):
+        tabla = _texto_del_archivo(bytes(tabla))
     if isinstance(tabla, str):
-        primera = tabla.lstrip("\ufeff").split("\n", 1)[0]
-        filas = list(csv.reader(io.StringIO(tabla.lstrip("\ufeff")), delimiter=";" if primera.count(";") > primera.count(",") else ","))
-        filas = [fila for fila in filas if any(celda.strip() for celda in fila)]
-        encabezado = [nombre.strip() for nombre in filas[0]] if filas else []
-        if any(len(fila) != len(encabezado) for fila in filas):
-            raise ArchivoNoCalza("El archivo no se lee como una tabla: hay filas con otra cantidad de celdas que el encabezado.")
-        columnas = {nombre: [fila[j] for fila in filas[1:]] for j, nombre in enumerate(encabezado)}
+        columnas = _leer_csv(tabla)
     elif hasattr(tabla, "keys"):
         columnas = {str(nombre): [_celda(v) for v in tabla[nombre]] for nombre in tabla.keys()}
     else:
-        raise ArchivoNoCalza("El archivo no se lee como una tabla.")
+        raise ArchivoNoCalza("El archivo no se lee como una tabla: súbelo como CSV, con una fila de encabezados.")
     largos = {len(valores) for valores in columnas.values()}
     if len(largos) > 1:
-        raise ArchivoNoCalza("El archivo no se lee como una tabla: las columnas no tienen el mismo largo.")
+        raise ArchivoNoCalza("El archivo no se lee como una tabla: las columnas no tienen el mismo largo. Revisa que cada fila traiga un valor por columna.")
     if not columnas or largos == {0}:
-        raise ArchivoNoCalza("El archivo no tiene filas.")
+        raise ArchivoNoCalza("El archivo no tiene filas de datos: agrega tus mediciones bajo los encabezados.")
     return columnas
 
 
@@ -267,10 +291,10 @@ def _calzar(motor_id: str, base: dict, tabla: dict[str, list[str]], columnas: di
         nombres = [] if pedido is None else [pedido] if isinstance(pedido, str) else [n or None for n in pedido]
         presentes = [n for n in nombres if n]
         if not presentes and p["minimo"] > 0:
-            raise ArchivoNoCalza(f"Falta el papel «{p['papel']}»: {textos.minuscula_inicial(p['texto'])}.")
+            raise ArchivoNoCalza(f"Falta la columna de «{p['papel']}» ({textos.minuscula_inicial(p['texto'])}): elige cuál de tus columnas lo trae.")
         if len(presentes) < p["minimo"] or len(nombres) > p["maximo"]:
             cuantas = f"exactamente {p['maximo']}" if p["minimo"] == p["maximo"] else f"entre {p['minimo']} y {p['maximo']}"
-            raise ArchivoNoCalza(f"El papel «{p['papel']}» tiene {len(presentes)} columnas y la red practicó con {cuantas}.", "rojo_modelo")
+            raise ArchivoNoCalza(f"El papel «{p['papel']}» tiene {len(presentes)} columnas y la red practicó con {cuantas}: deja {cuantas} en ese papel.", "rojo_modelo")
         for nombre in presentes:
             lector.columna(tabla, nombre)
         nombre_t = (transformacion or {}).get("nombre")
@@ -278,13 +302,14 @@ def _calzar(motor_id: str, base: dict, tabla: dict[str, list[str]], columnas: di
             col["transformacion"] = None if nombre_t in _SIN_TRANSFORMAR else nombre_t
         elif nombre_t not in _SIN_TRANSFORMAR:
             if nombre_t not in conocidas:
-                raise ArchivoNoCalza(f"La transformación «{nombre_t}» no está entre las que Krylov sabe aplicar.")
+                raise ArchivoNoCalza(f"La transformación «{nombre_t}» no está entre las que Krylov sabe aplicar: elige otra o ninguna.")
             parametros = {k: v for k, v in transformacion.items() if k != "nombre"}
             for nombre in presentes:
                 try:
                     tabla[nombre] = [_celda(v) for v in conocidas[nombre_t](tabla[nombre], tabla, **parametros)]
                 except (ValueError, TypeError, KeyError, ZeroDivisionError, OverflowError):
-                    raise ArchivoNoCalza(f"No se pudo aplicar «{nombre_t}» a la columna «{nombre}»: revisa sus valores y los parámetros.") from None
+                    motivo = lector.no_es_numero(nombre, tabla[nombre]) if nombre_t in ("dividir", "log") else None
+                    raise ArchivoNoCalza(motivo or f"No se pudo aplicar «{nombre_t}» a la columna «{nombre}»: revisa sus valores y los parámetros.") from None
         if presentes:
             col[p["papel"]] = presentes[0] if p["maximo"] == 1 else nombres
     extra = [n for n in columnas.get("extra") or [] if n]
@@ -316,8 +341,13 @@ def _con_la_nube(motor_id: str, c: dict, propio: dict) -> dict:
             "semaforo": {"estado": "rojo_modelo", "motivo": motivo, "propuesta": None}}
 
 
+_ESCENA = ("umbral", "horizonte", "tiempo_final", "magnitud_minima", "unidad_tiempo", "unidad_valor", "eje_tiempo", "eje_valor")
+
+
 def _respuesta(c: dict, nombre: str, numeros: dict, propio: dict, inicio: float) -> dict:
-    """Lo común de una respuesta sobre lo propio del motor: el mismo armado que hace `analizar`, para un caso en memoria."""
+    """Lo común de una respuesta sobre lo propio del motor: costos, punto de corte, total, titular, rótulos y textos.
+
+    La usan `analizar` (un caso del demo) y `analizar_archivo` (un caso en memoria con el archivo subido)."""
     motor_id = c["motor"]
     impl = propio.get("implementacion", implementacion(motor_id))
     respuesta = {
@@ -329,7 +359,9 @@ def _respuesta(c: dict, nombre: str, numeros: dict, propio: dict, inicio: float)
         "semaforo": {"estado": "verde", "motivo": "", "propuesta": None}, "examen": None,
         "sello_resumen": {"frase": "", "medido": False}, "en_palabras": [],
         "rotulos": c["rotulos"], "unidad": c["unidad"], "registro": [],
-        "sintetico": False, "origen_datos": "Archivo subido por el usuario.",
+        "sintetico": bool(c.get("sintetico", False)), "origen_datos": c["origen_datos"],
+        # Lo que dibuja la escena del caso (D-42): el límite, el horizonte y los nombres de los ejes, del YAML o del calce.
+        "escena": {k: c["columnas"][k] for k in _ESCENA if c["columnas"].get(k) is not None},
     }
     respuesta.update(propio)
     total = None
@@ -341,6 +373,7 @@ def _respuesta(c: dict, nombre: str, numeros: dict, propio: dict, inicio: float)
             respuesta["resumen_colores"] = decision.resumen_colores([u["estado"] for u in respuesta["unidades"]])
         if total is not None:
             respuesta["costo_de_no_saber"] = {"valor": round(total), "moneda": c["moneda"]}
+    # Los textos salen de las plantillas de casos/textos.yaml, llenadas con estos números. Lo que el motor ya trajo, se respeta.
     if respuesta["titular"] is None:
         respuesta["titular"] = textos.titular(c, respuesta["semaforo"], respuesta["resumen_colores"], total)
     if not respuesta["en_palabras"]:
@@ -352,6 +385,20 @@ def _respuesta(c: dict, nombre: str, numeros: dict, propio: dict, inicio: float)
     respuesta.pop("costo_total", None)
     respuesta["tiempo_ms"] = round((time.perf_counter() - inicio) * 1000)
     return respuesta
+
+
+_OTRA_ESCALA = ("Los números del archivo no se parecen a nada con que practicó el modelo: alguna columna parece venir en otra "
+                "escala o en otra unidad. Revisa la unidad de cada columna que asignaste (por ejemplo, minutos en vez de horas, "
+                "o un porcentaje en vez de una fracción), agrégale la transformación que la lleva a la que pide el papel y "
+                "vuelve a intentar.")
+
+
+def _todo_finito(respuesta: dict) -> bool:
+    try:
+        json.dumps(respuesta, allow_nan=False)
+    except ValueError:
+        return False
+    return True
 
 
 def analizar_archivo(motor_id: str, tabla, columnas: dict, costos: dict | None = None, mediciones: list[dict] = ()) -> dict:
@@ -372,19 +419,22 @@ def analizar_archivo(motor_id: str, tabla, columnas: dict, costos: dict | None =
     impl = implementacion(motor_id)
     c = {clave: valor for clave, valor in base.items() if clave not in _AJENO_AL_ARCHIVO}
     c["nombre"] = f"{base['nombre']}__archivo"                   # otra clave: nunca se sirve el MCMC precalculado del archivo del demo
+    c["sintetico"], c["origen_datos"] = False, "Archivo subido por el usuario."
     try:
-        c["tabla"], c["columnas"] = _calzar(motor_id, base, _columnas_de_texto(tabla), columnas or {})
+        c["tabla"], c["columnas"] = _calzar(motor_id, base, leer_tabla(tabla), columnas or {})
         argumentos = {"mediciones": list(mediciones)} if motor_id == "espacial" else {}
         propio = _con_la_nube(motor_id, c, _motor(motor_id, "analizar")(c, [], numeros, **argumentos))
     except ArchivoNoCalza as error:
         propio = {"implementacion": impl, **lector.rojo(c, error)}
     except ErrorKrylov as e:
         if impl != "red" and e.codigo == "no_disponible":
-            return ErrorKrylov("Este modelo todavía no responde archivos propios: su red no está validada.", "no_disponible").a_dict()
+            return ErrorKrylov("Este modelo todavía no responde archivos propios: su red no está validada. Prueba con otra decisión.", "no_disponible").a_dict()
         return e.a_dict()
     except Exception as error:                                   # noqa: BLE001 — contrato: un archivo subido nunca lanza un error al usuario
-        propio = {"implementacion": impl, **lector.rojo(c, ArchivoNoCalza("No se pudo leer el archivo con estas columnas.")),
+        propio = {"implementacion": impl, **lector.rojo(c, ArchivoNoCalza("No se pudo leer el archivo con estas columnas: revisa qué columna asignaste a cada papel.")),
                   "registro": [f"error al leer: {type(error).__name__}"]}
+    if not _todo_finito(propio):                                 # una columna en otra escala saca a la red de lo que conoce y deja NaN
+        propio = {"implementacion": impl, **lector.rojo(c, ArchivoNoCalza(_OTRA_ESCALA, "rojo_modelo"))}
     if motor_id == "espacial":
         propio.setdefault("mapa", None)                          # en rojo el terreno no trae mapa, y la clave existe igual
     return _respuesta(c, base["nombre"], numeros, propio, inicio)

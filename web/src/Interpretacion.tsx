@@ -30,8 +30,8 @@ function conCostosNuevos(a: Analisis, d: Recalculo): Analisis {
 
 function rotulo(t: Texto): string {
   const quien =
-    t.origen === 'plantilla' ? 'Texto de plantilla' : t.proveedor === 'claude' ? 'Escrito por Claude a partir de estos números' : 'Escrito por un modelo de prueba'
-  return t.precalculado ? `${quien} · precalculado` : quien
+    t.origen === 'plantilla' ? 'Texto de plantilla, armado con los números de Krylov' : `Lo escribió un modelo de lenguaje${t.proveedor ? ` (${t.proveedor === 'claude' ? 'Claude' : 'Groq'})` : ''} con los números de Krylov, y cada número se revisó contra la respuesta`
+  return t.precalculado ? `${quien} · guardado con el demo` : quien
 }
 
 export default function Interpretacion({ analisis, clave, d }: { analisis: Analisis; clave: string | null; d: Recalculo }) {

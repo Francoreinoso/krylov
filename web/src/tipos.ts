@@ -8,11 +8,11 @@ export interface Caso {
   nombre: string
   titulo: string
   empresa_o_industria: string
-  sponsor: string | null
   motor: string
   sintetico: boolean
   origen_datos: string
-  tiene_cartera: boolean
+  quien?: string | null // quién toma esta decisión en la minera (casos/<caso>.yaml, tarjeta.quien)
+  archivo?: string | null // qué archivo se sube para responderla (tarjeta.archivo)
 }
 
 export interface Casos {
@@ -36,6 +36,28 @@ export interface Unidad {
   estado: Estado
   duda: number
   curva?: Curva | null
+  // D-42, opcionales: la API anterior no los trae y entonces la app dibuja el respaldo, no la escena del deck.
+  posteriori?: Posteriori // lo que se decide en esa unidad: la distribución entera, en 64 cuantiles
+  serie?: [number, number][] // lo que se leyó de esa unidad, tal cual: [tiempo, valor]
+}
+
+export interface Posteriori {
+  bajo: number
+  medio: number
+  alto: number
+  muestras: number
+  cuantiles: number[]
+}
+
+// D-42: lo del caso que dibuja su escena (casos/<caso>.yaml, columnas).
+export interface EscenaDelCaso {
+  umbral?: number
+  horizonte?: number
+  tiempo_final?: number
+  unidad_tiempo?: string
+  unidad_valor?: string
+  eje_tiempo?: string
+  eje_valor?: string
 }
 
 // D-37: lo medido de una unidad y lo que Krylov cree que viene (CONTRATO.md, sección 6).
@@ -84,6 +106,8 @@ export interface Mapa {
   lado: number
   p: (number | null)[]
   media: (number | null)[]
+  bajo?: (number | null)[] // D-42: los extremos del intervalo de 90% de cada bloque
+  alto?: (number | null)[]
   puntos: Medicion[]
   umbral: number
   unidad_valor: string
@@ -118,6 +142,7 @@ export interface Analisis {
   resumen_colores: Record<Estado, number> | null
   factores: Factor[] | null
   mapa?: Mapa
+  escena?: EscenaDelCaso
   examen: Examen | null
   semaforo: {
     estado: Semaforo
@@ -126,6 +151,7 @@ export interface Analisis {
   }
   sello_resumen: { frase: string; medido: boolean }
   rotulos: Record<Estado | 'costo_de_no_saber', string> & { donde_medir?: string }
+  unidad: { singular: string; plural: string }
   en_palabras: string[]
   registro: string[]
   tiempo_ms: number
@@ -148,6 +174,7 @@ export interface Candidata {
 export interface DondeMedir {
   caso: string
   candidatas: Candidata[]
+  lugares?: { x: number; y: number; valor_de_medir: number }[] // D-42: todos los lugares que se probaron
   analisis_rehechos?: number
   tiempo_ms?: number
   precalculado?: boolean // se sirve desde el estático: tarda más de 2 s en vivo
@@ -192,17 +219,25 @@ export interface Calce {
   columnas: string[]
   no_usadas: string[]
   origen: 'equipo' | 'modelo' | 'regla'
-  proveedor?: Proveedor | null // quién escribió la propuesta, cuando la hizo un modelo de lenguaje
+  proveedor?: Proveedor | null // quién escribió la propuesta, cuando la hizo un modelo de lenguaje (API anterior)
+  propuesto_por?: PropuestoPor | null // D-42: quién la propuso, dicho por la API
   precalculado: boolean
 }
 
-// `groq` es solo para pruebas locales; en el demo y en Render escribe Claude.
+// D-41: en Render escribe Groq; en local puede escribir cualquiera de los dos.
 export type Proveedor = 'claude' | 'groq'
+
+export interface PropuestoPor {
+  tipo: 'modelo' | 'regla' | 'plantilla' | 'equipo'
+  proveedor?: string | null
+  modelo?: string | null
+}
 
 // D-34: el texto corto que acompaña a una respuesta. Sus números salen del JSON del motor.
 export interface Interpretacion {
   texto: string
   origen: 'modelo' | 'plantilla'
   proveedor: Proveedor | null
+  propuesto_por?: PropuestoPor | null // D-42: quién la escribió, dicho por la API
   precalculado: boolean
 }

@@ -5,51 +5,51 @@
    "nombre": "leyes",
    "titulo": "¿Este bloque va a la planta o se aparta?",
    "empresa_o_industria": "Leyes y arsénico · rajo abierto",
-   "sponsor": null,
+   "quien": null,
+   "archivo": null,
    "motor": "espacial",
    "sintetico": true,
-   "origen_datos": "Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina.",
-   "tiene_cartera": false
+   "origen_datos": "Banco de tronadura simulado: 340 pozos con arsénico y cobre. No son datos de ninguna mina."
   },
   {
    "nombre": "taludes",
    "titulo": "¿Es ruido o el muro va a ceder?",
    "empresa_o_industria": "Taludes y relaves · radar",
-   "sponsor": null,
+   "quien": null,
+   "archivo": null,
    "motor": "deformacion",
    "sintetico": true,
-   "origen_datos": "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina.",
-   "tiene_cartera": false
+   "origen_datos": "Muro simulado: 36 sectores medidos cada 30 minutos durante 48 horas. No son datos de ninguna mina."
   },
   {
    "nombre": "flotacion",
    "titulo": "¿Se me está yendo cobre al relave?",
    "empresa_o_industria": "Flotación · planta",
-   "sponsor": null,
+   "quien": null,
+   "archivo": null,
    "motor": "cinetica",
    "sintetico": true,
-   "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina.",
-   "tiene_cartera": false
+   "origen_datos": "Planta simulada: 8 líneas de flotación medidas en sus primeras celdas. No son datos de ninguna mina."
   },
   {
    "nombre": "flota",
    "titulo": "¿Qué camión paro antes de que falle?",
    "empresa_o_industria": "Flota de camiones · mantención",
-   "sponsor": null,
+   "quien": null,
+   "archivo": null,
    "motor": "desgaste",
    "sintetico": true,
-   "origen_datos": "Flota simulada: 40 camiones con sus muestras de aceite. No son datos de ninguna mina.",
-   "tiene_cartera": false
+   "origen_datos": "Flota simulada: 40 camiones con sus muestras de aceite. No son datos de ninguna mina."
   },
   {
    "nombre": "sismicidad",
    "titulo": "¿Puede volver a entrar la gente?",
    "empresa_o_industria": "Sismicidad · mina subterránea",
-   "sponsor": null,
+   "quien": null,
+   "archivo": null,
    "motor": "sismico",
    "sintetico": true,
-   "origen_datos": "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina.",
-   "tiene_cartera": false
+   "origen_datos": "Mina subterránea simulada: 8 sectores y los temblores de las 6 horas que siguen a una tronadura. No son datos de ninguna mina."
   }
  ]
 }

@@ -198,7 +198,7 @@ def analizar(nombre):
 
 escribir("casos.json", {"casos": [
     {"nombre": c["nombre"], "titulo": c["tarjeta"]["titulo"], "empresa_o_industria": c["tarjeta"]["empresa_o_industria"],
-     "sponsor": None, "motor": c["motor"], "sintetico": bool(c.get("sintetico")), "origen_datos": c["origen_datos"], "tiene_cartera": False}
+     "quien": c["tarjeta"].get("quien"), "archivo": c["tarjeta"].get("archivo"), "motor": c["motor"], "sintetico": bool(c.get("sintetico")), "origen_datos": c["origen_datos"]}
     for c in map(caso, ORDEN)]})
 for nombre in ORDEN[1:]:
     respuesta = analizar(nombre)

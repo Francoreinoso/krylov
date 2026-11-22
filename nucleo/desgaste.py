@@ -32,6 +32,7 @@ DISENO = {
     "miles_de_horas_a_mantencion": (0.05, 1.0),   # lo que falta para su próxima mantención, uniforme
 }
 EN_SERVICIO_BAJO = 0.92                 # un camión del archivo todavía no falla: su desgaste de hoy está bajo este valor
+OTRA_ESCALA = 2.0                       # un desgaste medido sobre 2 veces el límite no es de un camión en servicio: viene en otra escala
 HORAS_POR_UNIDAD = 1000.0               # el archivo trae horas; el modelo, miles de horas
 RANGOS = {"unidades": {"minimo": DISENO["unidades"][0], "maximo": DISENO["unidades"][1]},
           "lecturas_por_unidad": {"minimo": DISENO["lecturas"][0], "maximo": DISENO["lecturas"][1]},
@@ -115,6 +116,11 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         limite = float(col.get("umbral", 1.0))
         if limite <= 0:
             raise ArchivoNoCalza("El límite de desgaste del caso tiene que ser mayor que cero.", "rojo_modelo")
+        mayor = max(float(np.max(yi)) for yi in datos["y"])
+        if mayor > OTRA_ESCALA * limite:
+            raise ArchivoNoCalza(f"El desgaste medido llega a {mayor:.4g} y un camión falla al llegar a {limite:g}: la columna parece venir "
+                                 f"en otra escala. Al asignar las columnas, divídela por el valor con que falla un camión en tu medición "
+                                 f"(por ejemplo, las ppm de hierro en el aceite que marcan la falla).", "rojo_modelo")
         datos, aviso = series.revisar_tamano(caso, datos, DISENO, PRACTICA)
         hoy = np.array([t[-1] for t in datos["t"]]) / HORAS_POR_UNIDAD
         a_mantencion = datos["extras"]["horizonte_por_unidad"] / HORAS_POR_UNIDAD
@@ -123,12 +129,12 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         mil = lambda v: series.numero(int(round(v * HORAS_POR_UNIDAD)))     # noqa: E731
         if hoy.min() < 0.8 * h_min or hoy.max() > 1.1 * h_max:
             raise ArchivoNoCalza(f"Hay camiones con {mil(hoy.min())} a {mil(hoy.max())} horas de operación en su última muestra: "
-                                 f"practiqué con camiones de {mil(h_min)} a {mil(h_max)} horas.", "rojo_modelo")
+                                 f"practiqué con camiones de {mil(h_min)} a {mil(h_max)} horas. Revisa que el tiempo venga en horas.", "rojo_modelo")
         if a_mantencion.min() < 0.8 * m_min or a_mantencion.max() > 1.1 * m_max:
             raise ArchivoNoCalza(f"A los camiones les faltan de {mil(a_mantencion.min())} a {mil(a_mantencion.max())} horas para su mantención: "
-                                 f"practiqué con plazos de {mil(m_min)} a {mil(m_max)} horas.", "rojo_modelo")
+                                 f"practiqué con plazos de {mil(m_min)} a {mil(m_max)} horas. Revisa que ese plazo venga en horas.", "rojo_modelo")
         if not np.isfinite(exigencia).all() or np.abs(exigencia).max() > 5:
-            raise ArchivoNoCalza("La exigencia de la ruta tiene que venir estandarizada (0 = la ruta típica, casi todo entre −3 y 3).", "rojo_modelo")
+            raise ArchivoNoCalza("La exigencia de la ruta tiene que venir en una escala donde 0 es la ruta típica (casi todo entre −3 y 3): si no la tienes así, pon 0 en todas las filas.", "rojo_modelo")
     except ArchivoNoCalza as error:
         return series.lector.rojo(caso, error)
     t, mascara = series.con_relleno([ti / HORAS_POR_UNIDAD for ti in datos["t"]])
@@ -153,7 +159,8 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
     ids = datos["ids"]
     return {
         "implementacion": impl,
-        "unidades": series.unidades(ids, muestras_p, costos, curvas),
+        "unidades": series.unidades(ids, muestras_p, costos, curvas, list(muestras_p),     # el riesgo de fallar antes de la mantención
+                                   list(zip(datos["t"], datos["y"]))),
         "factores": series.factores(caso, globales),
         "columnas": {"usadas": [col["unidad"], col["tiempo"], col["valor"], *series.lector.nombres_del_papel(col, "covariables", 1),
                                 *series.lector.nombres_del_papel(col, "horizonte_por_unidad", 1)],

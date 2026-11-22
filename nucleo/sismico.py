@@ -37,8 +37,8 @@ DISENO = {
 RANGOS = {"unidades": {"minimo": DISENO["unidades"][0], "maximo": DISENO["unidades"][1]},
           "lecturas_por_unidad": {"minimo": 0, "maximo": MAX_SISMOS},
           "ventana_horas": {"minimo": DISENO["ventana_horas"][0], "maximo": DISENO["ventana_horas"][1]},
-          "frase": "Practiqué con minas de 2 a 16 sectores, observados de 2 a 24 horas después de la tronadura, con hasta 300 temblores por sector."}
-PRACTICA = f"practiqué con minas de {DISENO['unidades'][0]} a {DISENO['unidades'][1]} sectores"
+          "frase": "Practiqué con redes de túneles de 2 a 16 sectores, observados de 2 a 24 horas después de la explosión, con hasta 300 temblores por sector."}
+PRACTICA = f"practiqué con redes de túneles de {DISENO['unidades'][0]} a {DISENO['unidades'][1]} sectores"
 
 PRIOR = {
     "mu_mu_media": float(np.log(0.5)), "mu_mu_desv": 0.7, "sigma_mu_escala": 0.6,
@@ -55,12 +55,12 @@ LN10 = float(np.log(10.0))
 HORIZONTE_REF, MAGNITUD_REF = 6.0, 2.0      # para la cobertura de lo que se decide: 6 horas y 2 magnitudes sobre la mínima
 
 PAPELES = [
-    {"papel": "unidad", "cantidad": 1, "tipo": "texto", "texto": "El sector de la mina",
-     "texto_largo": "En qué sector de la mina se registró cada temblor."},
-    {"papel": "tiempo", "cantidad": 1, "tipo": "numero", "texto": "Horas desde la tronadura",
-     "texto_largo": "Cuántas horas después de la tronadura se registró el temblor."},
+    {"papel": "unidad", "cantidad": 1, "tipo": "texto", "texto": "El sector de los túneles",
+     "texto_largo": "En qué sector de los túneles se registró cada temblor."},
+    {"papel": "tiempo", "cantidad": 1, "tipo": "numero", "texto": "Horas desde la explosión",
+     "texto_largo": "Cuántas horas después de la explosión se registró el temblor."},
     {"papel": "valor", "cantidad": 1, "tipo": "numero", "texto": "Magnitud del temblor",
-     "texto_largo": "La magnitud del temblor, en la escala de los sensores de la mina."},
+     "texto_largo": "La magnitud del temblor, en la escala de los sensores sísmicos."},
 ]
 
 
@@ -144,21 +144,22 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
         ids = list(datos["ids"])
         u_min, u_max = DISENO["unidades"]
         if len(ids) < u_min:
-            raise ArchivoNoCalza(f"Hay {len(ids)} {caso['unidad']['singular'] if len(ids) == 1 else plural} y {PRACTICA}.")
+            raise ArchivoNoCalza(f"Hay {len(ids)} {caso['unidad']['singular'] if len(ids) == 1 else plural} y {PRACTICA}: sube un archivo con más sectores.")
         if len(ids) > u_max:
             elegidos = sorted(np.random.default_rng(series.SEMILLA).choice(len(ids), size=u_max, replace=False).tolist())
             avisos.append(f"el archivo trae {len(ids)} {plural} y respondo sobre {u_max} elegidos al azar")
             ids, ts, ms = [ids[j] for j in elegidos], [ts[j] for j in elegidos], [ms[j] for j in elegidos]
         if max(len(t) for t in ts) > MAX_SISMOS:
-            raise ArchivoNoCalza(f"Hay {plural} con más de {MAX_SISMOS} temblores, y practiqué con hasta {MAX_SISMOS} por sector.", "rojo_modelo")
+            raise ArchivoNoCalza(f"Hay {plural} con más de {MAX_SISMOS} temblores, y practiqué con hasta {MAX_SISMOS} por sector: sube menos horas de registro.", "rojo_modelo")
         ventana = float(col["ventana"]) if col.get("ventana") else float(max(t.max() for t in ts if len(t)))
         v_min, v_max = DISENO["ventana_horas"]
         if not (0.9 * v_min <= ventana <= 1.1 * v_max):
-            raise ArchivoNoCalza(f"El archivo cubre {ventana:.3g} {col.get('unidad_tiempo', 'horas')} desde la tronadura y practiqué con ventanas de {v_min:g} a {v_max:g} horas.")
+            raise ArchivoNoCalza(f"El archivo cubre {ventana:.3g} {col.get('unidad_tiempo', 'horas')} desde la explosión y practiqué con registros de {v_min:g} a {v_max:g} horas: "
+                                 f"revisa que el tiempo venga en horas desde la explosión.")
     except ArchivoNoCalza as error:
         return series.lector.rojo(caso, error)
     except ValueError:
-        return series.lector.rojo(caso, ArchivoNoCalza("El archivo no trae ningún temblor con magnitud sobre la mínima."))
+        return series.lector.rojo(caso, ArchivoNoCalza("El archivo no trae ningún temblor con magnitud sobre la mínima: revisa que la columna de magnitud sea la correcta."))
     t, mascara = series.con_relleno(ts)
     m, _ = series.con_relleno(ms)
     x, mascara_x, cov, tam = preparar(t, m, mascara, np.float64(ventana))
@@ -178,7 +179,8 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict) -> dict:
                 "apagado": (eta[:, 4], p["omega_media"], p["omega_desv"]), "tamanos": (eta[:, 5], p["b_media"], p["b_desv"])}
     return {
         "implementacion": impl,
-        "unidades": series.unidades(ids, muestras_p, costos, curvas),
+        "unidades": series.unidades(ids, muestras_p, costos, curvas, list(muestras_p),     # el riesgo de un temblor fuerte
+                                   [(tj, mj + m0) for tj, mj in zip(ts, ms)]),               # cada temblor con su magnitud
         "factores": series.factores(caso, globales),
         "columnas": {"usadas": [col["unidad"], col["tiempo"], col["valor"]], "disponibles": col.get("disponibles", 3),
                      "elegidas_por": col.get("elegidas_por", "equipo"), "explicacion": ""},

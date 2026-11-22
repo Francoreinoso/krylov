@@ -101,6 +101,7 @@ from nucleo.preproceso import (LADO, acumular_por_bloque, canal_tendencia, canal
 MUESTRAS_POSTERIOR = 32          # muestras de θ por análisis
 RESULTADOS_POR_LUGAR = 12        # resultados posibles de una medición, en «¿Dónde mido?»
 MAXIMO_DE_LUGARES = 40
+Z90 = 1.645                      # el rango de 90%: de 1,645 desviaciones bajo la media a 1,645 sobre ella
 _FILA, _COLUMNA = (m.reshape(-1).astype(np.float64) for m in np.meshgrid(np.arange(LADO), np.arange(LADO), indexing="ij"))
 
 
@@ -124,7 +125,7 @@ def leer_terreno(caso: dict, mediciones: list[dict] = (), sin_tendencia: bool = 
     tabla = tabla_del_caso(caso)                         # el archivo del caso o la tabla subida (D-34)
     x, y, valor = (lector.numeros(tabla, lector.nombres_del_papel(col, k, 1)[0]) for k in ("x", "y", "valor"))
     if col.get("transformacion") == "log" and (valor <= 0).any():
-        raise ArchivoNoCalza(f"La columna «{col['valor']}» se lee en logaritmo y tiene que ser mayor que cero.", "rojo_modelo")
+        raise ArchivoNoCalza(f"La columna «{col['valor']}» se lee en logaritmo y tiene que ser mayor que cero: corrige los ceros o negativos, o quita el logaritmo al asignar las columnas.", "rojo_modelo")
     if mediciones:
         x, y, valor = (np.concatenate([v, [float(m[k]) for m in mediciones]]) for v, k in ((x, "x"), (y, "y"), (valor, "valor")))
     transformacion = col.get("transformacion")
@@ -169,6 +170,7 @@ def _red(carpeta: str, _version: float):
     import onnxruntime
     opciones = onnxruntime.SessionOptions()
     opciones.log_severity_level = 3
+    opciones.enable_cpu_mem_arena = False        # el servidor tiene 512 MB: la memoria de cada análisis se devuelve al terminar
     sesion = onnxruntime.InferenceSession(f"{carpeta}/codificador.onnx", opciones, providers=["CPUExecutionProvider"])
     return sesion, flujo_numpy.cargar(f"{carpeta}/flujo.npz")
 
@@ -289,7 +291,7 @@ def _examen(caso: dict, terreno: dict, impl: str, sin_tendencia: bool) -> dict |
     # Una medición nueva en el bloque: el predictivo del campo más el ruido de medición.
     desv = np.sqrt(r["desviacion"][0][f, c] ** 2 + np.exp(2 * theta[:, 4]).mean())
     error = (valor_t[escondidas] - float(media)) / float(escala) - r["media"][0][f, c]
-    aciertos = int((np.abs(error) < 1.645 * desv).sum())
+    aciertos = int((np.abs(error) < Z90 * desv).sum())
     return {"tipo": "puntos_reales_escondidos", "n": int(len(escondidas)), "frase": "",          # la frase la llena nucleo/textos.py
             "tramos": [{"dijimos": 0.9, "paso": round(aciertos / len(escondidas), 3), "n": int(len(escondidas))}]}
 
@@ -305,10 +307,10 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
     n = len(terreno["x"])
     if n < 30:
         return {"implementacion": impl, "mapa": None, "factores": None,
-                "semaforo": {"estado": "rojo_datos", "motivo": f"Hay {n} mediciones y hacen falta al menos 30.", "propuesta": None}}
+                "semaforo": {"estado": "rojo_datos", "motivo": f"Hay {n} muestras y hacen falta al menos 30: sube un archivo con más pozos.", "propuesta": None}}
     if n > MEDICIONES_MAXIMO:
         return {"implementacion": impl, "mapa": None, "factores": None,
-                "semaforo": {"estado": "rojo_modelo", "motivo": f"Hay {n} mediciones; la red practicó con terrenos de hasta {MEDICIONES_MAXIMO}.", "propuesta": None}}
+                "semaforo": {"estado": "rojo_modelo", "motivo": f"Hay {n} muestras y practiqué con bancos de hasta {MEDICIONES_MAXIMO}: sube una parte del banco.", "propuesta": None}}
 
     canales, media, escala = canales_de(terreno["suma"], terreno["cuenta"], terreno["raiz_dist"])
     r = inferir(canales[None], terreno["cuenta"][None], impl, _clave(caso, sin_tendencia))
@@ -320,9 +322,14 @@ def analizar(caso: dict, transformaciones: list[str], costos: dict, mediciones: 
     def lista(valores: np.ndarray, decimales: int) -> list:
         return [round(float(v), decimales) if ok else None for v, ok in zip(valores.reshape(-1), dentro.reshape(-1))]
 
+    def en_unidades(valor_est: np.ndarray) -> list:
+        return lista(_a_unidades_del_caso(valor_est, float(media), float(escala), terreno["transformacion"]), 1)
+
     geo = terreno["geometria"]
+    mu, desv = r["media"][0], r["desviacion"][0]
     mapa = {"nx": LADO, "ny": LADO, "x0": round(geo["x0"], 1), "y0": round(geo["y0"], 1), "lado": round(geo["lado"], 2),
-            "p": lista(p, 3), "media": lista(_a_unidades_del_caso(r["media"][0], float(media), float(escala), terreno["transformacion"]), 1),
+            "p": lista(p, 3), "media": en_unidades(mu),
+            "bajo": en_unidades(mu - Z90 * desv), "alto": en_unidades(mu + Z90 * desv),     # el rango de 90% de cada bloque (D-42)
             "puntos": [{"x": float(x), "y": float(y), "valor": float(v)} for x, y, v in zip(terreno["x"], terreno["y"], terreno["valor"])],
             "umbral": terreno["umbral"], "unidad_valor": terreno["unidad_valor"]}
     mixto = {}
@@ -383,7 +390,7 @@ def donde_medir(caso: dict, costos: dict, mediciones: list[dict] = ()) -> dict:
     lugares = _lugares_candidatos(d["estado"][0], d["duda"][0], cuenta, dentro)
     base = {"caso": caso["nombre"], "implementacion": impl, "precalculado": impl == "mcmc"}
     if len(lugares) == 0:
-        return {**base, "candidatas": [], "mensaje_parada": "Con lo que ya sabes, medir más no se paga",
+        return {**base, "candidatas": [], "lugares": [], "mensaje_parada": "Con lo que ya sabes, medir más no se paga",
                 "analisis_rehechos": 0, "tiempo_ms": round((time.perf_counter() - inicio) * 1000)}
 
     # Resultados posibles de medir en cada lugar: cuantiles del predictivo de una medición (campo + ruido).
@@ -412,16 +419,18 @@ def donde_medir(caso: dict, costos: dict, mediciones: list[dict] = ()) -> dict:
     def posible(i: int, q: float) -> float:
         return round(en_unidades(float(media[0]) + float(escala[0]) * (r["media"][0][f[i], c[i]] + desv[i] * _cuantil_normal(q))))
 
-    mejores = np.argsort(-valor_de_medir, kind="stable")[:3]
+    def lugar(i: int) -> dict:
+        return {"x": round(geo["x0"] + (c[i] + 0.5) * geo["lado"]), "y": round(geo["y0"] + (f[i] + 0.5) * geo["lado"]),
+                "valor_de_medir": round(float(valor_de_medir[i]))}
+
+    orden = np.argsort(-valor_de_medir, kind="stable")
     candidatas = [{
-        "puesto": puesto + 1, "etiqueta": "ABC"[puesto],
-        "x": round(geo["x0"] + (c[i] + 0.5) * geo["lado"]), "y": round(geo["y0"] + (f[i] + 0.5) * geo["lado"]),
-        "valor_de_medir": round(float(valor_de_medir[i])), "costo_medicion": round(c_medir),
+        "puesto": puesto + 1, "etiqueta": "ABC"[puesto], **lugar(i), "costo_medicion": round(c_medir),
         "valor_neto": round(float(valor_de_medir[i]) - c_medir),
         "resultados_posibles": {"bajo": posible(i, 0.1), "medio": posible(i, 0.5), "alto": posible(i, 0.9)},
-    } for puesto, i in enumerate(mejores)]
+    } for puesto, i in enumerate(orden[:3])]
     ninguna_paga = all(cand["valor_neto"] <= 0 for cand in candidatas)
-    return {**base, "candidatas": candidatas,
+    return {**base, "candidatas": candidatas, "lugares": [lugar(i) for i in orden],      # todos los candidatos, de más a menos valor (D-42)
             "mensaje_parada": "Con lo que ya sabes, medir más no se paga" if ninguna_paga else None,
             "analisis_rehechos": int(n_lugares * k), "tiempo_ms": round((time.perf_counter() - inicio) * 1000)}
 

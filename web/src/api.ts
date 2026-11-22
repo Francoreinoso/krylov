@@ -186,6 +186,9 @@ export const api = {
   calcePropio: (archivo: File, motor: string, caso: string) => conArchivo<Calce>('calce', { archivo, motor_id: motor, caso }),
   analizarArchivo: (archivo: File, motor: string, columnas: ColumnasConfirmadas) =>
     conArchivo<Analisis>('analizar_archivo', { archivo, motor_id: motor, columnas: JSON.stringify(columnas) }),
+  // Un archivo de prueba (web/public/pruebas/) tiene su calce y su respuesta guardados: sin servidor, igual responde.
+  calceDePrueba: (caso: string) => desdeEstatico<Calce>(`prueba/calce/${caso}`),
+  analisisDePrueba: (caso: string) => desdeEstatico<Analisis>(`prueba/analizar/${caso}`),
   interpretar,
   dondeMedir,
 }

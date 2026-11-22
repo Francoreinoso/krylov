@@ -52,10 +52,6 @@ def analizar(caso: str, transformaciones=(), costos: dict | None = None, medicio
     return _con_sello(r, r.get("motor_id", ""), fijos.analizar, caso, transformaciones, mediciones)
 
 
-def cartera(caso: str) -> dict:
-    return _o_fijo(nucleo.cartera(caso), fijos.cartera, caso)
-
-
 def donde_medir(caso: str, mediciones=()) -> dict:
     return _con_sello(nucleo.donde_medir(caso, list(mediciones)), _motor_de(caso) or "", fijos.donde_medir, caso, mediciones)
 

@@ -82,16 +82,17 @@ def solo_numeros_del_json(texto: str, respuesta: dict) -> bool:
 
 def plantilla(respuesta: dict) -> dict:
     texto = " ".join(respuesta.get("en_palabras") or []) or respuesta.get("titular") or ""
-    return {"texto": texto, "origen": "plantilla", "proveedor": None, "precalculado": False}
+    return {"texto": texto, "origen": "plantilla", "proveedor": None,
+            "propuesto_por": lenguaje.propuesto_por(None, "plantilla"), "precalculado": False}
 
 
 def interpretar(respuesta: dict, solo_claude: bool = False) -> dict:
-    """`{texto, origen, proveedor, precalculado}`. Con `solo_claude`, lo que no escribió Claude sale como plantilla."""
+    """`{texto, origen, proveedor, propuesto_por, precalculado}`. Con `solo_claude`, lo que no escribió Claude sale como plantilla."""
     reducida = reducir(respuesta)
     escrito = lenguaje.pedir(SISTEMA, json.dumps(reducida, ensure_ascii=False))
-    if escrito is None or (solo_claude and escrito[1] != "claude"):
+    if escrito is None or (solo_claude and escrito.proveedor != "claude"):
         return plantilla(respuesta)
-    texto, proveedor = escrito
-    if not solo_numeros_del_json(texto, reducida):
+    if not solo_numeros_del_json(escrito.texto, reducida):
         return plantilla(respuesta)
-    return {"texto": texto, "origen": "modelo", "proveedor": proveedor, "precalculado": False}
+    return {"texto": escrito.texto, "origen": "modelo", "proveedor": escrito.proveedor,
+            "propuesto_por": lenguaje.propuesto_por(escrito, "plantilla"), "precalculado": False}
