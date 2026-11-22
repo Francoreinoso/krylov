@@ -43,7 +43,9 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
   const [textos, setTextos] = useState<Textos['curva'] | null>(null)
   const [paso, setPaso] = useState(0)
   const [perforado, setPerforado] = useState<{ c: Candidata; valor: number; duda: number } | null>(null)
-  const escena = conEscena() && hayEscena(analisis)
+  // Si la escena del deck no logra armarse con estos datos, la respuesta se muestra igual, con el respaldo.
+  const [sinEscena, setSinEscena] = useState(false)
+  const escena = conEscena() && hayEscena(analisis) && !sinEscena
   const perforo = escena && !archivo && donde && analisis.rotulos.donde_medir
 
   // la escena se vuelve a armar con otros costos solo cuando se dejan de mover
@@ -98,7 +100,7 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
         {escena ? (
           <>
             <h1 className="sr-only">{caso.titulo}</h1>
-            <LaminaDeck key={JSON.stringify(costosEscena)} ref={mando} lamina={LAMINA_DE[analisis.caso]} datos={datos} config={configDeEscena(donde)} titulo={caso.titulo} />
+            <LaminaDeck key={JSON.stringify(costosEscena)} ref={mando} lamina={LAMINA_DE[analisis.caso]} datos={datos} config={configDeEscena(donde)} titulo={caso.titulo} alFallar={() => setSinEscena(true)} />
           </>
         ) : (
           <div className="py-6">

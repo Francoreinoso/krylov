@@ -193,6 +193,13 @@ Revisión WCAG 2.1 AA con la skill `accessibility-review`, medida en Chrome a 39
 
 **Queda en primera persona:** los motivos que escriben los motores en `nucleo/` («… y practiqué con bancos de hasta 600»). Son de PC 2 y están fuera de este encargo.
 
+## Cuarto bloque (domingo, 02:05 a 02:15): la respuesta nunca queda en negro
+
+- **Falla:** al subir `subida_sismicidad.csv` (5 sectores) la respuesta quedaba en negro. La escena de los túneles del deck (`pitch/deck/js/sismicidad.js`) está hecha para los 8 sectores del demo: con menos, un punto de la roca queda sin sector cercano y el módulo se cae al armarse («Cannot read properties of undefined (reading 'tinte')»). La API respondía bien.
+- **Cambio:** si la escena avisa que falló, o no avisa que está lista en 12 segundos, la respuesta se muestra con el respaldo (la lista de unidades y la curva de la que se mira). No se tocó el deck.
+- **Queda:** con un archivo de menos de 8 sectores, los túneles se ven con el respaldo y no con la escena. Arreglarlo de verdad es una línea en `pitch/deck/js/sismicidad.js` (función `cercaDe`), que este encargo no permite tocar: lo decide una persona.
+- **Archivos:** `src/Resultado.tsx`, `src/escena/LaminaDeck.tsx`.
+
 ## Lo que queda pendiente
 
 - **Sin probar:** Safari, el proyector y un teléfono de verdad.

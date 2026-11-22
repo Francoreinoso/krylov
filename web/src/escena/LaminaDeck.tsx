@@ -5,6 +5,8 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from 'react'
 import type { AlMarco, DelMarco, Lamina } from './protocolo'
 
+const TOPE_MS = 12000 // lo que se espera a que la escena esté lista antes de mostrar el respaldo
+
 export interface MandoLamina {
   paso: (n: number) => void
   perforar: (letra: string, capa: Record<string, unknown>, valor: number) => void
@@ -46,6 +48,14 @@ export default function LaminaDeck({ lamina, datos, config = {}, paso = 0, titul
     // el pedido sale una sola vez, cuando el marco avisa que está esperando
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Una escena que no avisa que está lista (un módulo que no cargó, un error al armarla) cuenta como falla.
+  useEffect(() => {
+    if (lista) return
+    const tope = setTimeout(() => alFallar?.('La escena no respondió a tiempo'), TOPE_MS)
+    return () => clearTimeout(tope)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lista])
 
   // fuera de la vista, la escena no gasta cuadros
   useEffect(() => {

@@ -40,6 +40,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - dom 01:52 · P-33 terminada (D-42, bloque 3): accesibilidad medida en Chrome en siete vistas a 390×844 y 1440×900 (contraste, nombres y foco pasan; se agregaron los títulos principales que faltaban y alto para el dedo en los enlaces del teléfono) y avisos y errores en una sola voz («Krylov no pudo…»). Render redesplegado con `ca9f4b0`: en la URL pública un archivo propio ya responde con su escena, y el calce lo propone Groq (1,8 a 2,9 s medidos). Verificación: `cd web && npm run build && npm run prueba && npm run lint`, `uv run pytest servicio nucleo -q` (54) y el recorrido con teclas en Chrome sin errores de consola. Detalle: `web/CAMBIOS.md`.
 
+- dom 02:15 · P-34 terminada: la respuesta de un archivo propio de sismicidad quedaba en negro (la escena de los túneles del deck se cae con menos de 8 sectores); ahora, si la escena falla o no carga en 12 s, se muestra el respaldo (lista y curva). Verificación: en Chrome, los cinco archivos de `web/public/pruebas/` contra la API local, mirando cada captura: cuatro con escena y sismicidad con respaldo.
+
 ## En curso
 
 - dom 01:52 · Sin tarea en curso. Queda para una persona: probar en Safari, en el proyector y en un teléfono de verdad.
@@ -50,6 +52,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- dom 02:15 · P-34, a una persona: ¿se puede tocar `pitch/deck/js/sismicidad.js`? Con menos de 8 sectores `cercaDe` devuelve -1 y la escena se cae; el arreglo es una línea y no cambia nada con los 8 del demo. Sin eso, un archivo propio de sismicidad se ve con lista y curva, sin túneles.
 - dom 01:52 · P-33, a PC 2: los motivos en rojo de los motores hablan en primera persona («… y practiqué con bancos de hasta 600») y el resto de la app dice «Krylov practicó»; y la frase del examen de la pared elige el tramo de 0% («Cuando dijimos cerca de 0% de riesgo, cedió el 0%»).
 - dom 00:58 · P-31, a PC 2: los `limitaciones` de los sellos (`motor/artefactos/*/sello.json`) todavía dicen «celdas», «muros simulados» y «tronadura».
 
