@@ -47,6 +47,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 23:31 · A-36, `desgaste` (propuesta de PC 3 en `estado/a36_metodo_lento/`): método lento corrido de 22:41 a 23:29, sin nada más. `flota` (40 camiones): 255 s, r̂ 1,019, converge. Los 4 simulados no terminaron en 10 minutos cada uno. Contra la red en `flota`: lo de cada camión coincide (0,07 desviaciones); globales 0,387 en promedio (`log_sigma_eps` 1,3 y `log_c` 0,48; los otros tres bajo 0,1). Con esto el método lento está corrido para los cinco motores y para `yacimiento`; nada de los cuatro de series está en un sello: lo decide PC 2.
 
+- sáb 23:50 · S-30, borrador de la entrega al día y sin corchetes: `pitch/README_borrador.md` (cinco sellos, tabla del MCMC tal como salió, qué existe y qué no, el sexto motor como experimental) y `pitch/descripcion_borrador.md` (las cinco decisiones, todas «responde al instante»). Comprobado: `git grep sk-ant` sin claves; `grep -ri rotacion nucleo motor` vacío; logo de 1000 × 1000 y 66 kb; la URL pública responde 200 y `estatico/analizar/flota.json` dice `implementacion: red`. D-41 anotada (el modelo de lenguaje de la API es Groq). **No aplicado a `README.md` ni a `project-description.md`: falta que una persona los lea y decida la línea del README original dirigida a modelos de lenguaje.** Tag `entrega`: el domingo.
+
 ## En curso
 
 - sáb 20:15 · A-36: corriendo el método lento de `desgaste` (archivo de `flota` y 4 flotas simuladas, 10 minutos de presupuesto cada una). Es lento: en la prueba corta tardó 601 s con 200 + 200.

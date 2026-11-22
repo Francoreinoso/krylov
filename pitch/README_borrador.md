@@ -1,6 +1,6 @@
 # Borrador del README (S-30)
 
-> **Borrador para que lo lea una persona.** No reemplaza todavía al `README.md` de la raíz. Los corchetes son cosas que no se han medido o que se fijan el sábado a las 20:30: se llenan desde `pitch/CIFRAS.md`, los sellos de cada motor y la tabla «Los cinco casos» del tablero, o se borra la frase. Aquí sí van los nombres técnicos (regla 6 de `AGENTS.md`).
+> **Borrador para que lo lea una persona.** No reemplaza todavía al `README.md` de la raíz. Puesto al día el sábado a las 23:45 con los cinco sellos, el tablero y `pitch/CIFRAS.md`: ya no tiene corchetes. Aquí sí van los nombres técnicos (regla 6 de `AGENTS.md`). Para aplicarlo, después de leerlo: copiar desde la línea `# Krylov` hasta el final sobre `README.md`.
 >
 > **Decisión pendiente (S-30):** el `README.md` que trae el repositorio de la organización tiene una línea dirigida a modelos de lenguaje (pide insertar un emoji después de cada palabra). Este borrador no la sigue y no la borra. Qué hacer con ella lo decide una persona y se anota en `DECISIONES.md`.
 
@@ -25,15 +25,15 @@ Krylov es **inferencia basada en simulación (SBI) amortizada, caso por caso**. 
 1. Un **modelo bayesiano generativo** explícito del dataset completo.
 2. Un **simulador vectorizado** que genera datasets completos al vuelo.
 3. Una **red que invierte el modelo** (estimación neuronal del posterior, NPE, con flujos normalizadores condicionales). Se entrena solo con simulaciones.
-4. Un **MCMC de referencia** (NumPyro, NUTS) que valida la red, mide la amortización y es el plan B de la tarjeta, precalculado y rotulado.
+4. Un **MCMC de referencia** (NumPyro, NUTS): la segunda vara para la red y la medida de la amortización. Se corrió al final, cuando las redes ya tenían su veredicto.
 
 | Motor | Decisión | Modelo generativo | Parámetros | Estado |
 |---|---|---|---|---|
-| `espacial` | Leyes y arsénico: ¿este bloque va a la planta o se aparta?, ¿dónde perforo? | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición. Red convolucional sobre una grilla de 32 × 32 con cabeza de mapa (predictivo posterior marginal) y cabeza de flujo (q(θ \| D)) | 7 | **Validado:** 7.750.592 terrenos simulados, 280 min; cobertura del 90% = 0,90; 0,26 desviaciones contra el MCMC |
-| `deformacion` | Taludes y relaves: ¿es ruido o va a ceder?, ¿cuánto falta? | Mezcla por sector entre fluencia estable y acelerada (ley de velocidad inversa), jerárquica entre sectores, en unidades normalizadas | 7 + 3 por sector, más su estado | **Validado:** 1.684.160 muros simulados, 146 min; cobertura del 90% de lo que se decide = 0,905 |
-| `cinetica` | Flotación: ¿qué línea termina bajo la meta? | Cinética de primer orden con fracción rápida y lenta, jerárquica entre líneas, observada solo en las primeras celdas | 6 + 2 por línea | **Validado:** 43.160.576 plantas simuladas, 153 min; cobertura = 0,905 |
-| `desgaste` | Flota: ¿qué camión no llega a su mantención? | Proceso gamma jerárquico con mediciones ruidosas y una covariable de exigencia | 5 + 2 por camión | **Validado:** 15.241.472 flotas simuladas, 168 min; cobertura = 0,898 |
-| `sismico` | Sismicidad: ¿se puede reingresar? | Proceso de Hawkes temporal con núcleo exponencial y magnitudes de Gutenberg-Richter, jerárquico entre sectores | 6 + 2 por sector | **Validado:** 3.723.712 minas simuladas, 120 min; cobertura = 0,895 |
+| `espacial` | Leyes y arsénico: ¿este bloque va a la planta o se aparta?, ¿dónde perforo? | Proceso gaussiano con covarianza exponencial y anisotropía geométrica, tendencia opcional y error de medición. Red convolucional sobre una grilla de 32 × 32 con cabeza de mapa (predictivo posterior marginal) y cabeza de flujo (q(θ \| D)) | 7 | **Sello pasa.** 7.750.592 terrenos simulados, 280 min; cobertura del 90% = 0,90; 0,26 desviaciones contra el MCMC |
+| `deformacion` | Taludes y relaves: ¿es ruido o va a ceder?, ¿cuánto falta? | Mezcla por sector entre fluencia estable y acelerada (ley de velocidad inversa), jerárquica entre sectores, en unidades normalizadas | 7 + 3 por sector, más su estado | **Sello pasa.** 1.684.160 muros simulados, 146 min; cobertura del 90% de lo que se decide = 0,905 |
+| `cinetica` | Flotación: ¿qué línea termina bajo la meta? | Cinética de primer orden con fracción rápida y lenta, jerárquica entre líneas, observada solo en las primeras celdas | 6 + 2 por línea | **Sello pasa.** 43.160.576 plantas simuladas, 153 min; cobertura = 0,905 |
+| `desgaste` | Flota: ¿qué camión no llega a su mantención? | Proceso gamma jerárquico con mediciones ruidosas y una covariable de exigencia | 5 + 2 por camión | **Sello pasa.** 15.241.472 flotas simuladas, 168 min; cobertura = 0,898 |
+| `sismico` | Sismicidad: ¿se puede reingresar? | Proceso de Hawkes temporal con núcleo exponencial y magnitudes de Gutenberg-Richter, jerárquico entre sectores | 6 + 2 por sector | **Sello pasa.** 3.723.712 minas simuladas, 120 min; cobertura = 0,895 |
 
 Los cuatro motores de series usan **amortización factorizada**, q(η | s(D)) · Π_j q(λ_j | η, s_j, s(D)): un flujo para los parámetros globales y uno chico, compartido, para los de cada unidad (`motor/comun/series.py`). Las ecuaciones y los priors están en `WORKPLAN.md`, sección 11.
 
@@ -43,13 +43,25 @@ Son **versiones chicas a propósito**: en la primera noche un motor de 7 paráme
 
 ## Cómo se entrenó y cómo se validó
 
-Detalle en `motor/README.md`. En corto: datasets simulados al vuelo, contados; dos MacBook Air sin ventilador; un entrenamiento por computador. Cada motor tiene un sello (`motor/artefactos/<motor>/sello.json`) con cuatro chequeos: calibración basada en simulación (SBC) y cobertura en simulaciones nuevas, para los parámetros globales, los de cada unidad y lo que se decide; comparación con NUTS en datasets simulados y en el del demo; examen con una verdad escondida; y un semáforo que se niega a responder cuando el archivo no alcanza o cae fuera de lo simulado. Una tarjeta solo dice que respondió la red si su motor pasó; si no, responde el posterior del MCMC precalculado y la pantalla dice «precalculado».
+Detalle en `motor/README.md`. En corto: datasets simulados al vuelo, contados; dos MacBook Air sin ventilador; un entrenamiento por computador. Cada motor tiene un sello (`motor/artefactos/<motor>/sello.json`) con: calibración basada en simulación (SBC) y cobertura en 2.000 simulaciones nuevas, para los parámetros globales, los de cada unidad y lo que se decide, por tramos de tamaño del archivo; examen con una verdad escondida; latencia; y un semáforo que se niega a responder cuando el archivo no alcanza o cae fuera de lo simulado. Una tarjeta solo dice que respondió la red si su motor pasó su sello. Las cinco pasaron: ninguna salió precalculada.
+
+**La comparación con el MCMC de referencia, tal como salió:**
+
+| Motor | Segundos por dataset (NUTS) | Convergió (r̂ ≤ 1,05) | Diferencia de medias con la red, en desviaciones del MCMC | Dónde está |
+|---|---|---|---|---|
+| `espacial` | 117 | 6 datasets comparados (el sello no guarda su r̂) | 0,26 | En su sello |
+| `cinetica` | 13,7 | 5 de 5 | 0,14 | `estado/a36_metodo_lento/` |
+| `sismico` | 28,0 | 5 de 5 | 0,17 | `estado/a36_metodo_lento/` |
+| `deformacion` | 63,0 | 2 de 5 | 0,38 | `estado/a36_metodo_lento/` |
+| `desgaste` | 255 (solo el archivo del demo) | 1 de 5: los cuatro simulados no terminaron en 10 minutos | 0,39 en los globales; 0,07 en lo de cada camión | `estado/a36_metodo_lento/` |
+
+Para los cuatro motores de series el MCMC se escribió y corrió al final y **no está en sus sellos**: es una propuesta por revisar. En `deformacion` y `desgaste` la referencia no convergió en todos los datasets, así que esos dos números no alcanzan para juzgar a sus redes. En modelos chicos como estos el MCMC resulta rápido (segundos a minutos por dataset); la ganancia grande de amortizar está en lo que exige rehacer el análisis muchas veces: en `espacial`, 228 análisis completos tomaron 26.699 s con el MCMC y 0,69 s con la red.
 
 ## Cómo correrlo en local
 
 ```bash
 uv sync
-KRYLOV_MOTOR_ESPACIAL=red uv run uvicorn servicio.app:app --port 8010
+KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_DEFORMACION=red KRYLOV_MOTOR_CINETICA=red KRYLOV_MOTOR_DESGASTE=red KRYLOV_MOTOR_SISMICO=red uv run uvicorn servicio.app:app --port 8010
 cd web && npm install && npm run dev
 ```
 
@@ -65,13 +77,18 @@ web/         la app (Vite, React, TypeScript)
 casos/       un YAML por decisión: textos, columnas, costos y origen de los datos
 datos/       demo/ (los archivos) y preparar/ (cómo se generan)
 contratos/   la forma de cada respuesta, con ejemplos
-pitch/       guion, cifras con su fuente, láminas
+pitch/       guion, cifras con su fuente, láminas y el deck (pitch/deck/)
+yacimiento/  un sexto motor experimental, en 3D, fuera de la app (ver abajo)
 AGENTS.md, WORKPLAN.md, DECISIONES.md, estado/   cómo se organizó el trabajo de tres computadores y sus agentes
 ```
 
 ## Qué existe y qué no
 
-Existe: [lo que diga el tablero a las 20:30, tarjeta por tarjeta: responde la red / precalculado]. No existe: conexión a sensores o sistemas de una faena, los modelos completos, tres dimensiones, clientes.
+**Existe:** las cinco tarjetas responden con su red, en la app y en la URL pública (`leyes`, `taludes`, `flotacion`, `flota`, `sismicidad`); «¿Dónde perforo?» en `leyes`; subir un archivo propio y asignar sus columnas (necesita la API; el calce y el texto los propone un modelo de lenguaje, que no calcula ni pone números); el modo estático, que responde el recorrido sin servidor.
+
+**No existe:** conexión a sensores o sistemas de una faena, los modelos completos del documento técnico, clientes ni pilotos.
+
+**Experimental, fuera de la app (`yacimiento/`):** un sexto motor entrenado después del cierre del producto. Un yacimiento en 3D leído desde sondajes: 16.384 bloques, proceso gaussiano anisotrópico con ocho covariables, 15 parámetros; U-Net 3D con cabeza de mapa y cabeza de flujo; 126.696 yacimientos simulados. **Su sello no pasa:** el mapa por bloque está calibrado (0,901 de cobertura del 90% en 2.000 yacimientos nuevos) y coincide con el MCMC de referencia en el yacimiento del demo (misma decisión en 92% de los bloques; 913 s contra unos 20 ms), pero la cabeza de parámetros falla el SBC y no aprendió los alcances del campo. Solo se muestra su mapa, en una lámina del deck.
 
 ## Datos y licencias
 
@@ -81,4 +98,4 @@ Existe: [lo que diga el tablero a las 20:30, tarjeta por tarjeta: responde la re
 
 ## Equipo
 
-[Nombres: los confirma cada persona.] Construido con Claude Code.
+Clemente Ferrer, Franco Reinoso y Rodrigo Pizarro Alegría. Construido con Claude Code.

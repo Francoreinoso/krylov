@@ -1,6 +1,6 @@
 # Borrador de `project-description.md` (S-30)
 
-> **Borrador para que lo lea una persona.** Se muestra en la página de votación, junto al video y la URL. Sin jerga, ni estadística ni minera (`GLOSARIO.md`). Los corchetes son cosas que se fijan el sábado a las 20:30 con la tabla «Los cinco casos» del tablero: se llenan con lo que de verdad responde, o se borra la frase.
+> **Borrador para que lo lea una persona.** Se muestra en la página de votación, junto al video y la URL. Sin jerga, ni estadística ni minera (`GLOSARIO.md`). Puesto al día el sábado a las 23:45: ya no tiene corchetes. Para aplicarlo, después de leerlo: copiar desde la línea `# Krylov` hasta el final sobre `project-description.md`.
 
 ---
 
@@ -17,10 +17,10 @@ En una mina las decisiones grandes no esperan: a dónde va la roca que se acaba 
 ## Qué hace hoy
 
 - **¿Este bloque de roca va a la planta o se aparta?** Un piso de la mina en tres colores (puede ir a la planta, conviene apartarlo, no sabemos), con lo que cuesta no saber y **«¿Dónde perforo?»**: los tres lugares donde una muestra más vale más plata. Responde al instante.
-- **¿Es ruido o el muro va a ceder?** [responde al instante / calculado antes con el método lento]
-- **¿Se me está yendo cobre?** [ídem]
-- **¿Qué camión paro antes de que falle?** [ídem, o se borra]
-- **¿Puede volver a entrar la gente?** [ídem, o se borra]
+- **¿Es ruido o el muro va a ceder?** Un radar mide cuánto se mueve la pared de la mina. Krylov dice qué sectores conviene cerrar y cuánto falta, con su rango. Responde al instante.
+- **¿Se me está yendo cobre?** Con lo medido al comienzo de cada línea de la planta, dice cuáles van a terminar bajo la meta. Responde al instante.
+- **¿Qué camión paro antes de que falle?** Cuarenta camiones: cuáles no llegan a su próxima mantención. Responde al instante.
+- **¿Puede volver a entrar la gente?** Después de una explosión bajo tierra la roca sigue crujiendo: en qué sectores se puede volver a entrar y en cuáles conviene esperar. Apoya la decisión del especialista; no la reemplaza. Responde al instante.
 
 En cada una, los colores son decisiones y los costos están en deslizadores que cambian la respuesta en vivo.
 
@@ -38,4 +38,4 @@ Por Alekséi Krylov, ingeniero naval que a comienzos del 1900 calculó por adela
 
 ## Equipo
 
-[Nombres: los confirma cada persona antes de publicarlos.] Platanus Hack 26, Santiago, track Simulaciones.
+Clemente Ferrer, Franco Reinoso y Rodrigo Pizarro Alegría. Platanus Hack 26, Santiago, track Simulaciones.

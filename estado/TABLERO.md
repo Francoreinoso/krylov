@@ -2,9 +2,9 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 23:31 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
+**Actualizado:** sáb 21-nov 23:50 · **Producto terminado (H6): tag `congelado` (18:32)** · Entrega: dom 08:00
 
-**URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
+**URL pública:** https://krylov-krylov.vercel.app/ · responde, con las cinco tarjetas por su red (comprobado 23:48). API: https://krylov-api.onrender.com (se duerme a los 15 minutos).
 
 **Las cinco tarjetas tienen su red validada.** El método lento (A-36) ya corrió en PC 3 para los cinco motores: `espacial` en su sello; los cuatro de series como propuesta en `estado/a36_metodo_lento/` (convergen `cinetica` y `sismico` siempre, `deformacion` 2 de 5, `desgaste` solo el demo). **Ninguno de esos cuatro está en un sello: lo decide PC 2.**
 
@@ -34,7 +34,7 @@ Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (
 
 - **PC 1 · producto:** ahora exportar el estático con las cinco redes (`flota` incluida) y redesplegar; después cerrar **P-29** y preparar el demo (`preparar-demo`).
 - **PC 2 · amortizacion:** **A-35** (README técnico). Decidir qué entra a los sellos de `estado/a36_metodo_lento/` (ojo: `deformacion` 0,38 y `desgaste` 0,39 quedan sobre 0,3, con referencias que no siempre convergen). Enlazar `pitch/deck/yacimiento.html` en el deck.
-- **PC 3 · seguimiento:** A-36 y `yacimiento` cerrados. Ahora: entrega (`preparar-entrega`, S-30), que necesita a una persona para leer los cuatro archivos y decidir la línea del README; y el ensayo.
+- **PC 3 · seguimiento:** S-30: borradores de la entrega listos (`pitch/README_borrador.md`, `pitch/descripcion_borrador.md`). Falta que una persona los lea para aplicarlos; el tag `entrega` va el domingo antes de las 08:00.
 
 ## Qué cambió respecto del plan
 
@@ -45,5 +45,5 @@ Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (
 ## Próxima decisión
 
 - **Una persona (PC 2 o quien decida):** si el método lento que escribió PC 3 entra a `motor/` y a los sellos. Si la diferencia con una red sale sobre 0,3, el sello de esa red dejaría de decir «pasa»: se decide con los números a la vista, no antes.
-- **Una persona,** de D-37: quién presenta; la clave de Anthropic para Render (la API sigue sin desplegar). Y el tercer espejo (`Francoreinoso/krylov`) que pide PC 1: cada computador tiene que aceptar la invitación y agregar la dirección de push.
+- **Una persona, antes del domingo 08:00:** leer los dos borradores de la entrega y decir si se aplican; y qué hacer con la línea del `README.md` original dirigida a modelos de lenguaje (los agentes no la siguen por su cuenta). Además: quién presenta.
 - **Decidido:** las cinco tarjetas quedan en `casos/INICIO` con su red; ninguna sale precalculada.

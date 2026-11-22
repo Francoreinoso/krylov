@@ -298,6 +298,12 @@ Las entradas D-15 a D-36 hablan de cuatro tarjetas (rotación, inasistencias, cr
 - **Cómo se cuenta:** solo con los números de su sello (`yacimiento/artefactos/sello.json`) y como lo que es: un sexto modelo entrenado después del cierre, con datos simulados, que no está en la URL pública. Si su red no pasa su validación, se dice y no se muestra como resultado.
 · Decide la persona de PC 3; lo escribe PC 3. PC 1 y PC 2 quedan avisados por el tablero.
 
+**D-41 · sáb 21-nov 20:18 · El modelo de lenguaje de la API es de Groq, no de Anthropic.** Lo decidió la persona de PC 1 al desplegar la API en Render (`KRYLOV_LENGUAJE=groq`); lo anota PC 3 a pedido de PC 1 (`estado/producto.md`, 20:18).
+
+- **Qué cambia:** quién propone el calce de columnas y escribe la interpretación en la API pública. No cambia la regla 11: el modelo de lenguaje no calcula ni pone números, y el servicio revisa que cada número del texto esté en la respuesta del motor.
+- **Qué se dice:** de Anthropic, solo que Krylov se construyó con Claude Code. No se dice que un modelo de Claude esté integrado en la app. Groq no es sponsor del evento: no se nombra en el pitch.
+· Decide la persona de PC 1; lo escribe PC 3.
+
 <!-- Pendientes que decide una persona del equipo, con su hora:
 - H0: hacer público el espejo `Silent-math/krylov`. Sin eso, Vercel no despliega los commits de quien no sea el dueño de la cuenta (STACK.md, 2.6). Lo decide el dueño de la cuenta. → Resuelto en D-27: ya es público.
 - H0: quién toma cada computador y quién presenta. → D-27: quién presenta se decide después (a más tardar en H1).
