@@ -81,7 +81,7 @@
       const ctx = this.ctx, r = this.r, n = this.bancos.length, hoy = this.etapa >= 1;
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);
-      const v = K.quieto ? (hoy ? 30 : -1) : t - this.t1, baja = hoy ? K.suave(v / 0.6) : 0;
+      const v = K.quieto ? (hoy ? 30 : -1) : t - this.t1, baja = hoy ? K.suave(v / 0.25) : 0;
 
       // ---------- Antes: la vuelta completa, con cada dataset ----------
       const cajasA = [['Elegir modelo', ELEGIR], ['Entrenar', ENTRENAR], ['Inferir', INFERIR]], xa = [], wa = [];
@@ -132,12 +132,14 @@
       this.caja(ctx, xb[1], YB1, wb[1], SIMULAR, 'Simular datasets', una * 3 - 1, K.suave((v - 0.3) / 0.35));
       this.caja(ctx, K.mezcla(xa[1], xb[2], k1), K.mezcla(YA, YB1, k1), K.mezcla(wa[1], wb[2], k1), ENTRENAR, k1 < 0.5 ? 'Entrenar' : 'Pre-entrenar la red', una * 3 - 2, 1);
       if (k2 < 1) {
-        const w = K.mezcla(wa[2], 60, k2), h = K.mezcla(ALTO, 60, k2), cx = K.mezcla(xa[2] + wa[2] / 2, XC, k2), cy = K.mezcla(YA + ALTO / 2, YB2, k2);
-        ctx.globalAlpha = 1 - 0.75 * k2;
+        const w = K.mezcla(wa[2], 78, k2), h = K.mezcla(ALTO, 44, k2), cx = K.mezcla(xa[2] + wa[2] / 2, XC, k2), cy = K.mezcla(YA + ALTO / 2, YB2, k2);
+        const lin = K.acotar((v - 0.12) / 0.7, 0, 1), aNombre = 1 - K.suave((lin - 0.7) / 0.3);          // el nombre aguanta hasta que la caja llega a la red
+        ctx.globalAlpha = 1 - 0.55 * K.suave((lin - 0.6) / 0.4);
+        ctx.fillStyle = '#0b0a09'; ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
         ctx.fillStyle = 'rgba(' + INFERIR + ',0.16)'; ctx.fillRect(cx - w / 2, cy - h / 2, w, h);
         ctx.strokeStyle = 'rgba(' + INFERIR + ',0.9)'; ctx.lineWidth = 2; ctx.strokeRect(cx - w / 2, cy - h / 2, w, h);
-        ctx.globalAlpha = Math.max(0, 1 - k2 * 1.25);                       // lleva su nombre hasta que entra en la red
-        ctx.font = '600 ' + Math.round(K.mezcla(36, 20, k2)) + 'px ' + TEXTO; ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'center'; ctx.fillText('Inferir', cx, cy + K.mezcla(13, 7, k2)); ctx.textAlign = 'left';
+        ctx.globalAlpha = aNombre;
+        ctx.font = '600 ' + Math.round(K.mezcla(36, 15, k2)) + 'px ' + TEXTO; ctx.fillStyle = '#f4efe6'; ctx.textAlign = 'center'; ctx.fillText('Inferir', cx, cy + K.mezcla(13, 7, k2)); ctx.textAlign = 'left';
         ctx.globalAlpha = 1;
       }
       // «una sola vez»: un corchete bajo las tres cajas

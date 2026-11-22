@@ -132,8 +132,13 @@
       const llave = A.id + '|' + (B ? B.id : '') + '|' + e.toFixed(4) + '|' + brota + '|' + (A.sello || '');
       if (llave === F.llave) return;
       F.llave = llave;
-      const ctx = F.ctx, T = e < 0.5 ? A : B, mezcla = !!(B && A.d && B.d);
-      const igual = !B || (A.nombre === B.nombre && A.decision === B.decision), aTexto = igual ? 1 : K.suave(Math.abs(1 - 2 * e) * 1.6);
+      const ctx = F.ctx, mezcla = !!(B && A.d && B.d);
+      // el nombre y la decisión cambian cuando la cifra que viaja cruza el límite (si lo cruza); si no, a mitad de camino
+      let corte = 0.5;
+      if (mezcla && (A.medio - eje.limite) * (B.medio - eje.limite) < 0) corte = K.acotar((eje.limite - A.medio) / (B.medio - A.medio), 0.12, 0.88);
+      const T = e < corte ? A : B;
+      // el fundido del cambio es corto y siempre cabe antes de llegar: al detenerse, el texto está entero
+      const igual = !B || (A.nombre === B.nombre && A.decision === B.decision), aTexto = igual ? 1 : K.suave(Math.abs(e - corte) / Math.min(0.3, corte, 1 - corte));
       ctx.setTransform(F.rc, 0, 0, F.rc, 0, 0);
       ctx.clearRect(0, 0, W, H);
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -146,13 +151,16 @@
       else {                                                    // la cifra cambia en su lugar, con el nombre; lo de abajo se funde, una saliendo y la otra entrando
         const k = K.suave(e);
         K.foco.cuerpo(F, T, null, 0, aTexto, brota, eje, dice, 'cifra');
-        K.foco.cuerpo(F, A, null, 0, 1 - k, brota, eje, dice, 'abajo'); K.foco.cuerpo(F, B, null, 0, k, brota, eje, dice, 'abajo');
+        // las curvas se funden encima una de la otra; sus rótulos no: los de antes se van en la primera mitad y los nuevos entran en la segunda
+        K.foco.cuerpo(F, A, null, 0, 1 - k, brota, eje, dice, 'abajo', K.acotar(1 - 2.4 * e, 0, 1)); K.foco.cuerpo(F, B, null, 0, k, brota, eje, dice, 'abajo', K.acotar(2.4 * e - 1.4, 0, 1));
       }
     },
     // La estimación, su intervalo y la mitad de abajo (la distribución, o lo que se midió) de la ficha X, mezclada hacia Y.
     // parte (opcional): 'cifra' dibuja solo la estimación y su texto; 'abajo', solo la mitad de abajo.
-    cuerpo: function (F, X, Y, e, alfa, brota, eje, dice, parte) {
+    // aRot (opcional): la opacidad de los rótulos de la mitad de abajo, cuando no es la de su curva.
+    cuerpo: function (F, X, Y, e, alfa, brota, eje, dice, parte, aRot) {
       if (alfa <= 0.004) return;
+      if (aRot == null) aRot = alfa;
       const ctx = F.ctx, m = function (a, b) { return a + (b - a) * e; }, T = Y && e >= 0.5 ? Y : X;
       const bajo = Y ? m(X.bajo, Y.bajo) : X.bajo, medio = Y ? m(X.medio, Y.medio) : X.medio, alto = Y ? m(X.alto, Y.alto) : X.alto;
       const tono = Y ? [m(X.color[0], Y.color[0]), m(X.color[1], Y.color[1]), m(X.color[2], Y.color[2])] : X.color;
@@ -179,6 +187,7 @@
         pts.forEach(function (q, i) { if (i) ctx.lineTo(px(q), py(q)); else ctx.moveTo(px(q), py(q)); });
         ctx.stroke();
         const fin = pts[pts.length - 1]; ctx.fillStyle = css(X.color); ctx.beginPath(); ctx.arc(px(fin), py(fin), 7, 0, 6.2832); ctx.fill();
+        ctx.globalAlpha = aRot;
         ctx.font = '600 23px "Archivo", sans-serif'; ctx.fillStyle = TINTA; ctx.fillText(X.rotuloSerie || '', x, yt - 24);
         ctx.font = '500 22px "JetBrains Mono", monospace'; ctx.fillStyle = SUAVE; ctx.fillText('0 h', x, yb + 30);
         const tf = Math.round(t1) + ' h'; ctx.fillText(tf, x + w - ctx.measureText(tf).width, yb + 30);
@@ -204,11 +213,12 @@
       ctx.strokeStyle = LINEA; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb); ctx.lineTo(x + w, yb); ctx.stroke();
       // el límite con que se decide, punteado y con su nombre
       const xl = x + u(eje.limite) * w, rotulo = typeof dice.limite === 'function' ? dice.limite(eje) : dice.limite;
+      ctx.globalAlpha = aRot;
       ctx.strokeStyle = TINTA; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(xl, yt - 14); ctx.lineTo(xl, yb); ctx.stroke(); ctx.setLineDash([]);
       ctx.font = '600 23px "Archivo", sans-serif'; ctx.fillStyle = TINTA;
       const ar = ctx.measureText(rotulo).width; ctx.fillText(rotulo, K.acotar(xl - ar / 2, x, x + w - ar), yt - 24);
       // la estimación, sólida, y los dos extremos del intervalo bajo el eje
-      ctx.globalAlpha = alfa * brota;
+      ctx.globalAlpha = aRot * brota;
       const xm = x + u(medio) * w; ctx.fillStyle = TINTA; ctx.fillRect(xm - 2, yb - en(u(medio)) * alt - 3, 4, en(u(medio)) * alt + 3);
       ctx.font = '500 22px "JetBrains Mono", monospace'; ctx.fillStyle = SUAVE;
       const tb = dice.pie(bajo), ta = dice.pie(alto), xb = x + u(bajo) * w, xa = x + u(alto) * w, wb = ctx.measureText(tb).width, wa = ctx.measureText(ta).width;

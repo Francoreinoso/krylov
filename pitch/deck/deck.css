@@ -354,6 +354,8 @@ html, body {
 .hilo-foco i::after { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 2.5px solid var(--tinta); animation: foco-late 1.9s cubic-bezier(.16, 1, .3, 1) infinite; }
 @keyframes foco-late { from { transform: scale(.45); opacity: .95; } to { transform: scale(1.75); opacity: 0; } }
 .quieto .hilo-foco { transition: none; }
+/* sin movimiento, el anillo queda quieto alrededor del punto (la regla general no alcanza a los pseudoelementos) */
+.quieto .hilo-foco i::after { animation: none; transform: scale(1.15); opacity: .55; }
 .pausado .hilo-foco i::after { animation-play-state: paused; }
 
 /* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */

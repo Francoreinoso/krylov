@@ -309,7 +309,7 @@
           p += vec3(-lado * 0.2, -1.2, 0.9) * desliza + vec3((aS.y - 0.86) * 5.0, -3.0 * aS.y, 1.7 * aS.y) * suelta * (0.4 + 0.6 * aU.y);
           float dr = (aU.x - uBarre) / 0.008;
           float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.06) : 0.0);    // la franja del radar y su estela
-          radar *= 1.0 - 0.85 * uCede.y;                                    // mientras se proyecta la caída, el barrido no compite
+          radar *= 0.32 * (1.0 - 0.85 * uCede.y);                           // el barrido acompaña: lo que manda es el sector que se mira
           float k = max(smoothstep(0.04, 0.42, d) * mix(1.0, 0.45, uResp), 0.75 * aS.w * uResp);        // con respuesta manda la decisión, no cuánto se movió
           k = max(k, 0.9 * mira);
           vec3 caliente = mix(mix(COBRE, ROJO, smoothstep(0.18, 0.55, d)), vec3(1.0, 0.88, 0.74), smoothstep(0.6, 1.0, d));
@@ -391,7 +391,9 @@
         }
         ph.needsUpdate = true;
       }
-      poner(this.etqRadar, B.camera, Rd[0] + 0.5, Rd[1], Rd[2], '<b>Radar</b>', (this._cede || 0) < 0.08);
+      const pr = K.proyectar(Rd[0], Rd[1], Rd[2], B.camera), cabe = pr.y < 930 && pr.x > 1100;       // si la cámara lo deja al borde, se apaga entero
+      if (!cabe) this.radAlfa.value = 0;
+      poner(this.etqRadar, B.camera, Rd[0] + 0.5, Rd[1], Rd[2], '<b>Radar</b>', cabe && (this._cede || 0) < 0.02);
       // el foco y su tarjeta
       const punto = function (id) { const q = yo.pared((yo.indice[id] + 0.5) / n, 0.62); return K.proyectar(q[0], q[1], q[2], B.camera); };
       K.foco.cuadro(F, t, punto, 4.6, 1.2);
@@ -518,7 +520,7 @@
         for (let i = 0; i < yo.n; i++) {
           const id = S.unidades[i].id, p = yo.pos[i];
           if (!p.ok || id === actual || yo.vistos.indexOf(id) >= 0 || !F.fichas[id]) continue;
-          const e = R[id].estado, v = (actual && e !== R[actual].estado ? 4 : 0) + (e === 'en_duda' ? 3 : e === 'actuar' ? 2 : 0) + 1 - Math.abs(p.x - 1480) / 900;
+          const e = R[id].estado, v = (actual && e !== R[actual].estado ? 4 : 0) + (e === 'en_duda' ? 3 : e === 'actuar' ? 2 : 0) + 1 - Math.abs(p.x - 1480) / 900 - (K.quieto && p.y > 600 ? 10 : 0);
           if (v > nota) { nota = v; mejor = id; }
         }
         if (mejor) { yo.vistos.push(mejor); if (yo.vistos.length > 7) yo.vistos.shift(); }
