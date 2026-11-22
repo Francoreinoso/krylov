@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Krylov · el yacimiento en 3D</title>
+<link rel="stylesheet" href="deck.css">
+<style>
+  /* Página aparte del deck: usa su tipografía y su paleta (deck.css), no su escenario fijo.
+     La mina como maqueta topográfica en 3D (la misma de la portada del deck), una zona marcada sobre ella y,
+     al avanzar, la cámara baja y aparece el mineral debajo de esa zona. Cuatro pasos, con → o un clic. */
+  html, body { background: var(--fondo); overflow: hidden; }
+  html.incrustada, html.incrustada body { background: transparent; }      /* dentro del deck (lámina Y) se ve el fondo del deck */
+  #lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  #texto { position: absolute; left: 5.73vw; top: 8.3vh; width: min(33vw, 640px); pointer-events: none; }
+  h1 { font-family: var(--titulo); font-weight: 800; font-size: clamp(46px, 5.625vw, 108px); line-height: 1.05; letter-spacing: .005em; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--cobre); }
+  #pasos { position: relative; margin-top: 5vh; }
+  .paso { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; transform: translateY(18px); }
+  .paso.activo { opacity: 1; transform: none; }
+  /* las transiciones se activan después de la primera pintura: el primer texto está desde el inicio */
+  #pasos.listo .paso { transition: opacity .25s ease, transform .25s ease; }
+  #pasos.listo .paso.activo { transition: opacity .7s ease .3s, transform .9s cubic-bezier(.16, .8, .2, 1) .3s; }
+  .paso h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* el nombre del paso queda para lectores de pantalla */
+  .paso p { color: var(--suave); font-size: clamp(18px, 1.55vw, 30px); line-height: 1.32; }
+  .paso p + p { margin-top: 1.6vh; }
+  .paso b { color: var(--tinta); font-weight: 600; }
+  .paso .cobre { color: var(--cobre); } .paso .oro { color: var(--oro); }
+  .grande { font-family: var(--titulo); font-weight: 800; font-size: clamp(60px, 6.6vw, 128px); line-height: .95; color: var(--tinta); white-space: nowrap; display: block; margin-bottom: 1vh; }
+  .grande small { font-size: .38em; font-weight: 700; color: var(--suave); letter-spacing: .04em; }
+  #perfil { width: 100%; height: auto; display: block; margin-top: 2.4vh; }
+  #perfil text { font-family: var(--texto); fill: var(--suave); font-size: 17px; }
+  #perfil .corte text { fill: var(--cobre); font-weight: 600; }
+  #perfil .rango text { fill: var(--tinta); font-weight: 600; font-size: 19px; }
+  #lectura { display: flex; align-items: baseline; gap: 1.4vw; margin-top: 2vh; font-family: var(--titulo); font-weight: 800; font-variant-numeric: tabular-nums; }
+  #r-metros { font-size: clamp(44px, 4.4vw, 86px); line-height: 1; color: var(--tinta); min-width: 3.2em; }
+  #r-veredicto { font-size: clamp(24px, 2.2vw, 42px); letter-spacing: .04em; }
+  #perfil { margin-top: 1vh !important; }
+  #rotulo { position: absolute; left: 0; top: 0; transform: translate(14px, -50%); font-family: var(--titulo); font-weight: 700; font-size: clamp(18px, 1.5vw, 28px); letter-spacing: .02em; color: #fff3d6; white-space: nowrap; pointer-events: none; opacity: 0; }
+  #pie { position: absolute; left: 5.73vw; bottom: 9.6vh; display: flex; align-items: center; gap: 1.4vw; pointer-events: none; }
+  #marcas { display: flex; gap: 10px; }
+  #marcas i { width: 44px; height: 3px; background: var(--linea); transition: background .4s; }
+  #aviso { font-size: clamp(14px, 1.15vw, 22px); line-height: 1.35; color: var(--suave); white-space: nowrap; }      /* dos líneas: no llega a la columna del mineral */
+  #marcas i.hecho { background: var(--cobre); }
+</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<section id="texto">
+  <h1>¿Dónde está <em>el mineral</em>?</h1>
+  <div id="pasos">
+    <div class="paso" data-n="0">
+      <h2>El yacimiento</h2>
+      <p>Una mina a rajo abierto, simulada. En <b class="oro">la zona marcada</b> se perforó y se sacaron <b id="n-muestras"></b> muestras de roca.</p>
+    </div>
+    <div class="paso" data-n="1">
+      <h2>La respuesta</h2>
+      <span class="grande" id="t-red"></span>
+      <p>Krylov dibuja <b class="cobre">el mineral</b> que hay debajo, piso por piso: cada curva de cobre es su borde a una profundidad.</p>
+    </div>
+    <div class="paso" data-n="2">
+      <h2>La incertidumbre</h2>
+      <p><b class="oro">Las curvas doradas</b> encierran roca que puede ser mineral, pero todavía no se sabe.</p>
+      <p>Bajando por la próxima perforación, esto espera Krylov a cada profundidad:</p>
+      <div id="lectura"><span id="r-metros"></span><span id="r-veredicto"></span></div>
+      <svg id="perfil" viewBox="0 0 560 150" role="img" aria-label="Rango del cobre en la roca en el punto marcado, contra el mínimo para procesar"></svg>
+    </div>
+    <div class="paso" data-n="3">
+      <h2>El valor</h2>
+      <span class="grande" id="t-lento"></span>
+      <p id="valor"></p>
+    </div>
+  </div>
+</section>
+<div id="rotulo">Próxima perforación</div>
+<div id="pie"><div id="marcas"><i></i><i></i><i></i><i></i></div><p id="aviso">Sexto modelo, entrenado después del cierre.<br>Yacimiento simulado. Todavía no está en la app.</p></div>
+
+<script src="../vendor/three.min.js"></script>
+<script src="../datos/yacimiento.js"></script>
+<script>
+(function () {
+  const Y = window.YACIMIENTO;
+  const [NX, NY, NZ] = Y.dim;
+  const de = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const i3 = (i, j, k) => (i * NY + j) * NZ + k;
+  const ley = (byte) => Y.ley_min + (byte / 255) * (Y.ley_max - Y.ley_min);            // log de % de cobre
+  const miles = (n) => n.toLocaleString("es-CL");
+  const coma = (x, d) => x.toFixed(d).replace(".", ",");
+  const red = { p: de(Y.red.p), media: de(Y.red.media), desv: de(Y.red.desv) };
+  const N = Y.numeros, PASOS = 4;
+  const incrustada = window.parent !== window;                                          // dentro del deck (index.html, lámina Y): el deck manda el paso y recibe las teclas
+  if (incrustada) document.documentElement.classList.add("incrustada");
+  const alDeck = (m) => window.parent.postMessage(Object.assign({ krylov: 1 }, m), "*");
+  const suave = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }, mezcla = (a, b, t) => a + (b - a) * t;
+
+  // ---------- textos, todos desde los datos ----------
+  document.getElementById("n-muestras").textContent = miles(N.compositos);
+  document.getElementById("t-red").innerHTML = N.latencia_ms + " <small>milisegundos</small>";
+  if (Y.mcmc) {
+    document.getElementById("t-lento").innerHTML = miles(Y.mcmc.segundos) + " <small>segundos</small>";
+    document.getElementById("valor").innerHTML = "Eso tarda el método de siempre en este mismo archivo. Krylov toma <b>la misma decisión en " + coma(Y.mcmc.misma_decision * 100, 1) + "%</b> de los bloques, " + miles(Math.round(Y.mcmc.segundos * 1000 / N.latencia_ms)) + " veces más rápido.";
+  } else {
+    document.getElementById("t-lento").innerHTML = coma(N.acierto_decididos, 2) + " <small>de 1</small>";
+    document.getElementById("valor").innerHTML = "Es lo que acierta Krylov donde se pronuncia, contra <b>la verdad escondida</b> del yacimiento simulado.";
+  }
+
+  // ---------- la mina: la misma maqueta topográfica de la portada del deck (js/portada.js). Es una ilustración ----------
+  const NM = 380, MEDIO = 13.5, RADIO = 8.6, HONDO = 6.4, BANCOS = 9;
+  const ZONA = { x: 1.6, z: 0.8, medio: 4.6 };                         // la zona perforada: un cuadro sobre el fondo y una pared del rajo
+  const ruido = (function () {
+    let s = 2026; const azar = () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const G = 48, grano = []; for (let i = 0; i < G * G; i++) grano.push(azar() - 0.5);
+    const g = (i, j) => grano[((((j % G) + G) % G) * G) + (((i % G) + G) % G)];
+    return (x, y) => { const x0 = Math.floor(x), y0 = Math.floor(y), fx = suave(x - x0), fy = suave(y - y0); return mezcla(mezcla(g(x0, y0), g(x0 + 1, y0), fx), mezcla(g(x0, y0 + 1), g(x0 + 1, y0 + 1), fx), fy); };
+  })();
+  function altura(x, z) {
+    const ang = Math.atan2(z, x), r = Math.hypot(x / 1.22, z) * (1 + 0.07 * Math.sin(3 * ang + 1.1) + 0.04 * Math.sin(5 * ang + 0.4)) + ruido(x * 0.35 + 9, z * 0.35) * 0.9;
+    const afuera = 0.55 * ruido(x * 0.22, z * 0.22 + 4) + 0.22 * ruido(x * 0.6 + 2, z * 0.6);
+    if (r >= RADIO) return afuera * suave((r - RADIO) / 2.2) + 0.12;
+    const q = Math.max(r / RADIO, 0.15), s = q * BANCOS, b = Math.floor(s), f = s - b;
+    const banco = -HONDO * (1 - (b + suave((f - 0.5) / 0.5)) / BANCOS);                  // piso plano y después la cara del banco
+    let d = ang - (0.6 + q * 6.2832 * 1.15); d = Math.atan2(Math.sin(d), Math.cos(d));   // la rampa, en espiral
+    const enRampa = suave(1 - Math.abs(d) * r / 0.95);
+    return mezcla(banco, -HONDO * (1 - q) - 0.05, enRampa * suave((q - 0.16) / 0.08)) + 0.12 * suave((q - 0.92) / 0.08);
+  }
+
+  const lienzo = document.getElementById("lienzo");
+  const render = new THREE.WebGLRenderer({ canvas: lienzo, antialias: true, alpha: true });
+  render.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  render.setClearColor(0x000000, 0);
+  const escena = new THREE.Scene(), camara = new THREE.PerspectiveCamera(28, 1, 1, 300);
+
+  const uMina = { uT: { value: 0 }, uZona: { value: new THREE.Vector3(ZONA.x, ZONA.z, ZONA.medio) }, uVer: { value: 1 } };
+  { const pos = new Float32Array(NM * NM * 3), idx = new Uint32Array((NM - 1) * (NM - 1) * 6);
+    for (let j = 0; j < NM; j++) for (let i = 0; i < NM; i++) { const x = (i / (NM - 1) - 0.5) * 2 * MEDIO, z = (j / (NM - 1) - 0.5) * 2 * MEDIO, o = (j * NM + i) * 3; pos[o] = x; pos[o + 1] = altura(x, z); pos[o + 2] = z; }
+    let k = 0;
+    for (let j = 0; j < NM - 1; j++) for (let i = 0; i < NM - 1; i++) { const a = j * NM + i; idx[k++] = a; idx[k++] = a + NM; idx[k++] = a + 1; idx[k++] = a + 1; idx[k++] = a + NM; idx[k++] = a + NM + 1; }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setIndex(new THREE.BufferAttribute(idx, 1)); g.computeVertexNormals();
+    const mina = new THREE.Mesh(g, new THREE.ShaderMaterial({
+      uniforms: uMina, extensions: { derivatives: true }, transparent: true, side: THREE.DoubleSide,
+      vertexShader: "varying vec3 vP; varying vec3 vN; void main() { vP = position; vN = normal; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+      fragmentShader: `
+        precision highp float;
+        varying vec3 vP; varying vec3 vN;
+        uniform float uT; uniform vec3 uZona; uniform float uVer;
+        void main() {
+          vec3 n = normalize(vN); if (n.y < 0.0) n = -n;
+          float luz = clamp(dot(n, normalize(vec3(-0.62, 0.62, 0.48))), 0.0, 1.0);
+          float piso = smoothstep(0.80, 0.985, n.y);
+          vec3 cara = mix(vec3(0.15, 0.085, 0.05), vec3(0.80, 0.45, 0.22), pow(luz, 1.25));     // las caras de roca: cobre
+          vec3 plano = mix(vec3(0.10, 0.085, 0.07), vec3(0.60, 0.51, 0.40), luz);                // los pisos: arena
+          vec3 c = mix(cara, plano, piso);
+          c *= mix(0.42, 1.0, smoothstep(-${HONDO.toFixed(1)}, 0.4, vP.y));                      // el fondo del rajo, en sombra
+          float nivel = vP.y * 2.8, ancho = fwidth(nivel);
+          float curva = 1.0 - smoothstep(0.7, 1.7, abs(fract(nivel - 0.5) - 0.5) / max(ancho, 1e-4));
+          c = mix(c, vec3(1.0, 0.80, 0.50), curva * 0.34);                                       // curvas de nivel
+          float r = length(vP.xz * vec2(0.82, 1.0));
+          c *= mix(0.6, 1.0, smoothstep(${(RADIO + 3.5).toFixed(1)}, ${RADIO.toFixed(1)}, r));
+          // la zona marcada: un cuadro dibujado sobre el relieve, con su interior apenas más claro y un pulso lento
+          vec2 q = abs(vP.xz - uZona.xy); float d = max(q.x, q.y) - uZona.z, a = fwidth(d);
+          float linea = 1.0 - smoothstep(0.035, 0.035 + 1.5 * a, abs(d));
+          float dentro = 1.0 - smoothstep(-a, a, d);
+          c = mix(c, c * 1.35 + vec3(0.05, 0.035, 0.01), dentro * (0.75 + 0.25 * sin(uT * 1.6)));
+          c = mix(c, vec3(1.0, 0.82, 0.42), linea);
+          float borde = smoothstep(${(MEDIO - 0.4).toFixed(1)}, ${(MEDIO - 4.6).toFixed(1)}, length(vP.xz * vec2(0.9, 1.0)));       // hacia la orilla se desvanece
+          float reves = gl_FrontFacing ? 1.0 : 0.16;                                             // por debajo, apenas una sombra del relieve y sus curvas
+          gl_FragColor = vec4(c * reves + (1.0 - reves) * vec3(1.0, 0.8, 0.5) * curva * 0.25, borde * mix(reves, 1.0, linea) * mix(0.5, 1.0, uVer) * (gl_FrontFacing ? 1.0 : 0.85));
+        }`,
+    }));
+    mina.frustumCulled = false; mina.renderOrder = 1; escena.add(mina); }
+
+  // ---------- el mineral, debajo de la zona, piso por piso ----------
+  const LADO = 2 * ZONA.medio, TECHO = -HONDO - 1.4, FONDO = TECHO - 12.0, PASO = (TECHO - FONDO) / NZ;
+  const grupo = new THREE.Group(); grupo.position.set(ZONA.x, 0, ZONA.z); escena.add(grupo);
+  function curvas(W, H, f, o) {                         // isolíneas de f(x, y) en un lienzo, con grosor parejo en pixeles y relleno opcional
+    const lona = document.createElement("canvas"); lona.width = W; lona.height = H;
+    const ctx = lona.getContext("2d"), img = ctx.createImageData(W, H), v = new Float32Array((W + 1) * (H + 1));
+    for (let y = 0; y <= H; y++) for (let x = 0; x <= W; x++) v[y * (W + 1) + x] = f(x / W, y / H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const a = v[y * (W + 1) + x], g = Math.hypot(v[y * (W + 1) + x + 1] - a, v[(y + 1) * (W + 1) + x] - a) + 1e-9;
+      const linea = 1 - Math.min(1, Math.max(0, Math.abs(a - o.nivel) / g - o.grosor * 0.5));
+      const alfa = Math.min(1, linea * o.alfa + (a > o.nivel ? o.relleno || 0 : 0)) * Math.min(1, Math.min(x, W - x, y, H - y) / (0.04 * W)), q = (y * W + x) * 4;
+      img.data[q] = o.color[0]; img.data[q + 1] = o.color[1]; img.data[q + 2] = o.color[2]; img.data[q + 3] = 255 * alfa;
+    }
+    ctx.putImageData(img, 0, 0);
+    const t = new THREE.CanvasTexture(lona); t.anisotropy = 8; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; return t;
+  }
+  // La probabilidad de mineral por bloque, con un suavizado leve entre vecinos (P1) y uno mayor para las curvas doradas (P2)
+  const P1 = new Float32Array(NX * NY * NZ), P2 = new Float32Array(NX * NY * NZ);
+  { const a = Float32Array.from(red.p, (b) => b / 255);
+    for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) for (let k = 0; k < NZ; k++) { let s = 0, n = 0;
+      for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) for (let dk = -1; dk <= 1; dk++) { const x = i + di, y = j + dj, z = k + dk; if (x < 0 || y < 0 || z < 0 || x >= NX || y >= NY || z >= NZ) continue; const w = (di ? 1 : 3) * (dj ? 1 : 3) * (dk ? 1 : 3); s += w * a[i3(x, y, z)]; n += w; }
+      P1[i3(i, j, k)] = s / n; }
+    let b = P1;
+    for (let vez = 0; vez < 2; vez++) { const c = new Float32Array(b.length);
+      for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) for (let k = 0; k < NZ; k++) { let s = 0, n = 0;
+        for (let di = -2; di <= 2; di++) for (let dj = -2; dj <= 2; dj++) { const x = i + di, y = j + dj; if (x < 0 || y < 0 || x >= NX || y >= NY) continue; s += b[i3(x, y, k)]; n++; }
+        c[i3(i, j, k)] = s / n; }
+      b = c; }
+    P2.set(b); }
+  const enPiso = (k, P) => (x, y) => { const u = Math.max(0, Math.min(NX - 1.001, x * NX - 0.5)), v = Math.max(0, Math.min(NY - 1.001, y * NY - 0.5)), i = Math.floor(u), j = Math.floor(v), fu = u - i, fv = v - j;
+    return (1 - fu) * (1 - fv) * P[i3(i, j, k)] + fu * (1 - fv) * P[i3(i + 1, j, k)] + (1 - fu) * fv * P[i3(i, j + 1, k)] + fu * fv * P[i3(i + 1, j + 1, k)]; };
+  const pisoGeo = new THREE.PlaneGeometry(LADO, LADO); pisoGeo.rotateX(-Math.PI / 2);
+  const cobres = [], oros = [];
+  for (let k = 0; k < NZ; k++) {
+    const y = TECHO - (k + 0.5) * PASO, tono = 1 - 0.3 * k / NZ;                                    // los pisos más hondos, algo más apagados
+    const pares = [[curvas(256, 256, enPiso(k, P1), { nivel: 1 - Y.umbral_de_duda, grosor: 2.6, alfa: 1, relleno: 0.22, color: [245 * tono, 142 * tono, 76 * tono] }), cobres]];
+    if (k % 2 === 0) pares.push([curvas(256, 256, enPiso(k, P2), { nivel: 0.5, grosor: 1.6, alfa: 0.9, color: [238, 194, 90] }), oros]);       // un piso por medio: menos líneas, más claras
+    for (const [t, lista] of pares) {
+      const m = new THREE.Mesh(pisoGeo, new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+      m.position.y = y; m.userData.k = k; m.renderOrder = 3; grupo.add(m); lista.push(m);
+    }
+  }
+  // Cuatro líneas que bajan desde las esquinas de la zona: lo que se ve abajo es lo que hay debajo de ese cuadro
+  const guias = [];
+  for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+    const arriba = altura(ZONA.x + sx * ZONA.medio, ZONA.z + sz * ZONA.medio), largo = arriba - FONDO;
+    const g = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, largo, 6), new THREE.MeshBasicMaterial({ color: 0xeec25a, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
+    g.position.set(sx * ZONA.medio, arriba - largo / 2, sz * ZONA.medio); g.renderOrder = 2; grupo.add(g); guias.push(g);
+  }
+  // Dónde perforar ahora: la columna con más duda, una línea de luz desde la superficie
+  let columna = [NX >> 1, NY >> 1];
+  { let mejor = -1;
+    for (let i = 4; i < NX - 4; i++) for (let j = 4; j < NY - 4; j++) { let d = 0; for (let k = 0; k < NZ; k++) { const q = red.p[i3(i, j, k)] / 255; d += Math.min(q, 1 - q); } if (d > mejor) { mejor = d; columna = [i, j]; } } }
+  const mx = ((columna[0] + 0.5) / NX - 0.5) * LADO, mz = ((columna[1] + 0.5) / NY - 0.5) * LADO, mTop = altura(ZONA.x + mx, ZONA.z + mz) + 1.6;
+  const marca = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, mTop - FONDO, 10), new THREE.MeshBasicMaterial({ color: 0xfff3d6, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
+  marca.position.set(mx, (mTop + FONDO) / 2, mz); marca.renderOrder = 4; grupo.add(marca);
+  const punto = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 12), new THREE.MeshBasicMaterial({ color: 0xeec25a, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
+  punto.renderOrder = 5; grupo.add(punto);
+  const rotulo = document.getElementById("rotulo"), cima = new THREE.Vector3();
+
+  // ---------- el rango, bajando por la perforación: a cada profundidad, la ley estimada con su intervalo de 90%, contra la ley de corte ----------
+  const corte = Y.caso.ley_de_corte_pct, METROS_POR_PISO = 15;
+  const col = []; let leyMax = 1.5;
+  for (let k = 0; k < NZ; k++) { const n = i3(columna[0], columna[1], k), m = ley(red.media[n]), sd = red.desv[n] / 255 * Y.desv_max;
+    col.push({ bajo: Math.exp(m - 1.645 * sd), centro: Math.exp(m), alto: Math.exp(m + 1.645 * sd) }); leyMax = Math.max(leyMax, Math.ceil(col[k].alto * 2.1) / 2); }
+  const RX0 = 12, RX1 = 548, RYB = 84, rpx = (v) => RX0 + Math.min(v, leyMax) / leyMax * (RX1 - RX0);
+  document.getElementById("perfil").innerHTML =
+    '<line x1="' + RX0 + '" y1="' + RYB + '" x2="' + RX1 + '" y2="' + RYB + '" stroke="#4a4239" stroke-width="2"/>' +
+    '<rect id="r-barra" y="' + (RYB - 9) + '" height="18" rx="9" fill="#eec25a"/>' +
+    '<circle id="r-centro" cy="' + RYB + '" r="7" fill="#0b0a09" stroke="#fff3d6" stroke-width="3"/>' +
+    '<g class="rango"><text id="r-bajo" y="' + (RYB + 32) + '" text-anchor="end"></text><text id="r-alto" y="' + (RYB + 32) + '" text-anchor="start"></text></g>' +
+    '<g class="corte"><line x1="' + rpx(corte) + '" y1="' + (RYB - 40) + '" x2="' + rpx(corte) + '" y2="' + (RYB + 12) + '" stroke="#e2854a" stroke-width="3"/>' +
+    '<text x="' + rpx(corte) + '" y="' + (RYB - 50) + '" text-anchor="' + (rpx(corte) > 280 ? "end" : "start") + '">Mínimo para procesar: ' + coma(corte, 1) + "%</text></g>" +
+    '<text x="' + RX1 + '" y="' + (RYB + 60) + '" text-anchor="end">Cobre en la roca: rango de 90% a esa profundidad</text>';
+  const rBarra = document.getElementById("r-barra"), rCentro = document.getElementById("r-centro"), rBajo = document.getElementById("r-bajo"), rAlto = document.getElementById("r-alto");
+  const rMetros = document.getElementById("r-metros"), rVeredicto = document.getElementById("r-veredicto");
+  let kAhora = 0, ultimoTexto = "";
+  function actualizarRango(kf) {                        // kf: piso, con decimales (se interpola entre un piso y el siguiente)
+    const k0 = Math.max(0, Math.min(NZ - 2, Math.floor(kf))), f = Math.max(0, Math.min(1, kf - k0)), a = col[k0], b = col[k0 + 1];
+    const bajo = mezcla(a.bajo, b.bajo, f), centro = mezcla(a.centro, b.centro, f), alto = mezcla(a.alto, b.alto, f);
+    rBarra.setAttribute("x", rpx(bajo)); rBarra.setAttribute("width", Math.max(2, rpx(alto) - rpx(bajo))); rCentro.setAttribute("cx", rpx(centro));
+    const estado = bajo > corte ? ["Mineral", "#e2854a"] : alto < corte ? ["Estéril", "#7d7568"] : ["No se sabe", "#eec25a"];
+    rBarra.setAttribute("fill", estado[1]);
+    const texto = Math.round((kf + 0.5) * METROS_POR_PISO / 5) * 5 + "|" + coma(bajo, 2) + "|" + coma(alto, 2) + "|" + estado[0];
+    if (texto !== ultimoTexto) { ultimoTexto = texto; const t = texto.split("|");
+      rMetros.textContent = t[0] + " m"; rBajo.textContent = t[1] + "%"; rAlto.textContent = t[2] + "%"; rBajo.setAttribute("x", rpx(bajo) - 8); rAlto.setAttribute("x", rpx(alto) + 8);
+      rVeredicto.textContent = estado[0]; rVeredicto.style.color = estado[1]; }
+  }
+  actualizarRango(0);
+
+  // ---------- los cuatro pasos: qué se ve y desde dónde ----------
+  // alzado: ángulo de la cámara sobre el horizonte; mira: altura a la que apunta; lejos: distancia
+  const META = [
+    { cobre: 0, oro: 0, marca: 0, guia: 0, alzado: 0.62, mira: -1.6, lejos: 45 },
+    { cobre: 1, oro: 0, marca: 0, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
+    { cobre: 0.9, oro: 0.8, marca: 0.95, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
+    { cobre: 1, oro: 0, marca: 0, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
+  ];
+  const quieto = /[?&]quieto/.test(location.search);
+  let paso = Math.max(0, Math.min(PASOS - 1, parseInt((location.hash || "#0").slice(1), 10) || 0));
+  const ahora = Object.assign({}, META[paso], { cobre: 0, oro: 0, marca: 0, guia: 0 });
+  let nacer = quieto ? NZ + 4 : -1e9, nacio = 0, tBajada = 0;                                  // los pisos se encienden de arriba hacia abajo cuando aparece el mineral
+  function mostrar() {
+    document.querySelectorAll(".paso").forEach((p) => p.classList.toggle("activo", +p.dataset.n === paso));
+    document.querySelectorAll("#marcas i").forEach((b, n) => b.classList.toggle("hecho", n <= paso));
+    history.replaceState(null, "", "#" + paso);
+    if (paso === 2) tBajada = performance.now() + 1200;                 // la bajada parte un momento después de entrar al paso
+    if (paso === 0 && !quieto) nacer = -1e9; else if (nacer < -1e8) { nacer = -2; nacio = performance.now(); }      // espera a que la cámara baje, y después enciende
+  }
+  function ir(d) { const n = Math.max(0, Math.min(PASOS - 1, paso + d)); if (n !== paso) { paso = n; mostrar(); } }
+  window.addEventListener("keydown", (e) => { if (e.metaKey || e.ctrlKey || e.altKey) return; if (incrustada) { alDeck({ tecla: e.key }); e.preventDefault(); return; }
+    if (["ArrowRight", " ", "PageDown", "Enter"].includes(e.key)) ir(1); else if (["ArrowLeft", "PageUp"].includes(e.key)) ir(-1); });
+  window.addEventListener("message", (e) => { if (e.source !== window.parent || !e.data || e.data.krylov !== 1 || typeof e.data.paso !== "number") return;
+    const n = Math.max(0, Math.min(PASOS - 1, e.data.paso | 0)); if (n !== paso) { paso = n; mostrar(); } });
+
+  // ---------- cámara: gira sola, siempre; arrastrar la mueve ----------
+  let giro = 0.7, extra = 0, arrastrando = false, movido = 0, ux = 0, uy = 0, antes = performance.now(), t0 = performance.now();
+  function encuadrar() {
+    const w = window.innerWidth, h = window.innerHeight; if (w < 16 || h < 16) return;        // un panel todavía sin tamaño: se encuadra al primer resize
+    render.setSize(w, h, false); camara.aspect = w / h;
+    camara.setViewOffset(w, h, -w * 0.2, 0, w, h);                                           // la mina va a la derecha del texto
+    camara.updateProjectionMatrix();
+  }
+  lienzo.addEventListener("pointerdown", (e) => { arrastrando = true; movido = 0; ux = e.clientX; uy = e.clientY; lienzo.setPointerCapture(e.pointerId); });
+  lienzo.addEventListener("pointermove", (e) => { if (!arrastrando) return; movido += Math.abs(e.clientX - ux) + Math.abs(e.clientY - uy);
+    giro += (e.clientX - ux) * 0.006; extra = Math.max(-0.3, Math.min(0.6, extra + (e.clientY - uy) * 0.004)); ux = e.clientX; uy = e.clientY; });
+  lienzo.addEventListener("pointerup", () => { arrastrando = false; if (movido < 6) { if (incrustada) alDeck({ tecla: "ArrowRight" }); else ir(1); } });
+  window.addEventListener("resize", encuadrar);
+
+  function cuadro(t) {
+    t = t || performance.now();
+    const dt = Math.min(0.25, (t - antes) / 1000); antes = t;
+    if (!arrastrando && !quieto) giro += dt * 0.16;                    // una vuelta cada 40 segundos, sin depender de los cuadros por segundo
+    const m = META[paso], a = quieto ? 1 : 1 - Math.exp(-dt * 2.6);
+    for (const k in ahora) ahora[k] += (m[k] - ahora[k]) * a;
+    if (nacer > -1e8 && !quieto) nacer = -2 + (t - nacio) / 1000 * 7;      // por reloj, no por cuadros: en 2,5 segundos están todos encendidos
+    // en la incertidumbre, se ilumina el piso por donde va el punto
+    for (const lista of [cobres, oros]) for (const p of lista) { const n = Math.max(0, Math.min(1, nacer - p.userData.k)); p.material.opacity = (lista === cobres ? ahora.cobre : ahora.oro) * n * mezcla(1, 0.4 + 0.6 * Math.max(0, 1 - Math.abs(p.userData.k - kAhora) / 1.5), ahora.marca); p.visible = p.material.opacity > 0.004; }
+    for (const g of guias) { g.material.opacity = ahora.guia * Math.max(0, Math.min(1, nacer + 4)); g.visible = g.material.opacity > 0.004; }
+    marca.material.opacity = ahora.marca; marca.visible = ahora.marca > 0.004;
+    if (paso === 2) { const ciclo = (Math.max(0, t - tBajada) / 1000) % 13; kAhora = quieto ? NZ * 0.7 : suave(Math.min(1, ciclo / 10)) * (NZ - 1); actualizarRango(kAhora); }      // 10 segundos bajando, 3 en el fondo, y de nuevo
+    punto.position.set(mx, TECHO - (kAhora + 0.5) * PASO, mz); punto.material.opacity = ahora.marca; punto.visible = marca.visible;
+    uMina.uT.value = (t - t0) / 1000; uMina.uVer.value = 1 - 0.0 * ahora.cobre;
+    const el = ahora.alzado + extra, R = ahora.lejos;
+    camara.position.set(R * Math.cos(el) * Math.sin(giro), ahora.mira + R * Math.sin(el), R * Math.cos(el) * Math.cos(giro));
+    camara.lookAt(0, ahora.mira, 0);
+    render.render(escena, camara);
+    cima.set(ZONA.x + mx, mTop, ZONA.z + mz).project(camara);                      // el nombre de la línea, junto a su extremo de arriba
+    rotulo.style.opacity = ahora.marca; rotulo.style.left = (cima.x * 0.5 + 0.5) * window.innerWidth + "px"; rotulo.style.top = (-cima.y * 0.5 + 0.5) * window.innerHeight + "px";
+    requestAnimationFrame(cuadro);
+  }
+  encuadrar(); mostrar(); requestAnimationFrame(cuadro);
+  setTimeout(() => document.getElementById("pasos").classList.add("listo"), 300);
+  if (incrustada) alDeck({ lista: true });
+})();
+</script>
+</body>
+</html>
