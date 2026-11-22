@@ -46,6 +46,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - dom 03:05 · P-36 terminada: en la roca, la tarjeta dice lo que hay bajo el mouse (lo pidió la persona de PC 1). Mientras el mouse está sobre el terreno, el punto se queda ahí y la tarjeta muestra la decisión, el arsénico y el rango de ese bloque; al salir, el recorrido automático sigue desde ese lugar. El deck no se tocó: se envuelve el foco de su lámina desde `web/src/escena/marco.ts`, así que en el deck el recorrido sigue igual. Con el dedo sigue valiendo el clic. Verificación: `cd web && npm run build && npm run prueba && npm run lint`, y en Chrome con la tecla `1`: el punto queda bajo el mouse (medido en dos lugares y con captura) y fuera del terreno el recorrido vuelve.
 
+- dom 03:18 · P-37 terminada: el mouse manda en las cinco escenas con motor (lo pidió la persona de PC 1). Con el mouse sobre el modelo, la cámara deja de mecerse y la tarjeta es la de lo apuntado: el bloque, el sector de la pared (los 36, no solo los 5 del recorrido), la línea, el camión (el tiempo de la escena se detiene mientras se apunta a uno) o el sector de los túneles. Arrastrar gira el modelo; con Mayús o el botón derecho, lo desplaza (en la roca solo gira, que es el arrastre del deck). Cuando el mouse sale, la vista vuelve a la suya y el recorrido sigue. El deck no se tocó: `web/src/escena/mouse.ts` envuelve el foco, la cámara y el cuadro de cada escena. Verificación: `cd web && npm run build && npm run prueba && npm run lint`, y en Chrome, teclas `1` a `5`, con eventos de mouse simulados: en cada escena se comprobó que elige lo apuntado, que la cámara queda quieta, que el arrastre gira, y que al salir vuelve a mecerse y el recorrido sigue; sin errores de consola. Falta probarlo con un mouse de verdad. El yacimiento (tecla `6`) queda como estaba: ver «Pedidos a otros».
+
 ## En curso
 
 - dom 01:52 · Sin tarea en curso. Queda para una persona: probar en Safari, en el proyector y en un teléfono de verdad.
@@ -56,6 +58,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- dom 03:18 · P-37, a PC 3 o a una persona: para que el yacimiento (tecla `6`) deje de girar cuando el mouse está encima hace falta tocar `pitch/deck/yacimiento.html` (su giro es una variable interna de la página; ya se puede girar arrastrando). Son dos líneas: un aviso de mouse adentro o afuera y no sumar el giro mientras esté adentro. Elegir un punto ahí sería otra cosa: es un recorrido calculado antes.
 - dom 02:15 · P-34, a una persona: ¿se puede tocar `pitch/deck/js/sismicidad.js`? Con menos de 8 sectores `cercaDe` devuelve -1 y la escena se cae; el arreglo es una línea y no cambia nada con los 8 del demo. Sin eso, un archivo propio de sismicidad se ve con lista y curva, sin túneles.
 - dom 01:52 · P-33, a PC 2: los motivos en rojo de los motores hablan en primera persona («… y practiqué con bancos de hasta 600») y el resto de la app dice «Krylov practicó»; y la frase del examen de la pared elige el tramo de 0% («Cuando dijimos cerca de 0% de riesgo, cedió el 0%»).
 - dom 00:58 · P-31, a PC 2: los `limitaciones` de los sellos (`motor/artefactos/*/sello.json`) todavía dicen «celdas», «muros simulados» y «tronadura».

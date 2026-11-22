@@ -209,8 +209,10 @@ Revisión WCAG 2.1 AA con la skill `accessibility-review`, medida en Chrome a 39
 
 ## Tercer bloque (domingo, 03:00)
 
-### 14 · La roca sigue al mouse
-- **Cambio:** con el mouse sobre el terreno, el punto y la tarjeta son los del bloque apuntado; al sacar el mouse, el recorrido automático sigue desde ahí. El clic y el arrastre quedan como estaban.
-- **Por qué:** quien mira un terreno pregunta por el lugar que apunta; el punto que viajaba solo se leía como azar.
-- **Archivos:** `src/escena/marco.ts` (`seguirAlMouse`). El deck no se tocó.
-- **Devolver:** borrar `seguirAlMouse` y su llamada en `arrancar`.
+### 14 · El mouse manda en las cinco escenas
+- **Cambio:** con el mouse sobre el modelo, la cámara deja de mecerse y la tarjeta es la de lo que se apunta (el bloque, el sector de la pared, la línea, el camión, el sector de los túneles). Arrastrar gira el modelo; con Mayús o el botón derecho, lo desplaza (en la roca solo gira). Con los camiones, el tiempo de la escena se detiene mientras se apunta a uno. Cuando el mouse sale, la vista vuelve a la suya y el recorrido automático sigue desde ahí.
+- **En la pared** se puede apuntar a los 36 sectores. Los que el deck no visita muestran la decisión del motor y lo que midió el radar («24 mm · se movió en total»), con la tarjeta sin curva del deck.
+- **Por qué:** quien mira un modelo pregunta por el lugar que apunta; el punto que viajaba solo se leía como azar.
+- **Archivos:** `src/escena/mouse.ts`, `src/escena/marco.ts`. El deck no se tocó: allá el recorrido sigue solo.
+- **No entra:** el yacimiento (tecla `6`), que es una página del deck con su giro por dentro.
+- **Devolver:** borrar `src/escena/mouse.ts` y la llamada a `conMouse` en `marco.ts`.
