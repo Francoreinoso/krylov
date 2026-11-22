@@ -2,11 +2,11 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 22:42 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
+**Actualizado:** sáb 21-nov 23:31 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
 
 **URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
 
-**Las cinco tarjetas tienen su red validada** (`flota` pasó a las 19:35). El método lento (A-36) está corriendo en PC 3 para los cinco motores, por encargo de la persona de PC 3. Detalle por motor: `estado/MODELOS.md`.
+**Las cinco tarjetas tienen su red validada.** El método lento (A-36) ya corrió en PC 3 para los cinco motores: `espacial` en su sello; los cuatro de series como propuesta en `estado/a36_metodo_lento/` (convergen `cinetica` y `sismico` siempre, `deformacion` 2 de 5, `desgaste` solo el demo). **Ninguno de esos cuatro está en un sello: lo decide PC 2.**
 
 ## Los cinco casos
 
@@ -28,13 +28,13 @@ Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (
 |---|---|---|
 | producto (PC 1) | 🟡 | URL nueva funcionando con cuatro tarjetas (P-28, P-30). Falta `flota` con `KRYLOV_MOTOR_DESGASTE=red`, exportar y redesplegar |
 | amortizacion (PC 2) | 🟢 | `desgaste` PASA (19:35): cinco de cinco. Quedan A-35 (README técnico) y revisar el método lento que PC 3 escribió |
-| seguimiento (PC 3) | 🟡 | Sexto motor `yacimiento` (D-40, fuera del producto): **su sello no pasa** (parámetros); el mapa sí está calibrado (0,901) y coincide con el método lento (913 s contra 20 ms; misma decisión en 92% de los bloques). Falta el método lento de `desgaste` |
+| seguimiento (PC 3) | 🟢 | A-36 corrido para los cinco (propuesta para PC 2). Sexto motor `yacimiento` (D-40, fuera del producto): sello no pasa por los parámetros; el mapa está calibrado y coincide con el método lento (M-63 a M-65) |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora exportar el estático con las cinco redes (`flota` incluida) y redesplegar; después cerrar **P-29** y preparar el demo (`preparar-demo`).
-- **PC 2 · amortizacion:** ahora **A-35** (README técnico). Además: enlazar en el deck la página nueva `pitch/deck/yacimiento.html` (PC 3 no tocó `index.html`), y revisar el método lento propuesto en `estado/a36_metodo_lento/`.
-- **PC 3 · seguimiento:** ahora el método lento de `desgaste` (lo único que queda de A-36). Después: ensayo y entrega (S-30). De `yacimiento` se cuenta solo el mapa (M-63 a M-65).
+- **PC 2 · amortizacion:** **A-35** (README técnico). Decidir qué entra a los sellos de `estado/a36_metodo_lento/` (ojo: `deformacion` 0,38 y `desgaste` 0,39 quedan sobre 0,3, con referencias que no siempre convergen). Enlazar `pitch/deck/yacimiento.html` en el deck.
+- **PC 3 · seguimiento:** A-36 y `yacimiento` cerrados. Ahora: entrega (`preparar-entrega`, S-30), que necesita a una persona para leer los cuatro archivos y decidir la línea del README; y el ensayo.
 
 ## Qué cambió respecto del plan
 

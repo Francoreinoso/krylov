@@ -45,6 +45,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 22:42 · D-40, `yacimiento`, **corrección de lo anotado a las 22:21: el sello NO pasa.** El «pasa» de las 22:19 no era firme: el muestreo del flujo en `validar.py` no tenía semilla y el SBC cambiaba entre corridas (χ² máximo 21,45, después 30,65). Con semilla fija sale igual dos veces: SBC falla en `log_sigma` (27,61). Además, método lento del demo corrido (22:20 a 22:35, sin nada más): 913 s, r̂ 1,001; el mapa de la red coincide (0,24 desviaciones, misma decisión en 92,1% de los bloques) y los parámetros no (0,89 desviaciones; límite 0,3). Se cuenta el mapa, no los parámetros. Cifras: M-63 a M-65. Página del deck exportada con el tiempo del método lento.
 
+- sáb 23:31 · A-36, `desgaste` (propuesta de PC 3 en `estado/a36_metodo_lento/`): método lento corrido de 22:41 a 23:29, sin nada más. `flota` (40 camiones): 255 s, r̂ 1,019, converge. Los 4 simulados no terminaron en 10 minutos cada uno. Contra la red en `flota`: lo de cada camión coincide (0,07 desviaciones); globales 0,387 en promedio (`log_sigma_eps` 1,3 y `log_c` 0,48; los otros tres bajo 0,1). Con esto el método lento está corrido para los cinco motores y para `yacimiento`; nada de los cuatro de series está en un sello: lo decide PC 2.
+
 ## En curso
 
 - sáb 20:15 · A-36: corriendo el método lento de `desgaste` (archivo de `flota` y 4 flotas simuladas, 10 minutos de presupuesto cada una). Es lento: en la prueba corta tardó 601 s con 200 + 200.
