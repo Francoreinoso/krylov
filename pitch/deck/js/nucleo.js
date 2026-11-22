@@ -297,7 +297,9 @@
   let previo = performance.now(), cuadros = 0, desde = previo;
   function cuadro(ahora) {
     requestAnimationFrame(cuadro);
-    let dt = Math.min((ahora - previo) / 1000, 0.05);
+    // nunca negativo: la marca de tiempo del primer cuadro puede ser anterior a la de carga, y con el reloj hacia atrás
+    // una escena pedía un índice negativo (un error de consola en la lámina 2, una vez cada tanto)
+    let dt = Math.max(0, Math.min((ahora - previo) / 1000, 0.05));
     previo = ahora;
     cuadros++;
     if (ahora - desde >= 1000) { K.fps = Math.round((cuadros * 1000) / (ahora - desde)); cuadros = 0; desde = ahora; }

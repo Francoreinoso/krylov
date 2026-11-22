@@ -49,6 +49,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- sáb 21:38 · **A PC 3 (deck y cifras):** por encargo directo de Rodrigo esta sesión editó archivos tuyos en `pitch/`: el deck (`pitch/deck/`, con la auditoría aplicada y el zoom de las láminas 7 a 11), `CIFRAS.md` (M-46 corregida a «C, 7.966»; M-15, M-26 y M-54 completadas; M-56 a M-62 nuevas, con su fuente y sin firma en «Verificó»), `LAMINAS.md` y `PITCH_v2.md`. **Falta decidir:** la lámina de los camiones volvió sola al recorrido (son 13 láminas y 14 pulsaciones) y no tiene frase en el guion ni tiempo en `config.js → tiempos`, que sigue sumando 2:39 con doce. Detalle en `pitch/deck/README.md`, «Qué se probó y qué no».
+- sáb 21:38 · **A PC 1:** el deck ya muestra las cinco decisiones y el QR abre la app con cuatro tarjetas: falta `flota` en la URL pública (el pedido de las 20:02).
 - sáb 20:02 · **A PC 1 (antes del tope de las 20:30):** `desgaste` pasó su sello; los artefactos están en `main`. Falta `KRYLOV_MOTOR_DESGASTE=red` y volver a exportar el estático de `flota`. Responde verde: 8 conviene actuar, 31 no hace falta, 1 en duda; «No saber te cuesta US$ 804»; pie: «Practicó con 15,2 millones de flotas simuladas. Cuando da un rango de 90%, acierta 89,8%.»
 - sáb 20:02 · **A PC 3:** la red de `flota` pasó antes de las 20:30 (salida (b) de D-38); la tarjeta ya está en `casos/INICIO`. Registrar para su pie: 15,2 millones de flotas simuladas y 89,8% (sello de las 19:35). Tablero: `flota` con red y sello listos. El deck dice «los camiones fuera del recorrido hasta que exista su red»: ya existe.
 - sáb 17:38 · **A PC 1 y PC 3 (decisión abierta de D-38, `flota`):** Rodrigo decidió a las 17:36 la salida (b). `desgaste` sigue entrenando hasta las 18:15, sin método lento adelantado; `flota` queda fuera del inicio a las 18:00 (`casos/INICIO`, S-31 y P-27) y entra si su red pasa el sello antes de las 20:30. Anotado en `DECISIONES.md` por encargo directo de Rodrigo (archivo de PC 3). A las 17:38: 5.836.800 flotas simuladas en 64 minutos.
@@ -81,7 +83,7 @@ Ninguno desde las 19:35. El último fue el retome de `desgaste` (18:28 a 19:35):
 | `leyes`: bloques por color (costos por defecto) | 147 conviene apartar, 568 puede ir a la planta, 309 no sabemos (1.024 bloques) | `api.analizar("leyes")` con la red | 12:05 |
 | `leyes`: lo que cuesta no saber | US$ 1.577.707 (supuestos K-22 y K-23) | lo mismo | 12:05 |
 | `leyes`: examen | 61 de 68 muestras escondidas dentro del rango de 90% | lo mismo | 12:05 |
-| `leyes`: «¿Dónde perforo?» | 480 análisis rehechos; pin A vale US$ 8.943 (neto 7.443), B 8.376, C 7.967 | `api.donde_medir("leyes")` con la red | 12:05 |
+| `leyes`: «¿Dónde perforo?» | 480 análisis rehechos; pin A vale US$ 8.943 (neto 7.443), B 8.376, C 7.966 | `api.donde_medir("leyes")` con la red | 12:05 |
 | `espacial`: sello | PASA. 7.750.592 terrenos simulados, 280 min, cobertura del 90%: 0,90; 117 s por análisis con el método lento | `motor/artefactos/espacial/sello.json` | 09:39 |
 | `leyes`: examen con la verdad escondida, por color (datos simulados) | De 147 bloques «conviene apartar», 138 estaban sobre el límite; de 568 «puede ir a la planta», 6; de 309 «no sabemos», 139 | `examen_de_bloques` con la red, contra `leyes_verdad.csv` (1.024 bloques) | 13:57 |
 | `leyes`: examen por tramos de probabilidad | dijimos 2% y pasó 1% (568 bloques); 26% y 30% (178); 71% y 66% (131); 98% y 94% (147) | lo mismo | 13:57 |

@@ -6,7 +6,9 @@
   'use strict';
   const K = window.K;
   const COLS = 7, FILAS = 4, PASO = 100, LADO = 90, X0 = 1110, Y0 = 560, CASILLAS = COLS * FILAS;
-  const RITMO = 0.12;                                  // segundos entre un mapa nuevo y el siguiente
+  const RITMO = 0.12;                                  // segundos entre un mapa nuevo y el siguiente, mientras la muralla se llena
+  const CALMA = 1;                                     // y después, con la muralla llena: un mapa por segundo, para no competir con el QR
+  const cuando = function (k) { return 0.9 + (k < CASILLAS ? k * RITMO : (CASILLAS - 1) * RITMO + (k - CASILLAS + 1) * CALMA); };
 
   K.registrar('cierre', {
     tQuieto: 30,
@@ -41,17 +43,19 @@
       this.cv.width = Math.round(1920 * r);
       this.cv.height = Math.round(1080 * r);
     },
-    entrar: function () { this.muralla = []; this.hechos = 0; },
+    entrar: function () { this.muralla = []; this.hechos = 0; this.seg = null; },
     cuadro: function (t) {
       // lo que duró el pitch: desde la primera pulsación (o desde que se abrió el deck)
-      const seg = K.estatico ? 180 : (performance.now() - (K.partida || K.cargado || performance.now())) / 1000;
+      // Con la pausa (tecla P) la cuenta se congela; sin movimiento («reducir movimiento», ?quieto) queda fija en lo que iba al entrar.
+      if (this.seg == null || !(K.pausado || K.quieto)) this.seg = K.estatico ? 180 : (performance.now() - (K.partida || K.cargado || performance.now())) / 1000;
+      const seg = this.seg;
       K.cifra(this.n, K.miles(Math.floor((seg * 1000) / this.ms)));
       this.lento.textContent = Math.floor(seg / this.segLento);
 
-      const ctx = this.ctx, r = this.r, hasta = Math.floor((t - 0.9) / RITMO);
-      while (this.hechos <= hasta) {
+      const ctx = this.ctx, r = this.r;
+      while (cuando(this.hechos) <= t) {
         const k = this.hechos++;
-        this.muralla[this.casillaDe(k)] = { mapa: this.bancos[k % this.bancos.length].mapa, t: 0.9 + k * RITMO };
+        this.muralla[this.casillaDe(k)] = { mapa: this.bancos[k % this.bancos.length].mapa, t: cuando(k) };
       }
       ctx.setTransform(r, 0, 0, r, 0, 0);
       ctx.clearRect(0, 0, 1920, 1080);

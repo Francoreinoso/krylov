@@ -83,9 +83,9 @@
       ctx.fillStyle = '#b9b0a1'; ctx.font = '500 34px ' + TEXTO; ctx.textAlign = 'left';
       const nota = 'una sola vez', xi = x + 16;
       ctx.fillText(nota, xi, y + 34 + ALTO / 2 + 12);
-      const pulsos = listo ? Math.floor((v - 2.9) / PULSO) : 0, late = listo ? 0.55 + 0.45 * Math.abs(Math.sin(v * 31)) : 0;
-      this.caja(ctx, xi + ctx.measureText(nota).width + 40, y + 34, INFERIR, 'Inferir: un forward pass', late);
-      this.cuenta(ctx, X0, y + 250, pulsos, '#e2854a', 'datasets respondidos');
+      const pulsos = listo ? Math.floor((v - 2.9) / PULSO) : 0, late = listo ? 0.55 + 0.45 * Math.abs(Math.sin(v * 6.3)) : 0;       // dos latidos por segundo
+      this.caja(ctx, xi + ctx.measureText(nota).width + 40, y + 34, INFERIR, 'Inferir: un paso', late);
+      this.cuenta(ctx, X0, y + 250, pulsos, '#e2854a', pulsos === 1 ? 'dataset respondido' : 'datasets respondidos');
       ctx.globalAlpha = 1;
     },
   });

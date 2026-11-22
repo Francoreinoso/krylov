@@ -14,11 +14,11 @@
 
 El guion empuja esa idea en seis golpes:
 
-1. **El valor, antes que nada** (lámina 1): en el pasado, siete horas; hoy, menos de un segundo.
+1. **El valor, antes que nada** (lámina 1): los modelos que hoy exigen horas de cálculo y un especialista, al instante.
 2. **El cambio de paradigma** (láminas 2 y 3): Generative AI para datasets; en el pasado un modelo por dataset, hoy una red para todos.
 3. **La prueba** (láminas 4 y 5): con qué practicó, y cómo se ve responder.
 4. **El tamaño** (láminas 6 a 10): una mina toma cinco decisiones así todos los días; cuatro se ven con la respuesta de su red.
-5. **La confianza** (lámina 11): la accuracy de cada modelo, de 0 a 1.
+5. **La confianza** (lámina 11): el acierto de cada modelo, de 0 a 1.
 6. **El recuerdo** (lámina 12): el mensaje, el contador y el QR.
 
 Y después del pitch, **las preguntas de quien dirige una empresa**, cada una con su lámina y su tecla (más abajo).
@@ -44,7 +44,7 @@ Y después del pitch, **las preguntas de quien dirige una empresa**, cada una co
 | 11 | Cómo sé que acierta | 2:19 | 2:29 | 22 | Las cinco filas, con su barra |
 | 12 | Cierre | 2:29 | 2:39 | 21 | El contador corriendo; el QR |
 
-**Los camiones no están en el recorrido:** su red todavía no existe, y sin red no hay intervalo que mostrar. La lámina se abre con la tecla `C`; cuando la red exista y se regeneren los datos, vuelve sola entre la planta y los túneles.
+**Los camiones volvieron al recorrido el sábado en la noche:** su red pasó el sello a las 19:35 y el deck se regeneró. Son la lámina 10, entre la planta y los túneles; los túneles pasan a ser la 11, «cómo sé que acierta» la 12 y el cierre la 13, con 14 pulsaciones. **Este guion no trae frase ni tiempo para esa lámina, y los números de lámina de aquí abajo son los de antes (doce láminas):** quien presenta decide si la dice o la pasa de largo, y `config.js → tiempos` no tiene entrada para ella.
 
 ## El guion
 
@@ -161,7 +161,7 @@ El deck habla de las cinco decisiones como producto, y el guion también. **Lo q
 | 8 · La pared | Responde la red validada (sello a las 17:36, con el criterio de D-39). Pared simulada | Tal cual |
 | 9 · El cobre | Responde la red validada (sello a las 17:09). Planta simulada | Tal cual |
 | 10 · Los túneles | Responde la red validada (sello a las 18:15). Mina simulada | Tal cual, y con cuidado: Krylov apoya la decisión de un especialista |
-| Los camiones (tecla `C`) | El motor no tiene red: la lámina está fuera del recorrido | Si preguntan: «es la quinta decisión; su red está entrenando» |
+| Los camiones (lámina 10 desde el sábado en la noche) | Responde la red validada (sello a las 19:35). Flota simulada | El guion no trae frase: lo decide quien presenta |
 
 Ninguna de las tres redes nuevas está comparada todavía con el método lento.
 
@@ -183,7 +183,7 @@ Cuando un motor empieza a responder, se vuelve a correr `pitch/deck/datos/genera
 
 | Se dice | Cifra |
 |---|---|
-| «siete horas» y «menos de un segundo» (lámina 5) | M-10: 26.699 s = 228 × 117,1 s; M-09: 0,69 s |
+| «siete horas» y «menos de un segundo» (ya no están en pantalla ni en el guion; solo si preguntan por un encargo completo) | M-10: 26.699 s = 228 × 117,1 s; M-09: 0,69 s |
 | «228 análisis» | M-08 |
 | «más de siete millones de terrenos simulados» | M-01: 7.750.592 |
 | «cerca de nueve mil dólares» | M-46: US$ 8.943, con el costo supuesto K-24 |
@@ -194,10 +194,10 @@ En pantalla, además:
 - **Lámina 7:** 147, 309 y 568 partes del terreno (M-40); 480 análisis (M-43); US$ 1.500 por muestra (K-24); la plata, por su orden de magnitud.
 - **Lámina 8:** 5, 2 y 29 sectores; las horas que faltan para seis sectores, con su intervalo; 12 horas (el horizonte del caso).
 - **Lámina 9:** 2, 3 y 3 líneas; la recuperación de cada línea con su intervalo; la meta de 84% (K-41).
-- **Lámina 10:** 0, 4 y 4 sectores; el riesgo de cada sector con su intervalo; 9,1% de riesgo (el punto de corte, que sale de los costos supuestos del caso); magnitud 1,2 (el temblor más fuerte del archivo).
-- **Lámina 11:** 0,98 (700 de 715), 1,00 (34 de 34), 1,00 (5 de 5) y 1,00 (4 de 4).
+- **Lámina 10:** 0, 4 y 4 sectores; el riesgo de cada sector con su intervalo; 9,1% de riesgo (el punto de corte, que sale de los costos supuestos del caso).
+- **Lámina 11:** 0,98 (700 de 715), 1,00 (34 de 34), 1,00 (5 de 5), 0,92 (36 de 39, los camiones) y 1,00 (4 de 4): M-56.
 - **Lámina 12:** el contador, que es una cuenta (segundos del pitch ÷ 10 ms).
-- **Las cifras de las láminas 8 a 11 que salen de las redes nuevas todavía no tienen fila en `CIFRAS.md`.**
+- **Las tarjetas de arriba a la derecha (una unidad con su intervalo) y los aciertos de cada modelo tienen fila en `CIFRAS.md` desde el sábado a las 20:35:** M-56 a M-62. Los gráficos de intervalos ya no llevan columna de valores.
 
 ## Si falta tiempo
 
@@ -215,7 +215,7 @@ Sobran 21 segundos. Si en el ensayo queda holgura, conviene gastarla en la lámi
 - **Tecla `D`: la demo real**, encima de las láminas. Necesita internet.
 - **Teclas `Q`, `A`, `L`, `M`:** las láminas de preguntas (arriba).
 - **Tecla `0`: cómo funciona.** Bayesian Amortized Inference en dos mitades, con los números del sello del motor.
-- **Tecla `C`: los camiones**, mientras su red no exista.
+- **Los camiones** ya están en el recorrido (lámina 10): la tecla `C` no abre nada.
 - **Lámina 7:** arrastrar con el mouse gira el terreno.
 
 ## Si algo falla

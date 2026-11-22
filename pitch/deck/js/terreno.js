@@ -304,10 +304,33 @@
     taladro.renderOrder = nueva.renderOrder = ondaAro.renderOrder = 9;
     scene.add(taladro, nueva, ondaAro);
 
+    // ----- el punto fijo del zoom: un aro sobre el bloque elegido (su tarjeta la dibuja js/zoom.js) -----
+    const mAroZoom = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, depthTest: false });
+    const aroZoom = new THREE.Mesh(new THREE.RingGeometry(0.66, 0.86, 48), mAroZoom);
+    aroZoom.rotation.x = -Math.PI / 2;
+    aroZoom.renderOrder = 10;
+    scene.add(aroZoom);
+    function centroDe(i) { const idx = T.dentro[i]; return { x: (idx % nx) + 0.5 - nx / 2 - cx, z: -(Math.floor(idx / nx) + 0.5 - nx / 2) - cz }; }
+    // El bloque que se ve en un lugar de la pantalla (de −1 a 1 en cada eje): se camina por el rayo hasta tocar el terreno.
+    const rayo = new THREE.Raycaster(), lugar = new THREE.Vector2();
+    function bloqueEn(nx_, ny_) {
+      lugar.set(nx_, ny_);
+      rayo.setFromCamera(lugar, camera);
+      const o = rayo.ray.origin, d = rayo.ray.direction;
+      for (let t = 20; t < 240; t += 0.2) {
+        const col = Math.floor(o.x + d.x * t + cx + nx / 2), fila = Math.floor(nx / 2 - (o.z + d.z * t + cz));
+        if (col < 0 || fila < 0 || col >= nx || fila >= nx) continue;
+        const i = indiceDe[fila * nx + col];
+        if (i != null && o.y + d.y * t <= altura(i)) return i;
+      }
+      return null;
+    }
+
     // ----- estado animable -----
     const s = {
+      zoom: 0,
       crece: 0, color: 1, vidrio: 0, caida: 0, tallos: 0, puntos: 1, morf: 0, escaneo: 0, destaca: 0, haces: 0, taladro: 0, medido: 0,
-      az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, fase: 0, arrastre: 0, arrastreEl: 0,
+      az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, dy: 0, fase: 0, arrastre: 0, arrastreEl: 0,
     };
     let actual = T, destino = T, pin = null;
 
@@ -315,6 +338,31 @@
 
     E = {
       tres: { scene: scene, camera: camera }, s: s, T: T, D: D, haces: haces, orillas: orillas, sel: 'A', nivel: 'medio',
+      zoomI: null,                                              // el bloque fijado (índice dentro de T.dentro)
+      // Dónde está en la escena el bloque fijado, sobre el terreno.
+      puntoZoom: function () { const c = centroDe(E.zoomI); return { x: c.x, y: altura(E.zoomI) + 0.15, z: c.z }; },
+      bloqueEn: bloqueEn,
+      // El bloque que se fija al entrar: de los que están en duda y se ven bajo la tarjeta, el más parejo entre sí y no.
+      // Se elige una vez, con el terreno entero y la cámara en su posición de entrada (sin su vaivén): es siempre el mismo.
+      elegirZoom: function () {
+        let mejor = null, nota = Infinity;
+        const crece = s.crece;
+        s.crece = 1;
+        camera.setViewOffset(1920, 1080, -400, BAJA, 1920, 1080);
+        camera.position.set(Math.sin(-0.62) * Math.cos(0.62) * 92, -1.5 + Math.sin(0.62) * 92, Math.cos(-0.62) * Math.cos(0.62) * 92);
+        camera.lookAt(0, -1.5, 0);
+        camera.updateMatrixWorld();
+        for (let i = 0; i < n; i++) {
+          if (T.estado[i] !== 1) continue;
+          const c = centroDe(i), q = K.proyectar(c.x, actual.media[i] * F, c.z, camera);
+          if (q.x < 1260 || q.x > 1720 || q.y < 470 || q.y > 900) continue;
+          if (bloqueEn((q.x / 1920) * 2 - 1, 1 - (q.y / 1080) * 2) !== i) continue;          // que no lo tape un cerro
+          const d = Math.abs(T.p[i] - 0.5);
+          if (d < nota) { nota = d; mejor = i; }
+        }
+        s.crece = crece;
+        return mejor;
+      },
       candidata: function (letra) { return D.donde.candidatas.filter(function (c) { return c.etiqueta === letra; })[0]; },
       // Rehace el mapa hacia otra capa (la respuesta de la red con una medición más), propagándose desde el pin.
       morfar: function (capa, desde, inst, demora) {
@@ -376,8 +424,15 @@
           mOnda.opacity = s.morf > 0 && s.morf < 1 ? (1 - frente) * 0.75 : 0;
         } else { taladro.visible = nueva.visible = false; mOnda.opacity = 0; }
 
+        if (E.zoomI != null) {
+          const c = centroDe(E.zoomI);
+          aroZoom.position.set(c.x, altura(E.zoomI) + 0.15, c.z);
+          aroZoom.scale.setScalar(1 + 0.12 * Math.sin(t * 2.2));
+        }
+        mAroZoom.opacity = E.zoomI == null ? 0 : s.zoom;
+
         const az = s.az + 0.16 * Math.sin(s.fase * 0.2) + s.arrastre, el = K.acotar(s.el + s.arrastreEl, 0.2, 1.4);
-        camera.setViewOffset(1920, 1080, s.dx, 0, 1920, 1080);
+        camera.setViewOffset(1920, 1080, s.dx, s.dy, 1920, 1080);
         camera.position.set(Math.sin(az) * Math.cos(el) * s.R, s.ty + Math.sin(el) * s.R, Math.cos(az) * Math.cos(el) * s.R);
         camera.lookAt(0, s.ty, 0);
         camera.updateMatrixWorld();
@@ -398,7 +453,13 @@
       s.arrastre = agarre.a - ((ev.clientX - agarre.x) * 0.006) / K.escala;
       s.arrastreEl = agarre.e + ((ev.clientY - agarre.y) * 0.004) / K.escala;
     });
-    lienzo.addEventListener('pointerup', function () { agarre = null; });
+    lienzo.addEventListener('pointerup', function (ev) {
+      const quieto = agarre && Math.hypot(ev.clientX - agarre.x, ev.clientY - agarre.y) < 6, donde = K.donde();
+      agarre = null;
+      if (!quieto || K.laminas[donde.lamina].id !== 'l-leyes' || donde.paso !== 0) return;
+      const r = lienzo.getBoundingClientRect(), i = bloqueEn(((ev.clientX - r.left) / r.width) * 2 - 1, 1 - ((ev.clientY - r.top) / r.height) * 2);
+      if (i != null) E.zoomI = i;                               // un clic sobre el terreno fija el zoom en ese punto
+    });
     lienzo.addEventListener('pointercancel', function () { agarre = null; });
     return E;
   }
@@ -406,6 +467,9 @@
   function terreno() { return E || (K.gl.ok ? construir() : null); }
 
   // ============================== 5 · Leyes: el banco y «¿Dónde perforo?» ==============================
+  // En el paso 0 la escena baja (en píxeles de la lámina) para que el cerro no entre a la tarjeta del zoom; en el paso 1 vuelve a su lugar.
+  const BAJA = -150;
+
   K.registrar('leyes', {
     tres: null, interactivo: true, tQuieto: 0,
     crear: function (L) {
@@ -431,15 +495,21 @@
         yo.filas[c.etiqueta] = fila;
       });
       this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
+      this.zoom = K.zoom.crear(L, 640, 270);
+      L.classList.add('con-zoom');
     },
+    alAjustar: function () { if (this.zoom) K.zoom.ajustar(this.zoom); },
     entrar: function () {
       const m = this.m;
       if (!m) return;
       const s = m.s;
       gsap.killTweensOf(s);
       if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
-      Object.assign(s, { crece: 0, vidrio: 0, caida: 1, tallos: 1, puntos: 1, color: 1, morf: 1, haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0,
-        az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, arrastre: 0, arrastreEl: 0 });
+      Object.assign(s, { zoom: 0, crece: 0, vidrio: 0, caida: 1, tallos: 1, puntos: 1, color: 1, morf: 1, haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0,
+        az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, dy: BAJA, arrastre: 0, arrastreEl: 0 });
+      // la tarjeta abre siempre el mismo punto: el que se eligió la primera vez (un clic en el terreno la mueve hasta salir de la lámina)
+      if (this.zoomInicial == null) this.zoomInicial = m.elegirZoom();
+      m.zoomI = this.zoomInicial;
       // el banco se levanta apenas entra la lámina; después aparece la malla del rango
       K.anim(s, { crece: 1 }, 3.0, false, 'power1.inOut', 0.3);
       K.anim(s, { vidrio: 1 }, 1.6, false, 'power1.inOut', 3.0);
@@ -449,17 +519,19 @@
       if (!m) return;
       const s = m.s;
       if (inst) { gsap.killTweensOf(s, 'crece,vidrio'); s.crece = 1; s.vidrio = p === 0 ? 1 : 0; }
+      gsap.killTweensOf(s, 'zoom');
+      if (p === 0) K.anim(s, { zoom: 1 }, 0.8, inst, 'power1.out', s.crece < 0.5 ? 2.6 : 0.2); else K.anim(s, { zoom: 0 }, 0.25, inst);
       if (p === 0) {
         K.anim(s, { haces: 0, puntos: 1 }, 0.6, inst);
-        K.anim(s, { az: -0.62, el: 0.62, R: 92, ty: -1.5 }, 2.2, inst);
+        K.anim(s, { az: -0.62, el: 0.62, R: 92, ty: -1.5, dy: BAJA }, 2.2, inst);
         if (inst) { s.escaneo = 0; s.destaca = 0; }
       } else {
         gsap.killTweensOf(s, 'crece,vidrio');
         s.crece = 1;
         K.anim(s, { vidrio: 0, puntos: 0.3, haces: 1 }, 0.8, inst);
-        K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5 }, 2.6, inst);
+        K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5, dy: 0 }, 2.6, inst);
         if (!inst) { s.escaneo = 0; s.destaca = 0; }
-        K.anim(s, { escaneo: 1 }, 3.0, inst, 'none', 0.5);
+        K.anim(s, { escaneo: 1 }, 3.0, inst, 'power1.inOut', 0.5);
         K.anim(s, { destaca: 1 }, 1.6, inst, 'power1.inOut', 3.4);
       }
     },
@@ -468,6 +540,13 @@
       if (!m) return;
       m.cuadro(t, dt, 'leyes');
       const s = m.s, yo = this, n = m.D.donde.analisis_rehechos;
+      // el zoom: el punto fijo del terreno y su tarjeta, con la distribución de lo que hay ahí
+      if (m.zoomI != null) {
+        if (this._zi !== m.zoomI) { this._zi = m.zoomI; this._zo = K.zoom.bloque(m.zoomI); }
+        const q = m.puntoZoom(), pp = K.proyectar(q.x, q.y, q.z, m.tres.camera);
+        K.zoom.pintar(this.zoom, this._zo, K.suave(s.zoom), s.zoom * 2.5);          // la tarjeta se funde al entrar, cuando el banco ya se levantó
+        K.zoom.hilar(this.zoom, pp.x, pp.y, { x0: 1190, x1: 1790, y: 364 }, s.zoom > 0.5);
+      } else K.zoom.hilar(this.zoom, 0, 0, { x0: 0, x1: 0, y: 0 }, false);
       this.cuentaAnalisis.textContent = K.miles(Math.min(n, Math.floor(K.acotar(s.escaneo * 1.02, 0, 1) * n)));
       ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });   // C, B y al final A
       m.haces.forEach(function (h) {

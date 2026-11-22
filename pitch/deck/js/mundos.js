@@ -18,7 +18,8 @@
       if (this.cuenta) this.cuenta.kill();
       if (p === 0) {
         K.anim(this.s, { mezcla: 0 }, 1.2, inst);
-        this.cuenta = K.contar(this.contador, 0, this.total, 5.5, K.miles, inst, 'power3.out');
+        // la cifra se lee casi de inmediato: cuenta el último 10% en 1,2 s
+        this.cuenta = K.contar(this.contador, Math.round(this.total * 0.9), this.total, 1.2, K.miles, inst, 'power2.out');
       } else {
         K.cifra(this.contador, K.miles(this.total));
         K.anim(this.s, { mezcla: 1 }, 5.0, inst, 'power1.inOut');

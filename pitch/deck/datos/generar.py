@@ -28,9 +28,19 @@ públicos) queda para la demostración de tiempos y para el examen con datos rea
 - `series`      los otros cuatro casos de D-37 (taludes, flotacion, flota, sismicidad): las series de su archivo
                 de demo, sus rótulos y, **si su motor ya responde**, la decisión por unidad y su curva. Mientras
                 no responda, la lámina dibuja solo los datos; al volver a correr este script, aparece la respuesta.
+                Con respuesta, además `posteriori`: por unidad, 64 cuantiles de la posteriori de lo que se decide
+                (horas que faltan, cobre al final de la línea, riesgo de que el camión falle antes de su mantención,
+                riesgo de un temblor fuerte). Son las mismas muestras con que el motor arma su respuesta, capturadas mientras
+                responde: aquí no se vuelve a muestrear ni se ajusta ninguna curva. Es lo que dibuja el zoom de
+                cada lámina (`js/zoom.js`).
 - `sello`       copia de `motor/artefactos/espacial/sello.json`.
 
 Tarda unos segundos. No hay que correrlo con un entrenamiento andando más de lo que dura.
+
+    uv run python pitch/deck/datos/generar.py --series
+
+rehace solo `series` (los cuatro casos de lista y su `posteriori`) y deja el resto de `datos.js` como estaba: no usa
+`torch` ni vuelve a medir tiempos, así que se puede correr con un entrenamiento andando.
 """
 
 from __future__ import annotations
@@ -41,6 +51,7 @@ import json
 import os
 import sys
 import time
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 os.environ["KRYLOV_MOTOR_ESPACIAL"] = "red"
@@ -50,7 +61,8 @@ os.chdir(RAIZ)
 
 import numpy as np  # noqa: E402
 
-from nucleo import api, casos, decision, espacial  # noqa: E402
+from nucleo import api, casos, decision, deformacion, espacial  # noqa: E402
+from nucleo import series as nucleo_series  # noqa: E402
 
 CASO = "leyes"            # el caso estrella: láminas 4 y 5
 REAL = "terreno"          # datos reales públicos: el encargo de los 228 análisis (M-08 a M-10) y el examen
@@ -63,6 +75,7 @@ TERRENOS_SIMULADOS = 256
 TERRENOS_PRACTICA = 3000
 Z90 = 1.645
 ESTADO = {"no_actuar": 0, "en_duda": 1, "actuar": 2}
+CUANTILES = 64            # con cuántos cuantiles se guarda la posteriori de cada unidad
 
 
 def mapa_con_rango(nombre: str, mediciones: list[dict]) -> dict:
@@ -215,6 +228,61 @@ def rafaga() -> dict:
     }
 
 
+@contextmanager
+def capturar(modulo, nombre: str):
+    """Mientras dure, guarda los argumentos y el resultado de cada llamada a `modulo.nombre`, sin cambiar lo que hace."""
+    original, vistas = getattr(modulo, nombre), []
+
+    def envuelta(*args, **kwargs):
+        resultado = original(*args, **kwargs)
+        vistas.append((args, resultado))
+        return resultado
+
+    setattr(modulo, nombre, envuelta)
+    try:
+        yield vistas
+    finally:
+        setattr(modulo, nombre, original)
+
+
+def posteriori(nombre: str, r: dict, vistas: dict) -> dict:
+    """Por unidad, la posteriori de lo que se decide, como cuantiles de las muestras que el motor usó para responder.
+
+    - taludes: horas que faltan para ceder, entre las muestras en que el sector se acelera (lo mismo que su `marca`);
+    - flotacion: el último punto del abanico de su curva (el cobre al final de la línea);
+    - sismicidad y flota: el riesgo que muestra su gráfico de intervalos (un temblor fuerte en el horizonte; que el
+      camión falle antes de su mantención), uno por cada versión creíble de la faena (las `muestras_p` con que se decide).
+    Se comprueba contra lo que la API publicó para esa unidad.
+    """
+    (ids, muestras_p, _, _), _ = vistas["unidades"][-1]
+    _, (_, lam, _) = vistas["posterior"][-1]
+    de_la_api = {u["id"]: u for u in r["unidades"]}
+    salida = {}
+    for j, uid in enumerate(ids):
+        curva = de_la_api[uid].get("curva")
+        if nombre == "taludes":
+            acelera = lam[:, :, j, 3] > 0.5
+            if acelera.mean() < 0.5:
+                continue
+            ventana = vistas["normalizar_tiempo"][-1][1][2]
+            v = np.exp(lam[:, :, j, 1][acelera]) * ventana
+            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
+            assert abs(bajo - curva["marca"]["bajo"]) < 0.06 and abs(alto - curva["marca"]["alto"]) < 0.06, "las horas no coinciden con la marca de la API"
+        elif nombre in ("sismicidad", "flota"):
+            v = np.asarray(muestras_p[j], dtype=float)
+            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
+            assert abs(v.mean() - de_la_api[uid]["p"]) < 0.006, "la probabilidad no coincide con la de la API"
+        else:
+            v = np.asarray(vistas["curva"][j][0][3], dtype=float)[:, -1]
+            bajo, medio, alto = np.quantile(v, [0.05, 0.5, 0.95])
+            if curva:
+                assert abs(bajo - curva["bajo"][-1]) < 2e-3 and abs(alto - curva["alto"][-1]) < 2e-3, "el final del abanico no coincide con la curva de la API"
+        cuantiles = np.quantile(v, (np.arange(CUANTILES) + 0.5) / CUANTILES)
+        salida[uid] = {"bajo": round(float(bajo), 4), "medio": round(float(medio), 4), "alto": round(float(alto), 4),
+                       "muestras": int(v.size), "cuantiles": [round(float(q), 4) for q in cuantiles]}
+    return salida
+
+
 def serie(nombre: str) -> dict:
     """Un caso de series: lo que trae su archivo y, si su motor ya responde, la decisión por unidad."""
     caso = casos.cargar_caso(nombre)
@@ -228,13 +296,16 @@ def serie(nombre: str) -> dict:
         with open(RAIZ / caso["verdad"]) as f:
             verdad = {fila[col["unidad"]] if col["unidad"] in fila else fila["unidad"]: fila for fila in csv.DictReader(f)}
     respuesta = None
-    # Si la red de ese motor ya está exportada (motor/artefactos/<motor>/codificador.onnx), responde ella, haya pasado
-    # o no su sello: el deck muestra lo que la red dice hoy, y guarda `sello_pasa` para que las notas lo digan.
+    # Responde la red de ese motor solo si está exportada (motor/artefactos/<motor>/codificador.onnx) y pasó su sello
+    # (regla 5 de AGENTS.md): si no pasó, la lámina dibuja el archivo y no muestra cifras.
     artefactos = RAIZ / "motor/artefactos" / caso["motor"]
     sello = json.loads((artefactos / "sello.json").read_text()) if (artefactos / "sello.json").exists() else None
-    if (artefactos / "codificador.onnx").exists():
+    if (artefactos / "codificador.onnx").exists() and sello and sello.get("pasa"):
         os.environ["KRYLOV_MOTOR_" + caso["motor"].upper()] = "red"
-    r = api.analizar(nombre)
+    with ExitStack() as pila:
+        vistas = {f: pila.enter_context(capturar(m, f)) for m, f in
+                  ((nucleo_series, "posterior"), (nucleo_series, "curva"), (nucleo_series, "unidades"), (deformacion, "normalizar_tiempo"))}
+        r = api.analizar(nombre)
     if "error" not in r and r.get("unidades") and r.get("implementacion") in ("red", "mcmc") and not r["semaforo"]["estado"].startswith("rojo"):
         respuesta = {
             "implementacion": r["implementacion"], "precalculado": r["precalculado"], "colores": r["resumen_colores"],
@@ -246,6 +317,7 @@ def serie(nombre: str) -> dict:
             "punto_de_corte": r.get("punto_de_corte"),
             # de cada unidad: su decisión, el riesgo que estima la red y su intervalo de credibilidad de 90%, y su curva
             "unidades": {u["id"]: {"estado": u["estado"], "p": u["p"], "rango": [u.get("rango_bajo"), u.get("rango_alto")], "curva": u.get("curva")} for u in r["unidades"]},
+            "posteriori": posteriori(nombre, r, vistas),
         }
         # El examen de las decisiones: de las unidades donde decidió (actuar o no actuar), en cuántas acertó según la
         # verdad escondida del archivo simulado. Las que dejó «en duda» no cuentan: ahí dijo que no sabía.
@@ -325,6 +397,30 @@ def prueba_llm() -> dict | None:
     return json.loads(ruta.read_text()) if ruta.exists() else None
 
 
+def escribir(datos: dict) -> Path:
+    salida = Path(__file__).with_name("datos.js")
+    salida.write_text("// Generado por pitch/deck/datos/generar.py. No editar a mano.\nwindow.KRYLOV_DATOS = "
+                      + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";\n")
+    return salida
+
+
+def informar_series(datos: dict) -> None:
+    for nombre, c in datos["series"].items():
+        print(" ", nombre, "·", len(c["unidades"]), c["unidad"]["plural"], "·", c["lecturas"], "lecturas ·",
+              "responde: " + c["respuesta"]["implementacion"] if c["respuesta"] else "su motor todavía no responde: solo datos")
+
+
+def solo_series() -> None:
+    """Rehace `series` y deja lo demás de datos.js como estaba."""
+    texto = Path(__file__).with_name("datos.js").read_text()
+    datos = json.loads(texto[texto.index("{"):texto.rindex("}") + 1])
+    datos["series"] = {nombre: serie(nombre) for nombre in SERIES}
+    datos["series_generadas"] = time.strftime("%Y-%m-%d %H:%M")
+    salida = escribir(datos)
+    print(f"{salida.relative_to(RAIZ)}: solo `series`, {salida.stat().st_size / 1e3:.0f} kB")
+    informar_series(datos)
+
+
 def main() -> None:
     inicio = time.time()
     base = mapa_con_rango(CASO, [])
@@ -372,9 +468,7 @@ def main() -> None:
         "modelos": [modelo_de(n) for n in (CASO,) + SERIES],
         "prueba_llm": prueba_llm(),
     }
-    salida = Path(__file__).with_name("datos.js")
-    salida.write_text("// Generado por pitch/deck/datos/generar.py. No editar a mano.\nwindow.KRYLOV_DATOS = "
-                      + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";\n")
+    salida = escribir(datos)
     print(f"{salida.relative_to(RAIZ)}: {salida.stat().st_size / 1e3:.0f} kB en {time.time() - inicio:.1f} s")
     print(CASO, "· colores", base["colores"], "· cuesta no saber", base["costo_de_no_saber"], "·", r["origen_datos"])
     for c in donde["candidatas"]:
@@ -387,10 +481,8 @@ def main() -> None:
     print(POCOS, "·", datos["pocos"]["muestras"], "muestras ·", pocos["semaforo"]["motivo"])
     print("práctica:", len(muestras), "terrenos, de", min(muestras), "a", max(muestras), "muestras")
     print("ráfaga:", BANCOS_RAFAGA, "bancos ·", datos["rafaga"]["ms_por_banco_aqui"], "ms por banco en este computador (en lote)")
-    for nombre, c in datos["series"].items():
-        print(" ", nombre, "·", len(c["unidades"]), c["unidad"]["plural"], "·", c["lecturas"], "lecturas ·",
-              "responde: " + c["respuesta"]["implementacion"] if c["respuesta"] else "su motor todavía no responde: solo datos")
+    informar_series(datos)
 
 
 if __name__ == "__main__":
-    main()
+    solo_series() if "--series" in sys.argv else main()

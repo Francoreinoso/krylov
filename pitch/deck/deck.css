@@ -38,7 +38,7 @@
   --linea: #2d2924;
   --tinta: #f4efe6;
   --suave: #b9b0a1;
-  --tenue: #7d7568;
+  --tenue: #847c6f;
   --cobre: #e2854a;
   --cobre-hondo: #b05a2a;
   --oxido: #36c2ae;
@@ -50,6 +50,15 @@
   --titulo: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --texto: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  /* La entrada por pasos: un fundido corto; solo los títulos se desplazan. Para volver a la entrada anterior (subir 26 px,
+     desenfocada, 0,7 s) basta cambiar estos tokens: .7s · cubic-bezier(.16, .8, .2, 1) · 26px · 26px · 6px · 1 · 9s */
+  --dur-entrada: .4s;
+  --curva-entrada: cubic-bezier(.16, .8, .2, 1);
+  --sube-titulo: 12px;          /* lo que sube un título al entrar */
+  --sube-cuerpo: 0px;           /* lo que sube todo lo demás */
+  --desenfoque-entrada: 0px;
+  --escala-retardo: .57;        /* los retardos entre pasos (--d) se acortan en la misma proporción que la duración */
+  --tope-retardo: 1.2s;         /* y ninguno pasa de aquí */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -98,18 +107,19 @@ html, body {
 .lamina.activa .toca { pointer-events: auto; }
 .lamina > aside.notas { display: none; }
 
-/* Lo que aparece por pasos: sube y se enfoca */
+/* Lo que aparece por pasos: un fundido (tokens de :root). Solo los títulos suben un poco. */
 [data-paso] {
-  opacity: 0; transform: translateY(26px); filter: blur(6px);
-  transition: opacity .7s ease, transform .9s cubic-bezier(.16, .8, .2, 1), filter .7s ease;
-  transition-delay: var(--d, 0s);
+  opacity: 0; transform: translateY(var(--sube-cuerpo)); filter: blur(var(--desenfoque-entrada));
+  transition: opacity var(--dur-entrada) var(--curva-entrada), transform var(--dur-entrada) var(--curva-entrada), filter var(--dur-entrada) ease;
+  transition-delay: min(calc(var(--d, 0s) * var(--escala-retardo)), var(--tope-retardo));
 }
+.t1[data-paso], .t2[data-paso], .cabeza[data-paso], .frase[data-paso] { transform: translateY(var(--sube-titulo)); }
 [data-paso].visto { opacity: 1; transform: none; filter: none; }
 /* lo que sale se va rápido y lo que entra espera a que se haya ido: nunca hay dos textos encima uno del otro */
 [data-hasta].ido { opacity: 0 !important; transform: translateY(-20px) !important; filter: blur(6px) !important; transition-delay: 0s !important; transition-duration: .2s !important; }
-[data-paso="1"], [data-paso="2"] { --d: .26s; }
+[data-paso="1"], [data-paso="2"] { --d: .26s; transition-delay: var(--d); }
 
-.quieto [data-paso], .quieto .lamina, .quieto #gl { transition: none !important; }
+.quieto [data-paso], .quieto .lamina, .quieto #gl, .quieto #avance, .quieto .etq, .quieto #l-mundos .velo, .quieto #l-mundos .velo2, .quieto #l-leyes .ranking .fila { transition: none !important; }
 .quieto * { animation: none !important; }
 
 /* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
@@ -160,6 +170,9 @@ html, body {
 .intervalos .fila, .intervalos .eje, .intervalos .cabeza-eje { display: grid; grid-template-columns: var(--nom) 1fr var(--val); align-items: center; }
 .intervalos .fila { height: var(--alto); }
 .intervalos .nom { font-size: 23px; font-weight: 520; color: var(--tinta); white-space: nowrap; }
+/* la fila que abre la tarjeta del zoom queda en tinta; las demás, suaves */
+.intervalos.con-foco .nom { color: var(--suave); }
+.intervalos.con-foco .fila.foco .nom { color: var(--tinta); font-weight: 650; }
 .intervalos .val { font-family: var(--mono); font-size: 19px; color: var(--suave); text-align: right; white-space: nowrap; }
 .intervalos .riel { position: relative; height: 100%; }
 .intervalos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -1px; background: var(--linea); }
@@ -229,10 +242,11 @@ html, body {
 .etq { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; transition: opacity .5s ease; will-change: transform; pointer-events: none; }
 .etq.ver { opacity: 1; }
 .etq.rio { font-family: var(--mono); font-size: 21px; letter-spacing: .14em; text-transform: uppercase; color: #8fd0ff; text-shadow: 0 0 10px #000, 0 2px 14px #000; }
-.etq.letra { font-family: var(--titulo); font-weight: 800; font-size: 64px; line-height: 1; color: var(--tinta); text-shadow: 0 0 18px #000, 0 2px 20px #000; }
+/* la sombra hace de halo oscuro pegado a la letra: se lee también sobre el terreno claro */
+.etq.letra { font-family: var(--titulo); font-weight: 800; font-size: 64px; line-height: 1; color: var(--tinta); text-shadow: 0 0 5px #0b0a09, 0 0 10px #0b0a09, 0 0 18px #000, 0 2px 20px #000; }
 .lamina.activa .etq.letra { pointer-events: auto; cursor: pointer; }
 .etq.letra.sel { color: var(--oro); }
-.etq.letra.menor { font-size: 46px; color: #f4efe6c0; }
+.etq.letra.menor { font-size: 46px; color: var(--tinta); }
 
 /* =====================================================================
    3 · Mundos simulados
@@ -403,13 +417,17 @@ html, body {
 /* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
 .sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09 44%, #0b0a09a0 49%, transparent 55%); }
 .sobre-serie .capa-etq { position: absolute; inset: 0; }
+/* los camiones llenan toda la derecha: bajo la tarjeta del zoom el fondo los tapa, para que la curva se lea */
+#l-flota.con-zoom .velo { background: linear-gradient(180deg, #0b0a09 0%, #0b0a09 31%, #0b0a09b3 36%, transparent 43%), linear-gradient(90deg, #0b0a09 0%, #0b0a09 44%, #0b0a09a0 49%, transparent 55%); }
 .sobre-serie canvas.curva { position: absolute; left: 110px; bottom: 100px; width: 800px; height: 250px; }
 /* cuando la red respondió, el gráfico de la pared va arriba a la derecha: un sector que conviene cerrar y cuánto le falta */
-#l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 640px; height: 290px; }
+#l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 860px; height: 290px; }
 #l-taludes.con-respuesta .reloj { display: none; }
 .sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 13px; }
 .sobre-serie .columna .t2 { font-size: 68px; }
 .sobre-serie .columna > .p { font-size: 29px; width: 790px; }
+/* sin columna de valores, el gráfico no se estira hasta donde el fondo ya deja ver la escena */
+.sobre-serie .intervalos.sin-valores { --val: 70px; }
 /* el reloj del recorrido: chico, al pie de la columna (lo que se ve es el archivo pasando en el tiempo) */
 .sobre-serie .reloj { display: flex; align-items: baseline; gap: 14px; margin-top: 6px; }
 .sobre-serie .reloj .num { font-size: 36px; color: var(--tenue); }
@@ -427,8 +445,8 @@ html, body {
 .etq.nota.roja::before { background: #ff8a66; }
 .etq.nota.roja > div { border-left-color: #ff8a66; }
 /* el hilo que une una unidad con su gráfico */
-.etq.nota.hilo::before { height: var(--alto, 60px); background: #ff7a50; }
-.etq.nota.hilo::after { content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: #ff7a50; }
+.etq.nota.hilo::before { height: var(--alto, 60px); background: var(--actuar); }
+.etq.nota.hilo::after { content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: var(--actuar); }
 .etq.nota.hilo > div { display: none; }
 .etq.chica > div { position: absolute; left: 12px; top: -15px; font-family: var(--mono); font-size: 21px; letter-spacing: .02em; color: var(--suave); text-shadow: 0 0 8px #000, 0 2px 12px #000, 0 0 3px #000; }
 .etq.chica b { color: var(--tinta); font-weight: 600; }
@@ -546,3 +564,13 @@ html, body {
 #l-produccion .clave.barra { width: 54px; height: 16px; background: var(--no-actuar); }
 #l-produccion .clave.punto { width: 4px; height: 28px; background: #f4efe6; margin-left: 30px; }
 #l-produccion .clave.real { width: 18px; height: 18px; border-radius: 50%; border: 3.5px solid #fff; margin-left: 30px; }
+
+/* El zoom de una unidad (js/zoom.js): la tarjeta con su distribución a posteriori, y el hilo que la une a su punto de la escena */
+.lamina canvas.zoom { position: absolute; right: 110px; top: 86px; width: 640px; height: 270px; pointer-events: none; }
+/* escondido con visibility, no con display: así, al recibir .con-zoom y .visto en el mismo cuadro, su entrada sí corre */
+.lamina:not(.con-zoom) canvas.zoom { visibility: hidden; }
+/* el hilo va en tinta con borde oscuro: se ve sobre cualquier color del terreno */
+.hilo-zoom { position: absolute; left: 0; top: 0; height: 2px; margin-top: -1px; transform-origin: 0 50%; background: var(--tinta); box-shadow: 0 0 0 1.5px #0b0a09cc; opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
+.hilo-zoom.ver { opacity: .9; }
+.hilo-zoom i { position: absolute; left: -7px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 3px #0b0a09; }
+.quieto .hilo-zoom { transition: none; }

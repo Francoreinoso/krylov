@@ -30,7 +30,9 @@
   const FRAG_LINEA = 'precision highp float;\nvarying vec3 vColor;\nvarying float vA;\nvoid main() { vec3 c = vColor * vA; gl_FragColor = vec4(c, max(c.r, max(c.g, c.b))); }';
   const DECISION = { actuar: [0.92, 0.36, 0.22], en_duda: [0.95, 0.78, 0.36], no_actuar: [0.12, 0.68, 0.49] };
   const ROJO = [0.92, 0.36, 0.22], COBRE = [0.91, 0.52, 0.27];
-  const COLOR_CSS = { actuar: '#ff7a50', en_duda: '#eec25a', no_actuar: '#2fbf8f' };
+  // Los colores de las decisiones para los lienzos 2D y las tarjetas: los tokens de :root (deck.css). Un rojo y un verde.
+  const token = function (nombre, respaldo) { return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim() || respaldo; };
+  const COLOR_CSS = (K.coloresDecision = { actuar: token('--actuar', '#e4603c'), en_duda: token('--en-duda', '#eec25a'), no_actuar: token('--no-actuar', '#1fa87a') });
 
   // ---------- lo común a las cuatro ----------
   function base(fov) {
@@ -242,7 +244,9 @@
       }
       this.cv = L.querySelector('canvas.curva');
       this.ctx = this.cv.getContext('2d');
-      this.cw = this.foco >= 0 ? 640 : 800; this.ch = this.foco >= 0 ? 290 : 250;
+      this.cw = this.foco >= 0 ? 860 : 800; this.ch = this.foco >= 0 ? 290 : 250;
+      this.zo = this.foco >= 0 ? K.zoom.unidad('taludes', S.unidades[this.foco].id) : null;
+      if (this.zo) K.zoom.enfocar(L, S.unidades[this.foco].id);
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(11), ANCHO = 22, ALTO = 9, BANCOS = 8, PIE = 0.36;
       // un ruido suave, para que la roca no sea una lámina lisa
@@ -353,7 +357,7 @@
     // «ahora» el abanico de lo que Krylov cree que viene, con su rango de cuánto falta. Todo sale de la curva de la API.
     abanico: function (h, brota) {
       const ctx = this.ctx, S = this.S, un = S.unidades[this.foco], R = S.respuesta.unidades[un.id], c = R.curva;
-      const W = this.cw, x0 = 4, x1 = W - 10, y0 = this.ch - 38, y1 = 104, color = COLOR_CSS[R.estado];
+      const W = this.cw, x0 = 4, x1 = this.zo ? 400 : W - 10, y0 = this.ch - 38, y1 = 104, color = COLOR_CSS[R.estado];
       const fin = c.t_banda[c.t_banda.length - 1], tope = Math.max.apply(null, c.y) * 2.3;
       const X = function (t) { return x0 + (t / fin) * (x1 - x0); }, Y = function (v) { return y0 - (K.acotar(v, 0, tope) / tope) * (y0 - y1); };
       ctx.setTransform(this.rc, 0, 0, this.rc, 0, 0);
@@ -362,13 +366,14 @@
       ctx.fillStyle = color; ctx.font = '800 42px "Big Shoulders Display", sans-serif';
       ctx.fillText(nombre(un.id) + ': ' + S.rotulos[R.estado].toLowerCase(), x0, 36);
       ctx.fillStyle = '#f4efe6'; ctx.font = '600 28px "Instrument Sans", sans-serif';
-      ctx.fillText(c.marca.texto, x0, 76);
+      ctx.fillText(this.zo ? this.zo.texto : c.marca.texto, x0, 76);
       ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
       const xa = X(c.ahora);
       ctx.setLineDash([5, 7]); ctx.strokeStyle = '#7d7568'; ctx.beginPath(); ctx.moveTo(xa, y1 - 6); ctx.lineTo(xa, y0); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = '#7d7568'; ctx.font = '450 19px "JetBrains Mono", monospace';
-      ctx.fillText('LO QUE MIDIÓ EL RADAR', x0, y0 + 30);
-      ctx.textAlign = 'right'; ctx.fillText('LO QUE PUEDE VENIR', x1, y0 + 30);
+      ctx.fillText(this.zo ? 'MEDIDO' : 'LO QUE MIDIÓ EL RADAR', x0, y0 + 30);
+      ctx.textAlign = 'right'; ctx.fillText(this.zo ? 'LO QUE VIENE' : 'LO QUE PUEDE VENIR', x1, y0 + 30);
+      if (this.zo) K.zoom.dibujar(ctx, 456, 92, W - 466, this.ch - 92, this.zo, this._bz == null ? 1 : this._bz);      // cuántas horas faltan: la distribución entera
       if (brota > 0) {                                                    // el abanico: de lo mejor a lo peor que puede pasar
         ctx.globalAlpha = brota;
         ctx.fillStyle = color + '55';
@@ -422,6 +427,7 @@
       reloj(this.reloj, Math.floor(h) + ' h');
       const ahora = [];
       for (let s = 0; s < n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
+      this._bz = K.quieto ? 1 : K.suave((t - 1.4) / 0.8);
       if (this.foco >= 0) this.abanico(h, K.quieto ? 1 : (k >= 1 ? K.acotar((x - DURA) / 0.7, 0, 1) : 0));
       else this.curva(h, ahora);
       if (!this.tres) return;
@@ -474,6 +480,9 @@
         un.puntos.forEach(function (p, j) { minutos = Math.max(minutos, p[0]); salto = Math.max(salto, p[1] - (j ? un.puntos[j - 1][1] : 0)); });
       });
       this.minutos = minutos; this.meta = S.umbral;
+      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
+      this.zid = K.zoom.elegir('flotacion'); this.zo = this.zid && K.zoom.unidad('flotacion', this.zid);
+      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
       if (!K.gl.ok) return;
       const B = (this.B = base(28)), azar = K.azar(23);
       const DX = 2.05, DZ = 1.95, W = 1.55, D = 1.2, H = 1.5, Y0 = -0.9, GH = 2.6;
@@ -560,14 +569,13 @@
       const meta = [], yM = Y0 + this.meta * GH;
       for (let k = 0; k < 40; k++) { const z = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, k / 40), z2 = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
       B.cordon(meta, 0.04, 0xffffff, 0.9, 0.04);
-      this.etqMeta = etiquetas(L, 1, 'chica')[0];
-      this.etqMeta.classList.add('meta');
       this.tres = B.tres;
     },
-    alAjustar: function () { if (this.B) this.B.ajustar(); },
+    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
     cuadro: function (t) {
       const S = this.S, m = recorrido(t - 0.6, 9, 6) * (this.minutos + 1.5);
       reloj(this.reloj, Math.floor(Math.min(m, this.minutos)) + ' min');
+      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
       if (!this.tres) return;
       const B = this.B;
       B.u.uT.value = t;
@@ -577,7 +585,7 @@
         const pts = S.unidades[l].puntos, r = m < 0.4 ? 0 : leer(pts, m, 0);
         this.rec.value[l] = r;
       }
-      poner(this.etqMeta, B.camera, this.xG, this.Y0 + this.meta * this.GH, this.zG(0) - 1.1, 'Meta: ' + Math.round(this.meta * 100) + '%', true);
+      if (this.zoom) { const q = K.proyectar(this.xG, this.Y0 + this.rec.value[this.zi] * this.GH + 0.12, this.zG(this.zi), B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, t > 1.6 || K.quieto); }
     },
   });
 
@@ -594,6 +602,9 @@
       this.horas = 0;
       S.unidades.forEach(function (un) { this.horas = Math.max(this.horas, un.puntos[un.puntos.length - 1][0]); }, this);
       this.falla = S.umbral || 1;
+      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
+      this.zid = K.zoom.elegir('flota'); this.zo = this.zid && K.zoom.unidad('flota', this.zid);
+      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(37);
       const ESC = (this.ESC = 0.62), NIVELES = (this.NIVELES = 4), LARGO = (this.LARGO = 48), RUEDA = 0.92, VEL = (this.VEL = 1.0);
@@ -658,10 +669,11 @@
       this.etq = etiquetas(L, 2, 'nota');
       this.tres = B.tres;
     },
-    alAjustar: function () { if (this.B) this.B.ajustar(); },
+    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
     cuadro: function (t) {
       const S = this.S, h = recorrido(t - 0.6, 12, 5) * this.horas;
       reloj(this.reloj, K.miles(Math.floor(h / 10) * 10) + ' h');
+      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
       if (!this.tres) return;
       const B = this.B, orden = [], paso = this.LARGO / Math.ceil(this.n / this.NIVELES);
       B.u.uT.value = t;
@@ -673,6 +685,7 @@
         this.cam.value[i].set(x, N.y, N.z, N.dir > 0 ? 0 : Math.PI);
         this.est.value[i].set(des, K.acotar((this.LARGO / 2 - Math.abs(x)) / 5, 0, 1));
         orden.push([des, i, x, N]);
+        if (this.zoom && i === this.zi) { const q = K.proyectar(x, N.y + 3.35 * this.ESC, N.z, B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, (t > 1.6 || K.quieto) && q.x > 1020 && q.x < 1880); }
       }
       // las etiquetas siguen a los dos camiones más gastados que estén a la vista, lejos del texto y del reloj
       orden.sort(function (a, b) { return b[0] - a[0]; });
@@ -697,6 +710,9 @@
       this.reloj = L.querySelector('.reloj .num');
       this.horas = S.horizonte || 6;
       this.fuerte = S.umbral == null ? 1 : S.umbral;
+      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
+      this.zid = K.zoom.elegir('sismicidad'); this.zo = this.zid && K.zoom.unidad('sismicidad', this.zid);
+      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(53), LARGO = 5.6;
       const arco = function (salida, cx, cy, cz, radio, alZ) {
@@ -768,18 +784,19 @@
           gl_PointSize = (0.07 + 0.1 * aD.w) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, tiempos);
-      this.etqFuerte = etiquetas(L, Math.min(2, this.eventos.length), 'nota');
-      this.etqFuerte.forEach(function (e) { e.classList.add('roja', 'alta'); });
+      // la etiqueta del temblor va al lado de su destello, chica y sin tallo: así no cruza la tarjeta del zoom
+      this.etqFuerte = etiquetas(L, Math.min(2, this.eventos.length), 'chica');
       this.etqFrente = etiquetas(L, 1, 'nota')[0];
       this.etqFrente.classList.add('izq');
       this.gris = new THREE.Color(0x8a7f70); this.vivo = new THREE.Color(0xf0a060);
       this.tres = B.tres;
     },
-    alAjustar: function () { if (this.B) this.B.ajustar(); },
+    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
     cuadro: function (t) {
       const S = this.S, DURA = 13, ESPERA = 4.5, k = recorrido(t - 0.7, DURA, ESPERA), h = k * this.horas;
       const min = Math.floor(h * 60);
       reloj(this.reloj, Math.floor(min / 60) + ' h ' + (min % 60 < 10 ? '0' : '') + (min % 60) + ' min');
+      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
       if (!this.tres) return;
       const B = this.B, ciclo = DURA + ESPERA, x = (((t - 0.7) % ciclo) + ciclo) % ciclo;
       B.u.uT.value = t;
@@ -798,8 +815,9 @@
       }
       for (let i = 0; i < this.etqFuerte.length; i++) {
         const e = this.eventos[i];
-        poner(this.etqFuerte[i], B.camera, e.c[0], e.c[1], e.c[2], '<b>Magnitud ' + K.coma(e.mag, 1) + '</b>temblor fuerte', h >= e.hora);
+        poner(this.etqFuerte[i], B.camera, e.c[0], e.c[1], e.c[2], '<b>Temblor fuerte</b>', h >= e.hora);
       }
+      if (this.zoom) { const z = this.sector[this.zi], q = K.proyectar(z.x, 0.25, z.fin * 0.6, B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, t > 1.6 || K.quieto); }
       poner(this.etqFrente, B.camera, this.frente[0], this.frente[1] + 0.9, this.frente[2], '<b>Explosión</b>hora cero', h > 0 && h < this.horas * 0.14);
     },
   });
