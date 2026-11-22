@@ -39,6 +39,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - sáb 18:30 · Cifras de los sellos registradas: `pitch/CIFRAS.md` M-48, M-49, M-51 y M-52; guion al día con quién responde.
 - sáb 18:32 · H6 corrido: recorrido en modo estático en local (web de `main`, `?estatico=1`) con `leyes`, «¿Dónde perforo?», `taludes` y `flotacion`, las tres rotuladas «responde la red»; `flota` y `sismicidad` no aparecen en el inicio (P-27). Tag `congelado`. Entrada H6 en `DECISIONES.md`. Corregida de paso la plantilla `hay_en_duda` (decía «…para decidir: no sabemos: esperar otra medición»).
 
+- sáb 21:46 · D-40, sexto motor `yacimiento` (encargo de la persona de PC 3, fuera del producto congelado): entrenado 80 min aquí (80.976 yacimientos simulados; el ritmo cayó de 25 a 15 por segundo desde las 20:57, con el Mac a batería) y validado en 400 yacimientos nuevos (`uv run python -m yacimiento.validar`). **Sello: no pasa, por un criterio.** El mapa por bloque está calibrado (0,909 dentro del rango de 90%; 0,908 sin muestra; peor tramo 0,908; 18 a 21 ms). Falla el SBC de los 15 parámetros en dos (`beta_cercania_falla` 0,542 y `beta_litologia_B` 0,443 de rango medio) y los alcances del campo no se aprendieron (recuperación cerca de 0). Su método lento (`yacimiento/mcmc.py`, probado en corto) no se ha corrido: necesita corriente. Página para el deck: `pitch/deck/yacimiento.html` (archivos nuevos; `index.html` sin tocar, lo enlaza PC 2). Cifras: M-63, M-64, K-71 a K-73.
+
 ## En curso
 
 - sáb 20:15 · A-36: corriendo el método lento de `desgaste` (archivo de `flota` y 4 flotas simuladas, 10 minutos de presupuesto cada una). Es lento: en la prueba corta tardó 601 s con 200 + 200.

@@ -1,0 +1,195 @@
+{
+ "motor_id": "yacimiento",
+ "pasa": false,
+ "criterios": {
+  "cobertura_mapa_entre_85_y_95": true,
+  "peor_tramo_sobre_80": true,
+  "cobertura_parametros_entre_85_y_95": true,
+  "sbc_sin_sesgo": false,
+  "analisis_bajo_1_s": true
+ },
+ "simulaciones_entrenamiento": 80976,
+ "entrenamiento_min": 80,
+ "casos_validacion": 400,
+ "validacion": {
+  "datasets": 400,
+  "cobertura_90_mapa": 0.9091,
+  "cobertura_90_mapa_sin_composito": 0.9083,
+  "cobertura_50_mapa": 0.5175,
+  "por_tramo": [
+   {
+    "tramo": "15 a 24 sondajes",
+    "datasets": 160,
+    "cobertura_90_mapa": 0.9091
+   },
+   {
+    "tramo": "25 a 38 sondajes",
+    "datasets": 119,
+    "cobertura_90_mapa": 0.9105
+   },
+   {
+    "tramo": "39 a 60 sondajes",
+    "datasets": 121,
+    "cobertura_90_mapa": 0.9077
+   }
+  ],
+  "error_cuadratico_red": 0.2265,
+  "error_cuadratico_tendencia_lineal": 0.2884,
+  "cobertura_90_parametros": 0.9045,
+  "sbc_chi2_max": 19.85,
+  "sbc_pasa": false,
+  "parametros": {
+   "log_a": {
+    "chi2_uniformidad": 9.65,
+    "rango_medio": 0.5155,
+    "cobertura_90": 0.88,
+    "recuperacion": 0.052
+   },
+   "e1": {
+    "chi2_uniformidad": 5.85,
+    "rango_medio": 0.5213,
+    "cobertura_90": 0.9125,
+    "recuperacion": -0.058
+   },
+   "e2": {
+    "chi2_uniformidad": 18.05,
+    "rango_medio": 0.4741,
+    "cobertura_90": 0.9125,
+    "recuperacion": 0.019
+   },
+   "log_az": {
+    "chi2_uniformidad": 7.75,
+    "rango_medio": 0.4962,
+    "cobertura_90": 0.8975,
+    "recuperacion": 0.068
+   },
+   "log_sigma": {
+    "chi2_uniformidad": 11.25,
+    "rango_medio": 0.471,
+    "cobertura_90": 0.91,
+    "recuperacion": 0.932
+   },
+   "log_tau": {
+    "chi2_uniformidad": 2.45,
+    "rango_medio": 0.5031,
+    "cobertura_90": 0.92,
+    "recuperacion": 0.201
+   },
+   "beta0": {
+    "chi2_uniformidad": 12.15,
+    "rango_medio": 0.5133,
+    "cobertura_90": 0.9175,
+    "recuperacion": 0.958
+   },
+   "beta_profundidad": {
+    "chi2_uniformidad": 5.45,
+    "rango_medio": 0.4975,
+    "cobertura_90": 0.875,
+    "recuperacion": 0.741
+   },
+   "beta_cercania_falla": {
+    "chi2_uniformidad": 14.1,
+    "rango_medio": 0.5424,
+    "cobertura_90": 0.8975,
+    "recuperacion": 0.92
+   },
+   "beta_litologia_B": {
+    "chi2_uniformidad": 19.85,
+    "rango_medio": 0.4434,
+    "cobertura_90": 0.9075,
+    "recuperacion": 0.854
+   },
+   "beta_litologia_C": {
+    "chi2_uniformidad": 12.9,
+    "rango_medio": 0.5207,
+    "cobertura_90": 0.9125,
+    "recuperacion": 0.856
+   },
+   "beta_alteracion": {
+    "chi2_uniformidad": 10.6,
+    "rango_medio": 0.4947,
+    "cobertura_90": 0.915,
+    "recuperacion": 0.953
+   },
+   "beta_geofisica_1": {
+    "chi2_uniformidad": 9.05,
+    "rango_medio": 0.4831,
+    "cobertura_90": 0.88,
+    "recuperacion": 0.931
+   },
+   "beta_geofisica_2": {
+    "chi2_uniformidad": 8.55,
+    "rango_medio": 0.5183,
+    "cobertura_90": 0.9125,
+    "recuperacion": 0.943
+   },
+   "beta_vetillas": {
+    "chi2_uniformidad": 3.75,
+    "rango_medio": 0.494,
+    "cobertura_90": 0.9175,
+    "recuperacion": 0.971
+   }
+  }
+ },
+ "demo": {
+  "compositos": 604,
+  "bloques": 16384,
+  "latencia_ms": 21,
+  "colores": {
+   "actuar": 4096,
+   "no_actuar": 1003,
+   "en_duda": 11285
+  },
+  "costo_de_no_saber": 182817713,
+  "cobertura_90_demo": 0.86,
+  "examen": {
+   "actuar": {
+    "bloques": 4096,
+    "eran_mineral": 3846
+   },
+   "no_actuar": {
+    "bloques": 1003,
+    "eran_mineral": 47
+   },
+   "en_duda": {
+    "bloques": 11285,
+    "eran_mineral": 5201
+   }
+  },
+  "tramos": [
+   {
+    "dijimos": 0.046,
+    "paso": 0.047,
+    "n": 1003
+   },
+   {
+    "dijimos": 0.317,
+    "paso": 0.258,
+    "n": 4438
+   },
+   {
+    "dijimos": 0.713,
+    "paso": 0.592,
+    "n": 6847
+   },
+   {
+    "dijimos": 0.968,
+    "paso": 0.939,
+    "n": 4096
+   }
+  ],
+  "caso": {
+   "ley_de_corte_pct": 0.5,
+   "falso_si": 40000.0,
+   "falso_no": 90000.0
+  }
+ },
+ "mcmc": null,
+ "fecha": "2026-11-21",
+ "hora": "21:44",
+ "limitaciones": [
+  "Motor fuera del producto congelado a las 18:00: no tiene tarjeta en la app.",
+  "Datos simulados con el mismo modelo; no se probó con sondajes reales.",
+  "La cabeza de mapa entrega el predictivo marginal de cada bloque como una normal; no entrega correlación entre bloques."
+ ]
+}
