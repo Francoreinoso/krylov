@@ -1,181 +1,181 @@
 {
  "motor_id": "yacimiento",
- "pasa": false,
+ "pasa": true,
  "criterios": {
   "cobertura_mapa_entre_85_y_95": true,
   "peor_tramo_sobre_80": true,
   "cobertura_parametros_entre_85_y_95": true,
-  "sbc_sin_sesgo": false,
+  "sbc_sin_sesgo": true,
   "analisis_bajo_1_s": true
  },
- "simulaciones_entrenamiento": 80976,
- "entrenamiento_min": 80,
- "casos_validacion": 400,
+ "simulaciones_entrenamiento": 126696,
+ "entrenamiento_min": 110,
+ "casos_validacion": 2000,
  "validacion": {
-  "datasets": 400,
-  "cobertura_90_mapa": 0.9091,
-  "cobertura_90_mapa_sin_composito": 0.9083,
-  "cobertura_50_mapa": 0.5175,
+  "datasets": 2000,
+  "cobertura_90_mapa": 0.9009,
+  "cobertura_90_mapa_sin_composito": 0.9002,
+  "cobertura_50_mapa": 0.5079,
   "por_tramo": [
    {
     "tramo": "15 a 24 sondajes",
-    "datasets": 160,
-    "cobertura_90_mapa": 0.9091
+    "datasets": 794,
+    "cobertura_90_mapa": 0.9016
    },
    {
     "tramo": "25 a 38 sondajes",
-    "datasets": 119,
-    "cobertura_90_mapa": 0.9105
+    "datasets": 608,
+    "cobertura_90_mapa": 0.9006
    },
    {
     "tramo": "39 a 60 sondajes",
-    "datasets": 121,
-    "cobertura_90_mapa": 0.9077
+    "datasets": 598,
+    "cobertura_90_mapa": 0.9003
    }
   ],
-  "error_cuadratico_red": 0.2265,
-  "error_cuadratico_tendencia_lineal": 0.2884,
-  "cobertura_90_parametros": 0.9045,
-  "sbc_chi2_max": 19.85,
-  "sbc_pasa": false,
+  "error_cuadratico_red": 0.2359,
+  "error_cuadratico_tendencia_lineal": 0.3003,
+  "cobertura_90_parametros": 0.8993,
+  "sbc_chi2_max": 21.45,
+  "sbc_pasa": true,
   "parametros": {
    "log_a": {
-    "chi2_uniformidad": 9.65,
-    "rango_medio": 0.5155,
-    "cobertura_90": 0.88,
-    "recuperacion": 0.052
+    "chi2_uniformidad": 10.89,
+    "rango_medio": 0.4932,
+    "cobertura_90": 0.907,
+    "recuperacion": 0.028
    },
    "e1": {
-    "chi2_uniformidad": 5.85,
-    "rango_medio": 0.5213,
-    "cobertura_90": 0.9125,
-    "recuperacion": -0.058
+    "chi2_uniformidad": 8.06,
+    "rango_medio": 0.5159,
+    "cobertura_90": 0.9035,
+    "recuperacion": -0.017
    },
    "e2": {
-    "chi2_uniformidad": 18.05,
-    "rango_medio": 0.4741,
-    "cobertura_90": 0.9125,
-    "recuperacion": 0.019
+    "chi2_uniformidad": 12.64,
+    "rango_medio": 0.4881,
+    "cobertura_90": 0.9035,
+    "recuperacion": -0.017
    },
    "log_az": {
-    "chi2_uniformidad": 7.75,
-    "rango_medio": 0.4962,
-    "cobertura_90": 0.8975,
-    "recuperacion": 0.068
+    "chi2_uniformidad": 9.56,
+    "rango_medio": 0.4952,
+    "cobertura_90": 0.9065,
+    "recuperacion": 0.037
    },
    "log_sigma": {
-    "chi2_uniformidad": 11.25,
-    "rango_medio": 0.471,
-    "cobertura_90": 0.91,
+    "chi2_uniformidad": 21.45,
+    "rango_medio": 0.5256,
+    "cobertura_90": 0.896,
     "recuperacion": 0.932
    },
    "log_tau": {
-    "chi2_uniformidad": 2.45,
-    "rango_medio": 0.5031,
-    "cobertura_90": 0.92,
-    "recuperacion": 0.201
+    "chi2_uniformidad": 4.38,
+    "rango_medio": 0.5051,
+    "cobertura_90": 0.9025,
+    "recuperacion": 0.223
    },
    "beta0": {
-    "chi2_uniformidad": 12.15,
-    "rango_medio": 0.5133,
-    "cobertura_90": 0.9175,
-    "recuperacion": 0.958
-   },
-   "beta_profundidad": {
-    "chi2_uniformidad": 5.45,
-    "rango_medio": 0.4975,
-    "cobertura_90": 0.875,
-    "recuperacion": 0.741
-   },
-   "beta_cercania_falla": {
-    "chi2_uniformidad": 14.1,
-    "rango_medio": 0.5424,
-    "cobertura_90": 0.8975,
-    "recuperacion": 0.92
-   },
-   "beta_litologia_B": {
-    "chi2_uniformidad": 19.85,
-    "rango_medio": 0.4434,
-    "cobertura_90": 0.9075,
-    "recuperacion": 0.854
-   },
-   "beta_litologia_C": {
-    "chi2_uniformidad": 12.9,
-    "rango_medio": 0.5207,
-    "cobertura_90": 0.9125,
-    "recuperacion": 0.856
-   },
-   "beta_alteracion": {
-    "chi2_uniformidad": 10.6,
-    "rango_medio": 0.4947,
-    "cobertura_90": 0.915,
+    "chi2_uniformidad": 17.31,
+    "rango_medio": 0.4849,
+    "cobertura_90": 0.91,
     "recuperacion": 0.953
    },
+   "beta_profundidad": {
+    "chi2_uniformidad": 17.91,
+    "rango_medio": 0.4793,
+    "cobertura_90": 0.885,
+    "recuperacion": 0.762
+   },
+   "beta_cercania_falla": {
+    "chi2_uniformidad": 16.95,
+    "rango_medio": 0.512,
+    "cobertura_90": 0.8845,
+    "recuperacion": 0.918
+   },
+   "beta_litologia_B": {
+    "chi2_uniformidad": 8.68,
+    "rango_medio": 0.4967,
+    "cobertura_90": 0.9015,
+    "recuperacion": 0.869
+   },
+   "beta_litologia_C": {
+    "chi2_uniformidad": 6.62,
+    "rango_medio": 0.5064,
+    "cobertura_90": 0.9035,
+    "recuperacion": 0.865
+   },
+   "beta_alteracion": {
+    "chi2_uniformidad": 18.34,
+    "rango_medio": 0.4764,
+    "cobertura_90": 0.897,
+    "recuperacion": 0.956
+   },
    "beta_geofisica_1": {
-    "chi2_uniformidad": 9.05,
-    "rango_medio": 0.4831,
-    "cobertura_90": 0.88,
-    "recuperacion": 0.931
+    "chi2_uniformidad": 4.65,
+    "rango_medio": 0.4993,
+    "cobertura_90": 0.89,
+    "recuperacion": 0.938
    },
    "beta_geofisica_2": {
-    "chi2_uniformidad": 8.55,
-    "rango_medio": 0.5183,
-    "cobertura_90": 0.9125,
-    "recuperacion": 0.943
+    "chi2_uniformidad": 10.8,
+    "rango_medio": 0.4869,
+    "cobertura_90": 0.898,
+    "recuperacion": 0.941
    },
    "beta_vetillas": {
-    "chi2_uniformidad": 3.75,
-    "rango_medio": 0.494,
-    "cobertura_90": 0.9175,
-    "recuperacion": 0.971
+    "chi2_uniformidad": 8.66,
+    "rango_medio": 0.5112,
+    "cobertura_90": 0.901,
+    "recuperacion": 0.972
    }
   }
  },
  "demo": {
   "compositos": 604,
   "bloques": 16384,
-  "latencia_ms": 21,
+  "latencia_ms": 19,
   "colores": {
-   "actuar": 4096,
-   "no_actuar": 1003,
-   "en_duda": 11285
+   "actuar": 4239,
+   "no_actuar": 1063,
+   "en_duda": 11082
   },
-  "costo_de_no_saber": 182817713,
-  "cobertura_90_demo": 0.86,
+  "costo_de_no_saber": 179134617,
+  "cobertura_90_demo": 0.8466,
   "examen": {
    "actuar": {
-    "bloques": 4096,
-    "eran_mineral": 3846
+    "bloques": 4239,
+    "eran_mineral": 3968
    },
    "no_actuar": {
-    "bloques": 1003,
-    "eran_mineral": 47
+    "bloques": 1063,
+    "eran_mineral": 51
    },
    "en_duda": {
-    "bloques": 11285,
-    "eran_mineral": 5201
+    "bloques": 11082,
+    "eran_mineral": 5075
    }
   },
   "tramos": [
    {
-    "dijimos": 0.046,
-    "paso": 0.047,
-    "n": 1003
+    "dijimos": 0.045,
+    "paso": 0.048,
+    "n": 1063
    },
    {
-    "dijimos": 0.317,
-    "paso": 0.258,
-    "n": 4438
+    "dijimos": 0.315,
+    "paso": 0.259,
+    "n": 4329
    },
    {
-    "dijimos": 0.713,
-    "paso": 0.592,
-    "n": 6847
+    "dijimos": 0.714,
+    "paso": 0.586,
+    "n": 6753
    },
    {
-    "dijimos": 0.968,
-    "paso": 0.939,
-    "n": 4096
+    "dijimos": 0.969,
+    "paso": 0.936,
+    "n": 4239
    }
   ],
   "caso": {
@@ -186,10 +186,11 @@
  },
  "mcmc": null,
  "fecha": "2026-11-21",
- "hora": "21:44",
+ "hora": "22:19",
  "limitaciones": [
   "Motor fuera del producto congelado a las 18:00: no tiene tarjeta en la app.",
   "Datos simulados con el mismo modelo; no se probó con sondajes reales.",
+  "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa. `log_sigma` pasa el χ² en el borde (21,45 con límite 21,67).",
   "La cabeza de mapa entrega el predictivo marginal de cada bloque como una normal; no entrega correlación entre bloques."
  ]
 }

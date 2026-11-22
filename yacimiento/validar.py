@@ -158,6 +158,7 @@ def main() -> None:
              "fecha": time.strftime("%Y-%m-%d"), "hora": time.strftime("%H:%M"),
              "limitaciones": ["Motor fuera del producto congelado a las 18:00: no tiene tarjeta en la app.",
                               "Datos simulados con el mismo modelo; no se probó con sondajes reales.",
+                              "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa. `log_sigma` pasa el χ² en el borde (21,45 con límite 21,67).",
                               "La cabeza de mapa entrega el predictivo marginal de cada bloque como una normal; no entrega correlación entre bloques."]}
     ARTEFACTOS.mkdir(parents=True, exist_ok=True)
     (ARTEFACTOS / "sello.json").write_text(json.dumps(sello, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
