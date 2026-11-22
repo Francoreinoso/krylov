@@ -1,9 +1,10 @@
-/* W · Quién investiga esto (fuera del recorrido, tecla W): el mapa mundial de los grupos que están detrás de
-   amortized inference. Un mapamundi de puntos, inclinado, y una luz en cada grupo. La cámara va sola: primero el mundo
+/* W · Quién investiga esto (fuera del recorrido, tecla W): el mapa mundial de los grupos que publican amortized Bayesian
+   inference. Un mapamundi de puntos, inclinado, y una luz en cada grupo. La cámara va sola: primero el mundo
    entero y después, parada por parada, se acerca a cada región, enciende sus grupos y los nombra en una lista unida a
-   cada luz por un hilo. Arrastrar gira el mapa; pasar el mouse por una luz dice qué aportó ese grupo.
-   Todo sale de datos/laboratorios.js (que escribe datos/generar_laboratorios.py): los grupos, con la cita del review que
-   justifica a cada uno, y la tierra firme como rejilla de puntos. Nada se pide a internet.
+   cada luz por un hilo. Arrastrar gira el mapa; pasar el mouse por una luz dice qué trabajo pone ahí a ese grupo.
+   Todo sale de datos/laboratorios.js (que escribe datos/generar_laboratorios.py): los grupos, cada uno con un trabajo de
+   2020 en adelante que dice «amortized inference» en su título o en su resumen, y la tierra firme como rejilla de puntos.
+   Nada se pide a internet.
    El recorrido es una función del tiempo de la lámina: no acumula estado, así que en pausa queda quieto, al repetirse
    no salta, y sin movimiento (?quieto) muestra el mundo entero con todos los grupos encendidos. */
 (function () {
@@ -25,24 +26,24 @@
   const REGION = { el: 0.8, dx: -330, dy: -70 };
   const VISTA = {
     mundo: { lon: 14, lat: 12, R: 47, el: 0.86, dx: 0, dy: -190, dura: 4.4 },
-    chile: Object.assign({ lon: -63, lat: -29, R: 17, dura: 3.2 }, REGION),
-    norteamerica: Object.assign({ lon: -99, lat: 40, R: 11.5, dura: 7.0 }, REGION),
-    europa_oeste: Object.assign({ lon: 1.2, lat: 52.2, R: 4.6, dura: 6.4 }, REGION),
-    alemania_austria: Object.assign({ lon: 11.6, lat: 50.2, R: 4.3, dura: 5.8 }, REGION),
-    nordicos: Object.assign({ lon: 17.5, lat: 58.4, R: 5.2, dura: 5.8 }, REGION),
-    review: Object.assign({ lon: 96, lat: -2, R: 36, dura: 4.2 }, REGION),
+    latam: Object.assign({ lon: -74, lat: -13, R: 21, dura: 4.2 }, REGION),
+    norteamerica: Object.assign({ lon: -99, lat: 41, R: 11.5, dura: 7.0 }, REGION),
+    europa_oeste: Object.assign({ lon: 4.5, lat: 48.6, R: 6.4, dura: 6.0 }, REGION),
+    alemania_austria: Object.assign({ lon: 11.6, lat: 50.4, R: 4.8, dura: 6.6 }, REGION),
+    finlandia: Object.assign({ lon: 22, lat: 60.2, R: 5, dura: 3.6 }, REGION),
+    asia_oceania: Object.assign({ lon: 96, lat: 6, R: 38, dura: 6.2 }, REGION),
   };
   const VUELO = 1.3;                    // segundos de una parada a la siguiente
   const ALTO = 0.075;                   // alto de cada columna de luz, como fracción de la distancia de la cámara
-  const CONTINENTES = ['Europa', 'Norteamérica', 'Sudamérica', 'Asia', 'Oceanía'];
+  const CONTINENTES = ['Europa', 'Norteamérica', 'América Latina', 'Asia', 'Oceanía'];
 
   const grupos = D.grupos.map(function (g, i) { const q = lugar(g.lon, g.lat); return { g: g, i: i, x: q.x, z: q.z }; });
   const N = grupos.length;
   const paises = {}, trabajos = {};
   grupos.forEach(function (o) { paises[o.g.pais] = 1; trabajos[o.g.cita + ' ' + o.g.anio] = o.g.anio; });
   const nPaises = Object.keys(paises).length, nTrabajos = Object.keys(trabajos).length;
-  // «la última década»: de 2016 en adelante. Cuántos de los trabajos del mapa caen ahí se cuenta, no se escribe a mano.
-  const DESDE = 2016, nRecientes = Object.keys(trabajos).filter(function (k) { return trabajos[k] >= DESDE; }).length;
+  // Todos los trabajos del mapa son del año del criterio en adelante: el primero y el último se leen de los datos, no se escriben a mano.
+  const anios = Object.keys(trabajos).map(function (k) { return trabajos[k]; }), DESDE = D.criterio.desde, PRIMERO = Math.min.apply(null, anios), ULTIMO = Math.max.apply(null, anios);
 
   // las paradas, en orden: el mundo y después las regiones de datos/laboratorios.js
   const paradas = [{ id: 'mundo', nombre: '', grupos: grupos }].concat(D.paradas.map(function (p) {
@@ -92,17 +93,17 @@
   K.registrar('laboratorios', {
     tres: null, interactivo: true, tQuieto: 3.6,
     crear: function (L) {
-      const yo = this, R = D.review;
+      const yo = this;
       // ---------- el texto ----------
       const notas = L.querySelector('aside.notas'), poner = function (e) { return L.insertBefore(e, notas); };      // en este orden: velos, hilos, texto, nota
       poner(texto('div', 'lab-velo arriba', ''));
       this.veloLado = poner(texto('div', 'lab-velo lado', ''));
       this.capaHilos = poner(texto('div', 'lab-hilos', ''));
       const cabeza = texto('div', 'bloque lab-cabeza',
-        '<div class="t2">Ciencia de la última década.<br><span class="cobre">La industria recién empieza.</span></div>' +
-        '<div class="p">Detrás de amortized inference hay <b class="nb">' + N + ' grupos de investigación</b> de <b class="nb">' + nPaises + ' países</b>. ' +
-        'De los ' + nTrabajos + ' trabajos que los ponen en este mapa, <span class="nb">' + nRecientes + ' son de ' + DESDE + ' en adelante.</span></div>' +
-        '<div class="dato">' + R.autores + ' · ' + R.titulo + ' · ' + R.anio + '</div>');
+        '<div class="t2">Ciencia de esta década.<br><span class="cobre">La industria recién empieza.</span></div>' +
+        '<div class="p"><b class="nb">' + N + ' grupos de investigación</b> de <b class="nb">' + nPaises + ' países</b> publican sobre amortized Bayesian inference. ' +
+        'Cada uno está aquí por un trabajo de ' + DESDE + ' en adelante que lo dice en su título o en su resumen.</div>' +
+        '<div class="dato">' + nTrabajos + ' trabajos · ' + PRIMERO + ' a ' + ULTIMO + '</div>');
       cabeza.dataset.paso = '0';
       poner(cabeza);
 
@@ -129,13 +130,16 @@
 
       // ---------- las notas de quien presenta ----------
       const dice = L.querySelector('#lab-dice'), fuente = L.querySelector('#lab-fuente');
-      if (dice) dice.textContent = '«Esto no lo inventamos nosotros. Detrás de amortized inference hay ' + N + ' grupos de investigación de ' + nPaises +
-        ' países, y casi todos sus trabajos son de ' + DESDE + ' en adelante. Uno se firmó en Valparaíso. Krylov lleva esa ciencia a un producto para la minera.»';
-      if (fuente) fuente.innerHTML = 'Los grupos son las instituciones que firman el review «' + R.titulo + '» (' + R.autores + '; ' + R.revista + ', ' + R.anio +
-        ') y las de los autores de métodos y software que ese review cita. <b>La afiliación es la del trabajo citado</b>, no necesariamente la de hoy: se comprobó en el review, en OpenAlex y en la portada de un artículo; el año es el de la cita. ' +
-        '<b>La lista no es exhaustiva:</b> entra solo lo que se pudo comprobar (' + N + ' grupos, ' + nPaises + ' países, ' + nTrabajos + ' trabajos, ' + nRecientes + ' de ellos de ' + DESDE + ' en adelante). ' +
-        '<b>«La industria recién empieza» es una lectura nuestra, no una medición.</b> El trabajo de Valparaíso es Cranmer, Pavez y Louppe (2015), con Juan Pavez en la Universidad Técnica Federico Santa María. ' +
-        'El mapa es la tierra firme de Natural Earth (dominio público), en puntos. El recorrido va solo; arrastrar gira el mapa, y pasar el mouse por una luz dice qué aportó ese grupo. Detalle y fuentes de cada grupo: <code>datos/generar_laboratorios.py</code>.';
+      if (dice) dice.textContent = '«Esto no lo inventamos nosotros. Amortized Bayesian inference es ciencia de esta década: ' + N + ' grupos de ' + nPaises +
+        ' países publican sobre esto, y todos los trabajos de este mapa son de ' + DESDE + ' en adelante. Uno se firmó en Santiago. Krylov lleva esa ciencia a un producto para la minera.»';
+      if (fuente) fuente.innerHTML = '<b>Entran solo los grupos que publican amortized Bayesian inference con esas palabras:</b> cada uno está por un trabajo de ' + DESDE +
+        ' en adelante cuyo título o resumen lo dice casi textual («amortized Bayesian inference», «amortized inference», «amortized simulation-based inference», «amortized variational inference»). ' +
+        'Son ' + N + ' grupos, ' + nPaises + ' países y ' + nTrabajos + ' trabajos, de ' + PRIMERO + ' a ' + ULTIMO + '. <b>La afiliación es la del trabajo</b>, no necesariamente la de hoy: se comprobó el 22 de noviembre en la portada de cada artículo en arXiv, en OpenAlex y en Crossref. ' +
+        '<b>La lista no es exhaustiva:</b> entra solo lo que se pudo comprobar, y quedó fuera lo que usa la palabra para otra cosa (autoencoders, diseño de experimentos). Tres son preprints: los de Montreal, Kanpur y Raleigh. ' +
+        '<b>El trabajo de Santiago</b> es Tong, Sing-Long y Schiavazzi (2025): Carlos Sing-Long firma desde la Pontificia Universidad Católica de Chile, es uno de tres autores (los otros dos, en Notre Dame) y el tema son modelos de la circulación de la sangre, no minería. ' +
+        '<b>Los dos más cercanos a lo que hace Krylov:</b> Georgia Tech y Utrecht (imágenes sísmicas del subsuelo, 2023) y North Carolina State (parámetros de un modelo espacial, el mismo tipo de modelo que el de la roca, 2024). ' +
+        '<b>«La industria recién empieza» es una lectura nuestra, no una medición.</b> ' +
+        'El mapa es la tierra firme de Natural Earth (dominio público), en puntos. El recorrido va solo; arrastrar gira el mapa, y pasar el mouse por una luz muestra el título del trabajo. La frase exacta y la fuente de cada grupo: <code>datos/generar_laboratorios.py</code>.';
 
       if (!K.gl.ok) return;
 
@@ -342,7 +346,7 @@
       if (s && s.px && !s.px.detras) {
         if (this._nota !== s) {
           this._nota = s;
-          this.nota.innerHTML = '<b>' + s.g.institucion + '</b><span>' + s.g.ciudad + ', ' + s.g.pais + '</span><p>' + s.g.aporte + '.</p><span>' + s.g.cita + ', ' + s.g.anio + '</span>';
+          this.nota.innerHTML = '<b>' + s.g.institucion + '</b><span>' + s.g.ciudad + ', ' + s.g.pais + '</span><p>' + s.g.aporte + '.</p><span>' + s.g.cita + ', ' + s.g.anio + ' · «' + s.g.titulo + '»</span>';
         }
         const izq = s.px.x > 1340;
         this.nota.classList.toggle('izq', izq);
