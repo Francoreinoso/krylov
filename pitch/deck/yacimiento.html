@@ -214,7 +214,7 @@
   // Cuatro líneas que bajan desde las esquinas de la zona: lo que se ve abajo es lo que hay debajo de ese cuadro
   const guias = [];
   for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
-    const arriba = altura(ZONA.x + sx * ZONA.medio, ZONA.z + sz * ZONA.medio), largo = arriba - FONDO;
+    const arriba = altura(ZONA.x + sx * ZONA.medio, ZONA.z + sz * ZONA.medio), largo = (arriba - FONDO) * 0.84;
     const g = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, largo, 6), new THREE.MeshBasicMaterial({ color: 0xeec25a, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
     g.position.set(sx * ZONA.medio, arriba - largo / 2, sz * ZONA.medio); g.renderOrder = 2; grupo.add(g); guias.push(g);
   }

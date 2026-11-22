@@ -234,7 +234,7 @@
     const total = laminas.filter(function (l) { return !l.dataset.respaldo; }).length;
     const L = laminas[actual], dos = function (n) { return (n < 10 ? '0' : '') + n; };
     cuenta.textContent = L.dataset.respaldo ? 'PREGUNTAS · TECLA ' + (L.dataset.tecla || '0').toUpperCase() : dos(actual + 1) + ' / ' + dos(total);
-    avance.style.width = (L.dataset.respaldo ? 100 : ((actual + (paso + 1) / pasosDe(actual)) / total) * 100) + '%';
+    avance.style.transform = 'scaleX(' + (L.dataset.respaldo ? 1 : (actual + (paso + 1) / pasosDe(actual)) / total).toFixed(4) + ')';
     const notas = L.querySelector('aside.notas');
     panelNotas.innerHTML = notas ? notas.innerHTML : '';
     const marca = '#' + (actual + 1) + (paso ? '.' + paso : '');

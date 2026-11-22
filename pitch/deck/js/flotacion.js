@@ -40,10 +40,10 @@
         st.id = 'estilo-flotacion';
         st.textContent =
           '#l-flotacion .etq.fl > div { position: absolute; white-space: nowrap; font-family: var(--texto); font-size: 25px; line-height: 1.15; font-weight: 600; color: var(--tinta); text-shadow: 0 0 8px #0b0a09, 0 0 16px #0b0a09, 0 2px 14px #000; }' +
-          '#l-flotacion .etq.fl.meta > div { left: 14px; top: -16px; }' +
-          '#l-flotacion .etq.fl.relave > div { right: 16px; top: -12px; color: var(--suave); font-weight: 500; }' +
+          '#l-flotacion .etq.fl.meta > div { right: -30px; top: -50px; }' +
+          '#l-flotacion .etq.fl.relave > div { left: -40px; top: 26px; color: var(--suave); font-weight: 500; }' +
           '#l-flotacion .etq.fl.relave b { color: var(--tinta); font-weight: 650; }' +
-          '#l-flotacion .etq.fl.pierde > div { right: 4px; top: 16px; text-align: right; color: var(--tinta); font-weight: 500; }' +
+          '#l-flotacion .etq.fl.pierde > div { right: 26px; top: 18px; text-align: right; color: var(--tinta); font-weight: 500; background: #0b0a09e0; padding: 8px 12px 9px; }' +
           '#l-flotacion .etq.fl.pierde b { display: block; font-family: var(--titulo); font-weight: 800; font-size: 58px; line-height: .95; color: var(--cobre); font-variant-numeric: tabular-nums; }';
         document.head.appendChild(st);
       }
@@ -243,8 +243,8 @@
       if (!this.tres) { K.foco.cuadro(F, t, function () { return null; }); return; }
       const B = this.B, G = this.geo;
       B.u.uT.value = t;
-      this.parte.value = K.quieto ? 2 : K.acotar((t - 0.25) / 1.7, 0, 2);
-      const listo = K.quieto ? 1 : K.suave((t - 2.0) / 0.9);
+      this.parte.value = K.quieto ? 2 : K.acotar((t - 0.1) / 1.0, 0, 2);
+      const listo = K.quieto ? 1 : K.suave((t - 0.9) / 0.5);
       this.meta.alfa.value = 0.9 * listo;
       this.canal.alfa.value = 0.26 * listo;
       // la cámara mira la planta desde el lado por donde sale: deriva apenas, nunca salta
@@ -260,7 +260,7 @@
       el.style.transform = 'translate(' + (F.px || 0).toFixed(1) + 'px,' + (F.py || 0).toFixed(1) + 'px)';
       el.classList.toggle('ver', listo > 0.6 && F.px != null);
       K.d3.poner(this.etqMeta, B.camera, G.xFin - 0.2, this.yMeta, this.zMeta, 'Meta: ' + Math.round(S.umbral * 100) + '%', listo > 0.5);
-      K.d3.poner(this.etqRelave, B.camera, G.xCanal, G.yCanal - 0.1, G.zDe(0) + 1.5, '<b>Relave</b>: lo que sobra', listo > 0.5);
+      K.d3.poner(this.etqRelave, B.camera, G.xCanal, G.yCanal - 0.1, G.zDe(Math.floor(this.n / 2)), '<b>Relave</b>: lo que sobra', listo > 0.5);
     },
   });
 })();

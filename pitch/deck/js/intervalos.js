@@ -1,33 +1,10 @@
-/* Lo que Krylov entrega: para cada unidad, una estimación con su intervalo de credibilidad de 90% (los cuantiles 5% y 95%
-   de la posteriori que devuelve el motor), contra el límite con que se decide. Cada barra es un intervalo; la marca clara,
-   la estimación; el color, la decisión. Lo usan las láminas de cada decisión, la de «¿cómo sé que acierta?» y la de la tecla M.
-   Todo sale de datos.js: aquí no se calcula ningún intervalo. */
+/* Las filas de cada caso, tal como las entrega su motor: para cada unidad, una estimación con su intervalo de credibilidad
+   de 90% (los cuantiles 5% y 95% de la posteriori), el eje en que se dibuja y el límite con que se decide.
+   De aquí toma su eje la tarjeta del foco (js/foco.js). Todo sale de datos.js: aquí no se calcula ningún intervalo. */
 (function () {
   'use strict';
   const K = window.K;
   const ESTADOS = ['no_actuar', 'en_duda', 'actuar'];           // el orden con que generar.py numera los estados del terreno
-
-  // caja: el elemento donde se dibuja. o: { filas: [{nombre?, bajo, medio, alto, estado, verdad?}], min, max, log?, limite,
-  //   rotuloLimite, rotuloMin, rotuloMax, valor?: fila → texto }
-  K.intervalos = function (caja, o) {
-    const a = o.log ? Math.log(o.min) : o.min, b = o.log ? Math.log(o.max) : o.max;
-    const pc = function (v) { return (K.acotar(((o.log ? Math.log(Math.max(v, 1e-9)) : v) - a) / (b - a), 0, 1) * 100).toFixed(2) + '%'; };
-    // la línea blanca lleva su nombre arriba, grande, y una frase abajo que dice de dónde sale
-    let h = '<div class="cabeza-eje"><span></span><span class="riel"><span class="lim">' + o.rotuloLimite + '</span></span><span></span></div><div class="filas">';
-    o.filas.forEach(function (f, i) {
-      h += '<div class="fila" style="--d:' + (0.2 + i * 0.07).toFixed(2) + 's">' + (f.nombre ? '<span class="nom">' + f.nombre + '</span>' : '<span></span>') +
-        '<span class="riel"><i class="barra ' + f.estado.replace('_', '-') + '" style="left:' + pc(f.bajo) + ';right:calc(100% - ' + pc(f.alto) + ')"></i>' +
-        '<i class="punto" style="left:' + pc(f.medio) + '"></i>' + (f.verdad != null ? '<i class="real" style="left:' + pc(f.verdad) + '"></i>' : '') + '</span>' +
-        '<span class="val">' + (o.valor ? o.valor(f) : '') + '</span></div>';
-    });
-    h += '</div><div class="eje"><span></span><span class="riel"><span class="izq">' + (o.rotuloMin || '') + '</span><span class="der">' + (o.rotuloMax || '') + '</span></span><span></span></div>' +
-      (o.nota ? '<div class="nota-linea"><i></i>' + o.nota + '</div>' : '');
-    caja.classList.add('intervalos');
-    caja.classList.toggle('sin-nombres', !o.filas[0].nombre);
-    caja.classList.toggle('sin-valores', !o.valor);
-    caja.style.setProperty('--limite', pc(o.limite));
-    caja.innerHTML = h;
-  };
 
   // ---- las filas de cada caso, tal como las entrega su motor ----
   K.filasDe = {
@@ -75,8 +52,7 @@
     });
     filas.sort(function (x, y) { return y.medio - x.medio; });
     if (cuantas && filas.length > cuantas) {
-      const zid = K.zoom && K.zoom.elegir(caso), iz = filas.findIndex(function (f) { return f.id === zid; });
-      filas = filas.slice(0, Math.max(cuantas, iz + 1));
+      filas = filas.slice(0, cuantas);
     }
     const max = Math.min(1, Math.ceil(tope * 1.25 * 20) / 20), pct = function (v) { return K.coma(v * 100, v < 0.1 ? 1 : 0).replace(',0', '') + '%'; };
     // sin columna de valores. La tarjeta acorta el eje cuando el gráfico va mucho más allá de su unidad.
@@ -90,8 +66,4 @@
   // En pantalla, el nombre de cada unidad se dice completo: «Sector 25», no «S-25».
   K.nombreDe = function (id) { return id.replace(/^S-0?/, 'Sector ').replace(/^L-0?/, 'Línea ').replace(/^CAEX-/, 'Camión '); };
 
-  // la lámina de la roca tiene su escena en terreno.js; su gráfico se llena aquí, al cargar
-  const roca = document.getElementById('int-leyes'), valor = document.getElementById('valor-leyes');
-  if (roca) K.intervalos(roca, K.filasDe.leyes(13));
-  if (valor) valor.textContent = K.orden(K.datos.terreno.costo_de_no_saber);
 })();

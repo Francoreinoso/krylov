@@ -228,6 +228,9 @@
       const duda = con.filter(function (id) { return R.unidades[id].estado === 'en_duda'; });
       const verdes = finales.map(function (f) { return S.unidades[f[1]].id; }).filter(function (id) { return R.unidades[id] && R.unidades[id].estado === 'no_actuar'; });
       K.foco.recorrer(F, con);
+      // el eje llega hasta las 36 horas del gráfico del caso: el sector en duda tiene un rango ancho y tiene que caber
+      F.eje = { min: 0, max: 36, log: false, raiz: false, limite: S.horizonte };
+      con.forEach(function (id) { F.fichas[id] = K.foco.ficha('taludes', id, F.eje); });
       const sinCurva = function (id, que) {
         const un = S.unidades[this.indice[id]], mm = un.puntos[un.puntos.length - 1][1];
         F.fichas[id] = { id: id, nombre: K.nombreDe(id), estado: 'no_actuar', decision: S.rotulos.no_actuar, color: K.foco.rgb(COLOR_CSS.no_actuar),
@@ -299,11 +302,14 @@
           // la proyección: el tramo que se mira se desliza hacia el rajo y se desgrana (lo de arriba baja más; los fragmentos caen)
           float c = uCede.y * (1.0 - step(0.5, abs(sec - (uCede.x + 0.5)))) * step(marca, 0.5);
           float borde = 1.0 - smoothstep(0.30, 0.5, abs(fract(sec) - 0.5));  // el tramo se rompe más en el centro que en sus orillas
-          float desliza = c * (0.22 + 0.8 * aU.y) * (0.5 + 0.5 * borde);
+          float canto = step(1.2, aS.x);                                    // el borde encendido de cada escalón
+          float desliza = c * (0.3 + 0.9 * aU.y) * (0.5 + 0.5 * borde);
           float suelta = step(0.72, aS.y) * c * c;
-          p += vec3(-lado * 0.2, -0.62, 0.8) * desliza + vec3((aS.y - 0.86) * 2.2, -2.6 * aS.y, 1.5 * aS.y) * suelta * (0.4 + 0.6 * aU.y);
+          // el tramo baja más de un escalón y sus fragmentos se abren en abanico al pie
+          p += vec3(-lado * 0.2, -1.2, 0.9) * desliza + vec3((aS.y - 0.86) * 5.0, -3.0 * aS.y, 1.7 * aS.y) * suelta * (0.4 + 0.6 * aU.y);
           float dr = (aU.x - uBarre) / 0.008;
           float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.06) : 0.0);    // la franja del radar y su estela
+          radar *= 1.0 - 0.85 * uCede.y;                                    // mientras se proyecta la caída, el barrido no compite
           float k = max(smoothstep(0.04, 0.42, d) * mix(1.0, 0.45, uResp), 0.75 * aS.w * uResp);        // con respuesta manda la decisión, no cuánto se movió
           k = max(k, 0.9 * mira);
           vec3 caliente = mix(mix(COBRE, ROJO, smoothstep(0.18, 0.55, d)), vec3(1.0, 0.88, 0.74), smoothstep(0.6, 1.0, d));
@@ -313,6 +319,8 @@
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vColor = marca > 0.5 ? vec3(0.96, 0.93, 0.88) : color + ORO * radar * 0.85;
           vA = marca > 0.5 ? mix(0.06, 0.6, mira) : (0.07 + 0.3 * aS.x) * (1.0 + 1.6 * k) * mix(0.72, 1.25, mira) + radar * 0.6;
+          // donde cede, los escalones se cortan y arriba queda la cicatriz oscura
+          vA *= (1.0 - 0.92 * c * canto) * (1.0 - 0.7 * c * smoothstep(0.45, 0.95, aU.y) * (1.0 - step(0.72, aS.y)));
           gl_PointSize = (marca > 0.5 ? 0.028 : 0.03 + 0.016 * aS.y + 0.022 * k + 0.035 * radar) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`, { uMov: { value: this.tex }, uBarre: this.barre, uResp: { value: R ? 1 : 0 }, uFoc: this.foc, uCede: this.cede });
@@ -326,14 +334,16 @@
       for (let k = 0; k < 26; k++) pr.push(Rd[0], Rd[1] - 1.3 + (k / 25) * 1.3, Rd[2]);                          // el poste
       for (let k = 0; k < 44; k++) { const a = (k / 44) * 6.2832; pr.push(Rd[0] + Math.cos(a) * 0.34, Rd[1] + Math.sin(a) * 0.34, Rd[2]); }   // la antena
       for (let k = 0; k < 30; k++) { const a = azar() * 6.2832, q = Math.sqrt(azar()) * 0.32; pr.push(Rd[0] + Math.cos(a) * q, Rd[1] + Math.sin(a) * q, Rd[2]); }
+      this.radAlfa = { value: 1 };
       B.puntos({ position: [pr, 3] }, `
+        uniform float uRad;
         void main() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           vColor = ORO;
-          vA = 0.8;
+          vA = 0.8 * uRad;
           gl_PointSize = 0.05 * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
-        }`);
+        }`, { uRad: this.radAlfa });
       const HACES = (this.HACES = 40), TRAMOS = (this.TRAMOS = 46), fh = [];
       for (let i = 0; i < HACES * TRAMOS; i++) fh.push(((i % TRAMOS) + 0.5) / TRAMOS);
       this.haces = B.puntos({ position: [new Array(HACES * TRAMOS * 3).fill(0), 3], aF: [fh, 1] }, `
@@ -346,7 +356,7 @@
           gl_Position = projectionMatrix * mv;
         }`);
       this.etqRadar = etiquetas(L, 1, 'chica')[0];
-      this.etqCede = etiquetas(L, 1, 'chica')[0];
+      this.etqCede = etiquetas(L, 1, 'nota')[0];
       this.etqCede.classList.add('proyeccion');
       this.tres = B.tres;
     },
@@ -369,7 +379,8 @@
       const qx = this.pared(K.acotar(centro + 0.5, 0, 0.999), 0.6), cerca = this._cede || 0;
       B.mirar(E.az + Math.sin(t * 0.17) * 0.03 - centro * 0.3, E.el, E.R - 1.6 - 9 * cerca, [K.mezcla(E.c[0], qx[0], 0.45 + 0.35 * cerca), E.c[1] - 1.0 * cerca, E.c[2]], E.dx);
       const ph = this.haces.geometry.attributes.position, Rd = this.radar;
-      this.haces.visible = ux >= 0 && ux <= 1;
+      this.haces.visible = ux >= 0 && ux <= 1 && (this._cede || 0) < 0.12;
+      this.radAlfa.value = 1 - K.suave((this._cede || 0) / 0.2);            // el radar se apaga antes de que el acercamiento lo corte
       if (this.haces.visible) {
         for (let i = 0; i < this.HACES; i++) {
           const q = this.pared(ux, (i + 0.5) / this.HACES);
@@ -380,7 +391,7 @@
         }
         ph.needsUpdate = true;
       }
-      poner(this.etqRadar, B.camera, Rd[0] + 0.5, Rd[1], Rd[2], '<b>Radar</b>', true);
+      poner(this.etqRadar, B.camera, Rd[0] + 0.5, Rd[1], Rd[2], '<b>Radar</b>', (this._cede || 0) < 0.08);
       // el foco y su tarjeta
       const punto = function (id) { const q = yo.pared((yo.indice[id] + 0.5) / n, 0.62); return K.proyectar(q[0], q[1], q[2], B.camera); };
       K.foco.cuadro(F, t, punto, 4.6, 1.2);
@@ -390,8 +401,8 @@
       const meta = K.quieto ? cuanto * 0.8 : F.b == null ? cuanto * K.suave((t - 1.6 - F.t0 - 0.7) / 2.6) : 0;
       this._cede = K.quieto ? meta : this._cede + (meta - this._cede) * Math.min(1, (dt || 0) * (meta > this._cede ? 6 : 3.2));
       this.cede.value.set(ia, this._cede);
-      const qc = this.pared((ia + 0.5) / n, 0.999);
-      poner(this.etqCede, B.camera, qc[0], qc[1] + 0.35, qc[2], 'Proyección: así cede si sigue acelerando', estado === 'actuar' && this._cede > 0.25 && F.b == null);
+      const qc = this.pared((ia + 0.5) / n, 0.9);
+      poner(this.etqCede, B.camera, qc[0], qc[1], qc[2] + 0.4, '<b>Proyección</b>así cede si sigue acelerando', estado === 'actuar' && this._cede > 0.25 && F.b == null);
     },
   });
 
@@ -493,10 +504,11 @@
         this.cam.value[i].set(x, N.y, N.z, N.dir > 0 ? 0 : Math.PI);
         this.est.value[i].set(des, K.acotar((this.LARGO / 2 - Math.abs(x)) / 5, 0, 1));
         // dónde está en la pantalla, y si va a seguir a la vista el rato que dura una parada del foco
-        const q = K.proyectar(x, N.y + 2.0 * this.ESC, N.z, B.camera), x6 = x + N.dir * this.VEL * 6;
+        const q = K.proyectar(x, N.y + 2.0 * this.ESC, N.z, B.camera), xd = x + N.dir * this.VEL * 4.3, qd = K.proyectar(xd, N.y + 2.0 * this.ESC, N.z, B.camera);
         const p = this.pos[i] || (this.pos[i] = {});
-        p.x = q.x; p.y = q.y; p.ve = Math.abs(x) < borde && q.x > 980 && q.x < 1870 && q.y > 130 && q.y < 1000;
-        p.ok = p.ve && Math.abs(x6) < borde && q.x > 1040 && q.x < 1800 && q.y > 170 && q.y < 960;
+        // se puede mirar si está entero a la derecha de la columna, y si va a seguir ahí lo que dura una parada (3 s) y el viaje
+        p.x = q.x; p.y = q.y; p.ve = Math.abs(x) < borde && q.x > 1120 && q.x < 1800 && q.y > 130 && q.y < 960;
+        p.ok = p.ve && Math.abs(xd) < borde && q.x > 1200 && q.x < 1740 && qd.x > 1200 && qd.x < 1740 && q.y > 170 && q.y < 900;
       }
       // El foco elige el camión siguiente entre los que están a la vista: cambia de color de decisión cuando puede,
       // y no repite los últimos que mostró.
@@ -506,15 +518,15 @@
         for (let i = 0; i < yo.n; i++) {
           const id = S.unidades[i].id, p = yo.pos[i];
           if (!p.ok || id === actual || yo.vistos.indexOf(id) >= 0 || !F.fichas[id]) continue;
-          const e = R[id].estado, v = (actual && e !== R[actual].estado ? 4 : 0) + (e === 'en_duda' ? 3 : e === 'actuar' ? 2 : 0) + 1 - Math.abs(p.x - 1420) / 900;
+          const e = R[id].estado, v = (actual && e !== R[actual].estado ? 4 : 0) + (e === 'en_duda' ? 3 : e === 'actuar' ? 2 : 0) + 1 - Math.abs(p.x - 1480) / 900;
           if (v > nota) { nota = v; mejor = id; }
         }
         if (mejor) { yo.vistos.push(mejor); if (yo.vistos.length > 7) yo.vistos.shift(); }
         return mejor;
       };
-      if (!this._ini) { this._ini = true; const id = elegir(null); if (id) F.a = id; }
-      if (F.b == null && !this.pos[this.indice[F.a]].ve) F.t0 = -1e9;          // el que se miraba salió del cuadro: se pasa al siguiente
-      K.foco.cuadro(F, t, function (id) { return yo.pos[yo.indice[id]]; }, 3.6, 1.0, elegir);
+      // al entrar, y si el que se miraba sale del cuadro, el foco se pone en otro sin viaje: no hay de dónde venir
+      if (F.b == null && (!this._ini || !this.pos[this.indice[F.a]].ve)) { const id = elegir(this._ini ? F.a : null); if (id) { F.a = id; F.t0 = Math.max(0, t - 1.6); this._ini = true; } }
+      K.foco.cuadro(F, t, function (id) { return yo.pos[yo.indice[id]]; }, 3.0, 1.0, elegir);
       this.foc.value.set(this.indice[F.a], F.b == null ? -1 : this.indice[F.b], F.e);
     },
   });

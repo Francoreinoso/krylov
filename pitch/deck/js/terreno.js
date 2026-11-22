@@ -439,7 +439,7 @@
 
         if (E.punto) {
           aroZoom.position.set(E.punto.x, E.punto.y, E.punto.z);
-          aroZoom.scale.setScalar(1 + 0.12 * Math.sin(t * 2.2));
+          aroZoom.scale.setScalar(1.7 + 0.2 * Math.sin(t * 2.2));
         }
         mAroZoom.opacity = E.punto ? s.zoom : 0;
 
@@ -497,6 +497,7 @@
         yo.filas[c.etiqueta] = fila;
       });
       ranking.insertAdjacentHTML('beforeend', '<div class="p nota">Lo que aporta una muestra en cada lugar, con A = 100.</div>');
+      this.nota = ranking.lastChild;
       this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
       const seg = L.querySelector('#perforo-s'), medido = K.config.cifras && K.config.cifras.donde_perforo_s;
       if (seg && medido) seg.textContent = K.coma(medido, 1) + ' segundos';
@@ -531,27 +532,31 @@
       this.v = null; this.de = 0; this.a = 1 % Math.max(1, this.paradas.length); this.t0 = null;
       // el banco se levanta apenas entra la lámina; después aparece la malla del rango
       K.anim(s, { crece: 1 }, 3.0, false, 'power1.inOut', 0.3);
-      K.anim(s, { vidrio: 1 }, 1.6, false, 'power1.inOut', 3.0);
+      K.anim(s, { vidrio: 0.55 }, 1.6, false, 'power1.inOut', 3.0);
+      // cuando aparece el foco, las muestras y la malla bajan: el punto que viaja es lo único blanco que manda
+      K.anim(s, { puntos: 0.38 }, 1.0, false, 'power1.inOut', 2.8);
     },
     paso: function (p, inst) {
       const m = this.m;
       if (!m) return;
       const s = m.s;
-      if (inst) { gsap.killTweensOf(s, 'crece,vidrio'); s.crece = 1; s.vidrio = p === 0 ? 1 : 0; }
+      if (inst) { gsap.killTweensOf(s, 'crece,vidrio,puntos'); s.crece = 1; s.vidrio = p === 0 ? 0.55 : 0; s.puntos = p === 0 ? 0.38 : 0.3; }
       gsap.killTweensOf(s, 'zoom');
       if (p === 0) K.anim(s, { zoom: 1 }, 0.8, inst, 'power1.out', s.crece < 0.5 ? 2.6 : 0.2); else K.anim(s, { zoom: 0 }, 0.25, inst);
       if (p === 0) {
-        K.anim(s, { haces: 0, puntos: 1 }, 0.6, inst);
+        K.anim(s, { haces: 0 }, 0.6, inst);
+        if (s.crece >= 0.99) K.anim(s, { puntos: 0.38, vidrio: 0.55 }, 0.6, inst);
         K.anim(s, { az: -0.62, el: 0.62, R: 92, ty: -1.5, dy: BAJA }, 2.2, inst);
         if (inst) { s.escaneo = 0; s.destaca = 0; }
       } else {
-        gsap.killTweensOf(s, 'crece,vidrio');
+        gsap.killTweensOf(s, 'crece,vidrio,puntos');
         s.crece = 1;
         K.anim(s, { vidrio: 0, puntos: 0.3, haces: 1 }, 0.8, inst);
         K.anim(s, { az: -0.5, el: 0.84, R: 96, ty: 1.5, dy: 0 }, 2.6, inst);
         if (!inst) { s.escaneo = 0; s.destaca = 0; }
-        K.anim(s, { escaneo: 1 }, 3.0, inst, 'power1.inOut', 0.5);
-        K.anim(s, { destaca: 1 }, 1.6, inst, 'power1.inOut', 3.4);
+        // el conteo dura lo que duró de verdad (M-44) y los tres lugares aparecen apenas termina
+        K.anim(s, { escaneo: 1 }, (K.config.cifras && K.config.cifras.donde_perforo_s) || 1.3, inst, 'none', 0.35);
+        K.anim(s, { destaca: 1 }, 0.9, inst, 'power1.out', 1.75);
       }
     },
     // El foco sobre el terreno: se detiene en una parada, viaja en línea recta a la siguiente y, en el camino, la tarjeta
@@ -567,7 +572,7 @@
       const x = K.mezcla(A.x, B.x, e), z = K.mezcla(A.z, B.z, e), i = m.bloqueBajo(x, z);
       const j = i == null ? P[this.de] : i, obj = { bajo: T.bajo[j], medio: T.media[j], alto: T.alto[j], c: this.colores[T.estado[j]] };
       // lo que se muestra sigue al bloque de abajo con suavidad: sin escalones al cruzar de un bloque a otro
-      const v = this.v || (this.v = { bajo: obj.bajo, medio: obj.medio, alto: obj.alto, c: obj.c.slice(), y: m.alturaDe(j) }), q = K.quieto ? 1 : Math.min(1, (dt || 0.016) * 9);
+      const v = this.v || (this.v = { bajo: obj.bajo, medio: obj.medio, alto: obj.alto, c: obj.c.slice(), y: m.alturaDe(j) }), q = K.quieto || k <= 0 ? 1 : Math.min(1, (dt || 0.016) * 16);      // detenido en una parada, la cifra es exactamente la del bloque
       v.bajo += (obj.bajo - v.bajo) * q; v.medio += (obj.medio - v.medio) * q; v.alto += (obj.alto - v.alto) * q;
       for (let n = 0; n < 3; n++) v.c[n] += (obj.c[n] - v.c[n]) * q;
       v.y += (m.alturaDe(j) - v.y) * q;
@@ -590,6 +595,7 @@
       }
       this.cuentaAnalisis.textContent = K.miles(Math.min(n, Math.floor(K.acotar(s.escaneo * 1.02, 0, 1) * n)));
       ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });   // C, B y al final A
+      this.nota.classList.toggle('ver', s.destaca > 0.72);
       m.haces.forEach(function (h) {
         if (!h.etq) return;
         h.etq.classList.toggle('ver', s.destaca > 0.5 && s.haces > 0.5);

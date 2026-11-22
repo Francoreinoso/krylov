@@ -20,7 +20,7 @@
     leyes: { grande: function (v) { return K.miles(v); }, que: 'ppm de arsénico', rango: function (a, b) { return 'entre ' + K.miles(a) + ' y ' + K.miles(b); }, limite: 'Máximo que acepta la planta', pie: function (v) { return K.miles(v); } },
     taludes: { grande: function (v) { return corto(v) + ' h'; }, que: 'le quedan antes de ceder', rango: function (a, b) { return 'entre ' + corto(a) + ' y ' + corto(b) + ' horas'; }, limite: function (ax) { return 'Próximas ' + ax.limite + ' horas'; }, pie: function (v) { return corto(v) + ' h'; } },
     flotacion: { grande: function (v) { return cien(v) + '%'; }, que: 'del cobre va a recuperar', rango: function (a, b) { return 'entre ' + cien(a) + ' y ' + cien(b) + '%'; }, limite: function (ax) { return 'Meta de la planta: ' + Math.round(ax.limite * 100) + '%'; }, pie: function (v) { return cien(v) + '%'; } },
-    flota: { grande: function (v) { return cien(v) + '%'; }, que: 'de riesgo de fallar antes de su mantención', rango: function (a, b) { return 'entre ' + cien(a) + ' y ' + cien(b) + '%'; }, limite: function (ax) { return 'Sobre ' + cien(ax.limite).replace(',0', '') + '%, conviene parar'; }, pie: function (v) { return cien(v) + '%'; } },
+    flota: { grande: function (v) { return cien(v) + '%'; }, que: 'de riesgo de fallar|antes de su mantención', rango: function (a, b) { return 'entre ' + cien(a) + ' y ' + cien(b) + '%'; }, limite: function (ax) { return 'Sobre ' + cien(ax.limite).replace(',0', '') + '%, conviene parar'; }, pie: function (v) { return cien(v) + '%'; } },
     sismicidad: { grande: function (v) { return cien(v) + '%'; }, que: function () { return 'de riesgo de temblor fuerte en ' + K.datos.series.sismicidad.horizonte + ' horas'; }, rango: function (a, b) { return 'entre ' + cien(a) + ' y ' + cien(b) + '%'; }, limite: function (ax) { return 'Sobre ' + cien(ax.limite).replace(',0', '') + '%, sigue cerrado'; }, pie: function (v) { return cien(v) + '%'; } },
   };
 
@@ -56,7 +56,7 @@
     const S = K.datos.series[caso], R = S.respuesta, q = R && R.posteriori && R.posteriori[id], r = q && R.unidades[id];
     if (!r) return null;
     return { id: id, nombre: K.nombreDe(id), estado: r.estado, decision: S.rotulos[r.estado], color: rgb(K.coloresDecision[r.estado]),
-      bajo: q.bajo, medio: q.medio, alto: q.alto, d: densidad(eje, q.cuantiles) };
+      bajo: q.bajo, medio: q.medio, alto: q.alto, q: q.cuantiles, d: densidad(eje, q.cuantiles) };
   }
   // El eje común de un recorrido: el del gráfico del caso, hasta donde llegan las unidades que se visitan.
   function ejeDe(caso, ids) {
@@ -123,7 +123,8 @@
     },
     // Dibuja la tarjeta: la ficha A, o la mezcla de A hacia B (e de 0 a 1). brota: la curva crece al entrar. eje: el del gráfico.
     // Una ficha sin curva (un sector que no se acelera no tiene «horas que faltan») trae `grande`, `que` y `serie`:
-    // lo que se midió. Entre una ficha con curva y una sin ella, la mitad de abajo se funde en vez de mezclarse.
+    // lo que se midió. Entre una ficha con curva y una sin ella no hay nada que mezclar: las dos se funden a la vez,
+    // una saliendo y la otra entrando, y la tarjeta nunca queda vacía.
     pintar: function (F, A, B, e, brota, eje, dice) {
       eje = eje || F.eje; dice = dice || DICE[F.caso];
       if (!B) e = 0;
@@ -131,65 +132,83 @@
       const llave = A.id + '|' + (B ? B.id : '') + '|' + e.toFixed(4) + '|' + brota + '|' + (A.sello || '');
       if (llave === F.llave) return;
       F.llave = llave;
-      const ctx = F.ctx, m = function (a, b) { return a + (b - a) * e; }, T = e < 0.5 ? A : B;
-      const mezcla = !!(B && A.d && B.d), cambio = B ? Math.abs(1 - 2 * e) : 1;
-      const igual = !B || (A.nombre === B.nombre && A.decision === B.decision), aTexto = igual ? 1 : K.suave(cambio), aCaja = mezcla || !B ? 1 : K.suave(cambio);
-      const color = B ? [m(A.color[0], B.color[0]), m(A.color[1], B.color[1]), m(A.color[2], B.color[2])] : A.color;
+      const ctx = F.ctx, T = e < 0.5 ? A : B, mezcla = !!(B && A.d && B.d);
+      const igual = !B || (A.nombre === B.nombre && A.decision === B.decision), aTexto = igual ? 1 : K.suave(Math.abs(1 - 2 * e) * 1.6);
       ctx.setTransform(F.rc, 0, 0, F.rc, 0, 0);
       ctx.clearRect(0, 0, W, H);
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      // quién es y qué conviene: se funden al cambiar de unidad
+      // quién es y qué conviene: cambian a mitad de camino, con un fundido corto
       ctx.globalAlpha = aTexto;
       ctx.fillStyle = SUAVE; ctx.font = '700 46px "Big Shoulders Display", sans-serif'; ctx.fillText(T.nombre, 2, 42);
       ctx.fillStyle = css(T.color); encaja(ctx, T.decision, 800, '"Big Shoulders Display", sans-serif', 78, 50, W - 8); ctx.fillText(T.decision, 2, 118);
+      ctx.globalAlpha = 1;
+      if (mezcla || !B) K.foco.cuerpo(F, A, mezcla ? B : null, e, 1, brota, eje, dice);
+      else {                                                    // la cifra cambia en su lugar, con el nombre; lo de abajo se funde, una saliendo y la otra entrando
+        const k = K.suave(e);
+        K.foco.cuerpo(F, T, null, 0, aTexto, brota, eje, dice, 'cifra');
+        K.foco.cuerpo(F, A, null, 0, 1 - k, brota, eje, dice, 'abajo'); K.foco.cuerpo(F, B, null, 0, k, brota, eje, dice, 'abajo');
+      }
+    },
+    // La estimación, su intervalo y la mitad de abajo (la distribución, o lo que se midió) de la ficha X, mezclada hacia Y.
+    // parte (opcional): 'cifra' dibuja solo la estimación y su texto; 'abajo', solo la mitad de abajo.
+    cuerpo: function (F, X, Y, e, alfa, brota, eje, dice, parte) {
+      if (alfa <= 0.004) return;
+      const ctx = F.ctx, m = function (a, b) { return a + (b - a) * e; }, T = Y && e >= 0.5 ? Y : X;
+      const bajo = Y ? m(X.bajo, Y.bajo) : X.bajo, medio = Y ? m(X.medio, Y.medio) : X.medio, alto = Y ? m(X.alto, Y.alto) : X.alto;
+      const tono = Y ? [m(X.color[0], Y.color[0]), m(X.color[1], Y.color[1]), m(X.color[2], Y.color[2])] : X.color;
       // la estimación, grande, y su intervalo: cuentan de una unidad a la otra
-      const bajo = mezcla ? m(A.bajo, B.bajo) : T.bajo, medio = mezcla ? m(A.medio, B.medio) : T.medio, alto = mezcla ? m(A.alto, B.alto) : T.alto;
-      ctx.globalAlpha = aCaja;
+      ctx.globalAlpha = parte === 'abajo' ? 0 : alfa;
       ctx.fillStyle = TINTA; ctx.font = '800 112px "Big Shoulders Display", sans-serif';
-      const an = cifra(ctx, T.grande || dice.grande(medio), 0, 226);
-      ctx.font = '500 29px "Instrument Sans", sans-serif';
-      const que = T.que || (typeof dice.que === 'function' ? dice.que() : dice.que), cabe = W - 8 - (an + 22), lineas = [], rango = T.d ? dice.rango(bajo, alto) : null;
-      que.split(' ').forEach(function (p) { const u = lineas.length - 1, junto = u < 0 ? p : lineas[u] + ' ' + p; if (u >= 0 && ctx.measureText(junto).width <= cabe) lineas[u] = junto; else lineas.push(p); });
+      const an = cifra(ctx, X.grande || dice.grande(medio), 0, 226);
+      ctx.font = '500 29px "Archivo", sans-serif';
+      const que = T.que || (typeof dice.que === 'function' ? dice.que() : dice.que), cabe = W - 8 - (an + 22), rango = X.d ? dice.rango(bajo, alto) : null;
+      let lineas = [];
+      if (que.indexOf('|') >= 0) lineas = que.split('|');                   // un corte fijo: el texto no salta de una a dos líneas cuando cambia el ancho de la cifra
+      else que.split(' ').forEach(function (p) { const u = lineas.length - 1, junto = u < 0 ? p : lineas[u] + ' ' + p; if (u >= 0 && ctx.measureText(junto).width <= cabe) lineas[u] = junto; else lineas.push(p); });
       const filas = lineas.length + (rango ? 1 : 0), y0 = filas > 2 ? 152 : filas > 1 ? 186 : 208;
       ctx.fillStyle = SUAVE; lineas.forEach(function (l, i) { ctx.fillText(l, an + 22, y0 + i * 37); });
-      if (rango) { ctx.fillStyle = TINTA; ctx.font = '600 29px "Instrument Sans", sans-serif'; ctx.fillText(rango, an + 22, y0 + lineas.length * 37 + 1); }
+      if (rango) { ctx.fillStyle = TINTA; ctx.font = '600 29px "Archivo", sans-serif'; ctx.fillText(rango, an + 22, y0 + lineas.length * 37 + 1); }
       // la mitad de abajo: la distribución, o lo que se midió
+      if (parte === 'cifra') { ctx.globalAlpha = 1; return; }
+      ctx.globalAlpha = alfa;
       const x = 2, w = W - 12, yt = 300, yb = H - 44;
-      if (!T.d) {
-        const pts = T.serie, t1 = pts[pts.length - 1][0], tope = T.tope || 1, X = function (q) { return x + (q[0] / t1) * w * brota; }, Y = function (q) { return yb - (K.acotar(q[1], 0, tope) / tope) * (yb - yt - 20); };
+      if (!X.d) {
+        const pts = X.serie, t1 = pts[pts.length - 1][0], tope = X.tope || 1, px = function (q) { return x + (q[0] / t1) * w * brota; }, py = function (q) { return yb - (K.acotar(q[1], 0, tope) / tope) * (yb - yt - 20); };
         ctx.strokeStyle = LINEA; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb); ctx.lineTo(x + w, yb); ctx.stroke();
-        ctx.strokeStyle = css(T.color); ctx.lineWidth = 3.5; ctx.lineJoin = 'round'; ctx.beginPath();
-        pts.forEach(function (q, i) { if (i) ctx.lineTo(X(q), Y(q)); else ctx.moveTo(X(q), Y(q)); });
+        ctx.strokeStyle = css(X.color); ctx.lineWidth = 3.5; ctx.lineJoin = 'round'; ctx.beginPath();
+        pts.forEach(function (q, i) { if (i) ctx.lineTo(px(q), py(q)); else ctx.moveTo(px(q), py(q)); });
         ctx.stroke();
-        const fin = pts[pts.length - 1]; ctx.fillStyle = css(T.color); ctx.beginPath(); ctx.arc(X(fin), Y(fin), 7, 0, 6.2832); ctx.fill();
-        ctx.font = '600 23px "Instrument Sans", sans-serif'; ctx.fillStyle = TINTA; ctx.fillText(T.rotuloSerie || '', x, yt - 24);
+        const fin = pts[pts.length - 1]; ctx.fillStyle = css(X.color); ctx.beginPath(); ctx.arc(px(fin), py(fin), 7, 0, 6.2832); ctx.fill();
+        ctx.font = '600 23px "Archivo", sans-serif'; ctx.fillStyle = TINTA; ctx.fillText(X.rotuloSerie || '', x, yt - 24);
         ctx.font = '500 22px "JetBrains Mono", monospace'; ctx.fillStyle = SUAVE; ctx.fillText('0 h', x, yb + 30);
         const tf = Math.round(t1) + ' h'; ctx.fillText(tf, x + w - ctx.measureText(tf).width, yb + 30);
         ctx.globalAlpha = 1;
         return;
       }
-      const u = escala(eje), dA = mezcla ? A.d : T.d, dB = mezcla ? B.d : T.d, alt = (yb - yt) * brota;
+      // De una unidad a otra la curva se desplaza y cambia de ancho: se mezclan los cuantiles de las dos, no sus dibujos
+      // (mezclar los dibujos mostraría, a mitad de camino, una curva de dos lomos que no es la respuesta de ninguna).
+      const viaja = Y && e > 0 && e < 1 && X.q && Y.q ? densidad(eje, X.q.map(function (v, i) { return v + (Y.q[i] - v) * e; })) : null;
+      const u = escala(eje), dA = viaja || (Y && e >= 1 ? Y.d : X.d), dB = viaja || (Y && e > 0 ? Y.d : X.d), alt = (yb - yt) * brota;
       const en = function (q) { q = K.acotar(q, 0, 1) * N; const i = Math.min(N - 1, Math.floor(q)), va = dA[i] + (dA[i + 1] - dA[i]) * (q - i), vb = dB[i] + (dB[i + 1] - dB[i]) * (q - i); return va + (vb - va) * e; };
       const tramo = function (p, q) {
         ctx.beginPath(); ctx.moveTo(x + p * w, yb);
         for (let i = 0; i <= 80; i++) { const s = p + (q - p) * (i / 80); ctx.lineTo(x + s * w, yb - en(s) * alt); }
         ctx.lineTo(x + q * w, yb); ctx.closePath();
       };
-      const tono = mezcla ? color : T.color;
       ctx.lineJoin = 'round';
       ctx.fillStyle = css(tono, 0.15); tramo(0, 1); ctx.fill();
       ctx.fillStyle = css(tono, 0.5); tramo(u(bajo), u(alto)); ctx.fill();                   // el intervalo de credibilidad de 90%
       ctx.strokeStyle = css(tono); ctx.lineWidth = 3.5; ctx.beginPath();
-      for (let i = 0; i <= N; i++) { const px = x + (i / N) * w, py = yb - en(i / N) * alt; if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py); }
+      for (let i = 0; i <= N; i++) { const qx = x + (i / N) * w, qy = yb - en(i / N) * alt; if (i) ctx.lineTo(qx, qy); else ctx.moveTo(qx, qy); }
       ctx.stroke();
       ctx.strokeStyle = LINEA; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, yb); ctx.lineTo(x + w, yb); ctx.stroke();
       // el límite con que se decide, punteado y con su nombre
       const xl = x + u(eje.limite) * w, rotulo = typeof dice.limite === 'function' ? dice.limite(eje) : dice.limite;
       ctx.strokeStyle = TINTA; ctx.lineWidth = 2; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(xl, yt - 14); ctx.lineTo(xl, yb); ctx.stroke(); ctx.setLineDash([]);
-      ctx.font = '600 23px "Instrument Sans", sans-serif'; ctx.fillStyle = TINTA;
+      ctx.font = '600 23px "Archivo", sans-serif'; ctx.fillStyle = TINTA;
       const ar = ctx.measureText(rotulo).width; ctx.fillText(rotulo, K.acotar(xl - ar / 2, x, x + w - ar), yt - 24);
       // la estimación, sólida, y los dos extremos del intervalo bajo el eje
-      ctx.globalAlpha = aCaja * brota;
+      ctx.globalAlpha = alfa * brota;
       const xm = x + u(medio) * w; ctx.fillStyle = TINTA; ctx.fillRect(xm - 2, yb - en(u(medio)) * alt - 3, 4, en(u(medio)) * alt + 3);
       ctx.font = '500 22px "JetBrains Mono", monospace'; ctx.fillStyle = SUAVE;
       const tb = dice.pie(bajo), ta = dice.pie(alto), xb = x + u(bajo) * w, xa = x + u(alto) * w, wb = ctx.measureText(tb).width, wa = ctx.measureText(ta).width;
@@ -214,13 +233,13 @@
     cuadro: function (F, t, punto, pausa, viaje, siguiente) {
       if (F.a == null) return;
       K.foco.avanzar(F, t - 1.6, pausa || 3.4, viaje || 1.1, siguiente);
-      const A = F.fichas[F.a], B = F.b ? F.fichas[F.b] : null, brota = K.quieto ? 1 : K.suave((t - 1.2) / 0.9);
+      const A = F.fichas[F.a], B = F.b ? F.fichas[F.b] : null, brota = K.quieto ? 1 : K.suave((t - 0.45) / 0.7);
       K.foco.pintar(F, A, B, F.e, brota);
       const pa = punto(F.a), pb = B ? punto(F.b) : null;
       if (!pa || (B && !pb)) { K.foco.hilar(F, 0, 0, false); return; }
       const x = B ? K.mezcla(pa.x, pb.x, F.e) : pa.x, y = B ? K.mezcla(pa.y, pb.y, F.e) : pa.y;
       F.px = x; F.py = y;
-      K.foco.hilar(F, x, y, t > 1.5 || K.quieto);
+      K.foco.hilar(F, x, y, t > 1.1 || K.quieto);
     },
   };
 })();

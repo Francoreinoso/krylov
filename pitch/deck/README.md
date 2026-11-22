@@ -1,6 +1,6 @@
 # Krylov · deck de venta
 
-**Krylov, el Artificial Data Scientist de la minería.** El mensaje del deck: los modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide, gracias a Bayesian Amortized Inference.
+**Krylov, el Artificial Data Scientist de la minería.** El mensaje del deck: decidir con el mejor modelo ya no toma horas ni un especialista; toma lo que demora subir un archivo, gracias a Bayesian Amortized Inference.
 
 Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: las bibliotecas están en `vendor/` y los datos en `datos/datos.js`. Lo único que usa red es la demo en vivo (tecla `D`), que es opcional. El guion está en [`../PITCH_v2.md`](../PITCH_v2.md).
 
@@ -15,52 +15,49 @@ Doble clic en `index.html` **desde el Finder**, o `open pitch/deck/index.html` e
 | `→` `espacio` `Av Pág` `Enter` | Avanza: el paso siguiente de la lámina o, si no quedan, la lámina siguiente. En el cierre no sigue de largo |
 | `←` `Re Pág` | Retrocede |
 | `1` a `9` | Va a esa lámina |
-| `Fin` | Va al cierre (lámina 13) |
-| `0` | Cómo funciona | Bayesian Amortized Inference en dos mitades: solo el diagrama, sin fórmulas ni cifras | `js/arquitectura.js` |
-| `Q` `A` `L` `M` | Las láminas de preguntas, fuera del recorrido: **Q**uién lo usa, qué **A**rchivo recibe, por qué no un **L**LM, qué pasa en producción (**M**onitoreo). Entre ellas se avanza con las flechas |
-| `Y` | El **y**acimiento en 3D: el sexto modelo, fuera del recorrido. Cuatro pasos con las flechas; arrastrar gira la mina |
+| `Fin` | Va al cierre (lámina 14) |
+| `Q` `L` `0` `W` | Las láminas de preguntas, fuera del recorrido: **Q**uién lo usa, por qué no un **L**LM, cómo funciona (**0**, tres pasos) y quién investiga esto en el mundo (**W**). Entre ellas se avanza con las flechas |
 | `D` | Abre la demo en vivo encima de las láminas (necesita internet). `D` o `Esc` la cierran |
 | `N` | Notas de quien presenta: qué se dice y qué hay detrás de cada lámina |
 | `P` | Pausa todas las animaciones |
 | `F` | Pantalla completa |
-| mouse | En la lámina 7, arrastrar gira el terreno y un clic sobre él mueve la tarjeta de arriba a la derecha a ese punto |
+| mouse | En la lámina 7, arrastrar gira el terreno y un clic sobre él manda el foco a ese punto. En la 12, arrastrar gira el rajo. En la W, arrastrar gira el mapa y pasar por una luz dice qué aportó ese grupo |
 
 En la dirección: `#7` abre la lámina 7, `#7.1` su segundo paso. `?quieto` apaga el movimiento, `?estatico` deja cada lámina en su estado final y `?animado` fuerza el movimiento. Con «reducir movimiento» activado en el sistema, el deck abre sin animaciones.
 
 ## Las láminas
 
-Trece en el recorrido (catorce pulsaciones), más seis fuera de él. Los camiones volvieron al recorrido el sábado en la noche, cuando su red pasó el sello y se regeneró `datos.js`.
+Catorce en el recorrido (18 pulsaciones hasta el cierre), más cuatro fuera de él. La versión anterior a la última iteración de diseño está en [`original/`](original/RESPALDO.md); qué cambió en cada lámina y por qué, en [`CAMBIOS.md`](CAMBIOS.md).
 
 | # | Lámina | Qué se ve, y para qué está cada cosa | De dónde sale |
 |---|---|---|---|
-| 1 | Portada | El nombre, qué es y una frase. A la derecha, la mina como maqueta topográfica: un rajo abierto modelado como superficie, con sus bancos, su rampa y curvas de nivel; una onda de luz sale del fondo y enciende las curvas | Una ilustración hecha con una fórmula (`js/portada.js`): no es ninguna mina ni representa datos |
-| 2 | Generative AI para datasets | «No es una red que predice». Un LLM (entra una pregunta, sale la respuesta) y Krylov (entra un dataset, sale la decisión con su incertidumbre). Ninguno se vuelve a entrenar para responder | Los datasets y mapas de la fila de Krylov son respuestas reales de la red. La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano |
-| 3 | En el pasado vs. hoy | El flujo de trabajo, en dos pasos y **sin tiempos**. Primero «En el pasado»: elegir el modelo, entrenar con ese dataset, inferir; y de nuevo con cada dataset. Al avanzar, «Hoy»: elegir el modelo, simular datasets, pre-entrenar la red, una sola vez; después, inferir es un solo paso | Los contadores cuentan lo que la animación muestra: no son una medición (`js/flujo.js`) |
-| 4 | Mundos simulados | Terrenos simulados en remolino; el contador | M-01 (7.750.592) |
-| 5 | Entra un archivo, sale la respuesta | Un archivo tras otro entra a la red y sale su mapa; dos contadores | 10 ms: `latencia_ms` del sello. 117 segundos: lo que tarda el método lento (MCMC) por análisis en ese mismo modelo, medido (`mcmc_s_por_dataset` del sello, M-25) |
-| 6 | Cinco decisiones | «Una mina decide esto todos los días»: las cinco preguntas, con una figura cada una | Las figuras son ilustraciones |
-| 7 | Qué roca conviene procesar | El terreno en tres colores y, a la izquierda, lo que Krylov entrega: para 13 partes del terreno, cuánto arsénico hay con su intervalo de credibilidad, contra el máximo que acepta la planta. Debajo, cuántas partes hay de cada color y lo que vale despejar la duda, por su orden de magnitud. Arriba a la derecha, una tarjeta unida por un hilo a un punto del terreno: su estimación, su intervalo y la distribución entera (`js/zoom.js`); las láminas 8 a 11 tienen la suya, con una unidad cada una. Al segundo paso, «¿Dónde perforo?» | La red del motor `espacial`. El máximo de arsénico es un supuesto del caso (K-21: 500 ppm); por eso va sin número |
-| 8 | La pared de la mina | La pared pintada con la decisión de cada sector. A la izquierda, las horas que le faltan a cada sector que se acelera, con su intervalo, contra las próximas 12 horas. Arriba a la derecha, la curva de un sector | La red del motor `deformacion` (sello a las 17:36) |
-| 9 | El cobre en la planta | Las líneas de estanques. A la izquierda, lo que va a recuperar cada línea, con su intervalo, contra la meta de la planta | La red del motor `cinetica` (sello a las 17:09) |
-| 10 | Los camiones | Los camiones subiendo y bajando por la rampa, en el color de su decisión. A la izquierda, el riesgo de que falle antes de su mantención para los 9 camiones de más riesgo, con su intervalo, contra el riesgo desde el cual conviene adelantarla | La red del motor `desgaste` (sello a las 19:35) |
-| 11 | Los túneles | Los túneles después de una explosión, en el color de su decisión. A la izquierda, el riesgo de un temblor fuerte en las próximas 6 horas en cada sector, con su intervalo, contra el riesgo desde el cual conviene mantener cerrado | La red del motor `sismico` (sello a las 18:15) |
-| 12 | ¿Y cómo sé que acierta? | El acierto de cada modelo, de 0 a 1, en una fila cada uno: de las decisiones que tomó, cuántas acertó | La verdad escondida del archivo de demo de cada caso (`datos.js`) |
-| 13 | Cierre | El mensaje de venta; un contador de los análisis que Krylov habría respondido mientras duró el pitch; el QR | El contador es una cuenta: segundos desde la primera pulsación ÷ 10 ms |
+| 1 | Portada | El nombre, qué es y una frase. Un rajo abierto como maqueta topográfica, con el suelo que sigue hasta los bordes; una onda de luz sale del fondo y enciende las curvas de nivel | Una ilustración hecha con una fórmula (`js/portada.js`): no es ninguna minera ni representa datos |
+| 2 | Generative AI para datasets | Un LLM (entra una pregunta, sale la respuesta) y Krylov (entra un dataset, sale la decisión). Ninguno se vuelve a entrenar para responder | Los datasets y mapas de la fila de Krylov son respuestas reales de la red. La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano |
+| 3 | Antes y hoy | Dos carriles, **sin tiempos**. «Antes»: cada dataset pasa por elegir, entrenar e inferir. Al avanzar, las cajas bajan: elegir, simular y pre-entrenar quedan «una sola vez», «inferir» se encoge hasta ser la red, y los datasets la cruzan de corrido | Los contadores cuentan lo que la animación muestra: no son una medición (`js/flujo.js`) |
+| 4 | Simulaciones | El remolino de terrenos y la suma de las simulaciones de los cinco modelos con sello, con su desglose y el tiempo total de pre-entrenamiento | M-01, M-48 y M-66 (`js/mundos.js` suma lo que trae `datos.js`) |
+| 5 | Entra un archivo, sale la respuesta | Un archivo tras otro entra a la red y sale su mapa; dos contadores | 10 ms: `latencia_ms` del sello. 117 segundos: el método lento por análisis en ese mismo modelo (M-25) |
+| 6 | Seis decisiones | «Una minera se pregunta esto todos los días»: las seis preguntas, con una figura cada una | Las figuras son ilustraciones |
+| 7 | Qué roca conviene procesar | El terreno en tres colores. **Un punto lo recorre** y, a la izquierda, la tarjeta muestra lo que la red respondió para el lugar que tiene debajo: la decisión, el arsénico estimado, su intervalo de 90% y la distribución entera contra el máximo que acepta la planta (`js/foco.js`). Segundo paso, «¿Dónde perforo?»: 40 lugares, 480 análisis rehechos y los tres mejores, por su valor relativo | La red del motor `espacial`. M-40, M-43, M-44, M-46 (el valor ya no se muestra en dólares) |
+| 8 | La pared | La pared en el color de la decisión de cada sector. El foco viaja de sector en sector; en uno que conviene cerrar, la cámara se acerca y **ese tramo cede, rotulado como proyección**. En uno que se movió sin acelerarse, la tarjeta muestra lo que midió el radar | La red del motor `deformacion` (sello a las 17:36) |
+| 9 | El cobre en la planta | Las ocho líneas vistas desde donde termina la pulpa: lo recuperado sube por una columna hasta su estimación, contra la meta; **lo que no flotó cae al relave**, más denso donde se pierde más | La red del motor `cinetica` (`js/flotacion.js`) |
+| 10 | Los camiones | Los camiones en la rampa, en el color de su decisión. El foco salta entre los que están a la vista y su tarjeta muestra el riesgo de cada uno | La red del motor `desgaste` |
+| 11 | Los túneles | Un bloque de roca abierto a la altura de los túneles: la explosión manda una onda por la roca y después cada temblor del archivo sacude su sector a su hora | La red del motor `sismico` (`js/sismicidad.js`). Dónde cae cada temblor dentro del sector es ilustración |
+| 12 | ¿Dónde está el mineral? | El sexto modelo: el rajo en relieve, la zona perforada y el mineral debajo, piso por piso; la duda bajando por la próxima perforación; y la comparación con el método lento. Es `yacimiento.html` dentro de un marco | La red del motor `yacimiento` sobre un yacimiento simulado (M-63 a M-65). **No está en la app y su sello no pasa: se cuenta el mapa** |
+| 13 | ¿Y cómo sé que acierta? | Por modelo, en 2.000 casos nuevos: qué fracción de las veces la respuesta real cayó dentro del rango de 90%. Los seis puntos caen sobre la línea de 90%. Abajo, el examen con datos reales públicos | `cobertura_90` de cada sello; M-63 para el yacimiento; M-67 |
+| 14 | Cierre | El mensaje de venta; un contador de los análisis que Krylov habría respondido mientras duró el pitch; el QR | El contador es una cuenta: segundos desde la primera pulsación ÷ 10 ms |
 
 Fuera del recorrido:
 
 | Tecla | Lámina | Qué responde | De dónde sale |
 |---|---|---|---|
-| `Q` | ¿Quién lo usa? | Quien decide en el turno: las cinco figuras 3D, cada una con la persona que toma esa decisión | Roles, no empresas. No hay clientes ni pilotos |
-| `A` | ¿Qué archivo recibe? | El que pide el modelo de cada decisión: cómo agrupa, cuántas unidades y filas, qué es una fila y sus columnas | `casos/<caso>.yaml` (`datos.js → modelos`) |
-| `L` | ¿Y un LLM? | «Correría el modelo caro cada vez». En 3D: una cadena de MCMC arma la respuesta de a una muestra; Krylov la entrega entera | La prueba de `datos/prueba_llm/` y el sello. Las nubes son una ilustración |
-| `M` | Cada predicción viene con su intervalo de credibilidad | Las ocho líneas de la planta: la estimación, su intervalo de 90% y lo que de verdad pasó | La red de `cinetica` y la verdad escondida del archivo |
-| `Y` | ¿Dónde está el mineral? | El sexto modelo (`yacimiento`, D-40): la mina en relieve 3D, la zona perforada y el mineral debajo, piso por piso; la duda bajando por la próxima perforación; y lo que acierta contra la verdad escondida. **Fuera del recorrido porque su sello dice «no pasa»** (el mapa está comprobado; dos de los 15 parámetros no). Es la página `yacimiento.html` dentro de un marco: se carga al entrar y se suelta al salir (`js/yacimiento.js`). También abre sola, con doble clic | La red del motor `yacimiento` sobre un yacimiento **simulado** (`datos/yacimiento.js`, que escribe `yacimiento/exportar_deck.py`); cifras M-63 y M-64 |
-| `0` | Cómo funciona | Bayesian Amortized Inference en dos mitades: solo el diagrama | `js/arquitectura.js` |
+| `Q` | ¿Quién lo usa? | Quien toma la decisión en terreno: las seis figuras, cada una con el cargo que toma esa decisión | Cargos, no empresas. No hay clientes ni pilotos |
+| `L` | ¿Y un LLM? | «Correría el modelo caro cada vez». Una cadena de MCMC arma la respuesta de a una muestra; Krylov la entrega entera | La prueba de `datos/prueba_llm/` y el sello. Las nubes son una ilustración |
+| `0` | Cómo funciona | Tres pasos: lo que se hace una sola vez; lo que pasa con cada dataset; y la ficha de los seis modelos (qué modelo es, simulaciones, minutos, milisegundos) | `js/arquitectura.js`; M-01, M-02, M-48, M-63, M-64, M-68 |
+| `W` | Quién investiga esto | Un mapamundi de puntos con los 30 grupos de investigación de 15 países que el review *Neural Methods for Amortized Inference* (2025) cita como centrales, en un recorrido automático por regiones | `datos/laboratorios.js`, que escribe `datos/generar_laboratorios.py` con la fuente de cada grupo; M-69 |
 
-**Una lámina de decisión entra al recorrido solo si el motor de su caso ya responde**, igual que el inicio de la app. Lo decide `js/nucleo.js` al abrir, mirando `datos.js`: la que no tiene respuesta se mueve después del cierre y se abre con su tecla. Cuando su red exista y se vuelva a correr `generar.py`, vuelve sola a su lugar, con su gráfico de intervalos. Así volvieron los camiones el sábado en la noche (entre la planta y los túneles); hoy ninguna lámina queda fuera.
+**Una lámina de decisión entra al recorrido solo si el motor de su caso ya responde**, igual que el inicio de la app. Lo decide `js/nucleo.js` al abrir, mirando `datos.js`. La excepción es la lámina 12: está en el recorrido a pedido del equipo, con su aviso en pantalla («Este modelo todavía no está en la app»).
 
-**Las láminas de decisión tienen la misma columna de texto: lo que Krylov entrega.** El gráfico de intervalos de credibilidad (una barra por unidad: `js/intervalos.js`), con su línea blanca nombrada arriba y explicada abajo; cuántas unidades hay en cada color; y el valor.
+**Las seis láminas de decisión tienen la misma columna: la pregunta y la tarjeta del foco.** Un punto viaja por la escena y la tarjeta muestra la respuesta de la red para la unidad que se está mirando: la decisión en su color, la estimación, su intervalo de 90% y la distribución entera contra el límite con que se decide. Al viajar, la curva y las cifras pasan de una unidad a la otra. Todo sale de `datos.js` (`js/foco.js`); ya no hay gráfico de barras ni cuenta de colores ni cifras de plata en esas láminas.
 
 ## Lo que hay detrás, y que la pantalla no dice
 
@@ -70,28 +67,30 @@ A pedido, la pantalla no lleva pies ni rótulos («simulado», «ilustración»,
 1b. **En la pared, un dato que se puede decir:** en ese archivo simulado, los 5 sectores que la red manda cerrar son los 5 que cedían según la verdad escondida, y el que más se movió (Sector 25, 24 mm) no cede. Es un archivo y es simulado.
 2. **Todos los archivos de demo son simulados** (`origen_datos` de cada caso lo dice, y la app lo muestra). El único examen con datos reales es el del motor espacial en el terreno público del río Mosa: 24 de 31 mediciones escondidas dentro del rango (M-13, 77%).
 3. **Las 7 horas son una multiplicación:** 228 análisis × 117,1 s (M-10, M-25). Nadie las corrió seguidas. Y se midieron en el terreno real, no en el banco del demo. Son las láminas 3 y 5, y en las dos se dice lo mismo: 228 análisis, a 2 minutos cada uno.
-4. **Los mapas de las láminas 2, 5 y 12 se repiten:** son 32, guardados; el deck los anima, no los calcula. **Y hay contadores que no son mediciones:** los dos de la lámina 3 cuentan lo que la animación muestra (una vuelta, un dataset), y el del cierre es una cuenta (segundos del pitch ÷ 10 ms).
+4. **Los mapas de las láminas 2, 3, 5 y 14 se repiten:** son 32, guardados; el deck los anima, no los calcula. **Y hay contadores que no son mediciones:** los dos de la lámina 3 cuentan lo que la animación muestra (una vuelta, un dataset), y el del cierre es una cuenta (segundos del pitch ÷ 10 ms).
 4b. **La lámina 2 es una analogía.** Krylov no es un modelo de lenguaje: se parece a un LLM en que se entrena antes, una vez, y después solo se usa. Y responde datasets de la familia con que practicó; fuera de ella, avisa y no responde. En la lámina 3, «una sola vez» fueron 4 h 40 min de pre-entrenamiento (M-02): no está en pantalla, y hay que saberlo. El punto de equilibrio (unos 144 datasets) es M-36, todavía pendiente en `CIFRAS.md`: no se dice como cifra.
-5. **Los costos y los límites son supuestos del demo**, y por eso la pantalla no les da más precisión de la que tienen. La plata va por su orden de magnitud («más de US$ 1 millón», «decenas de miles de dólares», «US$ 9 mil»): el motor da US$ 1.577.707, 78.574, 8.809 y 40.664, que dependen de los costos K-22 en adelante. El máximo de arsénico (500 ppm, K-21: «supuesto, no una norma») va sin número; la meta de la planta (84%, K-41) y las 12 horas de la pared (el horizonte del caso) sí se dicen, porque sin ellas no se leen los intervalos.
+5. **Los costos y los límites son supuestos del demo, y por eso la plata salió de la pantalla.** El motor da US$ 1.577.707, 78.574, 8.809 y 40.664 de «lo que cuesta no saber», y US$ 8.943, 8.376 y 7.966 para los tres lugares de «¿Dónde perforo?»: todos dependen de los costos K-22 en adelante, que son supuestos. En la lámina 7 los tres lugares se comparan entre sí (100, 94 y 89, con A = 100); si preguntan por la plata, se dice con el supuesto por delante. El máximo de arsénico (500 ppm, K-21: «supuesto, no una norma») va sin número; la meta de la planta (84%, K-41) y las 12 horas de la pared (el horizonte del caso) sí se dicen, porque sin ellas no se leen los intervalos.
 5b. **Los «117 segundos» de la lámina 5 no son inventados:** es lo que tardó el método lento (MCMC) por análisis en el modelo del terreno, medido en 6 terrenos (`mcmc_s_por_dataset` del sello, M-25). La lámina 3 ya no lleva tiempos.
 6. **En las escenas 8 a 11 el movimiento está exagerado para que se vea** (24 milímetros no se ven en una pared), y la forma de la pared, del rajo y de los túneles es una ilustración: lo que viene del archivo es cuánto, cuándo y en qué unidad.
 6b. **La lámina del LLM dice «correría el modelo caro», y eso es lo que cuesta dar la posteriori completa; en la prueba, el LLM ni siquiera llegó a correrlo:** con 3 minutos tuvo que conformarse con atajos. Las dos nubes de esa lámina son una ilustración (la de la izquierda es una cadena de Metropolis de verdad, corrida en el navegador, sobre una posteriori inventada para el dibujo). **La prueba con el LLM no dio «el LLM no sirve».** Claude Fable 5.2 acertó parecido a Krylov (61 y 63 de 68 dentro del rango, contra 61). Lo que la prueba sí mostró: 152 y 177 segundos contra 10 ms; dos corridas, dos programas distintos, con diferencias de hasta 459 ppm en un lugar; y ningún sello. «Unas 20 horas» y «15.000 veces» son cuentas. Es una prueba, dos corridas, un archivo simulado, con el computador cargado. **No se dice que un LLM responde mal**: no es lo que se midió, y cualquiera puede repetirlo.
 6c. **Los intervalos son de 90%, no de 95%.** El motor entrega los cuantiles 5% y 95% de la posteriori y es con 90% que se validó (0,90 de acierto en 2.000 casos). Pasar a 95% exige recalcular y volver a validar; mientras tanto, el deck dice 90%. Y en la medida de los intervalos **lo ideal es 0,90 y no 1**: un rango que acierta siempre es demasiado ancho. Y con datos reales hay dos números: 138 de 155 escondiendo de a un quinto (el del sello, en pantalla) y 24 de 31 en la partición que muestra la app (M-13, 0,77).
-6d. **La accuracy es la de las decisiones, y excluye las «no sabemos»:** la roca, 700 de 715 (M-54); la pared, 34 de 34; la planta, 5 de 5; los camiones, 36 de 39; los túneles, 4 de 4 (M-56). **La pared, la planta y los túneles son muy pocos casos, de un solo archivo simulado:** un 1,00 sobre 5 decisiones no es una garantía. La validación robusta está en cada sello (2.000 casos nuevos por red). Si se dice «acierta», se dice «cuando decidió, en estos archivos».
-6e. **En producción no hay historial ni alertas:** el control es por respuesta (semáforo y examen). Un tablero que los siga en el tiempo es hoja de ruta.
+6d. **La lámina 13 ya no muestra la accuracy de las decisiones** (tres modelos en 1,00 sobre muy pocos casos se veían inventados): muestra la cobertura del rango de 90% en los 2.000 casos de cada sello. **Si preguntan por la accuracy, es la de las decisiones y excluye las «no sabemos»:** la roca, 700 de 715 (M-54); la pared, 34 de 34; la planta, 5 de 5; los camiones, 36 de 39; los túneles, 4 de 4 (M-56). **La pared, la planta y los túneles son muy pocos casos, de un solo archivo simulado:** un 1,00 sobre 5 decisiones no es una garantía. La validación robusta está en cada sello (2.000 casos nuevos por red). Si se dice «acierta», se dice «cuando decidió, en estos archivos».
+6e. **La lámina 8 proyecta cómo cede un sector, y lo rotula «Proyección».** Es una ilustración de lo que significa «le quedan 4,9 horas»: la forma del derrumbe no sale del modelo. **El viaje del foco entre unidades mezcla dos curvas para la transición:** lo que se lee cuando el punto se detiene es la respuesta de la red para esa unidad. En la lámina 7 no hay mezcla: en cada cuadro se dibuja el bloque que el punto tiene debajo.
+6f. **En producción no hay historial ni alertas:** el control es por respuesta (semáforo y examen). Un tablero que los siga en el tiempo es hoja de ruta.
 7. **En la pared y en los túneles, Krylov apoya la decisión de un especialista** (regla 22 de `AGENTS.md`): no se promete seguridad.
 
 Esto se aparta de las reglas 9 y 17 de `AGENTS.md` y de D-37, que piden rotular en pantalla lo simulado y separar lo construido de lo que es lámina. El repositorio es público y la app sí lo rotula: si el jurado mira las dos cosas, las va a ver distintas.
 
 ## Las palabras
 
-El deck se escribe para alguien que nunca pisó una mina: «la pared de la mina» y no «talud»; «explosión» y no «tronadura»; «líneas de estanques» y no «celdas»; «partes del terreno» y no «bloques»; «Sector 25» y no «S-25»; «Camión 05» y no «CAEX-05». Los nombres se traducen al dibujar (`nombre()` en `js/decisiones.js`); los archivos de cada caso no se tocan.
+El deck se escribe para alguien que nunca pisó una faena. La operación se llama «la minera» (no «la mina»), y lo físico, por su nombre: «el rajo», «la pared», «los túneles». «La pared» y no «talud»; «explosión» y no «tronadura»; «líneas de estanques» y no «celdas»; «partes del terreno» y no «bloques»; «Sector 25» y no «S-25»; «Camión 05» y no «CAEX-05». Los nombres se traducen al dibujar (`nombre()` en `js/decisiones.js`); los archivos de cada caso no se tocan.
 
 ## Lo que se cambia a mano: `config.js`
 
 - **`demo.url` y `demo.texto`:** la demo real del producto. De ahí salen el QR del cierre, el texto a su lado y lo que abre la tecla `D`.
 - **`equipo`:** los nombres para el cierre. Hoy dice «Equipo 5».
-- **`tiempos`:** los segundos de cada lámina que muestran las notas.
+- **`tiempos`:** los segundos de cada lámina que muestran las notas. Son una propuesta para tres minutos con las 14 láminas: falta cronometrarla en un ensayo.
+- **`cifras`:** las tres que no salen de `datos.js`: los segundos de «¿Dónde perforo?» (M-44) y la ficha y la cobertura del yacimiento (M-63, M-64), porque su archivo de datos solo se carga en su lámina.
 
 ## La entrada por pasos
 
@@ -113,7 +112,7 @@ Escribe `datos/datos.js`, todo con `KRYLOV_MOTOR_ESPACIAL=red`: el caso estrella
 
 ## Respaldo estático
 
-`respaldo/01.jpg` a `18.jpg` (1920×1080, el estado final de cada lámina, en el orden en que quedan al abrir: 01 a 13 el recorrido, 14 a 18 las preguntas). Si el navegador no tiene WebGL, cada lámina con 3D muestra la imagen de su posición: **si cambia qué motores responden, hay que rehacer el respaldo**, porque el orden cambia y `respaldo/krylov-deck.pdf`. Para rehacerlos:
+`respaldo/01.jpg` a `18.jpg` (1920×1080, el estado final de cada lámina, en el orden en que quedan al abrir: 01 a 14 el recorrido, 15 a 18 las preguntas Q, L, 0 y W; rehechas el sábado 21-nov a las 23:50, abriendo el deck por `file://`). Si el navegador no tiene WebGL, cada lámina con 3D muestra la imagen de su posición: **si cambia qué motores responden, hay que rehacer el respaldo**, porque el orden cambia y `respaldo/krylov-deck.pdf`. Para rehacerlos:
 
 ```bash
 npm install --no-save playwright-core
@@ -127,6 +126,8 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 ```
 
 ## Qué se probó y qué no
+
+- **Probado el sábado 21-nov entre las 22:45 y la medianoche, en la última iteración de diseño** (Playwright MCP con Chrome, 1280×720 y 1920×1080, con `?animado` y con `?quieto`): las 18 láminas y todos sus pasos, sin errores ni avisos de consola y a 60 cuadros por segundo según el contador del deck; el detector de Impeccable sin hallazgos sobre `index.html`, `deck.css`, `laboratorios.css` y `yacimiento.html`; y ninguna regla de estilo sin uso. Las animaciones de las láminas 1, 3, 4, 7 a 12 y W se revisaron en tiras de ocho cuadros. **Sin probar en esta iteración:** el proyector, Safari, la tecla `D` y el respaldo sin WebGL.
 
 - **Probado** (sáb 21-nov, 18:15, MacBook Air M3 con dos entrenamientos corriendo, Chromium sin ventana y el panel de navegador de la app de Claude): las 18 láminas y sus 20 pasos a 1920×1080 en modo estático, y el recorrido completo con el teclado (14 pulsaciones hasta el cierre), sin errores de consola y a 60 cuadros por segundo; las teclas, incluidas `Q`, `A`, `L`, `M`, `0` y `Fin`; la pausa. Dos revisiones automáticas, en todas las láminas y pasos: que ninguna cifra quede partida en dos líneas y que ningún texto quede encima de otro ni se salga del cuadro.
 - **Probado también en un navegador con ventana** (el panel de la app de Claude, pantalla de alta densidad, con dos entrenamientos corriendo): 60 cuadros por segundo. **Ahí apareció un error que las capturas sin ventana no mostraban:** las cuatro escenas de las láminas 8 a 11 no se pintaban, porque sus puntos sumaban luz sin opacidad (un color que no es válido, y que ese navegador descarta). Se corrigió (`js/decisiones.js`: la opacidad de cada punto es la de su canal más fuerte) y se comprobó en ese mismo panel.

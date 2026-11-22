@@ -1,6 +1,6 @@
 /* Krylov · deck de venta, versión minería. Escenario fijo de 1920×1080 que se escala a la ventana.
    Dirección de arte: carta topográfica sobre basalto. Cobre, óxido de cobre (turquesa) y oro; sin degradados en el texto,
-   sin píldoras ni tarjetas. Titulares en Big Shoulders Display, texto en Instrument Sans, datos en JetBrains Mono. */
+   sin píldoras ni tarjetas. Titulares en Big Shoulders Display, texto en Archivo, datos en JetBrains Mono. */
 
 @font-face {
   font-family: "Big Shoulders Display";
@@ -15,15 +15,15 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: "Instrument Sans";
-  font-style: normal; font-display: block; font-weight: 400 700; font-stretch: 75% 100%;
-  src: url(vendor/instrument-sans-latin-ext-standard-normal.woff2) format("woff2-variations");
+  font-family: "Archivo";
+  font-style: normal; font-display: block; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url(vendor/archivo-latin-ext-standard-normal.woff2) format("woff2-variations");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: "Instrument Sans";
-  font-style: normal; font-display: block; font-weight: 400 700; font-stretch: 75% 100%;
-  src: url(vendor/instrument-sans-latin-standard-normal.woff2) format("woff2-variations");
+  font-family: "Archivo";
+  font-style: normal; font-display: block; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url(vendor/archivo-latin-standard-normal.woff2) format("woff2-variations");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -48,7 +48,7 @@
   --en-duda: #eec25a;
   --no-actuar: #1fa87a;
   --titulo: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-  --texto: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --texto: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   /* La entrada por pasos: un fundido corto; solo los títulos se desplazan. Para volver a la entrada anterior (subir 26 px,
      desenfocada, 0,7 s) basta cambiar estos tokens: .7s · cubic-bezier(.16, .8, .2, 1) · 26px · 26px · 6px · 1 · 9s */
@@ -97,13 +97,14 @@ html, body {
 
 /* ---------- Láminas ---------- */
 
+/* la que sale se va rápido y la que entra espera a que se haya ido: nunca hay dos láminas encima una de la otra */
 .lamina {
   position: absolute; inset: 0;
   opacity: 0; visibility: hidden;
-  transition: opacity .5s ease, visibility 0s linear .5s;
+  transition: opacity .14s ease, visibility 0s linear .14s;
   pointer-events: none;
 }
-.lamina.activa { opacity: 1; visibility: visible; transition: opacity .5s ease, visibility 0s; }
+.lamina.activa { opacity: 1; visibility: visible; transition: opacity .42s ease .13s, visibility 0s; }
 .lamina.activa .toca { pointer-events: auto; }
 .lamina > aside.notas { display: none; }
 
@@ -137,7 +138,6 @@ html, body {
 .p b, .p strong { color: var(--tinta); font-weight: 650; }
 .dato { font-family: var(--mono); font-size: 21px; line-height: 1.45; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); font-weight: 450; }
 .cobre { color: var(--cobre); }
-.oxido { color: var(--oxido); }
 .oro { color: var(--oro); }
 .num { font-weight: 800; line-height: .9; white-space: nowrap; }
 /* Ninguna cifra se parte en dos líneas */
@@ -152,61 +152,13 @@ html, body {
 .zona { display: grid; }
 .zona > * { grid-area: 1 / 1; }
 
-/* Lo que Krylov entrega para una decisión: cuántas unidades hay en cada color, y el valor. */
-.salida { display: grid; gap: 8px; }
-.salida .colores { display: flex; flex-wrap: wrap; gap: 4px 26px; }
-.salida .item { display: flex; align-items: center; gap: 10px; font-size: 23px; line-height: 1.15; font-weight: 520; color: var(--tinta); }
-.salida .item .muestra { flex: none; width: 30px; height: 20px; }
-.salida .item .num { font-size: 38px; line-height: 1; }
-.salida .valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 18px; font-size: 25px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 8px; }
-.salida .valor .num { font-size: 46px; line-height: 1.05; color: var(--cobre); }
-.p.entrega b { color: var(--cobre); font-weight: 650; }
-
-/* El gráfico de intervalos de credibilidad (js/intervalos.js): una fila por unidad. La barra es el intervalo de 90%;
-   la marca clara, la estimación; el anillo, lo que pasó de verdad (cuando se muestra); la línea vertical, el límite. */
-.intervalos { --nom: 160px; --val: 150px; --alto: 30px; display: grid; }
-.intervalos.sin-nombres { --nom: 0px; --alto: 17px; }
-.intervalos.sin-valores { --val: 0px; }
-.intervalos .fila, .intervalos .eje, .intervalos .cabeza-eje { display: grid; grid-template-columns: var(--nom) 1fr var(--val); align-items: center; }
-.intervalos .fila { height: var(--alto); }
-.intervalos .nom { font-size: 23px; font-weight: 520; color: var(--tinta); white-space: nowrap; }
-/* la fila que abre la tarjeta del zoom queda en tinta; las demás, suaves */
-.intervalos.con-foco .nom { color: var(--suave); }
-.intervalos.con-foco .fila.foco .nom { color: var(--tinta); font-weight: 650; }
-.intervalos .val { font-family: var(--mono); font-size: 19px; color: var(--suave); text-align: right; white-space: nowrap; }
-.intervalos .riel { position: relative; height: 100%; }
-.intervalos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -1px; background: var(--linea); }
-.intervalos .fila .riel::after { content: ""; position: absolute; left: var(--limite); top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #f4efe6; }
-.intervalos .barra { position: absolute; top: 50%; height: 14px; margin-top: -7px; transform: scaleX(0); transition: transform .7s cubic-bezier(.2, .8, .2, 1) var(--d, 0s); }
-.intervalos.sin-nombres .barra { height: 9px; margin-top: -4.5px; }
-.visto .intervalos .barra, .intervalos.visto .barra { transform: none; }
-.quieto .intervalos .barra { transition: none; }
-.intervalos .barra.actuar { background: var(--actuar); }
-.intervalos .barra.no-actuar { background: var(--no-actuar); }
-.intervalos .barra.en-duda { background-color: var(--en-duda); background-image: repeating-linear-gradient(-45deg, transparent 0 4px, #0b0a0999 4px 7px); }
-.intervalos .punto { position: absolute; top: 50%; width: 4px; height: 22px; margin: -11px 0 0 -2px; background: #f4efe6; }
-.intervalos.sin-nombres .punto { height: 13px; margin-top: -6.5px; width: 3px; }
-.intervalos .real { position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; border: 3.5px solid #fff; background: var(--fondo); opacity: 0; transition: opacity .5s ease 1.4s; }
-.visto .intervalos .real, .intervalos.visto .real { opacity: 1; }
-.quieto .intervalos .real { transition: none; }
-.intervalos .eje { height: 26px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
-.intervalos .eje .izq { position: absolute; left: 0; top: 6px; }
-.intervalos .eje .der { position: absolute; right: 0; top: 6px; }
-/* el nombre de la línea blanca, arriba de ella y bien visible; y debajo del gráfico, una frase que dice de dónde sale */
-.intervalos .cabeza-eje { height: 34px; }
-.intervalos .cabeza-eje .lim { position: absolute; left: var(--limite); bottom: 4px; transform: translateX(-50%); white-space: nowrap; font-size: 22px; font-weight: 650; color: #fff; }
-.intervalos .cabeza-eje .lim::after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 2px; height: 8px; margin-left: -1px; background: #f4efe6; }
-.intervalos .nota-linea { font-size: 22px; line-height: 1.22; color: var(--suave); margin-top: 4px; display: flex; gap: 12px; align-items: baseline; }
-.intervalos .nota-linea i { flex: none; width: 2px; height: 20px; background: #f4efe6; transform: translateY(3px); }
-
-.pie-dato { position: absolute; left: 110px; bottom: 92px; }
-
 /* ---------- Cromo ---------- */
 
 #cromo { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
-#marca { position: absolute; left: 110px; bottom: 40px; font-family: var(--titulo); font-size: 30px; font-weight: 800; letter-spacing: .14em; color: var(--tenue); }
-#cuenta { position: absolute; right: 110px; bottom: 42px; font-family: var(--mono); font-size: 21px; letter-spacing: .08em; color: var(--tenue); }
-#avance { position: absolute; left: 0; bottom: 0; height: 4px; width: 0; background: var(--cobre); transition: width .6s cubic-bezier(.2, .8, .2, 1); }
+/* la marca y la cuenta llevan un halo oscuro: se leen también cuando una escena pasa por debajo */
+#marca { position: absolute; left: 110px; bottom: 40px; font-family: var(--titulo); font-size: 30px; font-weight: 800; letter-spacing: .14em; color: var(--tenue); text-shadow: 0 0 6px #0b0a09, 0 0 14px #0b0a09, 0 0 22px #0b0a09; }
+#cuenta { position: absolute; right: 110px; bottom: 42px; font-family: var(--mono); font-size: 21px; letter-spacing: .08em; color: var(--tenue); text-shadow: 0 0 6px #0b0a09, 0 0 14px #0b0a09, 0 0 22px #0b0a09; }
+#avance { position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: var(--cobre); transform: scaleX(0); transform-origin: 0 50%; transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
 #pausa { position: absolute; left: 50%; top: 36px; transform: translateX(-50%); font-family: var(--mono); font-size: 22px; letter-spacing: .2em; color: var(--tinta); display: none; }
 .pausado #pausa { display: block; }
 .pausado .animado, .pausado .animado * { animation-play-state: paused !important; }
@@ -241,7 +193,6 @@ html, body {
 /* Etiquetas que siguen a un punto del 3D */
 .etq { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; transition: opacity .5s ease; will-change: transform; pointer-events: none; }
 .etq.ver { opacity: 1; }
-.etq.rio { font-family: var(--mono); font-size: 21px; letter-spacing: .14em; text-transform: uppercase; color: #8fd0ff; text-shadow: 0 0 10px #000, 0 2px 14px #000; }
 /* la sombra hace de halo oscuro pegado a la letra: se lee también sobre el terreno claro */
 .etq.letra { font-family: var(--titulo); font-weight: 800; font-size: 64px; line-height: 1; color: var(--tinta); text-shadow: 0 0 5px #0b0a09, 0 0 10px #0b0a09, 0 0 18px #000, 0 2px 20px #000; }
 .lamina.activa .etq.letra { pointer-events: auto; cursor: pointer; }
@@ -252,7 +203,7 @@ html, body {
    3 · Mundos simulados
    ===================================================================== */
 
-#l-mundos .velo { position: absolute; inset: 0; background: radial-gradient(1080px 560px at 50% 48%, #0b0a09f5 0%, #0b0a09e0 55%, #0b0a0940 86%, transparent 100%); }
+#l-mundos .velo { position: absolute; inset: 0; background: linear-gradient(0deg, #0b0a09 0, #0b0a09e6 70px, transparent 160px), radial-gradient(1080px 560px at 50% 48%, #0b0a09f5 0%, #0b0a09e0 55%, #0b0a0940 86%, transparent 100%); }
 #l-mundos .centro { left: 0; right: 0; top: 140px; text-align: center; }
 #l-mundos .centro .p { color: var(--tinta); font-size: 46px; }
 #l-mundos .numero { font-size: 340px; color: var(--cobre); margin-top: 10px; }
@@ -270,54 +221,13 @@ html, body {
    5 · Leyes: el terreno
    ===================================================================== */
 
-.sobre-mapa .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f0 0%, #0b0a09a6 30%, transparent 50%); }
-.sobre-mapa .cabeza { left: 110px; top: 96px; width: 840px; }
-.sobre-mapa .cabeza .t2 { font-size: 88px; }
-.sobre-mapa .cabeza .p { margin-top: 14px; font-size: 31px; width: 760px; }
-#l-leyes .lateral { left: 110px; top: 400px; width: 720px; }
-.leyenda { display: grid; gap: 10px; }
-.leyenda .fila { display: grid; grid-template-columns: 54px 1fr auto; gap: 22px; align-items: center; font-size: 33px; font-weight: 520; }
-.leyenda .fila .num { font-size: 58px; min-width: 110px; text-align: right; }
-.muestra { width: 54px; height: 30px; }
-.muestra.actuar { background: var(--actuar); }
-.muestra.no-actuar { background: var(--no-actuar); }
-.muestra.en-duda { background-color: var(--en-duda); background-image: repeating-linear-gradient(-45deg, transparent 0 5px, #0b0a0999 5px 9px); }
-.muestra.corte { height: 0; border-top: 4px solid #fff; }
-.muestra.malla { background-image: linear-gradient(#f4efe6b0 2px, transparent 2px), linear-gradient(90deg, #f4efe6b0 2px, transparent 2px); background-size: 13px 13px; }
-.leyenda .fila.chica { font-size: 26px; line-height: 1.2; color: var(--suave); font-weight: 450; margin-top: 2px; }
-#l-leyes .cuesta { margin-top: 24px; }
-#l-leyes .cuesta .p { font-size: 36px; }
-#l-leyes .cuesta .num { font-size: 124px; color: var(--cobre); white-space: nowrap; margin-top: 4px; }
-#l-leyes .cuesta .dato { margin-top: 10px; }
+.sobre-mapa .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f0 0%, #0b0a09a6 30%, transparent 50%); pointer-events: none; }
 
-#l-leyes .cabeza { width: 860px; }
-#l-leyes .cabeza .t2 { font-size: 92px; }
-#l-leyes .ranking { left: 110px; top: 400px; width: 700px; }
 #l-leyes .ranking .fila { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; border-top: 1.5px solid var(--linea); padding: 12px 0 6px; opacity: 0; transition: opacity .6s ease; }
 #l-leyes .ranking .fila.ver { opacity: 1; }
 #l-leyes .ranking .fila .letra { font-family: var(--titulo); font-weight: 800; font-size: 72px; line-height: 1; color: var(--suave); }
 #l-leyes .ranking .fila .num { font-size: 72px; color: var(--suave); }
 #l-leyes .ranking .fila.a .letra, #l-leyes .ranking .fila.a .num { color: var(--oro); font-size: 138px; }
-#l-leyes .ranking .fila .p { grid-column: 2; font-size: 30px; margin-top: 2px; }
-#l-leyes .escaner { left: 110px; bottom: 150px; width: 760px; }
-#l-leyes .escaner b { color: var(--tinta); font-weight: 600; }
-#l-leyes .medicion { left: 110px; top: 400px; width: 800px; }
-#l-leyes .medicion .t3 { font-size: 78px; white-space: nowrap; }
-#l-leyes .medicion .baja { margin-top: 30px; }
-#l-leyes .medicion .baja .p { font-size: 36px; }
-#l-leyes .medicion .baja .num { font-size: 150px; color: var(--no-actuar); white-space: nowrap; margin-top: 6px; }
-#l-leyes .medicion .baja .dato { margin-top: 12px; }
-/* La regla de medición: los tres resultados posibles sobre una escala */
-.regla { position: relative; height: 150px; margin-top: 34px; width: 720px; }
-.regla .eje { position: absolute; left: 0; right: 0; top: 96px; height: 2px; background: var(--tenue); }
-.regla button { position: absolute; top: 0; transform: translateX(-50%); font: inherit; background: none; border: 0; color: var(--tenue); cursor: pointer; text-align: center; padding: 0 4px; white-space: nowrap; }
-.regla button .q { display: block; font-family: var(--mono); font-size: 20px; letter-spacing: .1em; text-transform: uppercase; }
-.regla button .n { display: block; font-family: var(--titulo); font-weight: 800; font-size: 54px; line-height: 1.02; }
-.regla button::after { content: ""; display: block; width: 2px; height: 22px; margin: 6px auto 0; background: currentColor; }
-.regla button.sel { color: var(--oro); }
-.regla button.sel::after { width: 5px; }
-.regla .corte { position: absolute; top: 84px; width: 0; height: 26px; border-left: 2px dashed var(--cobre); }
-.regla .corte span { position: absolute; left: -60px; width: 120px; text-align: center; top: 34px; font-family: var(--mono); font-size: 18px; letter-spacing: .06em; color: var(--cobre); white-space: nowrap; text-transform: uppercase; }
 
 /* =====================================================================
    4 · Cinco decisiones
@@ -352,7 +262,6 @@ html, body {
 #l-arquitectura path.hilo { fill: none; stroke-width: 2.5; }
 #l-arquitectura .a path.hilo { stroke: #e2854a99; }
 #l-arquitectura .b path.hilo { stroke: #36c2ae99; }
-#l-arquitectura .puente path.hilo { stroke: #f4efe680; stroke-dasharray: 8 8; }
 #l-arquitectura .a circle.gota { fill: var(--cobre); }
 #l-arquitectura .b circle.gota { fill: var(--oxido); }
 /* por pasos: primero lo que se hace una vez; después se enciende lo que pasa con cada dataset; al final, la ficha */
@@ -372,9 +281,6 @@ html, body {
 .quieto #l-arquitectura svg, .quieto #l-arquitectura .b, .quieto #l-arquitectura .zona-b { transition: none; }
 #l-arquitectura .titulo { left: 110px; top: 64px; }
 #l-arquitectura .titulo .t3 { font-size: 64px; }
-#l-arquitectura .sello { position: absolute; left: 110px; right: 110px; bottom: 92px; display: flex; justify-content: space-between; }
-#l-arquitectura .sello div { max-width: 330px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; color: var(--tenue); text-transform: uppercase; }
-#l-arquitectura .sello b { display: block; font-family: var(--titulo); font-weight: 800; font-size: 46px; white-space: nowrap; color: var(--tinta); letter-spacing: 0; line-height: 1.05; text-transform: none; }
 
 /* =====================================================================
    2 · Bayesian Amortized Inference: entra un archivo, sale la respuesta
@@ -396,8 +302,6 @@ html, body {
    5 · Leyes: «¿Dónde perforo?»
    ===================================================================== */
 
-#l-leyes .lateral { top: 452px; }
-#l-leyes .lateral .partes { font-size: 30px; color: var(--tinta); margin-bottom: 14px; }
 #l-leyes .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
 #l-leyes .columna .t2 { font-size: 84px; }
 #l-leyes .perforo .t3 { font-size: 104px; }
@@ -415,7 +319,9 @@ html, body {
 #l-leyes .perforo .ranking .fila.a .riel i { background: var(--oro); }
 #l-leyes .perforo .ranking .fila.ver .riel i { transform: none; }
 .quieto #l-leyes .perforo .ranking .riel i { transition: none; }
-#l-leyes .perforo .ranking .nota { font-size: 26px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 14px; margin-top: 0; }
+#l-leyes .perforo .ranking .nota { font-size: 26px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 14px; margin-top: 0; opacity: 0; transition: opacity .5s ease; }
+#l-leyes .perforo .ranking .nota.ver { opacity: 1; }
+.quieto #l-leyes .perforo .ranking .nota { transition: none; }
 
 /* =====================================================================
    1 · El valor, a primera vista
@@ -434,17 +340,18 @@ html, body {
    ===================================================================== */
 
 /* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
-.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09 46%, #0b0a09a0 51%, transparent 57%); }
+/* y abajo se funde antes de llegar a la marca y a la cuenta */
+.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(0deg, #0b0a09 0, #0b0a09e6 70px, transparent 170px), linear-gradient(90deg, #0b0a09 0%, #0b0a09 46%, #0b0a09a0 51%, transparent 57%); }
 .sobre-serie .capa-etq { position: absolute; inset: 0; }
 /* la columna: la pregunta y, debajo, la tarjeta con lo que Krylov responde en el punto que se está mirando (js/foco.js) */
 .sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
 .sobre-serie .columna .t2 { font-size: 84px; }
 .lamina canvas.foco { display: block; width: 780px; height: 560px; pointer-events: none; }
 /* el hilo va de la tarjeta al punto de la escena; el punto late */
-.hilo-foco { position: absolute; left: 0; top: 0; height: 2px; margin-top: -1px; transform-origin: 0 50%; background: linear-gradient(90deg, #f4efe600, #f4efe6 22%); opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
+.hilo-foco { position: absolute; left: 0; top: 0; height: 2.5px; margin-top: -1px; transform-origin: 0 50%; background: linear-gradient(90deg, #f4efe600, #f4efe6 22%); filter: drop-shadow(0 0 2px #0b0a09) drop-shadow(0 0 1px #0b0a09); opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
 .hilo-foco.ver { opacity: .92; }
-.hilo-foco i { position: absolute; right: -8px; top: -7px; width: 16px; height: 16px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 3px #0b0a09; }
-.hilo-foco i::after { content: ""; position: absolute; inset: -12px; border-radius: 50%; border: 2px solid var(--tinta); animation: foco-late 1.9s cubic-bezier(.16, 1, .3, 1) infinite; }
+.hilo-foco i { position: absolute; right: -11px; top: -10px; width: 22px; height: 22px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 4px #0b0a09; }
+.hilo-foco i::after { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 2.5px solid var(--tinta); animation: foco-late 1.9s cubic-bezier(.16, 1, .3, 1) infinite; }
 @keyframes foco-late { from { transform: scale(.45); opacity: .95; } to { transform: scale(1.75); opacity: 0; } }
 .quieto .hilo-foco { transition: none; }
 .pausado .hilo-foco i::after { animation-play-state: paused; }
@@ -452,23 +359,14 @@ html, body {
 /* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */
 .etq.nota { width: 0; height: 0; }
 .etq.nota::before { content: ""; position: absolute; left: -1px; bottom: 4px; width: 2px; height: 58px; background: #f4efe6c8; }
-.etq.nota > div { position: absolute; left: -1px; bottom: 66px; padding-left: 12px; border-left: 2px solid #f4efe6c8; font-family: var(--mono); font-size: 21px; letter-spacing: .03em; color: var(--tinta); text-shadow: 0 0 10px #000, 0 2px 14px #000, 0 0 3px #000; }
+.etq.nota > div { position: absolute; left: -1px; bottom: 62px; padding: 4px 12px 6px; background: #0b0a09d9; font-family: var(--texto); font-size: 25px; font-weight: 500; color: var(--tinta); }
 .etq.nota b { display: block; font-family: var(--titulo); font-weight: 800; font-size: 46px; line-height: 1; letter-spacing: .01em; }
-.etq.nota.alta::before { height: 150px; }
-.etq.nota.alta > div { bottom: 158px; }
-.etq.nota.izq > div { left: auto; right: -1px; padding-left: 0; padding-right: 12px; border-left: 0; border-right: 2px solid #f4efe6c8; text-align: right; }
-.etq.nota.roja > div, .etq.nota.roja b { color: #ff8a66; }
-.etq.nota.roja::before { background: #ff8a66; }
-.etq.nota.roja > div { border-left-color: #ff8a66; }
-/* el hilo que une una unidad con su gráfico */
-.etq.nota.hilo::before { height: var(--alto, 60px); background: var(--actuar); }
-.etq.nota.hilo::after { content: ""; position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: var(--actuar); }
-.etq.nota.hilo > div { display: none; }
-.etq.chica > div { position: absolute; left: 12px; top: -15px; font-family: var(--mono); font-size: 21px; letter-spacing: .02em; color: var(--suave); text-shadow: 0 0 8px #000, 0 2px 12px #000, 0 0 3px #000; }
+.etq.nota.izq > div { left: auto; right: -1px; text-align: right; }
+/* las etiquetas llevan una placa oscura: se leen aunque pasen partículas por detrás */
+.etq.chica > div { position: absolute; left: 14px; top: -18px; padding: 3px 9px 4px; background: #0b0a09d9; font-family: var(--texto); font-size: 23px; font-weight: 500; color: var(--suave); }
 .etq.chica b { color: var(--tinta); font-weight: 600; }
-.etq.chica.meta > div { left: auto; right: 14px; color: #fff; font-weight: 600; }
-/* la proyección de la pared: su rótulo va centrado sobre el tramo que cede */
-.etq.chica.proyeccion > div { left: 0; top: -44px; transform: translateX(-50%); font-family: var(--texto); font-size: 23px; font-weight: 600; letter-spacing: 0; color: var(--tinta); }
+/* la proyección de la pared: su rótulo sale del tramo que cede */
+.etq.nota.proyeccion b { font-size: 40px; color: var(--actuar); }
 
 /* =====================================================================
    10 · Cierre
@@ -505,7 +403,6 @@ html, body {
 #l-flujo .cabeza { left: 110px; top: 84px; width: 1260px; }
 #l-flujo .cabeza .t2 { font-size: 70px; white-space: nowrap; }
 
-
 /* =====================================================================
    12 · ¿Y cómo sé que acierta?
    ===================================================================== */
@@ -537,11 +434,7 @@ html, body {
    Las láminas de preguntas (fuera del recorrido): Q, A, L, M
    ===================================================================== */
 
-.pregunta .hoja { left: 110px; right: 110px; top: 84px; bottom: 96px; display: flex; flex-direction: column; gap: 40px; }
-.pregunta .hoja > .pie { margin-top: auto; }
 .pregunta .cabeza .t2 { font-size: 78px; }
-.pregunta .cabeza .p { margin-top: 18px; font-size: 35px; width: 1500px; }
-.pregunta .pie .p { font-size: 34px; color: var(--suave); }
 
 /* Q: las seis figuras de la lámina 6, con quién decide cada cosa */
 #l-quien .cabeza, #l-llm .cabeza { left: 110px; top: 84px; width: 1700px; }
@@ -563,16 +456,6 @@ html, body {
 #l-llm .lado .dato { margin-top: 2px; }
 #l-llm .pie { left: 150px; right: 150px; bottom: 96px; }
 #l-llm .pie .p { font-size: 27px; color: var(--tenue); }
-
-/* El zoom de una unidad (js/zoom.js): la tarjeta con su distribución a posteriori, y el hilo que la une a su punto de la escena */
-.lamina canvas.zoom { position: absolute; right: 110px; top: 86px; width: 640px; height: 270px; pointer-events: none; }
-/* escondido con visibility, no con display: así, al recibir .con-zoom y .visto en el mismo cuadro, su entrada sí corre */
-.lamina:not(.con-zoom) canvas.zoom { visibility: hidden; }
-/* el hilo va en tinta con borde oscuro: se ve sobre cualquier color del terreno */
-.hilo-zoom { position: absolute; left: 0; top: 0; height: 2px; margin-top: -1px; transform-origin: 0 50%; background: var(--tinta); box-shadow: 0 0 0 1.5px #0b0a09cc; opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
-.hilo-zoom.ver { opacity: .9; }
-.hilo-zoom i { position: absolute; left: -7px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 3px #0b0a09; }
-.quieto .hilo-zoom { transition: none; }
 
 /* ---------- Lámina Y · el yacimiento en 3D: la página yacimiento.html dentro de un marco ---------- */
 #l-yacimiento iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }

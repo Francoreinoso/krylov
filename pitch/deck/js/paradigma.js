@@ -11,7 +11,7 @@
   const FILAS = [{ y: 318 }, { y: 742 }];
   const CICLO = 4.6;
   const PREGUNTA = '¿Cuál es la mejor hackathon del año 2026?', RESPUESTA = 'Platanus Hack 26. Por lejos.';
-  const TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
+  const TEXTO = '"Archivo", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
 
   K.registrar('paradigma', {
     tQuieto: 3.6,

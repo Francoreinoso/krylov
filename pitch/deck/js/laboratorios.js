@@ -25,14 +25,14 @@
   const REGION = { el: 0.8, dx: -330, dy: -70 };
   const VISTA = {
     mundo: { lon: 14, lat: 12, R: 47, el: 0.86, dx: 0, dy: -190, dura: 4.4 },
-    chile: Object.assign({ lon: -63, lat: -29, R: 17, dura: 3.4 }, REGION),
-    norteamerica: Object.assign({ lon: -99, lat: 40, R: 11.5, dura: 5.2 }, REGION),
-    europa_oeste: Object.assign({ lon: 1.2, lat: 52.2, R: 4.6, dura: 5.0 }, REGION),
-    alemania_austria: Object.assign({ lon: 11.6, lat: 50.2, R: 4.3, dura: 4.8 }, REGION),
-    nordicos: Object.assign({ lon: 17.5, lat: 58.4, R: 5.2, dura: 4.8 }, REGION),
+    chile: Object.assign({ lon: -63, lat: -29, R: 17, dura: 3.2 }, REGION),
+    norteamerica: Object.assign({ lon: -99, lat: 40, R: 11.5, dura: 7.0 }, REGION),
+    europa_oeste: Object.assign({ lon: 1.2, lat: 52.2, R: 4.6, dura: 6.4 }, REGION),
+    alemania_austria: Object.assign({ lon: 11.6, lat: 50.2, R: 4.3, dura: 5.8 }, REGION),
+    nordicos: Object.assign({ lon: 17.5, lat: 58.4, R: 5.2, dura: 5.8 }, REGION),
     review: Object.assign({ lon: 96, lat: -2, R: 36, dura: 4.2 }, REGION),
   };
-  const VUELO = 1.9;                    // segundos de una parada a la siguiente
+  const VUELO = 1.3;                    // segundos de una parada a la siguiente
   const ALTO = 0.075;                   // alto de cada columna de luz, como fracción de la distancia de la cámara
   const CONTINENTES = ['Europa', 'Norteamérica', 'Sudamérica', 'Asia', 'Oceanía'];
 
@@ -297,7 +297,7 @@
       for (let n = 0; n < paradas.length; n++) {
         const p = paradas[n], aqui = n === e.i && k === 0;
         if (!p.filas) continue;
-        for (let f = 0; f < p.filas.length; f++) p.filas[f].classList.toggle('ver', aqui && (K.quieto || e.local > 0.25 + f * 0.13));
+        for (let f = 0; f < p.filas.length; f++) p.filas[f].classList.toggle('ver', aqui && (K.quieto || e.local > 0.15 + f * 0.09));
       }
       const lado = K.mezcla(e.i ? 1 : 0, e.j ? 1 : 0, k);
       if (this._lado !== lado) { this._lado = lado; this.veloLado.style.opacity = lado.toFixed(3); }

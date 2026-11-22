@@ -31,8 +31,8 @@
       vec3 flujo = vec3(xy, z);
       float giro = (aAzar.w - 0.5) * 0.7 + sin(uT * 0.35 + aAzar.x * 30.0) * 0.16;
       vec2 lado = vec2(position.x * cos(giro) - position.y * sin(giro), position.x * sin(giro) + position.y * cos(giro));
-      vec3 enFlujo = flujo + vec3(lado * 4.0, 0.0);
       float niebla = smoothstep(-168.0, -110.0, z) * (1.0 - smoothstep(-44.0, -22.0, z));       // se apagan antes de llegar encima de la cámara
+      vec3 enFlujo = flujo + vec3(lado * 4.0 * smoothstep(0.0, 0.5, niebla), 0.0);              // y al apagarse se encogen: no dejan un cuadro oscuro
 
       // Pila: los primeros uPila terrenos se acuestan uno sobre otro.
       float k = aId / uPila;
@@ -78,7 +78,7 @@
       float marco = 1.0 - smoothstep(0.0, 0.035, min(b.x, b.y));
       c = mix(c, vec3(1.0, 0.90, 0.74), marco * 0.38);
       float luz = vLuz * uBrillo;
-      if (luz < 0.012) discard;
+      if (luz < 0.16) discard;
       gl_FragColor = vec4(mix(vec3(0.043, 0.039, 0.035), c, luz), 1.0);
     }`;
 
