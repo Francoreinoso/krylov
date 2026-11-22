@@ -1,0 +1,97 @@
+{
+ "motor_id": "desgaste",
+ "implementacion": "red",
+ "pasa": true,
+ "criterios": {
+  "sbc_sin_sesgo": true,
+  "sbc_local_sin_sesgo": true,
+  "cobertura_parametros_entre_85_y_95": true,
+  "cobertura_decision_entre_85_y_95": true,
+  "peor_grupo_sobre_80": true,
+  "analisis_bajo_1_s": true
+ },
+ "simulaciones_entrenamiento": 15241472,
+ "entrenamiento_min": 168,
+ "casos_validacion": 2000,
+ "cobertura_90": 0.8978,
+ "cobertura_90_parametros": 0.902,
+ "cobertura_90_locales": 0.9009,
+ "cobertura_90_peor_grupo": 0.8961,
+ "peor_grupo": "20 a 48 unidades",
+ "peor_grupo_de": "tamaño del archivo",
+ "sbc_pasa": true,
+ "sbc_local_pasa": true,
+ "recuperacion": {
+  "media": 0.892,
+  "minima": 0.721,
+  "parametro_de_la_minima": "log_sigma_nu",
+  "por_parametro": {
+   "mu_nu": 0.909,
+   "log_sigma_nu": 0.721,
+   "beta": 0.905,
+   "log_c": 0.93,
+   "log_sigma_eps": 0.993
+  }
+ },
+ "rangos": {
+  "unidades": [
+   8,
+   120
+  ],
+  "lecturas": [
+   3,
+   20
+  ],
+  "miles_de_horas_hoy": [
+   0.5,
+   3.0
+  ],
+  "miles_de_horas_a_mantencion": [
+   0.05,
+   1.0
+  ]
+ },
+ "latencia_ms": 155,
+ "examen": {
+  "tipo": "verdad_escondida",
+  "n": 40,
+  "frase": "Cuando dijimos cerca de 2% de riesgo, falló antes de su mantención el 3%.",
+  "tramos": [
+   {
+    "dijimos": 0.02,
+    "paso": 0.032,
+    "n": 31
+   },
+   {
+    "dijimos": 0.215,
+    "paso": 0.333,
+    "n": 3
+   },
+   {
+    "dijimos": 0.74,
+    "paso": 0.833,
+    "n": 6
+   }
+  ]
+ },
+ "mcmc_datasets_comparados": null,
+ "mcmc_s_por_dataset": null,
+ "mcmc_diferencia_media": null,
+ "mcmc_r_hat_max": null,
+ "amortizacion": null,
+ "fecha": "2026-11-21",
+ "hora": "19:35",
+ "ensayo": false,
+ "limitaciones": [
+  "Entre 8 y 120 camiones, cada uno con 3 a 20 muestras",
+  "Camiones con 500 a 3.000 horas de operación y de 50 a 1.000 horas hasta su mantención",
+  "Un solo indicador de desgaste por camión, con la falla en un límite conocido",
+  "Una sola covariable (la exigencia de la ruta), ya estandarizada",
+  "Sin comparación todavía con el método lento"
+ ],
+ "frases": [
+  "Practicó con 15,2 millones de flotas simuladas.",
+  "Cuando da un rango de 90%, acierta 89,8%.",
+  "En el caso más difícil (20 a 48 unidades) acierta 89,6%."
+ ]
+}

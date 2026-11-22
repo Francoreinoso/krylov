@@ -721,7 +721,7 @@ function MensajeTu({ texto, adjunto }: { texto: string; adjunto?: InfoCsv }) {
     <div className="flex flex-col items-end gap-2">
       {adjunto && <TarjetaArchivo info={adjunto} />}
       {texto && (
-        <p className="max-w-[85%] border-r-2 border-cobre bg-superficie/80 px-4 py-2 font-mono text-sm leading-relaxed whitespace-pre-wrap text-tinta-suave">
+        <p className="max-w-[85%] border border-r-4 border-cobre/50 border-r-cobre bg-cobre/15 px-4 py-2.5 font-mono text-base leading-relaxed whitespace-pre-wrap text-tinta">
           {texto}
         </p>
       )}
