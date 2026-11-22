@@ -13,15 +13,21 @@ const ALTO_BARRA_ARCHIVO = 112 // con un archivo, la barra dice además qué arc
 const PAGINA = '/deck/yacimiento.html'
 const SUS_DATOS = '<script src="datos/yacimiento.js"></script>' // la línea de la página que carga los datos calculados antes
 
-// La página del deck, sin tocarla, con los datos de la respuesta en el lugar de los suyos.
-async function paginaCon(datos: DatosYacimiento): Promise<string> {
+// El marco de la app es más ancho que la lámina 16:9 del deck: sin esto, la tarjeta de la perforación (la curva del cobre)
+// se pasa del borde de abajo, y los cuatro guiones de avance del deck se dibujan encima de ella (con un archivo son tres pasos,
+// y la app ya dice en cuál va).
+const AJUSTES = '<style>#ficha { width: min(100%, 36vh * 780 / 500); } #pie { display: none; }</style>'
+
+// La página del deck, sin tocarla, con los datos de la respuesta en el lugar de los suyos (null: los suyos, calculados antes).
+async function paginaCon(datos: DatosYacimiento | null): Promise<string> {
   const r = await fetch(PAGINA)
   const html = await r.text()
   if (!r.ok || !html.includes(SUS_DATOS)) throw new Error('la página del yacimiento cambió')
   const base = `<base href="${new URL('/deck/', window.location.origin).href}">`
   // La página anota su paso en la dirección (`history.replaceState`), y un documento sin dirección propia no puede: aquí el paso lo lleva la app.
-  const propios = `<script>history.replaceState = function () {}; window.YACIMIENTO = ${JSON.stringify(datos).replace(/</g, '\\u003c')};</script>`
-  return html.replace('<head>', `<head>${base}`).replace(SUS_DATOS, () => propios) // con función: el texto de los datos no se lee como patrón
+  const sinHistoria = 'history.replaceState = function () {};'
+  const propios = datos ? `<script>${sinHistoria} window.YACIMIENTO = ${JSON.stringify(datos).replace(/</g, '\\u003c')};</script>` : `<script>${sinHistoria}</script>${SUS_DATOS}`
+  return html.replace('<head>', `<head>${base}`).replace('</head>', `${AJUSTES}</head>`).replace(SUS_DATOS, () => propios) // con función: el texto de los datos no se lee como patrón
 }
 
 const miles = (n: number) => n.toLocaleString('es-CL')
@@ -44,7 +50,7 @@ export default function Yacimiento({ textos, datos, archivo, guardada, alSubir }
   const alto = datos ? ALTO_BARRA_ARCHIVO : ALTO_BARRA
 
   useEffect(() => {
-    if (!datos || !escena) return
+    if (!escena) return
     let vigente = true
     paginaCon(datos).then((html) => vigente && setPagina(html), () => vigente && setFalla(true))
     return () => {
@@ -122,7 +128,7 @@ export default function Yacimiento({ textos, datos, archivo, guardada, alSubir }
       )}
       <iframe
         ref={marco}
-        {...(datos ? { srcDoc: pagina ?? '' } : { src: PAGINA })}
+        srcDoc={pagina ?? ''}
         onLoad={() => marco.current?.contentWindow?.postMessage({ krylov: 1, paso }, window.location.origin)}
         title={textos.titulo ?? ''}
         className="block w-full border-0 bg-fondo"
