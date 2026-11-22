@@ -11,7 +11,8 @@
   Krylov · láminas de venta (Platanus Hack 26, track Simulaciones). Versión minería.
   Abre con doble clic y corre sin internet. Teclas: flechas o espacio (avanzar), 1 a 9 (ir a una lámina), Fin (cierre),
   0 (cómo funciona), D (demo en vivo, necesita internet), N (notas), P (pausa), F (pantalla completa).
-  Para las preguntas: Q (quién lo usa), A (qué archivo recibe), L (por qué no un LLM), M (qué pasa en producción).
+  Para las preguntas: Q (quién lo usa), A (qué archivo recibe), L (por qué no un LLM), M (qué pasa en producción),
+  Y (el yacimiento en 3D: el sexto modelo, fuera del recorrido).
   El enlace de la demo, el QR y los nombres del equipo se cambian en config.js. De dónde sale cada dato: README.md y las notas (N).
 -->
 <!-- Si esta página se abre sin sus archivos vecinos (una vista previa que solo carga el HTML), deck.css no llega y este aviso queda a la vista. -->
@@ -390,6 +391,20 @@
     </div></aside>
   </section>
 
+  <!-- ============================== Y · El yacimiento en 3D (fuera del recorrido; sexto modelo, D-40) ============================== -->
+  <!-- La página yacimiento.html, dentro de un marco: se carga al entrar y se suelta al salir (js/yacimiento.js). Va fuera del recorrido
+       por la regla de las láminas de decisión: su sello todavía dice «no pasa». Si pasa, se mueve antes de «¿Y cómo sé que acierta?»
+       y se le quitan `pregunta`, `data-respaldo` y `data-tecla`. -->
+  <section class="lamina pregunta" id="l-yacimiento" data-id="yacimiento" data-pasos="4" data-respaldo="1" data-tecla="y">
+    <iframe class="toca" id="yac-marco" title="El yacimiento en 3D: dónde está el mineral"></iframe>
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas · tecla Y</h4>
+        <p class="dice">«¿Y un problema más grande? Con una campaña de perforaciones, ¿dónde está el mineral bajo la mina? Es un sexto modelo, en tres dimensiones. Con 604 muestras de roca, Krylov dibuja el mineral piso por piso en 18 milisegundos y marca dónde todavía no se sabe. Donde se pronuncia, acierta 94 de cada 100 bloques. Lo entrenamos esta noche, después de cerrar el producto: todavía no está en la app.»</p></div>
+      <div><h4>Fuentes y límites</h4>
+        <p class="fuente"><b>Fuera del recorrido porque el sello del motor <code>yacimiento</code> dice «no pasa»</b> (sábado 21:44). Lo que sí está comprobado es el mapa: en 400 yacimientos simulados nuevos, la ley verdadera cayó dentro del rango de 90% en 0,909 de los bloques (M-63). Lo que falla: la calibración de 2 de los 15 parámetros, y la red no aprendió los alcances del campo. <b>Se cuenta el mapa, no los parámetros.</b> Pre-entrenó con 80.976 yacimientos simulados en 80 minutos. El yacimiento de la lámina es <b>simulado</b> (604 muestras, 16.384 bloques; ley de corte de 0,5% y costos supuestos, K-71 a K-73). Responde en 18 a 21 ms y acierta 4.802 de 5.099 bloques donde se pronuncia (M-64). <b>No se ha comparado con el método lento: no decir cuántas veces más rápido es.</b> Los números en pantalla salen de <code>datos/yacimiento.js</code>; si PC 3 vuelve a validar, cambian solos y estas notas no. Cuatro pasos con →; arrastrar gira la mina.</p></div>
+    </div></aside>
+  </section>
+
   <!-- ============================== 0 · Cómo funciona (fuera del recorrido) ============================== -->
   <section class="lamina" id="l-arquitectura" data-id="arquitectura" data-pasos="1" data-respaldo="1">
     <div id="plano-arquitectura"></div>
@@ -442,6 +457,7 @@
 <script src="js/cierre.js"></script>
 <script src="js/preguntas.js"></script>
 <script src="js/arquitectura.js"></script>
+<script src="js/yacimiento.js"></script>
 <script>K.enlazarDatos(); K.arrancar();</script>
 </body>
 </html>

@@ -18,6 +18,7 @@ Doble clic en `index.html` **desde el Finder**, o `open pitch/deck/index.html` e
 | `Fin` | Va al cierre (lámina 13) |
 | `0` | Cómo funciona | Bayesian Amortized Inference en dos mitades: solo el diagrama, sin fórmulas ni cifras | `js/arquitectura.js` |
 | `Q` `A` `L` `M` | Las láminas de preguntas, fuera del recorrido: **Q**uién lo usa, qué **A**rchivo recibe, por qué no un **L**LM, qué pasa en producción (**M**onitoreo). Entre ellas se avanza con las flechas |
+| `Y` | El **y**acimiento en 3D: el sexto modelo, fuera del recorrido. Cuatro pasos con las flechas; arrastrar gira la mina |
 | `D` | Abre la demo en vivo encima de las láminas (necesita internet). `D` o `Esc` la cierran |
 | `N` | Notas de quien presenta: qué se dice y qué hay detrás de cada lámina |
 | `P` | Pausa todas las animaciones |
@@ -28,7 +29,7 @@ En la dirección: `#7` abre la lámina 7, `#7.1` su segundo paso. `?quieto` apag
 
 ## Las láminas
 
-Trece en el recorrido (catorce pulsaciones), más cinco fuera de él. Los camiones volvieron al recorrido el sábado en la noche, cuando su red pasó el sello y se regeneró `datos.js`.
+Trece en el recorrido (catorce pulsaciones), más seis fuera de él. Los camiones volvieron al recorrido el sábado en la noche, cuando su red pasó el sello y se regeneró `datos.js`.
 
 | # | Lámina | Qué se ve, y para qué está cada cosa | De dónde sale |
 |---|---|---|---|
@@ -54,6 +55,7 @@ Fuera del recorrido:
 | `A` | ¿Qué archivo recibe? | El que pide el modelo de cada decisión: cómo agrupa, cuántas unidades y filas, qué es una fila y sus columnas | `casos/<caso>.yaml` (`datos.js → modelos`) |
 | `L` | ¿Y un LLM? | «Correría el modelo caro cada vez». En 3D: una cadena de MCMC arma la respuesta de a una muestra; Krylov la entrega entera | La prueba de `datos/prueba_llm/` y el sello. Las nubes son una ilustración |
 | `M` | Cada predicción viene con su intervalo de credibilidad | Las ocho líneas de la planta: la estimación, su intervalo de 90% y lo que de verdad pasó | La red de `cinetica` y la verdad escondida del archivo |
+| `Y` | ¿Dónde está el mineral? | El sexto modelo (`yacimiento`, D-40): la mina en relieve 3D, la zona perforada y el mineral debajo, piso por piso; la duda bajando por la próxima perforación; y lo que acierta contra la verdad escondida. **Fuera del recorrido porque su sello dice «no pasa»** (el mapa está comprobado; dos de los 15 parámetros no). Es la página `yacimiento.html` dentro de un marco: se carga al entrar y se suelta al salir (`js/yacimiento.js`). También abre sola, con doble clic | La red del motor `yacimiento` sobre un yacimiento **simulado** (`datos/yacimiento.js`, que escribe `yacimiento/exportar_deck.py`); cifras M-63 y M-64 |
 | `0` | Cómo funciona | Bayesian Amortized Inference en dos mitades: solo el diagrama | `js/arquitectura.js` |
 
 **Una lámina de decisión entra al recorrido solo si el motor de su caso ya responde**, igual que el inicio de la app. Lo decide `js/nucleo.js` al abrir, mirando `datos.js`: la que no tiene respuesta se mueve después del cierre y se abre con su tecla. Cuando su red exista y se vuelva a correr `generar.py`, vuelve sola a su lugar, con su gráfico de intervalos. Así volvieron los camiones el sábado en la noche (entre la planta y los túneles); hoy ninguna lámina queda fuera.
