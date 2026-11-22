@@ -20,7 +20,7 @@
   .paso.activo { opacity: 1; transform: none; }
   /* las transiciones se activan después de la primera pintura: el primer texto está desde el inicio */
   #pasos.listo .paso { transition: opacity .25s ease, transform .25s ease; }
-  #pasos.listo .paso.activo { transition: opacity .7s ease .3s, transform .9s cubic-bezier(.16, .8, .2, 1) .3s; }
+  #pasos.listo .paso.activo { transition: opacity .7s ease .45s, transform .9s cubic-bezier(.16, .8, .2, 1) .45s; }
   .paso h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }      /* el nombre del paso queda para lectores de pantalla */
   .paso p { color: var(--suave); font-size: clamp(18px, 1.55vw, 30px); line-height: 1.32; }
   .paso p + p { margin-top: 1.6vh; }
@@ -28,19 +28,12 @@
   .paso .cobre { color: var(--cobre); } .paso .oro { color: var(--oro); }
   .grande { font-family: var(--titulo); font-weight: 800; font-size: clamp(60px, 6.6vw, 128px); line-height: .95; color: var(--tinta); white-space: nowrap; display: block; margin-bottom: 1vh; }
   .grande small { font-size: .38em; font-weight: 700; color: var(--suave); letter-spacing: .04em; }
-  #perfil { width: 100%; height: auto; display: block; margin-top: 2.4vh; }
-  #perfil text { font-family: var(--texto); fill: var(--suave); font-size: 17px; }
-  #perfil .corte text { fill: var(--cobre); font-weight: 600; }
-  #perfil .rango text { fill: var(--tinta); font-weight: 600; font-size: 19px; }
-  #lectura { display: flex; align-items: baseline; gap: 1.4vw; margin-top: 2vh; font-family: var(--titulo); font-weight: 800; font-variant-numeric: tabular-nums; }
-  #r-metros { font-size: clamp(44px, 4.4vw, 86px); line-height: 1; color: var(--tinta); min-width: 3.2em; }
-  #r-veredicto { font-size: clamp(24px, 2.2vw, 42px); letter-spacing: .04em; }
-  #perfil { margin-top: 1vh !important; }
+  /* la tarjeta de la próxima perforación: la misma de las otras decisiones (js/foco.js), dibujada aquí porque esta página no carga el deck */
+  #ficha { width: 100%; aspect-ratio: 780 / 500; display: block; margin-top: 2.2vh; }
   #rotulo { position: absolute; left: 0; top: 0; transform: translate(14px, -50%); font-family: var(--titulo); font-weight: 700; font-size: clamp(18px, 1.5vw, 28px); letter-spacing: .02em; color: #fff3d6; white-space: nowrap; pointer-events: none; opacity: 0; }
   #pie { position: absolute; left: 5.73vw; bottom: 9.6vh; display: flex; align-items: center; gap: 1.4vw; pointer-events: none; }
   #marcas { display: flex; gap: 10px; }
   #marcas i { width: 44px; height: 3px; background: var(--linea); transition: background .4s; }
-  #aviso { font-size: clamp(14px, 1.15vw, 22px); line-height: 1.35; color: var(--suave); white-space: nowrap; }      /* dos líneas: no llega a la columna del mineral */
   #marcas i.hecho { background: var(--cobre); }
 </style>
 </head>
@@ -51,29 +44,30 @@
   <div id="pasos">
     <div class="paso" data-n="0">
       <h2>El yacimiento</h2>
-      <p>Un rajo abierto, simulado. En <b class="oro">la zona marcada</b> se perforó y salieron <b id="n-muestras"></b> muestras de roca.</p>
+      <p>En <b class="oro">la zona marcada</b> se perforó: salieron <b id="n-muestras"></b> muestras de roca.</p>
+      <p>Debajo hay <b id="n-bloques"></b> bloques de roca, y casi ninguno se ha tocado.</p>
     </div>
     <div class="paso" data-n="1">
       <h2>La respuesta</h2>
-      <span class="grande" id="t-red"></span>
-      <p>En ese tiempo Krylov dibuja <b class="cobre">el mineral</b> que hay debajo, piso por piso. Cada curva de cobre es su borde a esa profundidad.</p>
+      <span class="grande" id="t-bloques"></span>
+      <p>Con esas <span id="n-muestras-2"></span> muestras, Krylov estima cuánto cobre trae cada bloque, también los que nadie perforó.</p>
+      <p><b class="cobre">Dentro de las curvas de cobre</b> está 90% seguro de que hay mineral.</p>
     </div>
     <div class="paso" data-n="2">
       <h2>La incertidumbre</h2>
-      <p><b class="oro">Las curvas doradas</b> encierran roca que podría ser mineral: ahí todavía no se sabe.</p>
-      <p>Esto espera encontrar Krylov al bajar por la próxima perforación:</p>
-      <div id="lectura"><span id="r-metros"></span><span id="r-veredicto"></span></div>
-      <svg id="perfil" viewBox="0 0 560 150" role="img" aria-label="Rango del cobre en la roca en el punto marcado, contra el mínimo para procesar"></svg>
+      <p><b class="oro">Dentro de las curvas doradas</b> es probable que haya mineral, pero no es seguro. Esto encontraría la próxima perforación al bajar:</p>
+      <canvas id="ficha" role="img" aria-label="Cobre que Krylov espera en la próxima perforación a cada profundidad, con su rango de 90%, contra el mínimo para procesar"></canvas>
     </div>
     <div class="paso" data-n="3">
-      <h2>El valor</h2>
-      <span class="grande" id="t-lento"></span>
-      <p id="valor"></p>
+      <h2>El examen</h2>
+      <span class="grande" id="t-acierto"></span>
+      <p id="examen"></p>
+      <p id="duda"></p>
     </div>
   </div>
 </section>
 <div id="rotulo">Próxima perforación</div>
-<div id="pie"><div id="marcas"><i></i><i></i><i></i><i></i></div><p id="aviso">Yacimiento simulado.<br>Este modelo todavía no está en la app.</p></div>
+<div id="pie"><div id="marcas"><i></i><i></i><i></i><i></i></div></div>
 
 <script src="vendor/three.min.js"></script>
 <script src="datos/yacimiento.js"></script>
@@ -94,15 +88,16 @@
   const suave = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); }, mezcla = (a, b, t) => a + (b - a) * t;
 
   // ---------- textos, todos desde los datos ----------
+  // Ningún texto lleva tiempos: lo que esta lámina muestra es la respuesta (cuánto cobre, con qué rango) y su examen.
+  const C = N.colores, deCien = (x) => Math.round(x * 100);
   document.getElementById("n-muestras").textContent = miles(N.compositos);
-  document.getElementById("t-red").innerHTML = N.latencia_ms + " <small>milisegundos</small>";
-  if (Y.mcmc) {
-    document.getElementById("t-lento").innerHTML = miles(Y.mcmc.segundos) + " <small>segundos</small>";
-    document.getElementById("valor").innerHTML = "Eso tarda el método de siempre con este mismo archivo. Krylov llega a <b>la misma decisión en " + coma(Y.mcmc.misma_decision * 100, 1) + "%</b> de los bloques, " + miles(Math.round(Y.mcmc.segundos * 1000 / N.latencia_ms)) + " veces más rápido.";
-  } else {
-    document.getElementById("t-lento").innerHTML = coma(N.acierto_decididos, 2) + " <small>de 1</small>";
-    document.getElementById("valor").innerHTML = "Es lo que acierta Krylov donde se pronuncia, contra <b>la verdad escondida</b> del yacimiento simulado.";
-  }
+  document.getElementById("n-muestras-2").textContent = miles(N.compositos);
+  document.getElementById("n-bloques").textContent = miles(N.bloques);
+  document.getElementById("t-bloques").innerHTML = miles(N.bloques) + " <small>bloques de roca</small>";
+  document.getElementById("t-acierto").innerHTML = deCien(N.acierto_decididos) + " <small>de cada 100</small>";
+  document.getElementById("examen").innerHTML = "Donde Krylov dijo <b class=\"cobre\">mineral</b> o <b>estéril</b>, acertó en " + deCien(N.acierto_decididos) + " de cada 100 bloques, comparado con la respuesta correcta de este yacimiento.";
+  { const parte = C.en_duda / N.bloques, cuanto = parte > 0.6 && parte < 0.72 ? "dos de cada tres bloques" : deCien(parte) + " de cada 100 bloques";
+    document.getElementById("duda").innerHTML = "En " + cuanto + " respondió <b class=\"oro\">no se sabe</b>: " + miles(N.compositos) + " muestras no alcanzan para más.<br>Ahí conviene perforar."; }
 
   // ---------- la mina: la misma maqueta topográfica de la portada del deck (js/portada.js). Es una ilustración ----------
   const NM = 380, MEDIO = 13.5, RADIO = 8.6, HONDO = 6.4, BANCOS = 9;
@@ -216,7 +211,7 @@
   for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
     const arriba = altura(ZONA.x + sx * ZONA.medio, ZONA.z + sz * ZONA.medio), largo = (arriba - FONDO) * 0.84;
     const g = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, largo, 6), new THREE.MeshBasicMaterial({ color: 0xeec25a, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
-    g.position.set(sx * ZONA.medio, arriba - largo / 2, sz * ZONA.medio); g.renderOrder = 2; grupo.add(g); guias.push(g);
+    g.position.set(sx * ZONA.medio, arriba - largo / 2, sz * ZONA.medio); g.userData = { arriba: arriba, largo: largo }; g.renderOrder = 2; grupo.add(g); guias.push(g);
   }
   // Dónde perforar ahora: la columna con más duda, una línea de luz desde la superficie
   let columna = [NX >> 1, NY >> 1];
@@ -229,35 +224,63 @@
   punto.renderOrder = 5; grupo.add(punto);
   const rotulo = document.getElementById("rotulo"), cima = new THREE.Vector3();
 
-  // ---------- el rango, bajando por la perforación: a cada profundidad, la ley estimada con su intervalo de 90%, contra la ley de corte ----------
-  const corte = Y.caso.ley_de_corte_pct, METROS_POR_PISO = 15;
-  const col = []; let leyMax = 1.5;
-  for (let k = 0; k < NZ; k++) { const n = i3(columna[0], columna[1], k), m = ley(red.media[n]), sd = red.desv[n] / 255 * Y.desv_max;
-    col.push({ bajo: Math.exp(m - 1.645 * sd), centro: Math.exp(m), alto: Math.exp(m + 1.645 * sd) }); leyMax = Math.max(leyMax, Math.ceil(col[k].alto * 2.1) / 2); }
-  const RX0 = 12, RX1 = 548, RYB = 84, rpx = (v) => RX0 + Math.min(v, leyMax) / leyMax * (RX1 - RX0);
-  document.getElementById("perfil").innerHTML =
-    '<line x1="' + RX0 + '" y1="' + RYB + '" x2="' + RX1 + '" y2="' + RYB + '" stroke="#4a4239" stroke-width="2"/>' +
-    '<rect id="r-barra" y="' + (RYB - 9) + '" height="18" rx="9" fill="#eec25a"/>' +
-    '<circle id="r-centro" cy="' + RYB + '" r="7" fill="#0b0a09" stroke="#fff3d6" stroke-width="3"/>' +
-    '<g class="rango"><text id="r-bajo" y="' + (RYB + 32) + '" text-anchor="end"></text><text id="r-alto" y="' + (RYB + 32) + '" text-anchor="start"></text></g>' +
-    '<g class="corte"><line x1="' + rpx(corte) + '" y1="' + (RYB - 40) + '" x2="' + rpx(corte) + '" y2="' + (RYB + 12) + '" stroke="#e2854a" stroke-width="3"/>' +
-    '<text x="' + rpx(corte) + '" y="' + (RYB - 50) + '" text-anchor="' + (rpx(corte) > 280 ? "end" : "start") + '">Mínimo para procesar: ' + coma(corte, 1) + "%</text></g>" +
-    '<text x="' + RX1 + '" y="' + (RYB + 60) + '" text-anchor="end">Cobre en la roca: rango de 90% a esa profundidad</text>';
-  const rBarra = document.getElementById("r-barra"), rCentro = document.getElementById("r-centro"), rBajo = document.getElementById("r-bajo"), rAlto = document.getElementById("r-alto");
-  const rMetros = document.getElementById("r-metros"), rVeredicto = document.getElementById("r-veredicto");
-  let kAhora = 0, ultimoTexto = "";
-  function actualizarRango(kf) {                        // kf: piso, con decimales (se interpola entre un piso y el siguiente)
-    const k0 = Math.max(0, Math.min(NZ - 2, Math.floor(kf))), f = Math.max(0, Math.min(1, kf - k0)), a = col[k0], b = col[k0 + 1];
-    const bajo = mezcla(a.bajo, b.bajo, f), centro = mezcla(a.centro, b.centro, f), alto = mezcla(a.alto, b.alto, f);
-    rBarra.setAttribute("x", rpx(bajo)); rBarra.setAttribute("width", Math.max(2, rpx(alto) - rpx(bajo))); rCentro.setAttribute("cx", rpx(centro));
-    const estado = bajo > corte ? ["Mineral", "#e2854a"] : alto < corte ? ["Estéril", "#7d7568"] : ["No se sabe", "#eec25a"];
-    rBarra.setAttribute("fill", estado[1]);
-    const texto = Math.round((kf + 0.5) * METROS_POR_PISO / 5) * 5 + "|" + coma(bajo, 2) + "|" + coma(alto, 2) + "|" + estado[0];
-    if (texto !== ultimoTexto) { ultimoTexto = texto; const t = texto.split("|");
-      rMetros.textContent = t[0] + " m"; rBajo.textContent = t[1] + "%"; rAlto.textContent = t[2] + "%"; rBajo.setAttribute("x", rpx(bajo) - 8); rAlto.setAttribute("x", rpx(alto) + 8);
-      rVeredicto.textContent = estado[0]; rVeredicto.style.color = estado[1]; }
+  // ---------- la tarjeta de la próxima perforación: a cada profundidad, el cobre que la red espera, su rango de 90% y la decisión ----------
+  // Es la tarjeta de las otras decisiones (js/foco.js): quién, la decisión en su color, la estimación con su rango y la
+  // distribución entera contra el límite. La red entrega, por bloque, la media y la desviación del logaritmo de la ley:
+  // la curva es esa normal, dibujada sobre un eje en logaritmo. La decisión es la regla del producto (nucleo/decision.py):
+  // «mineral» si la probabilidad de superar la ley de corte llega a 90%, «estéril» si no llega a 10%, y si no, «no se sabe».
+  const corte = Y.caso.ley_de_corte_pct, METROS_POR_PISO = 15, Z_DUDA = 1.2816, Z90 = 1.645;       // Z_DUDA: el cuantil de 90% de una normal
+  const col = []; let ejeMin = corte, ejeMax = corte;
+  for (let k = 0; k < NZ; k++) { const n = i3(columna[0], columna[1], k), m = ley(red.media[n]), sd = Math.max(0.02, red.desv[n] / 255 * Y.desv_max);
+    col.push({ m: m, sd: sd }); ejeMin = Math.min(ejeMin, Math.exp(m - 2.6 * sd)); ejeMax = Math.max(ejeMax, Math.exp(m + 2.6 * sd)); }
+  const LMIN = Math.log(ejeMin), LMAX = Math.log(ejeMax), enEje = (lnv) => Math.max(0, Math.min(1, (lnv - LMIN) / (LMAX - LMIN)));
+  const ESTADO = { mineral: ["Mineral", [226, 133, 74]], esteril: ["Estéril", [150, 141, 127]], duda: ["No se sabe", [238, 194, 90]] };
+  const FW = 780, FH = 500, TINTA = "#f4efe6", SUAVE = "#b9b0a1", LINEA = "#3a352e";
+  const ficha = document.getElementById("ficha"), fx = ficha.getContext("2d");
+  let fEsc = 1, kAhora = 0, ultimaFicha = "", tono = ESTADO.duda[1].slice(), nombreEstado = "", aEstado = 1;
+  function ajustarFicha() { const w = ficha.clientWidth; if (w < 8) return; const d = Math.min(window.devicePixelRatio || 1, 2);
+    ficha.width = Math.round(w * d); ficha.height = Math.round(w * d * FH / FW); fEsc = ficha.width / FW; ultimaFicha = ""; }
+  function cifra(texto, x, y) {                          // cada dígito en su caja: el número no tiembla mientras cambia
+    const an = fx.measureText("0").width; let px = x; fx.textAlign = "center";
+    for (const c of texto) { const w = /[0-9]/.test(c) ? an : fx.measureText(c).width; fx.fillText(c, px + w / 2, y); px += w; }
+    fx.textAlign = "left"; return px - x;
   }
-  actualizarRango(0);
+  function pintarFicha(kf, dt) {                         // kf: piso, con decimales (se interpola entre un piso y el siguiente)
+    const k0 = Math.max(0, Math.min(NZ - 2, Math.floor(kf))), f = Math.max(0, Math.min(1, kf - k0));
+    const m = mezcla(col[k0].m, col[k0 + 1].m, f), sd = mezcla(col[k0].sd, col[k0 + 1].sd, f), z = (m - Math.log(corte)) / sd;
+    const E = z >= Z_DUDA ? ESTADO.mineral : z <= -Z_DUDA ? ESTADO.esteril : ESTADO.duda;
+    // el color viaja de una decisión a la otra; el nombre cambia con un fundido corto
+    const paso = Math.min(1, dt * 7); for (let i = 0; i < 3; i++) tono[i] += (E[1][i] - tono[i]) * paso;
+    if (nombreEstado !== E[0]) { if (aEstado > 0.02 && nombreEstado) aEstado = Math.max(0, aEstado - dt * 9); else { nombreEstado = E[0]; aEstado = 0.02; } } else aEstado = Math.min(1, aEstado + dt * 6);
+    const metros = Math.round((kf + 0.5) * METROS_POR_PISO / 5) * 5, color = "rgb(" + tono.map(Math.round).join(",") + ")", conA = (a) => "rgba(" + tono.map(Math.round).join(",") + "," + a + ")";
+    const llave = metros + "|" + m.toFixed(3) + "|" + sd.toFixed(3) + "|" + color + "|" + aEstado.toFixed(2);
+    if (llave === ultimaFicha) return; ultimaFicha = llave;
+    fx.setTransform(fEsc, 0, 0, fEsc, 0, 0); fx.clearRect(0, 0, FW, FH); fx.textAlign = "left"; fx.textBaseline = "alphabetic";
+    fx.fillStyle = SUAVE; fx.font = '700 44px "Big Shoulders Display", sans-serif'; fx.fillText("Próxima perforación, a ", 2, 40);
+    cifra(metros + " m", 2 + fx.measureText("Próxima perforación, a ").width, 40);
+    fx.globalAlpha = aEstado; fx.fillStyle = color; fx.font = '800 76px "Big Shoulders Display", sans-serif'; fx.fillText(nombreEstado, 2, 112); fx.globalAlpha = 1;
+    fx.fillStyle = TINTA; fx.font = '800 108px "Big Shoulders Display", sans-serif';
+    const an = cifra(coma(Math.exp(m), 2) + "%", 0, 214);
+    fx.fillStyle = SUAVE; fx.font = '500 28px "Archivo", sans-serif'; fx.fillText("de cobre trae la roca", an + 22, 176);
+    fx.fillStyle = TINTA; fx.font = '600 28px "Archivo", sans-serif'; fx.fillText("entre " + coma(Math.exp(m - Z90 * sd), 2) + " y " + coma(Math.exp(m + Z90 * sd), 2) + "%", an + 22, 212);
+    // la distribución: una normal en el logaritmo de la ley, con su rango de 90% más marcado
+    const x = 2, w = FW - 12, yt = 286, yb = FH - 42, alt = yb - yt, uc = enEje(m), su = sd / (LMAX - LMIN), d = (q) => Math.exp(-0.5 * ((q - uc) / su) * ((q - uc) / su));
+    const tramo = (a, b) => { fx.beginPath(); fx.moveTo(x + a * w, yb); for (let i = 0; i <= 80; i++) { const q = a + (b - a) * i / 80; fx.lineTo(x + q * w, yb - d(q) * alt); } fx.lineTo(x + b * w, yb); fx.closePath(); };
+    const ub = Math.max(0, uc - Z90 * su), ua = Math.min(1, uc + Z90 * su);
+    fx.lineJoin = "round"; fx.fillStyle = conA(0.15); tramo(0, 1); fx.fill(); fx.fillStyle = conA(0.5); tramo(ub, ua); fx.fill();
+    fx.strokeStyle = color; fx.lineWidth = 3.5; fx.beginPath(); for (let i = 0; i <= 160; i++) { const q = i / 160; if (i) fx.lineTo(x + q * w, yb - d(q) * alt); else fx.moveTo(x, yb - d(0) * alt); } fx.stroke();
+    fx.strokeStyle = LINEA; fx.lineWidth = 2; fx.beginPath(); fx.moveTo(x, yb); fx.lineTo(x + w, yb); fx.stroke();
+    // el límite con que se decide, punteado y con su nombre
+    const xl = x + enEje(Math.log(corte)) * w, rot = "Mínimo para procesar: " + coma(corte, 1) + "%";
+    fx.strokeStyle = TINTA; fx.setLineDash([6, 6]); fx.beginPath(); fx.moveTo(xl, yt - 14); fx.lineTo(xl, yb); fx.stroke(); fx.setLineDash([]);
+    fx.font = '600 22px "Archivo", sans-serif'; fx.fillStyle = TINTA; const ar = fx.measureText(rot).width; fx.fillText(rot, Math.max(x, Math.min(x + w - ar, xl - ar / 2)), yt - 24);
+    fx.fillRect(x + uc * w - 2, yt - 3, 4, alt + 3);                                          // la estimación
+    fx.font = '500 21px "JetBrains Mono", monospace'; fx.fillStyle = SUAVE;
+    const tb = coma(Math.exp(m - Z90 * sd), 2) + "%", ta = coma(Math.exp(m + Z90 * sd), 2) + "%", wb = fx.measureText(tb).width, wa = fx.measureText(ta).width;
+    const pb = Math.max(x, Math.min(x + w - wb, x + ub * w - wb / 2)), pa = Math.max(Math.max(x, Math.min(x + w - wa, x + ua * w - wa / 2)), pb + wb + 14);
+    fx.fillText(tb, pb, yb + 30); if (pa + wa <= x + w + 2) fx.fillText(ta, pa, yb + 30);
+  }
+  if (document.fonts && document.fonts.load) Promise.all(['800 76px "Big Shoulders Display"', '600 28px "Archivo"', '500 21px "JetBrains Mono"'].map((f) => document.fonts.load(f))).then(() => { ultimaFicha = ""; });
 
   // ---------- los cuatro pasos: qué se ve y desde dónde ----------
   // alzado: ángulo de la cámara sobre el horizonte; mira: altura a la que apunta; lejos: distancia
@@ -265,18 +288,31 @@
     { cobre: 0, oro: 0, marca: 0, guia: 0, alzado: 0.62, mira: -1.6, lejos: 45 },
     { cobre: 1, oro: 0, marca: 0, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
     { cobre: 0.9, oro: 0.8, marca: 0.95, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
-    { cobre: 1, oro: 0, marca: 0, guia: 0.55, alzado: 0.3, mira: -9.5, lejos: 52 },
+    { cobre: 1, oro: 0.5, marca: 0, guia: 0.55, alzado: 0.36, mira: -8.6, lejos: 56 },      // el examen: lo seguro y lo dudoso a la vez, un poco más lejos
   ];
+  const CAMARA = ["alzado", "mira", "lejos"], LUCES = ["cobre", "oro", "marca", "guia"];
   const quieto = /[?&]quieto/.test(location.search);
   let paso = Math.max(0, Math.min(PASOS - 1, parseInt((location.hash || "#0").slice(1), 10) || 0));
   const ahora = Object.assign({}, META[paso], { cobre: 0, oro: 0, marca: 0, guia: 0 });
-  let nacer = quieto ? NZ + 4 : -1e9, nacio = 0, tBajada = 0;                                  // los pisos se encienden de arriba hacia abajo cuando aparece el mineral
-  function mostrar() {
+  // El viaje de la cámara entre dos pasos tiene principio y final: parte quieta, acelera y llega frenando (antes perseguía
+  // su destino y el primer cuadro era el más rápido: un tirón). Si llega otro paso a mitad de camino, parte desde donde va.
+  const viaje = { t0: -1e9, dura: 1, desde: Object.assign({}, META[paso]), barrido: 0 };
+  const llegar = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * k * (k * (k * 6 - 15) + 10); };       // sin tirón al partir ni al llegar
+  // El mineral se enciende piso por piso, de arriba hacia abajo, cuando la cámara ya va bajando: cada piso entra con un
+  // destello que se apaga, y los cuatro hilos de las esquinas bajan con el frente.
+  const ESPERA = 0.5, ENTRE_PISOS = 0.075, FUNDIDO = 0.5;
+  let nacio = quieto || paso > 0 ? -1e9 : null, tBajada = 0;                                // null: apagado. Al abrir en un paso con mineral, ya encendido
+  function mostrar(primera) {
+    const t = performance.now();
     document.querySelectorAll(".paso").forEach((p) => p.classList.toggle("activo", +p.dataset.n === paso));
     document.querySelectorAll("#marcas i").forEach((b, n) => b.classList.toggle("hecho", n <= paso));
     history.replaceState(null, "", "#" + paso);
-    if (paso === 2) tBajada = performance.now() + 700;                  // la bajada parte un momento después de entrar al paso
-    if (paso === 0 && !quieto) nacer = -1e9; else if (nacer < -1e8) { nacer = -1.2; nacio = performance.now(); }    // espera a que la cámara baje, y después enciende
+    if (paso === 2) tBajada = t + 900;                                 // la bajada parte un momento después de entrar al paso
+    if (paso > 0 && nacio === null) nacio = t;
+    if (primera) return;
+    const m = META[paso], salto = Math.abs(m.mira - ahora.mira) + 12 * Math.abs(m.alzado - ahora.alzado);
+    for (const k of CAMARA) viaje.desde[k] = ahora[k];
+    viaje.t0 = t; viaje.dura = salto > 4 ? 1.9 : 1.1; viaje.barrido = salto > 4 ? 0.55 : 0.12;      // en el viaje largo, la cámara además rodea el rajo
   }
   function ir(d) { const n = Math.max(0, Math.min(PASOS - 1, paso + d)); if (n !== paso) { paso = n; mostrar(); } }
   window.addEventListener("keydown", (e) => { if (e.metaKey || e.ctrlKey || e.altKey) return; if (incrustada) { alDeck({ tecla: e.key }); e.preventDefault(); return; }
@@ -296,22 +332,32 @@
   lienzo.addEventListener("pointermove", (e) => { if (!arrastrando) return; movido += Math.abs(e.clientX - ux) + Math.abs(e.clientY - uy);
     giro += (e.clientX - ux) * 0.006; extra = Math.max(-0.3, Math.min(0.6, extra + (e.clientY - uy) * 0.004)); ux = e.clientX; uy = e.clientY; });
   lienzo.addEventListener("pointerup", () => { arrastrando = false; if (movido < 6) { if (incrustada) alDeck({ tecla: "ArrowRight" }); else ir(1); } });
-  window.addEventListener("resize", encuadrar);
+  window.addEventListener("resize", () => { encuadrar(); ajustarFicha(); });
 
   function cuadro(t) {
     t = t || performance.now();
     const dt = Math.min(0.25, (t - antes) / 1000); antes = t;
-    if (!arrastrando && !quieto) giro += dt * 0.16;                    // una vuelta cada 40 segundos, sin depender de los cuadros por segundo
-    const m = META[paso], a = quieto ? 1 : 1 - Math.exp(-dt * 3.2);
-    for (const k in ahora) ahora[k] += (m[k] - ahora[k]) * a;
-    if (nacer > -1e8 && !quieto) nacer = -1.2 + (t - nacio) / 1000 * 9;    // por reloj, no por cuadros: en 2 segundos están todos encendidos
+    const m = META[paso], kv = quieto ? 1 : (t - viaje.t0) / 1000 / viaje.dura, e = llegar(kv);
+    for (const k of CAMARA) ahora[k] = mezcla(viaje.desde[k], m[k], e);
+    const a = quieto ? 1 : 1 - Math.exp(-dt * 3.4);
+    for (const k of LUCES) ahora[k] += (m[k] - ahora[k]) * a;
+    // gira sola, una vuelta cada 40 segundos, sin depender de los cuadros por segundo; durante un viaje, además rodea el rajo
+    if (!arrastrando && !quieto) giro += dt * (0.16 + (kv > 0 && kv < 1 ? viaje.barrido * Math.sin(Math.PI * kv) * Math.PI / 2 / viaje.dura : 0));
+    if (paso === 0 && nacio !== null && ahora.cobre < 0.01 && !quieto) nacio = null;           // de vuelta arriba: el mineral se apaga entero y recién entonces se rearma
+    const edad = nacio === null ? -1 : (t - nacio) / 1000 - ESPERA;
     // en la incertidumbre, se ilumina el piso por donde va el punto
-    for (const lista of [cobres, oros]) for (const p of lista) { const n = Math.max(0, Math.min(1, nacer - p.userData.k)); p.material.opacity = (lista === cobres ? ahora.cobre : ahora.oro) * n * mezcla(1, 0.4 + 0.6 * Math.max(0, 1 - Math.abs(p.userData.k - kAhora) / 1.5), ahora.marca); p.visible = p.material.opacity > 0.004; }
-    for (const g of guias) { g.material.opacity = ahora.guia * Math.max(0, Math.min(1, nacer + 4)); g.visible = g.material.opacity > 0.004; }
+    for (const lista of [cobres, oros]) for (const p of lista) {
+      const vida = edad - p.userData.k * ENTRE_PISOS, n = nacio === null ? 0 : 1 - Math.pow(1 - Math.max(0, Math.min(1, vida / FUNDIDO)), 3);
+      const destello = vida > 0 && vida < 1.2 ? Math.exp(-vida / 0.22) : 0;
+      p.material.opacity = Math.min(1, (lista === cobres ? ahora.cobre : ahora.oro) * n * mezcla(1, 0.4 + 0.6 * Math.max(0, 1 - Math.abs(p.userData.k - kAhora) / 1.5), ahora.marca));
+      p.material.color.setScalar(1 + 0.7 * destello); p.visible = p.material.opacity > 0.004; }
+    const frente = nacio === null ? 0 : suave(edad / (NZ * ENTRE_PISOS + FUNDIDO) + 0.12);       // hasta dónde bajó el encendido: los hilos lo acompañan
+    for (const g of guias) { g.material.opacity = ahora.guia * Math.min(1, frente * 4); g.scale.y = Math.max(0.001, frente); g.position.y = g.userData.arriba - g.userData.largo * frente / 2; g.visible = g.material.opacity > 0.004; }
     marca.material.opacity = ahora.marca; marca.visible = ahora.marca > 0.004;
-    if (paso === 2) { const ciclo = (Math.max(0, t - tBajada) / 1000) % 9.5; kAhora = quieto ? NZ * 0.7 : suave(Math.min(1, ciclo / 7)) * (NZ - 1); actualizarRango(kAhora); }      // 7 segundos bajando, 2,5 en el fondo, y de nuevo
+    if (paso === 2) { const ciclo = (Math.max(0, t - tBajada) / 1000) % 9.5; kAhora = quieto ? NZ * 0.7 : suave(Math.min(1, ciclo / 7)) * (NZ - 1); }      // 7 segundos bajando, 2,5 en el fondo, y de nuevo
+    if (paso === 2 || ahora.marca > 0.01) pintarFicha(kAhora, dt);
     punto.position.set(mx, TECHO - (kAhora + 0.5) * PASO, mz); punto.material.opacity = ahora.marca; punto.visible = marca.visible;
-    uMina.uT.value = (t - t0) / 1000; uMina.uVer.value = 1 - 0.0 * ahora.cobre;
+    uMina.uT.value = (t - t0) / 1000;
     const el = ahora.alzado + extra, R = ahora.lejos;
     camara.position.set(R * Math.cos(el) * Math.sin(giro), ahora.mira + R * Math.sin(el), R * Math.cos(el) * Math.cos(giro));
     camara.lookAt(0, ahora.mira, 0);
@@ -320,7 +366,7 @@
     rotulo.style.opacity = ahora.marca; rotulo.style.left = (cima.x * 0.5 + 0.5) * window.innerWidth + "px"; rotulo.style.top = (-cima.y * 0.5 + 0.5) * window.innerHeight + "px";
     requestAnimationFrame(cuadro);
   }
-  encuadrar(); mostrar(); requestAnimationFrame(cuadro);
+  encuadrar(); ajustarFicha(); mostrar(true); pintarFicha(quieto ? NZ * 0.7 : 0, 1); requestAnimationFrame(cuadro);
   setTimeout(() => document.getElementById("pasos").classList.add("listo"), 300);
   if (incrustada) alDeck({ lista: true });
 })();

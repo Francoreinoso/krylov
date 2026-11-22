@@ -31,7 +31,6 @@
         const a = Math.min(R.llm_a.segundos, R.llm_b.segundos), b = Math.max(R.llm_a.segundos, R.llm_b.segundos);
         L.querySelector('#llm-lento').textContent = Math.floor(a / 60) + ' a ' + Math.ceil(b / 60) + ' minutos';
         L.querySelector('#llm-rapido').textContent = S.latencia_ms + ' milisegundos';
-        L.querySelector('#llm-prueba').textContent = 'Lo probamos con el mismo archivo: ' + R.llm_a.segundos + ' y ' + R.llm_b.segundos + ' segundos, para acertar parecido (' + R.llm_a.dentro + ' y ' + R.llm_b.dentro + ' de ' + R.krylov.n + ', contra ' + R.krylov.dentro + ').';
       }
       if (!K.gl.ok || !K.base3d) return;
       const B = (this.B = K.base3d(30)), azar = K.azar(77), N = 2600;

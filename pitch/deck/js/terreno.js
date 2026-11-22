@@ -496,7 +496,7 @@
         ranking.appendChild(fila);
         yo.filas[c.etiqueta] = fila;
       });
-      ranking.insertAdjacentHTML('beforeend', '<div class="p nota">Lo que aporta una muestra en cada lugar, con A = 100.</div>');
+      ranking.insertAdjacentHTML('beforeend', '<div class="p nota">Cuánta duda quita perforar en cada lugar. El mejor, A, vale 100.</div>');
       this.nota = ranking.lastChild;
       this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
       const seg = L.querySelector('#perforo-s'), medido = K.config.cifras && K.config.cifras.donde_perforo_s;
