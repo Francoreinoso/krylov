@@ -12,7 +12,7 @@ interface Props {
   alElegirArchivo: () => void
   alProbar: () => void
   alElegir: (c: Caso) => void
-  yacimiento: Partial<TextosYacimiento> | null // la sexta pregunta: un recorrido calculado antes, sin archivo
+  yacimiento: Partial<TextosYacimiento> | null // la sexta pregunta: su tarjeta sale de sus textos, no de `casos/INICIO`
   alYacimiento: () => void
 }
 

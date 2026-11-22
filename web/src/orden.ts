@@ -41,6 +41,7 @@ function series(unidades: string[], ts: number[], vs: number[]): Orden {
 // Con el calce confirmado (o propuesto): el papel → la columna del archivo.
 export function ordenDelArchivo(info: InfoCsv, columnaDe: Record<string, string | undefined>): Orden {
   if (columnaDe.x && columnaDe.y) return mapa(numeros(info, columnaDe.x), numeros(info, columnaDe.y))
+  if (columnaDe.este && columnaDe.norte) return mapa(numeros(info, columnaDe.este), numeros(info, columnaDe.norte)) // el yacimiento, visto desde arriba
   if (columnaDe.unidad && columnaDe.tiempo && columnaDe.valor)
     return series(textos(info, columnaDe.unidad), numeros(info, columnaDe.tiempo), numeros(info, columnaDe.valor))
   return null

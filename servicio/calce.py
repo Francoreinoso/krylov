@@ -12,7 +12,7 @@ import re
 
 from nucleo import api, preproceso
 from nucleo.casos import ArchivoNoCalza, cargar_caso
-from servicio import lenguaje
+from servicio import lenguaje, yacimiento
 from servicio.fijos import RAIZ, PeticionInvalida
 
 
@@ -269,7 +269,7 @@ def proponer_calce(motor_id: str, contenido: bytes, caso: str | None = None, usa
 
     `caso` es la tarjeta elegida en el chat: de su YAML sale una pista para la regla (el modelo de lenguaje no la necesita).
     Con `usar_modelo=False` responde solo la regla, sin red: así lo precalcula el modo estático."""
-    respuesta = api.papeles(motor_id)
+    respuesta = yacimiento.papeles() if motor_id == yacimiento.MOTOR_ID else api.papeles(motor_id)   # el sexto motor vive fuera de `nucleo/`
     if "error" in respuesta:
         raise PeticionInvalida(respuesta["error"], respuesta["codigo"])
     try:

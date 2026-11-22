@@ -1,6 +1,7 @@
 // Krylov, la app (D-42): la misma cosa que el deck. Una idea por pantalla:
 //   inicio → (una decisión) → el archivo cae y se ordena → ¿qué columna es qué? → entra a la red → la respuesta,
 //   en la escena de la lámina de esa decisión, con los datos del archivo.
+// La sexta decisión (el yacimiento) recibe archivos igual, y su respuesta se dibuja en su propia página del deck.
 // Las teclas del escenario: 1 a 5, cada decisión con los datos del demo; 6, el recorrido del yacimiento; M, un archivo con el que Krylov no responde;
 // D, «¿Dónde perforo?»; L, el cierre; F, pantalla completa; Esc, volver.
 
@@ -16,7 +17,7 @@ import { ordenDeRespuesta, ordenDelArchivo } from './orden'
 import type { Reloj } from './reloj'
 import Resultado, { type Resuelta } from './Resultado'
 import { ElegirDecision, PantallaDecision } from './Subir'
-import type { Analisis, Calce, Caso, DondeMedir, Papel, TextosYacimiento } from './tipos'
+import type { Analisis, Calce, Caso, DatosYacimiento, DondeMedir, Papel, TextosYacimiento } from './tipos'
 import Viaje from './Viaje'
 import Yacimiento from './Yacimiento'
 
@@ -26,7 +27,7 @@ export type Archivo = InfoCsv & { prueba: string | null }
 type Etapa =
   | { e: 'inicio' }
   | { e: 'decision'; caso: Caso }
-  | { e: 'yacimiento' }
+  | { e: 'yacimiento'; datos: DatosYacimiento | null; archivo: Archivo | null; guardada: boolean } // sin datos: el recorrido calculado antes
   | { e: 'elegir'; archivo: Archivo }
   | { e: 'viaje'; caso: Caso; archivo: Archivo | null; calce: Calce | null; papeles: Papel[]; fase: Fase; n: number; orden: Orden; motivo: string | null }
   | { e: 'respuesta'; caso: Caso; r: Resuelta; id: number }
@@ -35,12 +36,18 @@ const SIN_SERVIDOR = 'Para leer un archivo propio, Krylov necesita su servidor, 
 const DEMO_MINIMO_MS = 1100 // con los datos guardados, la entrada a la red se alcanza a ver
 const ENTRADA_MINIMA_MS = 900 // con un servidor rápido, igual: el cronómetro dice el tiempo real, la animación solo termina
 
+const RECORRIDO = { e: 'yacimiento', datos: null, archivo: null, guardada: false } as const
 const columnaDe = (a: Asignacion) => Object.fromEntries(Object.entries(a).map(([papel, cols]) => [papel, cols[0]]))
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export default function App() {
   const [casos, setCasos] = useState<Caso[]>([])
-  const [yacimiento, setYacimiento] = useState<Partial<TextosYacimiento> | null>(null) // la sexta decisión, sin motor en el servicio
+  const [yacimiento, setYacimiento] = useState<Partial<TextosYacimiento> | null>(null) // la sexta decisión: su motor vive fuera de `nucleo/`
+  // La misma pantalla de subida y el mismo viaje que las otras cinco, con la tarjeta armada desde sus textos.
+  const casoYacimiento: Caso | null = yacimiento
+    ? { nombre: 'yacimiento', motor: 'yacimiento', titulo: yacimiento.titulo ?? '', empresa_o_industria: '', sintetico: true, origen_datos: yacimiento.que_es ?? '', quien: yacimiento.quien, archivo: yacimiento.archivo }
+    : null
+  const conYacimiento = casoYacimiento ? [...casos, casoYacimiento] : casos
   const [etapa, setEtapa] = useState<Etapa>({ e: 'inicio' })
   const [cierre, setCierre] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -58,7 +65,7 @@ export default function App() {
       const pedido = new URLSearchParams(window.location.search).get('decision')
       const caso = r.datos.casos.find((c) => c.nombre === pedido)
       if (caso) setEtapa({ e: 'decision', caso })
-      else if (pedido === 'yacimiento') setEtapa({ e: 'yacimiento' })
+      else if (pedido === 'yacimiento') setEtapa(RECORRIDO)
     }, () => setAviso('Krylov no pudo cargar las decisiones. Recarga la página.'))
     api.textos().then((t) => setYacimiento(t.datos.yacimiento?.titulo ? t.datos.yacimiento : null), () => {})
     despertarApi()
@@ -79,6 +86,12 @@ export default function App() {
     await espera(Math.max(0, ENTRADA_MINIMA_MS - ((reloj.current.respuesta ?? 0) - (reloj.current.confirmado ?? 0))))
     if (analisis.semaforo.estado.startsWith('rojo')) {
       viaje({ fase: 'rechazo', motivo: analisis.semaforo.motivo }, mio)
+      return
+    }
+    if (analisis.yacimiento) {
+      viaje({ fase: 'sale' }, mio)
+      await espera(650)
+      if (turno.current === mio) setEtapa({ e: 'yacimiento', datos: analisis.yacimiento, archivo, guardada: origen === 'guardada' })
       return
     }
     const donde: DondeMedir | null = analisis.mapa && !archivo ? await api.dondeMedir(caso.nombre).then((d) => d.datos, () => null) : null
@@ -172,7 +185,7 @@ export default function App() {
     selector.current?.click()
   }
 
-  const casoActual = etapa.e === 'decision' || etapa.e === 'viaje' || etapa.e === 'respuesta' ? etapa.caso : null
+  const casoActual = etapa.e === 'decision' || etapa.e === 'viaje' || etapa.e === 'respuesta' ? etapa.caso : etapa.e === 'yacimiento' ? casoYacimiento : null
 
   // Las teclas del escenario. Las que se apretaron con el foco en la escena también llegan aquí (LaminaDeck).
   useEffect(() => {
@@ -198,7 +211,7 @@ export default function App() {
         else if (yacimiento && Number(k) === casos.length + 1) {
           ++turno.current
           setCierre(false)
-          setEtapa({ e: 'yacimiento' })
+          setEtapa(RECORRIDO)
         }
       }
     }
@@ -209,13 +222,13 @@ export default function App() {
   const pantalla = (() => {
     switch (etapa.e) {
       case 'inicio':
-        return <Inicio casos={casos} alElegirArchivo={() => elegirArchivo(null)} alProbar={() => casos[0] && probar(casos[0])} alElegir={(caso) => setEtapa({ e: 'decision', caso })} yacimiento={yacimiento} alYacimiento={() => setEtapa({ e: 'yacimiento' })} />
+        return <Inicio casos={casos} alElegirArchivo={() => elegirArchivo(null)} alProbar={() => casos[0] && probar(casos[0])} alElegir={(caso) => setEtapa({ e: 'decision', caso })} yacimiento={yacimiento} alYacimiento={() => casoYacimiento && setEtapa({ e: 'decision', caso: casoYacimiento })} />
       case 'yacimiento':
-        return <Yacimiento textos={yacimiento ?? {}} />
+        return <Yacimiento key={etapa.archivo?.nombre ?? 'recorrido'} textos={yacimiento ?? {}} datos={etapa.datos} archivo={etapa.archivo} guardada={etapa.guardada} alSubir={() => casoYacimiento && setEtapa({ e: 'decision', caso: casoYacimiento })} />
       case 'decision':
-        return <PantallaDecision caso={etapa.caso} alElegirArchivo={() => elegirArchivo(etapa.caso)} alProbar={() => probar(etapa.caso)} alVerDemo={() => demo(etapa.caso)} />
+        return <PantallaDecision caso={etapa.caso} alElegirArchivo={() => elegirArchivo(etapa.caso)} alProbar={() => probar(etapa.caso)} alVerDemo={() => (etapa.caso.motor === 'yacimiento' ? setEtapa(RECORRIDO) : demo(etapa.caso))} />
       case 'elegir':
-        return <ElegirDecision archivo={etapa.archivo} casos={casos} alElegir={(caso) => viajar(caso, etapa.archivo)} />
+        return <ElegirDecision archivo={etapa.archivo} casos={conYacimiento} alElegir={(caso) => viajar(caso, etapa.archivo)} />
       case 'viaje':
         return (
           <Viaje

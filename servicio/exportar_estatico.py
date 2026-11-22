@@ -17,7 +17,9 @@ import shutil
 from pathlib import Path
 
 from nucleo import api as nucleo
-from servicio import fijos, lenguaje, respuestas
+import numpy as np
+
+from servicio import fijos, lenguaje, respuestas, yacimiento
 from servicio.calce import calce_del_demo, proponer_calce
 from servicio.interpretar import interpretar
 
@@ -87,6 +89,33 @@ def _prueba(nombre: str, motor_id: str) -> int:
     return 2
 
 
+def _archivo_del_yacimiento() -> None:
+    """El archivo de prueba de la sexta decisión: el yacimiento SIMULADO del demo (`yacimiento/datos/demo.npz`) como lo
+    recibe el servicio, una fila por bloque, con el cobre solo donde hubo perforación. La verdad escondida no va."""
+    z = np.load(RAIZ / "yacimiento" / "datos" / "demo.npz")
+    lado_m = (25.0, 25.0, 15.0)                                 # el tamaño del bloque de `yacimiento/demo.py`
+    filas = ["este_m,norte_m,profundidad_m,cobre_pct,cercania_falla,litologia_B,litologia_C,alteracion,geofisica_1,geofisica_2,vetillas"]
+    for i, j, k in np.ndindex(*z["mascara"].shape):
+        cobre = f"{np.exp(z['y'][i, j, k]):.3f}" if z["mascara"][i, j, k] else ""
+        cov = z["cov"][1:, i, j, k]
+        filas.append(",".join([f"{(i + 0.5) * lado_m[0]:.1f}", f"{(j + 0.5) * lado_m[1]:.1f}", f"{(k + 0.5) * lado_m[2]:.1f}", cobre,
+                               f"{cov[0]:.3f}", f"{cov[1]:.0f}", f"{cov[2]:.0f}", *(f"{v:.3f}" for v in cov[3:])]))
+    (PRUEBAS / f"subida_{yacimiento.MOTOR_ID}.csv").write_text("\n".join(filas) + "\n", encoding="utf-8")
+
+
+def _yacimiento() -> int:
+    """La sexta decisión responde un archivo con su red, fuera de `nucleo/`: sus papeles y el recorrido de su archivo de prueba."""
+    nombre = yacimiento.MOTOR_ID
+    _archivo_del_yacimiento()
+    contenido = (PRUEBAS / f"subida_{nombre}.csv").read_bytes()
+    calce = proponer_calce(nombre, contenido, usar_modelo=False)
+    columnas = {papel: {"columnas": v["columnas"], "transformacion": v["transformacion"]} for papel, v in calce["calce"].items()}
+    _escribir(f"papeles/{nombre}", yacimiento.papeles())
+    _escribir(f"prueba/calce/{nombre}", {**calce, "precalculado": True})
+    _escribir(f"prueba/analizar/{nombre}", {**yacimiento.analizar_archivo(contenido, columnas), "precalculado": True})
+    return 3
+
+
 def exportar() -> tuple[int, dict[str, str]]:
     shutil.rmtree(DESTINO, ignore_errors=True)
     lista = respuestas.inicio()
@@ -126,6 +155,8 @@ def exportar() -> tuple[int, dict[str, str]]:
             continue
         quien[nombre] = _quien(datos)
         n += _analisis(nombre, datos)
+    n += _yacimiento()
+    quien[yacimiento.MOTOR_ID] = "red (solo el mapa; su sello no pasa)"
     return n, quien
 
 

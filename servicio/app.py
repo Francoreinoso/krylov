@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from nucleo import api as nucleo
-from servicio import fijos, respuestas
+from servicio import fijos, respuestas, yacimiento
 from servicio.calce import calce_del_demo, proponer_calce
 from servicio.interpretar import interpretar as interpretar_respuesta
 
@@ -100,7 +100,7 @@ def nube(p: PedidoNube):
 
 @app.get("/api/papeles/{motor_id}")
 def papeles(motor_id: str):
-    respuesta = nucleo.papeles(motor_id)
+    respuesta = yacimiento.papeles() if motor_id == yacimiento.MOTOR_ID else nucleo.papeles(motor_id)
     if "error" in respuesta:
         return JSONResponse(status_code=400, content=respuesta)
     return respuesta
@@ -155,6 +155,8 @@ async def analizar_archivo(archivo: UploadFile = File(...), motor_id: str = Form
                            columnas: str = Form(...), costos: str | None = Form(None)):
     """Un archivo subido, con el calce que confirmó el usuario: responde la red del motor, con la forma de `analizar`."""
     contenido = await _leer_archivo(archivo)
+    if motor_id == yacimiento.MOTOR_ID:                  # el sexto motor (D-40) vive fuera de `nucleo/` y responde con su forma propia
+        return await run_in_threadpool(_de_a_uno, yacimiento.analizar_archivo, contenido, _json_de_formulario(columnas, "columnas") or {})
     respuesta = await run_in_threadpool(_de_a_uno, nucleo.analizar_archivo, motor_id, contenido,
                                         _json_de_formulario(columnas, "columnas") or {}, _json_de_formulario(costos, "costos"))
     if "error" in respuesta:

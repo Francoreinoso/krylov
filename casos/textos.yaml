@@ -107,12 +107,17 @@ curva:
   fuera: "El rango sigue subiendo más allá del gráfico."        # cuando el abanico sale por arriba y la web corta el eje
 
 yacimiento:
-  # La sexta decisión (D-40, D-42): un recorrido calculado antes, con lo que dibuja pitch/deck/yacimiento.html.
-  # Su red no corre en el servicio y su sello no pasa: se cuenta solo el mapa (M-63).
+  # La sexta decisión (D-40, D-42): el recorrido de pitch/deck/yacimiento.html, calculado antes o con un archivo subido.
+  # En el servicio corre solo la parte de su red que dibuja el mapa; su sello no pasa: se cuenta solo el mapa (M-63).
   titulo: "¿Dónde está el mineral?"
   quien: "Geólogo de exploración"
-  archivo: "Las muestras de las perforaciones: dónde se perforó, a qué profundidad y cuánto cobre trae la roca."
-  ver: "Ver el recorrido"
-  que_es: "Yacimiento simulado y respuesta calculada antes. Esta decisión todavía no recibe archivos."
+  archivo: "Una fila por bloque de roca: dónde está, qué dice la geología y, donde se perforó, cuánto cobre trae."
+  ver: "Subir su archivo"
+  que_es: "Yacimiento simulado y respuesta calculada antes."
+  subir: "Subir un archivo"
+  # Con un archivo subido: {archivo}, {muestras} y {bloques} salen del archivo y de la respuesta de la red.
+  con_archivo: "Respondió la red con {archivo}: {muestras} muestras de roca, {bloques} bloques. Sin examen: el archivo no trae la respuesta correcta."
+  de_ejemplo: "Es un yacimiento simulado."
+  guardada: "Respuesta guardada."
   sello: "De este modelo se cuenta solo su mapa: en yacimientos simulados nuevos, el cobre de verdad cayó dentro del rango que dio Krylov en 9 de cada 10 bloques. El resto de su comprobación todavía no pasa."
   angosto: "El recorrido en tres dimensiones se ve en una pantalla más ancha."

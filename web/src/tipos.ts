@@ -80,10 +80,19 @@ export interface Textos {
   curva: Record<'titulo' | 'medido' | 'ahora' | 'abanico' | 'limite' | 'falta' | 'sin_curva', string> & { fuera?: string } // fuera: el abanico sale del gráfico
   // El botón del archivo de prueba y la frase de una decisión que todavía no responde archivos propios.
   chat?: Partial<Record<'probar_archivo' | 'no_disponible', string>>
-  // La sexta decisión: un recorrido calculado antes, sin motor en el servicio (D-40).
+  // La sexta decisión (D-40): su recorrido calculado antes, o la respuesta de su red a un archivo subido.
   yacimiento?: Partial<TextosYacimiento>
 }
-export type TextosYacimiento = Record<'titulo' | 'quien' | 'archivo' | 'ver' | 'que_es' | 'sello' | 'angosto', string>
+export type TextosYacimiento = Record<'titulo' | 'quien' | 'archivo' | 'ver' | 'que_es' | 'sello' | 'angosto' | 'subir' | 'con_archivo' | 'de_ejemplo' | 'guardada', string>
+
+// Lo que dibuja la página del yacimiento (pitch/deck/yacimiento.html): la respuesta de la red para cada bloque, en un
+// byte por bloque. Con un archivo subido viene de `servicio/yacimiento.py`, sin examen (`acierto_decididos: null`).
+export interface DatosYacimiento {
+  dim: [number, number, number]
+  red: Record<'media' | 'desv' | 'p', string>
+  numeros: { compositos: number; bloques: number; colores: Record<Estado, number>; acierto_decididos: number | null; [k: string]: unknown }
+  [k: string]: unknown
+}
 
 export interface Factor {
   nombre: string
@@ -160,6 +169,7 @@ export interface Analisis {
   tiempo_ms: number
   sintetico: boolean
   origen_datos: string
+  yacimiento?: DatosYacimiento | null // solo en la sexta decisión: su respuesta tiene forma propia y el resto de los campos no viene
   _aviso?: string // solo en el ejemplo fijo (contratos/ejemplos/), cuando el motor todavía no responde
 }
 
