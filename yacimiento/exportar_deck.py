@@ -43,6 +43,8 @@ def main() -> None:
                          "colores": resumen["colores"], "costo_de_no_saber": resumen["costo_de_no_saber"],
                          "acierto_decididos": round(acierto, 3), "decididos": int(decidido.sum())}, "mcmc": None}
     ruta = ARTEFACTOS / "mcmc" / "demo.npz"
+    if not ruta.exists():
+        ruta = ARTEFACTOS / "mcmc_demo.npz"                             # la copia liviana versionada
     if ruta.exists():
         m = np.load(ruta)
         p = norm.sf((log_corte - m["medias"]) / m["desvs"]).mean(0).reshape(M.NX, M.NY, M.NZ)

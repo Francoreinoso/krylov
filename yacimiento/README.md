@@ -34,3 +34,24 @@ U-Net 3D con dos cabezas, como `espacial` pero en volumen (`red.py`):
     uv run python -m yacimiento.exportar_deck             # deja los datos de pitch/deck/yacimiento.html
 
 Los números medidos están en `artefactos/sello.json`. Lo que no existe: sondajes reales, correlación entre bloques en la salida de la red, y una tarjeta en la app.
+
+## Para quien termina el deck (PC 2)
+
+Todo lo necesario está versionado; no hace falta entrenar ni correr el método lento de nuevo.
+
+- **La página:** `pitch/deck/yacimiento.html` y sus datos, `pitch/deck/datos/yacimiento.js`. Cuatro pasos (`#0` a `#3` en la dirección); `?quieto` apaga el giro. En el paso de la incertidumbre el punto baja por la perforación y el rango cambia con la profundidad.
+- **Regenerar los datos de la página** (por ejemplo, tras cambiar la ley de corte o los costos en `validar.py`, constante `CASO`): `uv run python -m yacimiento.exportar_deck`. Usa `artefactos/pesos.pt` (la red final), `datos/demo.npz` (el yacimiento del demo) y `artefactos/mcmc_demo.npz` (el método lento, en copia liviana). Con la copia liviana, «la misma decisión» sale 92,0% en vez de 92,1% por redondeo; el archivo versionado de la página viene de la corrida completa.
+- **Qué es dato y qué es ilustración:** el mineral bajo la zona marcada, el rango por profundidad y los números salen de la red. El relieve de la mina es la maqueta de la portada (`js/portada.js`): no representa datos.
+
+**Qué se puede decir, con su fila en `pitch/CIFRAS.md`:**
+
+| Frase | Cifra |
+|---|---|
+| Pre-entrenó con 126.696 yacimientos simulados (110 minutos) | M-63 |
+| Responde los 16.384 bloques en unos 20 milisegundos (18 a 22 medidos) | M-64 |
+| En 2.000 yacimientos nuevos, la ley verdadera cae dentro del rango de 90% en 0,90 de los bloques | M-63 |
+| Donde se pronuncia, acierta 0,94 contra la verdad escondida (4.980 de 5.302 bloques); en 11.082 dice «no se sabe» | M-64 |
+| El método de siempre tardó 913 segundos en este mismo archivo; la misma decisión en 92% de los bloques | M-65 |
+| Ley de corte de 0,5% y costos por bloque: supuestos del demo | K-71 a K-73 |
+
+**Qué no se puede decir:** que este motor «pasó su sello» (no pasa: la cabeza de parámetros falla el SBC y no coincide con el método lento); nada sobre sus parámetros ni sobre «qué tan lejos se parece la roca»; que son datos de una mina (es un yacimiento simulado); ni que está en la app (no tiene tarjeta). La comparación con el método lento es de un solo yacimiento.

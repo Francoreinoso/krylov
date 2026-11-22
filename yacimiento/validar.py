@@ -31,7 +31,8 @@ Z90 = 1.6449
 
 
 def cargar(dispositivo: str = "cpu") -> tuple[RedYacimiento, dict]:
-    estado = torch.load("yacimiento/checkpoints/ultimo.pt", map_location="cpu", weights_only=False)
+    punto = Path("yacimiento/checkpoints/ultimo.pt")                 # el entrenamiento local; si no está, los pesos versionados junto al sello
+    estado = torch.load(punto if punto.exists() else ARTEFACTOS / "pesos.pt", map_location="cpu", weights_only=False)
     red = RedYacimiento()
     red.load_state_dict(estado["modulo"])
     return red.eval().to(dispositivo), {k: estado[k] for k in ("pasos", "datasets_simulados", "segundos")}
@@ -109,9 +110,10 @@ def demo(red: RedYacimiento) -> tuple[dict, dict]:
 def comparar(red: RedYacimiento) -> dict | None:
     """La red contra el MCMC de referencia en cada `artefactos/mcmc/*.npz`: parámetros, mapa y decisiones."""
     filas = []
-    for ruta in sorted((ARTEFACTOS / "mcmc").glob("*.npz")):
+    rutas = sorted((ARTEFACTOS / "mcmc").glob("*.npz")) or sorted(ARTEFACTOS.glob("mcmc_demo.npz"))      # la corrida local, o la copia liviana versionada
+    for ruta in rutas:
         m = np.load(ruta)
-        z = np.load("yacimiento/datos/demo.npz") if ruta.stem == "demo" else m
+        z = np.load("yacimiento/datos/demo.npz") if ruta.stem in ("demo", "mcmc_demo") else m
         t = {k: torch.from_numpy(np.asarray(z[k], dtype=np.float32))[None] for k in ("y", "mascara", "cov")}
         with torch.no_grad():
             r = red.responder(t["y"], t["mascara"], t["cov"], 2000)
@@ -122,7 +124,7 @@ def comparar(red: RedYacimiento) -> dict | None:
         p_mcmc = norm.sf((log_corte - m["medias"]) / m["desvs"]).mean(0).reshape(media.shape)
         e_red = decision.decidir_espacial(p_red, CASO["falso_si"], CASO["falso_no"])["estado"]
         e_mcmc = decision.decidir_espacial(p_mcmc, CASO["falso_si"], CASO["falso_no"])["estado"]
-        filas.append({"clave": ruta.stem, "segundos_nuts": round(float(m["segundos"]), 1), "segundos_mapa": round(float(m["segundos_mapa"]), 1),
+        filas.append({"clave": "demo" if ruta.stem == "mcmc_demo" else ruta.stem, "segundos_nuts": round(float(m["segundos"]), 1), "segundos_mapa": round(float(m["segundos_mapa"]), 1),
                       "r_hat_max": round(float(m["r_hat"].max()), 3), "divergencias": int(m["divergencias"]),
                       "dif_theta_media": round(float(dif.mean()), 3), "dif_theta_max": round(float(dif.max()), 3),
                       "parametro_de_la_max": M.NOMBRES_THETA[int(dif.argmax())],
