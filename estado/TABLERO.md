@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 20:33 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
+**Actualizado:** sáb 21-nov 21:49 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
 
 **URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
 
@@ -28,13 +28,13 @@ Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (
 |---|---|---|
 | producto (PC 1) | 🟡 | URL nueva funcionando con cuatro tarjetas (P-28, P-30). Falta `flota` con `KRYLOV_MOTOR_DESGASTE=red`, exportar y redesplegar |
 | amortizacion (PC 2) | 🟢 | `desgaste` PASA (19:35): cinco de cinco. Quedan A-35 (README técnico) y revisar el método lento que PC 3 escribió |
-| seguimiento (PC 3) | 🟢 | Entrenando aquí hasta las 21:45 un sexto motor fuera del producto (`yacimiento`, D-40). Método lento: listo en cuatro motores, falta `desgaste` |
+| seguimiento (PC 3) | 🟡 | Sexto motor `yacimiento` (D-40, fuera del producto): mapa calibrado (0,909), sello «no pasa» por los parámetros; retomado 30 min hasta las 22:17. Falta su método lento y el de `desgaste` |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora exportar el estático con las cinco redes (`flota` incluida) y redesplegar; después cerrar **P-29** y preparar el demo (`preparar-demo`).
-- **PC 2 · amortizacion:** ahora **A-35** (README técnico). Después, revisar el código del método lento de los cuatro motores de series que PC 3 escribió fuera de `motor/` (ver `estado/seguimiento.md`) y decidir si entra a `motor/<id>/mcmc.py` y al sello.
-- **PC 3 · seguimiento:** ahora el sexto motor `yacimiento` (D-40, encargo de la persona de PC 3): entrena hasta las 21:45, después validación y su método lento. Después: método lento de `desgaste`, ensayo y entrega (S-30).
+- **PC 2 · amortizacion:** ahora **A-35** (README técnico). Además: enlazar en el deck la página nueva `pitch/deck/yacimiento.html` (PC 3 no tocó `index.html`), y revisar el método lento propuesto en `estado/a36_metodo_lento/`.
+- **PC 3 · seguimiento:** ahora `yacimiento` entrenando hasta las 22:17 y una sola validación después (cifras M-63 y M-64). Después: su método lento y el de `desgaste` (con el Mac enchufado), ensayo y entrega (S-30).
 
 ## Qué cambió respecto del plan
 
