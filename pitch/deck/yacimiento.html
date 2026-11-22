@@ -55,7 +55,7 @@
     </div>
     <div class="paso" data-n="2">
       <h2>La incertidumbre</h2>
-      <p><b class="oro">Dentro de las curvas doradas</b> es probable que haya mineral, pero no es seguro. Esto encontraría la próxima perforación al bajar:</p>
+      <p><b class="oro">Dentro de las curvas doradas</b> el mineral es probable, no seguro. La próxima perforación va donde hay más duda. Esto encontraría al bajar:</p>
       <canvas id="ficha" role="img" aria-label="Cobre que Krylov espera en la próxima perforación a cada profundidad, con su rango de 90%, contra el mínimo para procesar"></canvas>
     </div>
     <div class="paso" data-n="3">
@@ -296,12 +296,12 @@
   const ahora = Object.assign({}, META[paso], { cobre: 0, oro: 0, marca: 0, guia: 0 });
   // El viaje de la cámara entre dos pasos tiene principio y final: parte quieta, acelera y llega frenando (antes perseguía
   // su destino y el primer cuadro era el más rápido: un tirón). Si llega otro paso a mitad de camino, parte desde donde va.
-  const viaje = { t0: -1e9, dura: 1, desde: Object.assign({}, META[paso]), barrido: 0 };
+  const viaje = { t0: -1e9, dura: 1, desde: Object.assign({}, META[paso]), barrido: 0, hacia: paso };
   const llegar = (k) => { k = Math.max(0, Math.min(1, k)); return k * k * k * (k * (k * 6 - 15) + 10); };       // sin tirón al partir ni al llegar
   // El mineral se enciende piso por piso, de arriba hacia abajo, cuando la cámara ya va bajando: cada piso entra con un
   // destello que se apaga, y los cuatro hilos de las esquinas bajan con el frente.
-  const ESPERA = 0.5, ENTRE_PISOS = 0.075, FUNDIDO = 0.5;
-  let nacio = quieto || paso > 0 ? -1e9 : null, tBajada = 0;                                // null: apagado. Al abrir en un paso con mineral, ya encendido
+  const ESPERA = 0.75, ENTRE_PISOS = 0.06, FUNDIDO = 0.5;       // el primer piso se enciende cuando el rajo ya se inclina
+  let nacio = quieto || paso > 0 ? -1e9 : null, tBajada = 0, tPaso = -1e9;                                // null: apagado. Al abrir en un paso con mineral, ya encendido
   function mostrar(primera) {
     const t = performance.now();
     document.querySelectorAll(".paso").forEach((p) => p.classList.toggle("activo", +p.dataset.n === paso));
@@ -310,7 +310,12 @@
     if (paso === 2) tBajada = t + 900;                                 // la bajada parte un momento después de entrar al paso
     if (paso > 0 && nacio === null) nacio = t;
     if (primera) return;
-    const m = META[paso], salto = Math.abs(m.mira - ahora.mira) + 12 * Math.abs(m.alzado - ahora.alzado);
+    tPaso = t;
+    // Otra pulsación a mitad de un viaje, hacia un paso que se mira desde el mismo lugar: la cámara sigue su viaje y no se detiene a partir de nuevo
+    const m = META[paso], enVuelo = (t - viaje.t0) / 1000 < viaje.dura, mismoLugar = CAMARA.every((k) => m[k] === META[viaje.hacia][k]);
+    viaje.hacia = paso;
+    if (enVuelo && mismoLugar) return;
+    const salto = Math.abs(m.mira - ahora.mira) + 12 * Math.abs(m.alzado - ahora.alzado);
     for (const k of CAMARA) viaje.desde[k] = ahora[k];
     viaje.t0 = t; viaje.dura = salto > 4 ? 1.9 : 1.1; viaje.barrido = salto > 4 ? 0.55 : 0.12;      // en el viaje largo, la cámara además rodea el rajo
   }
@@ -339,8 +344,10 @@
     const dt = Math.min(0.25, (t - antes) / 1000); antes = t;
     const m = META[paso], kv = quieto ? 1 : (t - viaje.t0) / 1000 / viaje.dura, e = llegar(kv);
     for (const k of CAMARA) ahora[k] = mezcla(viaje.desde[k], m[k], e);
-    const a = quieto ? 1 : 1 - Math.exp(-dt * 3.4);
-    for (const k of LUCES) ahora[k] += (m[k] - ahora[k]) * a;
+    // de vuelta arriba, el mineral se apaga rápido: no queda un fantasma bajo el rajo. Y al entrar a la incertidumbre, la línea
+    // de la perforación y las curvas doradas esperan un momento, a que el texto anterior se haya ido
+    const a = quieto ? 1 : 1 - Math.exp(-dt * (paso === 0 ? 7 : 3.4)), espera = paso === 2 && t - tPaso < 300 && !quieto;
+    for (const k of LUCES) if (!(espera && (k === "marca" || k === "oro"))) ahora[k] += (m[k] - ahora[k]) * a;
     // gira sola, una vuelta cada 40 segundos, sin depender de los cuadros por segundo; durante un viaje, además rodea el rajo
     if (!arrastrando && !quieto) giro += dt * (0.16 + (kv > 0 && kv < 1 ? viaje.barrido * Math.sin(Math.PI * kv) * Math.PI / 2 / viaje.dura : 0));
     if (paso === 0 && nacio !== null && ahora.cobre < 0.01 && !quieto) nacio = null;           // de vuelta arriba: el mineral se apaga entero y recién entonces se rearma
@@ -350,7 +357,7 @@
       const vida = edad - p.userData.k * ENTRE_PISOS, n = nacio === null ? 0 : 1 - Math.pow(1 - Math.max(0, Math.min(1, vida / FUNDIDO)), 3);
       const destello = vida > 0 && vida < 1.2 ? Math.exp(-vida / 0.22) : 0;
       p.material.opacity = Math.min(1, (lista === cobres ? ahora.cobre : ahora.oro) * n * mezcla(1, 0.4 + 0.6 * Math.max(0, 1 - Math.abs(p.userData.k - kAhora) / 1.5), ahora.marca));
-      p.material.color.setScalar(1 + 0.7 * destello); p.visible = p.material.opacity > 0.004; }
+      p.material.color.setScalar(1 + 0.3 * destello); p.visible = p.material.opacity > 0.004; }
     const frente = nacio === null ? 0 : suave(edad / (NZ * ENTRE_PISOS + FUNDIDO) + 0.12);       // hasta dónde bajó el encendido: los hilos lo acompañan
     for (const g of guias) { g.material.opacity = ahora.guia * Math.min(1, frente * 4); g.scale.y = Math.max(0.001, frente); g.position.y = g.userData.arriba - g.userData.largo * frente / 2; g.visible = g.material.opacity > 0.004; }
     marca.material.opacity = ahora.marca; marca.visible = ahora.marca > 0.004;

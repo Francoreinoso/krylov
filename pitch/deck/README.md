@@ -2,7 +2,7 @@
 
 **Krylov, el Artificial Data Scientist de la minería.** El mensaje del deck: decidir con el mejor modelo ya no toma horas ni un especialista; toma lo que demora subir un archivo, gracias a Bayesian Amortized Inference.
 
-Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: las bibliotecas están en `vendor/` y los datos en `datos/datos.js`. Lo único que usa red es la demo en vivo (tecla `D`), que es opcional. El guion está en [`../PITCH_v2.md`](../PITCH_v2.md).
+Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: las bibliotecas están en `vendor/` y los datos en `datos/datos.js`. Lo único que usa red es la demo en vivo (tecla `D`), que es opcional. El guion de tres minutos está en [`../PITCH_FINAL.md`](../PITCH_FINAL.md).
 
 ## Cómo abrirlo
 
@@ -27,7 +27,7 @@ En la dirección: `#7` abre la lámina 7, `#7.1` su segundo paso. `?quieto` apag
 
 ## Las láminas
 
-Catorce en el recorrido (18 pulsaciones hasta el cierre), más cuatro fuera de él. La versión anterior a la última iteración de diseño está en [`original/`](original/RESPALDO.md); qué cambió en cada lámina y por qué, en [`CAMBIOS.md`](CAMBIOS.md).
+Catorce en el recorrido (18 pulsaciones hasta el cierre), más cuatro fuera de él. Qué cambió en cada lámina y por qué está en [`CAMBIOS.md`](CAMBIOS.md). Hay dos respaldos para devolver una lámina a como estaba: [`antes_pasada_final/`](antes_pasada_final/RESPALDO.md) (el deck del sábado a la medianoche) y [`original/`](original/RESPALDO.md) (el del sábado a las 22:40).
 
 | # | Lámina | Qué se ve, y para qué está cada cosa | De dónde sale |
 |---|---|---|---|
@@ -37,12 +37,12 @@ Catorce en el recorrido (18 pulsaciones hasta el cierre), más cuatro fuera de �
 | 4 | Simulaciones | El remolino de terrenos y la suma de las simulaciones de los cinco modelos con sello, con su desglose y el tiempo total de pre-entrenamiento | M-01, M-48 y M-66 (`js/mundos.js` suma lo que trae `datos.js`) |
 | 5 | Entra un archivo, sale la respuesta | Un archivo tras otro entra a la red y sale su mapa; dos contadores | 10 ms: `latencia_ms` del sello. 117 segundos: el método lento por análisis en ese mismo modelo (M-25) |
 | 6 | Seis decisiones | «Una minera se pregunta esto todos los días»: las seis preguntas, con una figura cada una | Las figuras son ilustraciones |
-| 7 | Qué roca conviene procesar | El terreno en tres colores. **Un punto lo recorre** y, a la izquierda, la tarjeta muestra lo que la red respondió para el lugar que tiene debajo: la decisión, el arsénico estimado, su intervalo de 90% y la distribución entera contra el máximo que acepta la planta (`js/foco.js`). Segundo paso, «¿Dónde perforo?»: 40 lugares, 480 análisis rehechos y los tres mejores, por su valor relativo | La red del motor `espacial`. M-40, M-43, M-44, M-46 (el valor ya no se muestra en dólares) |
+| 7 | Qué roca conviene procesar | El terreno en tres colores. **Un punto lo recorre** y, a la izquierda, la tarjeta muestra lo que la red respondió para el lugar que tiene debajo: la decisión, el arsénico estimado, su intervalo de 90% y la distribución entera contra el máximo que acepta la planta (`js/foco.js`). Segundo paso, «¿Dónde perforo?»: Krylov ensaya el pozo en 40 lugares, con 12 resultados posibles en cada uno, rehace el mapa las 480 veces y muestra los tres lugares donde perforar deja menos terreno en duda | La red del motor `espacial`. M-40, M-43, M-44, M-46 (el valor ya no se muestra en dólares) |
 | 8 | La pared | La pared en el color de la decisión de cada sector. El foco viaja de sector en sector; en uno que conviene cerrar, la cámara se acerca y **ese tramo cede, rotulado como proyección**. En uno que se movió sin acelerarse, la tarjeta muestra lo que midió el radar | La red del motor `deformacion` (sello a las 17:36) |
 | 9 | El cobre en la planta | Las ocho líneas vistas desde donde termina la pulpa: lo recuperado sube por una columna hasta su estimación, contra la meta; **lo que no flotó cae al relave**, más denso donde se pierde más | La red del motor `cinetica` (`js/flotacion.js`) |
 | 10 | Los camiones | Los camiones en la rampa, en el color de su decisión. El foco salta entre los que están a la vista y su tarjeta muestra el riesgo de cada uno | La red del motor `desgaste` |
 | 11 | Los túneles | Un bloque de roca abierto a la altura de los túneles: la explosión manda una onda por la roca y después cada temblor del archivo sacude su sector a su hora | La red del motor `sismico` (`js/sismicidad.js`). Dónde cae cada temblor dentro del sector es ilustración |
-| 12 | ¿Dónde está el mineral? | El sexto modelo: el rajo en relieve, la zona perforada y el mineral debajo, piso por piso; la duda bajando por la próxima perforación; y la comparación con el método lento. Es `yacimiento.html` dentro de un marco | La red del motor `yacimiento` sobre un yacimiento simulado (M-63 a M-65). **No está en la app y su sello no pasa: se cuenta el mapa** |
+| 12 | ¿Dónde está el mineral? | El sexto modelo, en cuatro pasos: el rajo con la zona perforada; el mineral debajo, piso por piso; la próxima perforación, con la tarjeta de las otras decisiones (cobre estimado, rango de 90% y decisión, que cambian al bajar); y el examen (94 de cada 100 donde se pronunció, «no se sabe» en dos de cada tres bloques). Es `yacimiento.html` dentro de un marco | La red del motor `yacimiento` sobre un yacimiento simulado (M-63, M-64). **No está en la app y su sello no pasa: se cuenta el mapa. La pantalla ya no lo rotula: está en las notas** |
 | 13 | ¿Y cómo sé que acierta? | Por modelo, en 2.000 casos nuevos: qué fracción de las veces la respuesta real cayó dentro del rango de 90%. Los seis puntos caen sobre la línea de 90%. Abajo, el examen con datos reales públicos | `cobertura_90` de cada sello; M-63 para el yacimiento; M-67 |
 | 14 | Cierre | El mensaje de venta; un contador de los análisis que Krylov habría respondido mientras duró el pitch; el QR | El contador es una cuenta: segundos desde la primera pulsación ÷ 10 ms |
 
@@ -51,13 +51,23 @@ Fuera del recorrido:
 | Tecla | Lámina | Qué responde | De dónde sale |
 |---|---|---|---|
 | `Q` | ¿Quién lo usa? | Quien toma la decisión en terreno: las seis figuras, cada una con el cargo que toma esa decisión | Cargos, no empresas. No hay clientes ni pilotos |
-| `L` | ¿Y un LLM? | «Correría el modelo caro cada vez». Una cadena de MCMC arma la respuesta de a una muestra; Krylov la entrega entera | La prueba de `datos/prueba_llm/` y el sello. Las nubes son una ilustración |
+| `L` | ¿Y un LLM? | «Correría el modelo caro cada vez». Una cadena de MCMC arma la respuesta de a una muestra; Krylov la entrega entera | Los dos tiempos salen de la prueba de `datos/prueba_llm/` y del sello. Las nubes son una ilustración. El detalle de la prueba ya no está en pantalla: está en las notas |
 | `0` | Cómo funciona | Tres pasos: lo que se hace una sola vez; lo que pasa con cada dataset; y la ficha de los seis modelos (qué modelo es, simulaciones, minutos, milisegundos) | `js/arquitectura.js`; M-01, M-02, M-48, M-63, M-64, M-68 |
-| `W` | Quién investiga esto | Un mapamundi de puntos con los 30 grupos de investigación de 15 países que el review *Neural Methods for Amortized Inference* (2025) cita como centrales, en un recorrido automático por regiones | `datos/laboratorios.js`, que escribe `datos/generar_laboratorios.py` con la fuente de cada grupo; M-69 |
+| `W` | Quién investiga esto | Un mapamundi de puntos con 31 grupos de 18 países que publican amortized Bayesian inference, en un recorrido automático por regiones. Cada grupo está por un trabajo de 2020 en adelante que lo dice en su título o en su resumen | `datos/laboratorios.js`, que escribe `datos/generar_laboratorios.py` con la frase literal y la fuente de cada grupo; M-69 |
 
 **Una lámina de decisión entra al recorrido solo si el motor de su caso ya responde**, igual que el inicio de la app. Lo decide `js/nucleo.js` al abrir, mirando `datos.js`. La excepción es la lámina 12: está en el recorrido a pedido del equipo, con su aviso en pantalla («Este modelo todavía no está en la app»).
 
 **Las seis láminas de decisión tienen la misma columna: la pregunta y la tarjeta del foco.** Un punto viaja por la escena y la tarjeta muestra la respuesta de la red para la unidad que se está mirando: la decisión en su color, la estimación, su intervalo de 90% y la distribución entera contra el límite con que se decide. Al viajar, la curva y las cifras pasan de una unidad a la otra. Todo sale de `datos.js` (`js/foco.js`); ya no hay gráfico de barras ni cuenta de colores ni cifras de plata en esas láminas.
+
+## Cómo decide Krylov que no sabe
+
+Es la pregunta que el deck provoca en casi todas sus láminas, así que conviene tener la respuesta a mano.
+
+La red no entrega un número: para cada bloque, sector, línea o camión entrega todos los valores que calzan con los datos y qué tan probable es cada uno (la curva de cada tarjeta). Cada decisión tiene un límite. Con las dos cosas se calcula la probabilidad de equivocarse con la decisión que se tomaría, y **si esa probabilidad pasa de 10%, la respuesta es «no sabemos»**. Es una regla fija del producto (`UMBRAL_DE_DUDA` en `nucleo/decision.py`; `contratos/CONTRATO.md`, sección 3) y es la misma en las seis láminas de decisión, incluida la tarjeta de la 12. La red no la aprende.
+
+Lo que la red sí aprende es el ancho de cada rango, y eso es lo que examina la lámina 13. El rango sale ancho con pocos datos cerca, con mediciones ruidosas o cuando el valor está pegado al límite.
+
+En la app hay un segundo «no sé» que el deck no muestra: el semáforo rojo, cuando el archivo no se parece a nada de lo que la red practicó.
 
 ## Lo que hay detrás, y que la pantalla no dice
 
@@ -66,6 +76,8 @@ A pedido, la pantalla no lleva pies ni rótulos («simulado», «ilustración»,
 1. **Las cinco decisiones muestran la respuesta de su red, las cinco con sello:** `leyes` (motor `espacial`), `flotacion` (`cinetica`, 17:09), `taludes` (`deformacion`, 17:36, con el criterio de D-39), `sismicidad` (`sismico`, 18:15) y `flota` (`desgaste`, 19:35). Ninguna de las cuatro nuevas está comparada todavía con el método lento. **La lámina de los camiones volvió al recorrido sin frase en el guion ni tiempo en `config.js`:** quien presenta decide si la dice. `generar.py` usa la red de un motor apenas existe su `codificador.onnx` y guarda `sello_pasa` en `datos.js`.
 1b. **En la pared, un dato que se puede decir:** en ese archivo simulado, los 5 sectores que la red manda cerrar son los 5 que cedían según la verdad escondida, y el que más se movió (Sector 25, 24 mm) no cede. Es un archivo y es simulado.
 2. **Todos los archivos de demo son simulados** (`origen_datos` de cada caso lo dice, y la app lo muestra). El único examen con datos reales es el del motor espacial en el terreno público del río Mosa: 24 de 31 mediciones escondidas dentro del rango (M-13, 77%).
+2b. **Los «datos reales públicos» de la lámina 13 son el conjunto `meuse`:** 155 muestras de suelo con metales pesados (se usa el zinc), tomadas junto al río Mosa, cerca de Stein, en los Países Bajos (Rikken y Van Rijn, 1993; Burrough y McDonnell, 1998). Viene con el paquete `sp` de R, con licencia GPL; en el repositorio es `datos/demo/terreno.csv` (D-04). **No es de una mina:** es un terreno contaminado, el mismo tipo de problema que la roca. El examen escondió las mediciones de a un quinto, cinco veces: 138 de 155 dentro del rango de 90% (M-67).
+2c. **La lámina 12 ya no dice en pantalla que el yacimiento es simulado ni que el modelo no está en la app.** Las dos cosas siguen siendo ciertas. «La respuesta correcta de este yacimiento» existe porque es simulado. Tampoco muestra tiempos: 18 a 22 ms con la red y 913 segundos con el método lento, con la misma decisión en 92% de los bloques (M-64, M-65).
 3. **Las 7 horas son una multiplicación:** 228 análisis × 117,1 s (M-10, M-25). Nadie las corrió seguidas. Y se midieron en el terreno real, no en el banco del demo. Son las láminas 3 y 5, y en las dos se dice lo mismo: 228 análisis, a 2 minutos cada uno.
 4. **Los mapas de las láminas 2, 3, 5 y 14 se repiten:** son 32, guardados; el deck los anima, no los calcula. **Y hay contadores que no son mediciones:** los dos de la lámina 3 cuentan lo que la animación muestra (una vuelta, un dataset), y el del cierre es una cuenta (segundos del pitch ÷ 10 ms).
 4b. **La lámina 2 es una analogía.** Krylov no es un modelo de lenguaje: se parece a un LLM en que se entrena antes, una vez, y después solo se usa. Y responde datasets de la familia con que practicó; fuera de ella, avisa y no responde. En la lámina 3, «una sola vez» fueron 4 h 40 min de pre-entrenamiento (M-02): no está en pantalla, y hay que saberlo. El punto de equilibrio (unos 144 datasets) es M-36, todavía pendiente en `CIFRAS.md`: no se dice como cifra.
@@ -89,7 +101,7 @@ El deck se escribe para alguien que nunca pisó una faena. La operación se llam
 
 - **`demo.url` y `demo.texto`:** la demo real del producto. De ahí salen el QR del cierre, el texto a su lado y lo que abre la tecla `D`.
 - **`equipo`:** los nombres para el cierre. Hoy dice «Equipo 5».
-- **`tiempos`:** los segundos de cada lámina que muestran las notas. Son una propuesta para tres minutos con las 14 láminas: falta cronometrarla en un ensayo.
+- **`tiempos`:** los segundos de cada lámina que muestran las notas. Son los del guion final (`../PITCH_FINAL.md`), contados a 150 palabras por minuto: falta cronometrarlos en un ensayo.
 - **`cifras`:** las tres que no salen de `datos.js`: los segundos de «¿Dónde perforo?» (M-44) y la ficha y la cobertura del yacimiento (M-63, M-64), porque su archivo de datos solo se carga en su lámina.
 
 ## La entrada por pasos
@@ -112,7 +124,7 @@ Escribe `datos/datos.js`, todo con `KRYLOV_MOTOR_ESPACIAL=red`: el caso estrella
 
 ## Respaldo estático
 
-`respaldo/01.jpg` a `18.jpg` (1920×1080, el estado final de cada lámina, en el orden en que quedan al abrir: 01 a 14 el recorrido, 15 a 18 las preguntas Q, L, 0 y W; rehechas el sábado 21-nov a las 23:50, abriendo el deck por `file://`). Si el navegador no tiene WebGL, cada lámina con 3D muestra la imagen de su posición: **si cambia qué motores responden, hay que rehacer el respaldo**, porque el orden cambia y `respaldo/krylov-deck.pdf`. Para rehacerlos:
+`respaldo/01.jpg` a `18.jpg` (1920×1080, el estado final de cada lámina, en el orden en que quedan al abrir: 01 a 14 el recorrido, 15 a 18 las preguntas Q, L, 0 y W; rehechas el domingo 22-nov a las 02:40, abriendo el deck por `file://`). Si el navegador no tiene WebGL, cada lámina con 3D muestra la imagen de su posición: **si cambia qué motores responden, hay que rehacer el respaldo**, porque el orden cambia y `respaldo/krylov-deck.pdf`. Para rehacerlos:
 
 ```bash
 npm install --no-save playwright-core
@@ -126,6 +138,8 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 ```
 
 ## Qué se probó y qué no
+
+- **Probado el domingo 22-nov entre las 00:45 y las 02:45, en la pasada final** (Chrome 156 manejado con `playwright-core`, 1280×720 y 1920×1080; el Playwright MCP estaba tomado por otra sesión): las láminas que cambiaron (2, 7, 12, L y W) y todos sus pasos, y el recorrido completo, sin errores de consola. En la lámina 12, las seis transiciones entre pasos se midieron cuadro a cuadro: 16,7 ms de mediana y de percentil 95, sin cuadros perdidos. Esa lámina pasó además por el revisor de movimiento de Impeccable en tiras de cuadros: confirmó que el tirón del primer paso desapareció y dio cinco ajustes, los cinco aplicados. El mapa de la lámina W se miró en sus siete paradas. **Sin probar en esta pasada:** el proyector, Safari y la tecla `D`.
 
 - **Probado el sábado 21-nov entre las 22:45 y la medianoche, en la última iteración de diseño** (Playwright MCP con Chrome, 1280×720 y 1920×1080, con `?animado` y con `?quieto`): las 18 láminas y todos sus pasos, sin errores ni avisos de consola y a 60 cuadros por segundo según el contador del deck; el detector de Impeccable sin hallazgos sobre `index.html`, `deck.css`, `laboratorios.css` y `yacimiento.html`; y ninguna regla de estilo sin uso. Las animaciones de las láminas 1, 3, 4, 7 a 12 y W se revisaron en tiras de cuadros con el revisor de movimiento de Impeccable, en dos rondas: 15 arreglos en la primera (13 resueltos y 2 parciales en su veredicto) y 5 retoques después, comprobados en capturas propias. Con `?quieto`, dos capturas separadas por 1,2 segundos salen idénticas en las láminas 8 y 10. **Sin probar en esta iteración:** el proyector, Safari, la tecla `D` y el respaldo sin WebGL.
 
@@ -153,6 +167,6 @@ uv run --no-project --with pillow python -c "from PIL import Image; import glob;
 ## Pedidos a otros
 
 - **A `amortizacion` (PC 2):** avisar cuando `deformacion`, `cinetica`, `desgaste` o `sismico` respondan en `api.analizar`, para regenerar `datos.js` y el respaldo.
-- **A `seguimiento`:** `GUION.md` y `LAMINAS.md` describen otro pitch (abre con el barco, entra a la app, siete láminas). Hay que dejar uno solo. Las cifras del deck que no tenían fila en `CIFRAS.md` se registraron el sábado a las 20:35, y conviene que una persona las firme: los 10 milisegundos (M-26), la prueba con el LLM (M-15), el acierto de cada modelo (M-56), los intervalos de la lámina de la tecla M y su «7 de 8» (M-57) y las cinco tarjetas de las láminas 7 a 11 (M-58 a M-62). Los gráficos de intervalos de las láminas 8 a 11 ya no escriben sus valores.
+- **A `seguimiento`:** el guion vigente es `PITCH_FINAL.md`. `GUION.md`, `LAMINAS.md` y `PITCH_v2.md` describen decks anteriores: conviene borrarlos o rotularlos. Las cifras del deck que no tenían fila en `CIFRAS.md` se registraron el sábado a las 20:35, y conviene que una persona las firme: los 10 milisegundos (M-26), la prueba con el LLM (M-15), el acierto de cada modelo (M-56), los intervalos de la lámina de la tecla M y su «7 de 8» (M-57) y las cinco tarjetas de las láminas 7 a 11 (M-58 a M-62). Los gráficos de intervalos de las láminas 8 a 11 ya no escriben sus valores.
 - **A `producto` (PC 1):** si cambia la dirección del producto, avisar para `config.js`.
 - **A una persona del equipo:** confirmar los nombres del cierre; abrir el deck en Safari y con el proyector antes del ensayo.
