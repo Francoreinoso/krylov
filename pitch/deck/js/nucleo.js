@@ -277,7 +277,7 @@
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace' || k === 'ArrowUp') { K.anterior(); ev.preventDefault(); }
     else if (k === 'Home') ir(0, 0, true);
     else if (k === 'End') ir(laminas.reduce(function (a, l, i) { return l.dataset.respaldo ? a : i; }, 0), 0, true);
-    else if (/^[0-9]$/.test(k)) ir(k === '0' ? laminas.length - 1 : +k - 1, 0, false);
+    else if (/^[1-9]$/.test(k)) ir(+k - 1, 0, false);
     else if (k === 'n' || k === 'N') document.documentElement.classList.toggle('con-notas');
     else if (k === 'p' || k === 'P') K.pausar();
     else if (k === 'd' || k === 'D') K.demo();
@@ -315,6 +315,7 @@
   K.enlazarDatos = function () {
     const d = K.datos;
     d.terreno.n_puntos = d.terreno.puntos.length;
+    d.donde.n_lugares = d.donde.lugares.length;
     d.terreno.partes = d.terreno.colores.actuar + d.terreno.colores.en_duda + d.terreno.colores.no_actuar;
     d.real.examen_dentro = Math.round(d.real.examen.paso * d.real.examen.n);
     d.real.n_puntos = d.real.puntos.length;

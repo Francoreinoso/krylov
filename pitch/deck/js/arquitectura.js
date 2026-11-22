@@ -1,7 +1,8 @@
-/* 0 · Cómo funciona (fuera del recorrido): Bayesian Amortized Inference en dos mitades, solo el diagrama.
-   A la izquierda, lo que se hace una sola vez: el modelo bayesiano, el simulador, los datasets simulados, y la red que se
-   pre-entrena con ellos. A la derecha, lo que pasa con cada dataset: entra, la misma red entrega la posteriori, y de ahí
-   sale la decisión. Sin fórmulas: todo dicho en palabras. */
+/* 0 · Cómo funciona (fuera del recorrido): Bayesian Amortized Inference en dos mitades, en tres pasos.
+   Paso 0, lo que se hace una sola vez: el modelo bayesiano, el simulador, los datasets simulados y la red que se
+   pre-entrena con ellos. Paso 1, lo que pasa con cada dataset: entra, la misma red entrega la posteriori, y de ahí sale
+   la decisión. Paso 2, la ficha de los seis modelos: qué modelo es cada uno, con cuántas simulaciones pre-entrenó, en
+   cuánto tiempo y cuánto tarda en responder (el sello de cada motor). Sin fórmulas: todo dicho en palabras. */
 (function () {
   'use strict';
   const K = window.K;
@@ -41,6 +42,19 @@
       hilos.forEach(function (h, i) { for (let k = 0; k < 3; k++) svg += '<g class="' + h[0] + '"><circle class="gota" r="6" data-hilo="' + i + '" data-fase="' + (k / 3) + '"/></g>'; });
       svg += '</svg>';
       L.querySelector('#plano-arquitectura').innerHTML = svg;
+      // Tercer paso: la ficha de los seis modelos, con lo que dice el sello de cada uno (datos.js y, para el yacimiento, config.js).
+      const d = K.datos, Y = (K.config.cifras && K.config.cifras.yacimiento) || null;
+      const filas = [['La roca', 'Proceso gaussiano espacial', d.sello], ['La pared', 'Fluencia con dos regímenes', d.series.taludes.respuesta.sello],
+        ['La planta', 'Cinética de flotación', d.series.flotacion.respuesta.sello], ['Los camiones', 'Proceso gamma de desgaste', d.series.flota.respuesta.sello],
+        ['Los túneles', 'Proceso de Hawkes', d.series.sismicidad.respuesta.sello]];
+      if (Y) filas.push(['El yacimiento', 'Proceso gaussiano en 3D', Y]);
+      L.querySelector('#ficha-modelos').innerHTML =
+        '<div class="fila cabeza"><span>Decisión</span><span>Modelo bayesiano</span><span>Simulaciones</span><span>Pre-entrenamiento</span><span>Cada respuesta</span></div>' +
+        filas.map(function (f) {
+          const S = f[2];
+          return '<div class="fila"><span class="t3">' + f[0] + '</span><span class="p">' + f[1] + '</span><span class="num">' + K.miles(S.simulaciones_entrenamiento) + '</span>' +
+            '<span class="num">' + S.entrenamiento_min + ' min</span><span class="num cobre">' + S.latencia_ms + ' ms</span></div>';
+        }).join('');
       const raiz = L.querySelector('svg');
       this.gotas = Array.prototype.slice.call(raiz.querySelectorAll('circle.gota')).map(function (c) {
         const camino = raiz.querySelector('#hilo-' + c.dataset.hilo);
@@ -48,6 +62,7 @@
       });
     },
     cuadro: function (t) {
+      if (K.donde().paso > 1) return;                             // en la ficha, el diagrama no se ve
       this.gotas.forEach(function (g) {
         const u = (t * 0.22 + g.fase) % 1, p = g.camino.getPointAtLength(u * g.largo);
         g.c.setAttribute('cx', p.x.toFixed(1));

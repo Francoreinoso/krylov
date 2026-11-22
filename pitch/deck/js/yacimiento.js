@@ -1,4 +1,4 @@
-/* Krylov · deck. Lámina Y (fuera del recorrido): el sexto modelo, `yacimiento`, un yacimiento en 3D leído desde perforaciones.
+/* Krylov · deck. Lámina 12: el sexto modelo, `yacimiento`, un yacimiento en 3D leído desde perforaciones.
    La escena vive en su propia página (yacimiento.html) y aquí se muestra dentro de un marco. El deck le manda el paso y la
    página le devuelve las teclas que recibe cuando tiene el foco, así que las flechas funcionan igual que en las demás láminas.
    El marco se carga al entrar y se suelta al salir: su 3D no gasta nada mientras se muestra otra lámina. */

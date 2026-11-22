@@ -1,12 +1,9 @@
-/* 8 a 11 · Las otras cuatro decisiones de la mina, cada una como una escena hecha de puntos que se mueve con
-   los datos del archivo de su caso (datos.js → series). Nada de lo que se mueve es adorno:
-   - taludes: la pared de la mina, partida en sus sectores; cada sector se desplaza lo que el radar midió, hora a hora;
-   - flotación: las líneas de estanques; la espuma de cada estanque brilla según el cobre que flotó ahí,
-     y la columna del final de cada línea es el cobre recuperado hasta ese punto, contra la meta;
-   - flota: los camiones subiendo la rampa; la columna sobre cada uno es su desgaste, y la marca roja, la falla;
-   - sismicidad: los túneles después de una explosión; cada destello es un temblor del archivo, a su hora y con su magnitud.
-   Si el motor del caso ya responde (series.<caso>.respuesta), cada unidad toma el color de su decisión y la columna
-   de texto muestra cuántas hay de cada una. Mientras no responda, el color solo dice cuánto se midió. */
+/* 8 y 10 · La pared y los camiones, cada una como una escena hecha de puntos que se mueve con los datos del archivo de
+   su caso (datos.js → series), y lo común a las escenas de las decisiones (K.d3, K.base3d, K.camionDePuntos):
+   - taludes: la pared del rajo, partida en sus sectores; cada sector se desplaza lo que el radar midió, hora a hora;
+   - flota: los camiones en la rampa, cada uno en el color de su decisión.
+   La planta (9) y los túneles (11) viven en flotacion.js y sismicidad.js. En todas, el foco de Krylov viaja de unidad
+   en unidad y su tarjeta muestra la respuesta de la red para la que se está mirando (js/foco.js). */
 (function () {
   'use strict';
   const K = window.K;
@@ -131,15 +128,7 @@
   //   Los colores: en cuántas unidades conviene actuar, en cuántas no se sabe y en cuántas no hace falta.
   //   El valor: lo que cuesta no saber, que es lo que vale despejar esa duda.
   // Los números aparecen solo si el motor del caso respondió (series.<caso>.respuesta); si no, quedan los rótulos.
-  function llenar(L, S, caso) {
-    const R = S.respuesta, rot = S.rotulos, grafico = L.querySelector('.grafico');
-    if (R && K.filasDe[caso]) K.intervalos(grafico, K.filasDe[caso]()); else grafico.hidden = true;
-    const item = function (clase, n, texto) { return '<span class="item"><i class="muestra ' + clase + '"></i>' + (n == null ? '' : '<b class="num">' + n + '</b>') + '<span>' + texto + '</span></span>'; };
-    L.querySelector('.salida').innerHTML =
-      '<div class="colores">' + item('actuar', R ? R.colores.actuar : null, rot.actuar) + item('en-duda', R ? R.colores.en_duda : null, rot.en_duda) + item('no-actuar', R ? R.colores.no_actuar : null, rot.no_actuar) + '</div>' +
-      (R && R.costo_de_no_saber != null ? '<div class="valor"><b class="num">' + K.orden(R.costo_de_no_saber) + '</b><span>vale despejar esa duda</span></div>' : '');
-    L.classList.toggle('con-respuesta', !!R);
-  }
+  function llenar(L, S) { L.classList.toggle('con-respuesta', !!S.respuesta); }
   function tinteDe(S, id, sinRespuesta) {
     const u = S.respuesta && S.respuesta.unidades[id];
     return u ? DECISION[u.estado] : sinRespuesta;
@@ -213,40 +202,42 @@
   }
   K.camionDePuntos = camionDePuntos;
   K.base3d = base;
+  // lo común, para las escenas que viven en su propio archivo (flotacion.js, sismicidad.js)
+  K.d3 = { base: base, recorrido: recorrido, leer: leer, tinteDe: tinteDe, etiquetas: etiquetas, poner: poner, nombre: nombre, DECISION: DECISION, COLOR_CSS: COLOR_CSS };
 
-  // ============================== 8 · Taludes: la pared de la mina ==============================
+  // ============================== 8 · Taludes: la pared de la minera ==============================
   // La pared del rajo, vista desde el otro lado: ocho escalones de roca, partida en los 36 sectores del archivo.
-  // Cada sector se abulta y se enciende lo que el radar midió a esa hora (el movimiento está exagerado para que se vea):
-  // de roca fría a cobre, a rojo y a blanco donde más se movió. Abajo, el radar y sus haces barren la pared una y otra vez.
-  // En la columna de texto, la curva de dos sectores de esa misma pared: el que más se movió y el que menos.
+  // Cada sector se abulta lo que el radar midió a esa hora (el movimiento está exagerado para que se vea) y lleva el color
+  // de su decisión. Abajo, el radar y sus haces barren la pared una y otra vez.
+  // El foco de Krylov viaja de sector en sector (js/foco.js). Cuando se detiene en uno que conviene cerrar, la escena
+  // proyecta lo que viene si sigue acelerando: ese tramo de la pared se desliza y se desgrana. Es una proyección, y lo dice.
   K.registrar('taludes', {
     tres: null, tQuieto: 14,
     crear: function (L) {
-      const S = (this.S = K.datos.series.taludes), n = (this.n = S.unidades.length);
-      llenar(L, S, 'taludes');
-      this.reloj = L.querySelector('.reloj .num');
+      const S = (this.S = K.datos.series.taludes), n = (this.n = S.unidades.length), R = S.respuesta;
+      llenar(L, S);
       this.horas = 0; this.maximo = 0;
       S.unidades.forEach(function (un) { un.puntos.forEach(function (q) { this.horas = Math.max(this.horas, q[0]); this.maximo = Math.max(this.maximo, q[1]); }, this); }, this);
-      // los dos sectores que más se movieron, que no estén pegados; y el que menos, para la curva
-      const finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (x, y) { return y[0] - x[0]; });
-      this.marcados = [finales[0][1]];
-      for (let i = 1; i < finales.length && this.marcados.length < 2; i++) if (Math.abs(finales[i][1] - this.marcados[0]) >= 3) this.marcados.push(finales[i][1]);
-      this.calmo = finales[finales.length - 1][1];
-      // Si la red respondió, el gráfico muestra un sector que conviene cerrar: lo medido, lo que puede venir y cuánto falta.
-      this.foco = -1;
-      if (S.respuesta) {
-        let mejor = -1;
-        S.unidades.forEach(function (un, i) {
-          const r = S.respuesta.unidades[un.id];
-          if (r && r.estado === 'actuar' && r.curva && r.curva.marca && r.p > mejor) { mejor = r.p; this.foco = i; }
-        }, this);
-        if (this.foco >= 0) this.marcados = [this.foco];
-      }
-      this.cv = L.querySelector('canvas.curva');
-      this.ctx = this.cv.getContext('2d');
-      this.cw = this.foco >= 0 ? 860 : 800; this.ch = this.foco >= 0 ? 290 : 250;
-      this.zo = this.foco >= 0 ? K.zoom.unidad('taludes', S.unidades[this.foco].id) : null;
-      if (this.zo) K.zoom.enfocar(L, S.unidades[this.foco].id);
+      this.indice = {}; S.unidades.forEach(function (un, i) { this.indice[un.id] = i; }, this);
+      // El recorrido del foco: un sector que conviene cerrar, el que más se movió sin que haga falta cerrarlo, el que está
+      // en duda, otro que conviene cerrar y el más quieto. Los que no se aceleran no tienen «horas que faltan»:
+      // su tarjeta muestra lo que midió el radar.
+      const F = (this.F = K.foco.crear(L, 'taludes')), finales = S.unidades.map(function (un, i) { return [un.puntos[un.puntos.length - 1][1], i]; }).sort(function (x, y) { return y[0] - x[0]; });
+      const con = S.unidades.map(function (un) { return un.id; }).filter(function (id) { return R.posteriori[id]; });
+      const rojos = con.filter(function (id) { return R.unidades[id].estado === 'actuar'; }).sort(function (x, y) { return R.posteriori[x].medio - R.posteriori[y].medio; });
+      const duda = con.filter(function (id) { return R.unidades[id].estado === 'en_duda'; });
+      const verdes = finales.map(function (f) { return S.unidades[f[1]].id; }).filter(function (id) { return R.unidades[id] && R.unidades[id].estado === 'no_actuar'; });
+      K.foco.recorrer(F, con);
+      const sinCurva = function (id, que) {
+        const un = S.unidades[this.indice[id]], mm = un.puntos[un.puntos.length - 1][1];
+        F.fichas[id] = { id: id, nombre: K.nombreDe(id), estado: 'no_actuar', decision: S.rotulos.no_actuar, color: K.foco.rgb(COLOR_CSS.no_actuar),
+          grande: K.coma(Math.max(0, mm), mm >= 10 ? 0 : 1).replace(',0', '') + ' mm', que: que, serie: un.puntos, tope: this.maximo, rotuloSerie: 'Lo que midió el radar en ' + Math.round(this.horas) + ' horas' };
+      }.bind(this);
+      const movido = verdes[0], quieto = verdes[verdes.length - 1];
+      if (movido) sinCurva(movido, 'se movió, pero a ritmo parejo: no se está acelerando');
+      if (quieto && quieto !== movido) sinCurva(quieto, 'se movió: está quieto');
+      F.ids = [rojos[0], movido, duda[0], rojos[1], quieto].filter(function (id) { return id && F.fichas[id]; });
+      K.foco.reiniciar(F);
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(11), ANCHO = 22, ALTO = 9, BANCOS = 8, PIE = 0.36;
       // un ruido suave, para que la roca no sea una lámina lisa
@@ -266,7 +257,7 @@
       const pos = [], au = [], as = [], tinte = [];
       const poner3 = function (ux, v, luz, marca, col, enf) { const q = pared(ux, v); pos.push(q[0], q[1], q[2]); au.push(ux, v); as.push(luz, azar(), marca, enf || 0); tinte.push(col[0], col[1], col[2]); };
       for (let s = 0; s < n; s++) {
-        const col = tinteDe(S, S.unidades[s].id, ROJO), r0 = S.respuesta && S.respuesta.unidades[S.unidades[s].id];
+        const col = tinteDe(S, S.unidades[s].id, ROJO), r0 = R && R.unidades[S.unidades[s].id];
         const enf = r0 && r0.estado !== 'no_actuar' ? 1 : 0;          // lo que conviene cerrar y lo que está en duda se enciende, se haya movido mucho o poco
         for (let c = 0; c < 16; c++) for (let f = 0; f < 104; f++) {
           const ux = (s + (c + azar()) / 16) / n, v = (f + azar()) / 104, r = (v * BANCOS) % 1;
@@ -275,54 +266,66 @@
         }
         for (let b = 0; b < BANCOS; b++) for (let k = 0; k < 26; k++) poner3((s + azar()) / n, (b + 0.985 + azar() * 0.014) / BANCOS, 1.25, 0, col, enf);      // el borde de cada escalón
       }
-      // las divisiones entre sectores, tenues; las de los sectores marcados, encendidas
-      const marcados = this.marcados;
-      for (let s = 0; s <= n; s++) {
-        const fuerte = marcados.some(function (m) { return s === m || s === m + 1; }) ? 2 : 1;
-        for (let k = 0; k < 150; k++) poner3(Math.min(0.9999, s / n), (k + 0.5) / 150, 1, fuerte, [0, 0, 0]);
-      }
+      // las divisiones entre sectores, tenues; las del sector que se mira se encienden (en el sombreador)
+      for (let s = 0; s <= n; s++) for (let k = 0; k < 150; k++) poner3(Math.min(0.9999, s / n), (k + 0.5) / 150, 1, 1, [0, 0, 0]);
       // cuánto se ha movido cada sector ahora: una fila de textura. R: lo medido (color). G: lo mismo, suavizado entre vecinos (forma).
       this.mov = new Uint8Array(n * 4);
       this.tex = new THREE.DataTexture(this.mov, n, 1, THREE.RGBAFormat);
       this.tex.magFilter = this.tex.minFilter = THREE.LinearFilter;
       this.tex.needsUpdate = true;
       this.barre = { value: -1 };
+      this.foc = { value: new THREE.Vector3(-1, -1, 0) };            // el sector que se mira, el que viene y el avance de uno al otro
+      this.cede = { value: new THREE.Vector2(-1, 0) };               // el sector cuya caída se proyecta, y cuánto ha cedido (0 a 1)
       B.puntos({ position: [pos, 3], aU: [au, 2], aS: [as, 4], aTinte: [tinte, 3] }, `
         attribute vec2 aU;             // dónde está en la pared: a lo largo (0 a 1) y hacia arriba (0 a 1)
-        attribute vec4 aS;             // luz, azar, si es una división entre sectores (1) o la de un sector marcado (2), y si su decisión se destaca
+        attribute vec4 aS;             // luz, azar, si es una división entre sectores, y si su decisión se destaca
         attribute vec3 aTinte;
         uniform sampler2D uMov;
         uniform float uBarre;
         uniform float uResp;
+        uniform vec3 uFoc;
+        uniform vec2 uCede;
         void main() {
           vec4 m = texture2D(uMov, vec2(aU.x, 0.5));
-          float d = m.r, g = m.g, lado = (aU.x - 0.5) * 2.0;
+          float d = m.r, g = m.g, lado = (aU.x - 0.5) * 2.0, sec = aU.x * ${n.toFixed(1)};
+          float marca = aS.z;
+          float miraA = 1.0 - step(marca > 0.5 ? 0.62 : 0.5, abs(sec - (uFoc.x + 0.5)));
+          float miraB = 1.0 - step(marca > 0.5 ? 0.62 : 0.5, abs(sec - (uFoc.y + 0.5)));
+          float mira = miraA * (1.0 - uFoc.z) + miraB * uFoc.z;
           float dv = (aU.y - 0.36) / 0.36;
           float afuera = g * (0.3 + 0.7 * exp(-dv * dv));                  // la parte baja se abulta hacia el rajo
           float baja = g * (0.2 + 0.8 * aU.y);                             // la parte alta se hunde
           vec3 p = position + vec3(-lado * 0.3, 0.0, 1.0) * afuera * 1.15 + vec3(0.0, -0.5, 0.0) * baja;
+          // la proyección: el tramo que se mira se desliza hacia el rajo y se desgrana (lo de arriba baja más; los fragmentos caen)
+          float c = uCede.y * (1.0 - step(0.5, abs(sec - (uCede.x + 0.5)))) * step(marca, 0.5);
+          float borde = 1.0 - smoothstep(0.30, 0.5, abs(fract(sec) - 0.5));  // el tramo se rompe más en el centro que en sus orillas
+          float desliza = c * (0.22 + 0.8 * aU.y) * (0.5 + 0.5 * borde);
+          float suelta = step(0.72, aS.y) * c * c;
+          p += vec3(-lado * 0.2, -0.62, 0.8) * desliza + vec3((aS.y - 0.86) * 2.2, -2.6 * aS.y, 1.5 * aS.y) * suelta * (0.4 + 0.6 * aU.y);
           float dr = (aU.x - uBarre) / 0.008;
           float radar = exp(-dr * dr) + (aU.x < uBarre ? 0.3 * exp(-(uBarre - aU.x) / 0.06) : 0.0);    // la franja del radar y su estela
           float k = max(smoothstep(0.04, 0.42, d) * mix(1.0, 0.45, uResp), 0.75 * aS.w * uResp);        // con respuesta manda la decisión, no cuánto se movió
+          k = max(k, 0.9 * mira);
           vec3 caliente = mix(mix(COBRE, ROJO, smoothstep(0.18, 0.55, d)), vec3(1.0, 0.88, 0.74), smoothstep(0.6, 1.0, d));
           vec3 color = mix(mix(ARENA * 0.92, aTinte, uResp * 0.7), mix(caliente, aTinte, uResp), k);
+          color = mix(color, vec3(1.0, 0.66, 0.42), 0.45 * c);
+          color = mix(color, vec3(1.0, 0.9, 0.78), 0.55 * suelta);
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          float marca = aS.z;
           vColor = marca > 0.5 ? vec3(0.96, 0.93, 0.88) : color + ORO * radar * 0.85;
-          vA = marca > 0.5 ? (marca > 1.5 ? 0.55 : 0.07) : (0.07 + 0.3 * aS.x) * (1.0 + 1.6 * k) + radar * 0.6;
+          vA = marca > 0.5 ? mix(0.06, 0.6, mira) : (0.07 + 0.3 * aS.x) * (1.0 + 1.6 * k) * mix(0.72, 1.25, mira) + radar * 0.6;
           gl_PointSize = (marca > 0.5 ? 0.028 : 0.03 + 0.016 * aS.y + 0.022 * k + 0.035 * radar) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
-        }`, { uMov: { value: this.tex }, uBarre: this.barre, uResp: { value: S.respuesta ? 1 : 0 } });
+        }`, { uMov: { value: this.tex }, uBarre: this.barre, uResp: { value: R ? 1 : 0 }, uFoc: this.foc, uCede: this.cede });
 
       // el radar, al otro lado del rajo: se ubica una vez, donde la cámara lo ve abajo a la derecha
       this.encuadre = { az: 0.5, el: 0.2, R: 37, c: [1.0, 3.1, 0.6], dx: -420 };
       B.mirar(this.encuadre.az, this.encuadre.el, this.encuadre.R, this.encuadre.c, this.encuadre.dx);
       const rayo = new THREE.Vector3(0.34, -0.66, 0.5).unproject(B.camera).sub(B.camera.position).normalize();
-      const R = (this.radar = B.camera.position.clone().add(rayo.multiplyScalar(15)).toArray());
+      const Rd = (this.radar = B.camera.position.clone().add(rayo.multiplyScalar(15)).toArray());
       const pr = [];
-      for (let k = 0; k < 26; k++) pr.push(R[0], R[1] - 1.3 + (k / 25) * 1.3, R[2]);                          // el poste
-      for (let k = 0; k < 44; k++) { const a = (k / 44) * 6.2832; pr.push(R[0] + Math.cos(a) * 0.34, R[1] + Math.sin(a) * 0.34, R[2]); }   // la antena
-      for (let k = 0; k < 30; k++) { const a = azar() * 6.2832, q = Math.sqrt(azar()) * 0.32; pr.push(R[0] + Math.cos(a) * q, R[1] + Math.sin(a) * q, R[2]); }
+      for (let k = 0; k < 26; k++) pr.push(Rd[0], Rd[1] - 1.3 + (k / 25) * 1.3, Rd[2]);                          // el poste
+      for (let k = 0; k < 44; k++) { const a = (k / 44) * 6.2832; pr.push(Rd[0] + Math.cos(a) * 0.34, Rd[1] + Math.sin(a) * 0.34, Rd[2]); }   // la antena
+      for (let k = 0; k < 30; k++) { const a = azar() * 6.2832, q = Math.sqrt(azar()) * 0.32; pr.push(Rd[0] + Math.cos(a) * q, Rd[1] + Math.sin(a) * q, Rd[2]); }
       B.puntos({ position: [pr, 3] }, `
         void main() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
@@ -343,249 +346,52 @@
           gl_Position = projectionMatrix * mv;
         }`);
       this.etqRadar = etiquetas(L, 1, 'chica')[0];
-      this.etq = etiquetas(L, this.marcados.length, 'nota');
-      const primero = this.marcados[0];
-      this.etq.forEach(function (e, i) { if (i) e.classList.add(this.marcados[i] < primero ? 'izq' : 'alta'); }, this);
-      if (this.foco >= 0) this.etq[0].classList.add('hilo');          // un hilo une ese sector con su gráfico, que ya dice su nombre
+      this.etqCede = etiquetas(L, 1, 'chica')[0];
+      this.etqCede.classList.add('proyeccion');
       this.tres = B.tres;
     },
-    alAjustar: function () {
-      if (this.B) this.B.ajustar();
-      this.rc = K.razon(1.5); this.cv.width = Math.round(this.cw * this.rc); this.cv.height = Math.round(this.ch * this.rc);
-    },
-    // Con respuesta: un sector que conviene cerrar. Lo que midió el radar (se va dibujando con el recorrido), y desde
-    // «ahora» el abanico de lo que Krylov cree que viene, con su rango de cuánto falta. Todo sale de la curva de la API.
-    abanico: function (h, brota) {
-      const ctx = this.ctx, S = this.S, un = S.unidades[this.foco], R = S.respuesta.unidades[un.id], c = R.curva;
-      const W = this.cw, x0 = 4, x1 = this.zo ? 400 : W - 10, y0 = this.ch - 38, y1 = 104, color = COLOR_CSS[R.estado];
-      const fin = c.t_banda[c.t_banda.length - 1], tope = Math.max.apply(null, c.y) * 2.3;
-      const X = function (t) { return x0 + (t / fin) * (x1 - x0); }, Y = function (v) { return y0 - (K.acotar(v, 0, tope) / tope) * (y0 - y1); };
-      ctx.setTransform(this.rc, 0, 0, this.rc, 0, 0);
-      ctx.clearRect(0, 0, W, this.ch);
-      ctx.textAlign = 'left';
-      ctx.fillStyle = color; ctx.font = '800 42px "Big Shoulders Display", sans-serif';
-      ctx.fillText(nombre(un.id) + ': ' + S.rotulos[R.estado].toLowerCase(), x0, 36);
-      ctx.fillStyle = '#f4efe6'; ctx.font = '600 28px "Instrument Sans", sans-serif';
-      ctx.fillText(this.zo ? this.zo.texto : c.marca.texto, x0, 76);
-      ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
-      const xa = X(c.ahora);
-      ctx.setLineDash([5, 7]); ctx.strokeStyle = '#7d7568'; ctx.beginPath(); ctx.moveTo(xa, y1 - 6); ctx.lineTo(xa, y0); ctx.stroke(); ctx.setLineDash([]);
-      ctx.fillStyle = '#7d7568'; ctx.font = '450 19px "JetBrains Mono", monospace';
-      ctx.fillText(this.zo ? 'MEDIDO' : 'LO QUE MIDIÓ EL RADAR', x0, y0 + 30);
-      ctx.textAlign = 'right'; ctx.fillText(this.zo ? 'LO QUE VIENE' : 'LO QUE PUEDE VENIR', x1, y0 + 30);
-      if (this.zo) K.zoom.dibujar(ctx, 456, 92, W - 466, this.ch - 92, this.zo, this._bz == null ? 1 : this._bz);      // cuántas horas faltan: la distribución entera
-      if (brota > 0) {                                                    // el abanico: de lo mejor a lo peor que puede pasar
-        ctx.globalAlpha = brota;
-        ctx.fillStyle = color + '55';
-        ctx.beginPath(); ctx.moveTo(xa, Y(c.y[c.y.length - 1]));
-        for (let i = 0; i < c.t_banda.length; i++) ctx.lineTo(X(c.t_banda[i]), Y(c.alto[i]));
-        for (let i = c.t_banda.length - 1; i >= 0; i--) ctx.lineTo(X(c.t_banda[i]), Y(c.bajo[i]));
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.setLineDash([7, 6]); ctx.beginPath(); ctx.moveTo(xa, Y(c.y[c.y.length - 1]));
-        for (let i = 0; i < c.t_banda.length; i++) ctx.lineTo(X(c.t_banda[i]), Y(c.medio[i]));
-        ctx.stroke(); ctx.setLineDash([]);
-        ctx.globalAlpha = 1;
-      }
-      let ultimo = null;
-      ctx.strokeStyle = '#e9dfcc'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
-      for (let i = 0; i < c.t.length && c.t[i] <= h + 0.01; i++) { const x = X(c.t[i]), y = Y(c.y[i]); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); ultimo = [x, y]; }
-      ctx.stroke();
-      if (ultimo) { ctx.fillStyle = '#e9dfcc'; ctx.beginPath(); ctx.arc(ultimo[0], ultimo[1], 6, 0, 6.2832); ctx.fill(); }
-    },
-    curva: function (h, ahora) {
-      const ctx = this.ctx, S = this.S, x0 = 2, x1 = 500, y0 = 212, y1 = 52;
-      ctx.setTransform(this.rc, 0, 0, this.rc, 0, 0);
-      ctx.clearRect(0, 0, 800, 250);
-      ctx.fillStyle = '#b9b0a1'; ctx.font = '500 25px "Instrument Sans", sans-serif'; ctx.textAlign = 'left';
-      ctx.fillText('Dos sectores de la misma pared, hora a hora:', x0, 24);
-      ctx.strokeStyle = '#3a352e'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke();
-      ctx.fillStyle = '#7d7568'; ctx.font = '450 19px "JetBrains Mono", monospace';
-      ctx.fillText('0 h', x0, y0 + 30); ctx.textAlign = 'right'; ctx.fillText(Math.round(this.horas) + ' h', x1, y0 + 30);
-      const cabezas = [[this.calmo, '#9a9080'], [this.marcados[0], '#ff7a50']].map(function (par) {
-        const pts = S.unidades[par[0]].puntos;
-        let ultimo = null;
-        ctx.strokeStyle = par[1]; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.beginPath();
-        for (let i = 0; i < pts.length && pts[i][0] <= h; i++) {
-          const x = x0 + (pts[i][0] / this.horas) * (x1 - x0), y = y0 - (Math.max(0, pts[i][1]) / this.maximo) * (y0 - y1);
-          if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
-          ultimo = [x, y];
-        }
-        ctx.stroke();
-        if (ultimo) { ctx.fillStyle = par[1]; ctx.beginPath(); ctx.arc(ultimo[0], ultimo[1], 6, 0, 6.2832); ctx.fill(); }
-        return { u: ultimo, color: par[1], texto: nombre(S.unidades[par[0]].id) + ': ' + K.coma(Math.max(0, ahora[par[0]]), 1) + ' mm' };
-      }, this);
-      if (cabezas[0].u && cabezas[1].u) {
-        const yCalmo = cabezas[0].u[1] + 8, yMovido = Math.min(cabezas[1].u[1] + 8, yCalmo - 32);
-        ctx.textAlign = 'left'; ctx.font = '600 25px "Instrument Sans", sans-serif';
-        ctx.fillStyle = cabezas[0].color; ctx.fillText(cabezas[0].texto, cabezas[0].u[0] + 16, yCalmo);
-        ctx.fillStyle = cabezas[1].color; ctx.fillText(cabezas[1].texto, cabezas[1].u[0] + 16, yMovido);
-      }
-    },
-    cuadro: function (t) {
-      const S = this.S, n = this.n, DURA = 8, ESPERA = 8, k = recorrido(t - 0.8, DURA, ESPERA), h = k * this.horas;
-      const ciclo = DURA + ESPERA, x = (((t - 0.8) % ciclo) + ciclo) % ciclo;
-      reloj(this.reloj, Math.floor(h) + ' h');
-      const ahora = [];
+    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.F) K.foco.ajustar(this.F); },
+    entrar: function () { if (this.F) K.foco.reiniciar(this.F); this._cede = 0; },
+    cuadro: function (t, dt) {
+      const S = this.S, n = this.n, F = this.F, yo = this, DURA = 8, ESPERA = 8, k = recorrido(t - 0.8, DURA, ESPERA), h = k * this.horas;
+      if (!this.tres) { K.foco.cuadro(F, t, function () { return null; }); return; }
+      const B = this.B, E = this.encuadre, ahora = [];
       for (let s = 0; s < n; s++) ahora[s] = leer(S.unidades[s].puntos, h, 0);
-      this._bz = K.quieto ? 1 : K.suave((t - 1.4) / 0.8);
-      if (this.foco >= 0) this.abanico(h, K.quieto ? 1 : (k >= 1 ? K.acotar((x - DURA) / 0.7, 0, 1) : 0));
-      else this.curva(h, ahora);
-      if (!this.tres) return;
-      const B = this.B, E = this.encuadre;
       let crudo = ahora.map(function (v) { return K.acotar(v / this.maximo, 0, 1); }, this), liso = crudo;
       for (let vez = 0; vez < 4; vez++) liso = liso.map(function (v, s, lista) { return (lista[Math.max(0, s - 1)] + 2 * v + lista[Math.min(n - 1, s + 1)]) / 4; });
       for (let s = 0; s < n; s++) { this.mov[s * 4] = Math.round(crudo[s] * 255); this.mov[s * 4 + 1] = Math.round(liso[s] * 255); }
       this.tex.needsUpdate = true;
       B.u.uT.value = t;
       const ux = (this.barre.value = ((t * 0.2) % 1.25) - 0.12);              // el barrido del radar
-      // la cámara se acerca un poco a medida que la pared se mueve
-      const cerca = h / this.horas;
-      B.mirar(E.az + Math.sin(t * 0.17) * 0.035, E.el, E.R - 2.5 * cerca, E.c, E.dx);
-      const ph = this.haces.geometry.attributes.position, R = this.radar;
+      // la cámara acompaña al foco: gira un poco hacia el sector que se mira
+      const ia = this.indice[F.a], ib = F.b == null ? ia : this.indice[F.b], centro = K.mezcla(ia, ib, F.e) / n - 0.5;
+      // …y se acerca cuando proyecta cómo cede
+      const qx = this.pared(K.acotar(centro + 0.5, 0, 0.999), 0.6), cerca = this._cede || 0;
+      B.mirar(E.az + Math.sin(t * 0.17) * 0.03 - centro * 0.3, E.el, E.R - 1.6 - 9 * cerca, [K.mezcla(E.c[0], qx[0], 0.45 + 0.35 * cerca), E.c[1] - 1.0 * cerca, E.c[2]], E.dx);
+      const ph = this.haces.geometry.attributes.position, Rd = this.radar;
       this.haces.visible = ux >= 0 && ux <= 1;
       if (this.haces.visible) {
         for (let i = 0; i < this.HACES; i++) {
           const q = this.pared(ux, (i + 0.5) / this.HACES);
           for (let j = 0; j < this.TRAMOS; j++) {
             const f = (j + 0.5) / this.TRAMOS, o = (i * this.TRAMOS + j) * 3;
-            ph.array[o] = K.mezcla(R[0], q[0], f); ph.array[o + 1] = K.mezcla(R[1], q[1], f); ph.array[o + 2] = K.mezcla(R[2], q[2], f);
+            ph.array[o] = K.mezcla(Rd[0], q[0], f); ph.array[o + 1] = K.mezcla(Rd[1], q[1], f); ph.array[o + 2] = K.mezcla(Rd[2], q[2], f);
           }
         }
         ph.needsUpdate = true;
       }
-      poner(this.etqRadar, B.camera, R[0] + 0.5, R[1], R[2], '<b>Radar</b>', true);
-      if (this.foco >= 0) {
-        const q = this.pared((this.foco + 0.5) / n, 0.999), pp = K.proyectar(q[0], q[1] + 0.1, q[2], B.camera), el = this.etq[0];
-        el.style.transform = 'translate(' + pp.x.toFixed(1) + 'px,' + pp.y.toFixed(1) + 'px)';
-        el.style.setProperty('--alto', Math.max(0, pp.y - 384).toFixed(0) + 'px');          // hasta el borde de abajo del gráfico
-        el.classList.add('ver');
-      }
-      for (let i = this.foco >= 0 ? 1 : 0; i < this.etq.length; i++) {
-        const s = this.marcados[i], q = this.pared((s + 0.5) / n, 0.999), mm = ahora[s];
-        poner(this.etq[i], B.camera, q[0], q[1] + 0.15, q[2], '<b>' + nombre(S.unidades[s].id) + '</b>', this.foco >= 0 || mm > 0.22 * this.maximo);
-      }
-    },
-  });
-
-  // ============================== 9 · Flotación: las líneas de estanques ==============================
-  K.registrar('flotacion', {
-    tres: null, tQuieto: 20,
-    crear: function (L) {
-      const S = (this.S = K.datos.series.flotacion), n = (this.n = S.unidades.length);
-      llenar(L, S, 'flotacion');
-      this.reloj = L.querySelector('.reloj .num');
-      let celdas = 0, minutos = 0, salto = 0;
-      S.unidades.forEach(function (un) {
-        celdas = Math.max(celdas, un.puntos.length);
-        un.puntos.forEach(function (p, j) { minutos = Math.max(minutos, p[0]); salto = Math.max(salto, p[1] - (j ? un.puntos[j - 1][1] : 0)); });
-      });
-      this.minutos = minutos; this.meta = S.umbral;
-      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
-      this.zid = K.zoom.elegir('flotacion'); this.zo = this.zid && K.zoom.unidad('flotacion', this.zid);
-      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
-      if (!K.gl.ok) return;
-      const B = (this.B = base(28)), azar = K.azar(23);
-      const DX = 2.05, DZ = 1.95, W = 1.55, D = 1.2, H = 1.5, Y0 = -0.9, GH = 2.6;
-      const xDe = function (c) { return (c - (celdas - 1) / 2) * DX - 1.1; }, zDe = function (l) { return (l - (n - 1) / 2) * DZ; };
-      const xG = (this.xG = xDe(celdas - 1) + DX * 0.86);
-      const zG = (this.zG = function (l) { return zDe(l) + D / 2 + 0.42; });      // la canaleta por donde corre lo recuperado
-      this.zDe = zDe; this.Y0 = Y0; this.GH = GH;
-      const pos = [], ab = [], medidas = [], sin = [];
-      for (let l = 0; l < n; l++) {
-        const pts = S.unidades[l].puntos;
-        for (let c = 0; c < celdas; c++) {
-          const x = xDe(c), z = zDe(l), hay = c < pts.length, x0 = x - W / 2, x1 = x + W / 2, z0 = z - D / 2, z1 = z + D / 2, y1 = Y0 + H;
-          (hay ? medidas : sin).push(x0, Y0, z0, x1, Y0, z0, x1, Y0, z0, x1, Y0, z1, x1, Y0, z1, x0, Y0, z1, x0, Y0, z1, x0, Y0, z0,
-            x0, y1, z0, x1, y1, z0, x1, y1, z0, x1, y1, z1, x1, y1, z1, x0, y1, z1, x0, y1, z1, x0, y1, z0,
-            x0, Y0, z0, x0, y1, z0, x1, Y0, z0, x1, y1, z0, x1, Y0, z1, x1, y1, z1, x0, Y0, z1, x0, y1, z1);
-          const rico = hay ? (pts[c][1] - (c ? pts[c - 1][1] : 0)) / salto : 0;          // el cobre que flotó en este estanque
-          for (let i = 0; i < 230; i++) {
-            pos.push(x + (azar() - 0.5) * W * 0.88, azar() * H, z + (azar() - 0.5) * D * 0.88);
-            ab.push(azar(), azar(), rico, hay ? pts[c][0] : -1);
-          }
-        }
-      }
-      B.cordon(medidas, 0.06, 0x8a7f70, 0.34, 0.026);
-      B.cordon(sin, 0.06, 0x8a7f70, 0.13, 0.026);
-      this.minuto = { value: 0 };
-      B.puntos({ position: [pos, 3], aB: [ab, 4] }, `
-        attribute vec4 aB;        // ritmo, fase, cobre que flotó en este estanque, minuto en que se midió (-1: sin medir)
-        uniform float uMin;
-        void main() {
-          float sube = mod(position.y + uT * (0.3 + 0.6 * aB.x), ${H.toFixed(2)});
-          vec3 p = vec3(position.x + sin(uT * 1.3 + aB.y * 30.0) * 0.05, sube + ${Y0.toFixed(2)}, position.z);
-          float medida = aB.w < 0.0 ? 0.0 : smoothstep(aB.w - 2.0, aB.w, uMin);
-          float espuma = smoothstep(${(H * 0.74).toFixed(2)}, ${(H * 0.94).toFixed(2)}, sube);
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          vColor = mix(mix(ARENA * 0.8, OXIDO, medida), mix(ARENA, mix(COBRE, ORO, aB.z), medida), espuma);
-          vA = 0.14 + 0.2 * medida + espuma * (0.2 + 1.1 * medida * (0.3 + 0.7 * aB.z));
-          gl_PointSize = (0.045 + 0.06 * aB.y + espuma * 0.11 * (0.45 + aB.z)) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`, { uMin: this.minuto });
-      // La espuma rebalsa por el borde de cada estanque medido y corre por una canaleta hasta el final de la línea:
-      // es el cobre que se recuperó ahí (más partículas donde flotó más). Así se llena la columna del final.
-      const pr = [], ao = [];
-      for (let l = 0; l < n; l++) {
-        const pts = S.unidades[l].puntos;
-        for (let c = 0; c < pts.length; c++) {
-          const rico = (pts[c][1] - (c ? pts[c - 1][1] : 0)) / salto, cuantas = Math.round(16 + 130 * rico);
-          for (let i = 0; i < cuantas; i++) { pr.push(xDe(c) + (azar() - 0.5) * W * 0.9, Y0 + H, zDe(l) + D / 2); ao.push(azar(), 0.4 + 0.6 * rico, xG, pts[c][0]); }
-        }
-      }
-      B.puntos({ position: [pr, 3], aO: [ao, 4] }, `
-        attribute vec4 aO;        // fase, cuánto cobre flotó ahí, dónde termina la línea, minuto en que se midió ese estanque
-        uniform float uMin;
-        void main() {
-          float u = fract(uT * 0.17 + aO.x);
-          float cae = clamp(u / 0.16, 0.0, 1.0), corre = clamp((u - 0.16) / 0.84, 0.0, 1.0);
-          vec3 p = vec3(mix(position.x, aO.z, corre), position.y - 0.62 * cae * cae, position.z + 0.42 * cae);
-          float medida = smoothstep(aO.w - 1.0, aO.w + 0.5, uMin);
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          vColor = mix(ORO, COBRE, corre);
-          vA = medida * aO.y * (0.2 + 0.8 * sin(3.1416 * u));
-          gl_PointSize = (0.05 + 0.06 * aO.y) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`, { uMin: this.minuto });
-      // al final de cada línea, una columna: el cobre recuperado hasta donde se midió
-      const pg = [], ag = [], tg = [];
-      for (let l = 0; l < n; l++) {
-        const col = tinteDe(S, S.unidades[l].id, [1.0, 0.82, 0.45]);
-        for (let i = 0; i < 64; i++) { pg.push(xG, Y0 + ((i + 0.5) / 64) * GH, zG(l)); ag.push(l, (i + 0.5) / 64); tg.push(col[0], col[1], col[2]); }
-      }
-      this.rec = { value: new Array(n).fill(0) };
-      B.puntos({ position: [pg, 3], aG: [ag, 2], aTinte: [tg, 3] }, `
-        attribute vec2 aG;
-        attribute vec3 aTinte;
-        uniform float uRec[${n}];
-        void main() {
-          float lleno = step(aG.y, uRec[int(aG.x + 0.5)]);
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
-          vColor = mix(ARENA, aTinte, lleno);
-          vA = 0.24 + 0.9 * lleno;
-          gl_PointSize = (0.05 + 0.1 * lleno) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`, { uRec: this.rec });
-      // la meta de la planta, a la misma altura en las ocho columnas
-      const meta = [], yM = Y0 + this.meta * GH;
-      for (let k = 0; k < 40; k++) { const z = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, k / 40), z2 = K.mezcla(zG(0) - 1.1, zG(n - 1) + 1.1, (k + 0.55) / 40); meta.push(xG, yM, z, xG, yM, z2); }
-      B.cordon(meta, 0.04, 0xffffff, 0.9, 0.04);
-      this.tres = B.tres;
-    },
-    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
-    cuadro: function (t) {
-      const S = this.S, m = recorrido(t - 0.6, 9, 6) * (this.minutos + 1.5);
-      reloj(this.reloj, Math.floor(Math.min(m, this.minutos)) + ' min');
-      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
-      if (!this.tres) return;
-      const B = this.B;
-      B.u.uT.value = t;
-      this.minuto.value = m;
-      B.mirar(-0.66 + Math.sin(t * 0.15) * 0.05, 0.5, 46, [1.2, 1.0, 0.4], -415);
-      for (let l = 0; l < this.n; l++) {
-        const pts = S.unidades[l].puntos, r = m < 0.4 ? 0 : leer(pts, m, 0);
-        this.rec.value[l] = r;
-      }
-      if (this.zoom) { const q = K.proyectar(this.xG, this.Y0 + this.rec.value[this.zi] * this.GH + 0.12, this.zG(this.zi), B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, t > 1.6 || K.quieto); }
+      poner(this.etqRadar, B.camera, Rd[0] + 0.5, Rd[1], Rd[2], '<b>Radar</b>', true);
+      // el foco y su tarjeta
+      const punto = function (id) { const q = yo.pared((yo.indice[id] + 0.5) / n, 0.62); return K.proyectar(q[0], q[1], q[2], B.camera); };
+      K.foco.cuadro(F, t, punto, 4.6, 1.2);
+      this.foc.value.set(ia, F.b == null ? -1 : ib, F.e);
+      // la proyección: mientras el foco está detenido en un sector que conviene cerrar, ese tramo cede; al irse, vuelve
+      const estado = F.fichas[F.a].estado, cuanto = estado === 'actuar' ? 1 : estado === 'en_duda' ? 0.22 : 0;
+      const meta = K.quieto ? cuanto * 0.8 : F.b == null ? cuanto * K.suave((t - 1.6 - F.t0 - 0.7) / 2.6) : 0;
+      this._cede = K.quieto ? meta : this._cede + (meta - this._cede) * Math.min(1, (dt || 0) * (meta > this._cede ? 6 : 3.2));
+      this.cede.value.set(ia, this._cede);
+      const qc = this.pared((ia + 0.5) / n, 0.999);
+      poner(this.etqCede, B.camera, qc[0], qc[1] + 0.35, qc[2], 'Proyección: así cede si sigue acelerando', estado === 'actuar' && this._cede > 0.25 && F.b == null);
     },
   });
 
@@ -602,9 +408,11 @@
       this.horas = 0;
       S.unidades.forEach(function (un) { this.horas = Math.max(this.horas, un.puntos[un.puntos.length - 1][0]); }, this);
       this.falla = S.umbral || 1;
-      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
-      this.zid = K.zoom.elegir('flota'); this.zo = this.zid && K.zoom.unidad('flota', this.zid);
-      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
+      // el foco viaja de camión en camión; su tarjeta muestra el riesgo de cada uno con su distribución (js/foco.js)
+      this.F = K.foco.crear(L, 'flota');
+      K.foco.recorrer(this.F, S.unidades.map(function (un) { return un.id; }));
+      this.indice = {}; S.unidades.forEach(function (un, i) { this.indice[un.id] = i; }, this);
+      this.pos = []; this.vistos = [];
       if (!K.gl.ok) return;
       const B = (this.B = base(30)), azar = K.azar(37);
       const ESC = (this.ESC = 0.62), NIVELES = (this.NIVELES = 4), LARGO = (this.LARGO = 48), RUEDA = 0.92, VEL = (this.VEL = 1.0);
@@ -628,8 +436,10 @@
         uniform vec4 uCam[${n}];       // dónde va cada camión (x, y, z) y hacia dónde mira
         uniform vec2 uEst[${n}];       // su desgaste (0 a 1: 1 es la falla) y cuánto se ve
         uniform float uResp;
+        uniform vec3 uFoc;             // el camión que se está mirando, el que viene y cuánto se ha avanzado de uno al otro
         void main() {
           int i = int(aCam + 0.5);
+          float mira = (abs(aCam - uFoc.x) < 0.5 ? 1.0 - uFoc.z : 0.0) + (abs(aCam - uFoc.y) < 0.5 ? uFoc.z : 0.0);
           vec4 c = uCam[i];
           float des = uEst[i].x, rueda = step(0.5, aQ.x) * step(aQ.x, 1.5), foco = step(1.5, aQ.x);
           vec3 p = position;
@@ -644,10 +454,10 @@
           float alerta = smoothstep(0.82, 0.95, des) * (0.5 + 0.5 * sin(uT * 7.0));          // el que está por fallar, parpadea
           vec4 mv = modelViewMatrix * vec4(w, 1.0);
           vColor = foco > 0.5 ? vec3(1.0, 0.95, 0.82) : mix(color, ARENA * 0.9, rueda * 0.55) * (1.0 + 0.9 * alerta);
-          vA = uEst[i].y * (foco > 0.5 ? 1.5 : (0.16 + 0.5 * aQ.y) * frente);
-          gl_PointSize = (foco > 0.5 ? 0.1 : 0.034 + 0.012 * aQ.y) * uEsc / -mv.z;
+          vA = uEst[i].y * (foco > 0.5 ? 1.5 : (0.16 + 0.5 * aQ.y) * frente) * mix(0.5, 1.9, mira);
+          gl_PointSize = (foco > 0.5 ? 0.1 : 0.034 + 0.012 * aQ.y + 0.012 * mira) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
-        }`, { uCam: this.cam, uEst: this.est, uResp: { value: S.respuesta ? 1 : 0 } });
+        }`, { uCam: this.cam, uEst: this.est, uResp: { value: S.respuesta ? 1 : 0 }, uFoc: (this.foc = { value: new THREE.Vector3(-1, -1, 0) }) });
 
       // ---- la rampa: cuatro niveles; de cada uno se dibujan los dos bordes del camino y la pared que sube al siguiente
       const pr = [], ar = [];
@@ -666,16 +476,14 @@
           gl_PointSize = (0.035 + 0.02 * aR.y) * uEsc / -mv.z;
           gl_Position = projectionMatrix * mv;
         }`);
-      this.etq = etiquetas(L, 2, 'nota');
       this.tres = B.tres;
     },
-    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
+    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.F) K.foco.ajustar(this.F); },
+    entrar: function () { if (this.F) { K.foco.reiniciar(this.F); this._ini = false; this.vistos = []; } },
     cuadro: function (t) {
-      const S = this.S, h = recorrido(t - 0.6, 12, 5) * this.horas;
-      reloj(this.reloj, K.miles(Math.floor(h / 10) * 10) + ' h');
-      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
-      if (!this.tres) return;
-      const B = this.B, orden = [], paso = this.LARGO / Math.ceil(this.n / this.NIVELES);
+      const S = this.S, F = this.F, yo = this, h = recorrido(t - 0.6, 12, 5) * this.horas;
+      if (!this.tres) { K.foco.cuadro(F, t, function () { return null; }); return; }
+      const B = this.B, paso = this.LARGO / Math.ceil(this.n / this.NIVELES), borde = this.LARGO / 2 - 5;
       B.u.uT.value = t;
       B.mirar(-0.4 + Math.sin(t * 0.13) * 0.04, 0.2, 26, [4.6, -0.9, -1.0], -450);
       for (let i = 0; i < this.n; i++) {
@@ -684,141 +492,31 @@
         const x = ((((j * paso + N.dir * this.VEL * t + (i % this.NIVELES) * 1.7) % this.LARGO) + this.LARGO) % this.LARGO) - this.LARGO / 2;
         this.cam.value[i].set(x, N.y, N.z, N.dir > 0 ? 0 : Math.PI);
         this.est.value[i].set(des, K.acotar((this.LARGO / 2 - Math.abs(x)) / 5, 0, 1));
-        orden.push([des, i, x, N]);
-        if (this.zoom && i === this.zi) { const q = K.proyectar(x, N.y + 3.35 * this.ESC, N.z, B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, (t > 1.6 || K.quieto) && q.x > 1020 && q.x < 1880); }
+        // dónde está en la pantalla, y si va a seguir a la vista el rato que dura una parada del foco
+        const q = K.proyectar(x, N.y + 2.0 * this.ESC, N.z, B.camera), x6 = x + N.dir * this.VEL * 6;
+        const p = this.pos[i] || (this.pos[i] = {});
+        p.x = q.x; p.y = q.y; p.ve = Math.abs(x) < borde && q.x > 980 && q.x < 1870 && q.y > 130 && q.y < 1000;
+        p.ok = p.ve && Math.abs(x6) < borde && q.x > 1040 && q.x < 1800 && q.y > 170 && q.y < 960;
       }
-      // las etiquetas siguen a los dos camiones más gastados que estén a la vista, lejos del texto y del reloj
-      orden.sort(function (a, b) { return b[0] - a[0]; });
-      let puestas = 0;
-      for (let k = 0; k < orden.length && puestas < this.etq.length; k++) {
-        const o = orden[k], y = o[3].y + 3.35 * this.ESC, q = K.proyectar(o[2], y, o[3].z, B.camera);
-        if (o[0] < 0.8 || q.x < 1020 || q.x > 1560 || q.y < 190 || q.y > 980) continue;
-        if (puestas && Math.abs(q.x - this._x0) < 380 && Math.abs(q.y - this._y0) < 150) continue;       // que no se pisen entre sí
-        if (!puestas) { this._x0 = q.x; this._y0 = q.y; }
-        poner(this.etq[puestas++], B.camera, o[2], y, o[3].z, '<b>' + nombre(S.unidades[o[1]].id) + '</b>cerca de fallar', true);
-      }
-      for (; puestas < this.etq.length; puestas++) this.etq[puestas].classList.remove('ver');
+      // El foco elige el camión siguiente entre los que están a la vista: cambia de color de decisión cuando puede,
+      // y no repite los últimos que mostró.
+      const R = S.respuesta.unidades;
+      const elegir = function (actual) {
+        let mejor = null, nota = -1;
+        for (let i = 0; i < yo.n; i++) {
+          const id = S.unidades[i].id, p = yo.pos[i];
+          if (!p.ok || id === actual || yo.vistos.indexOf(id) >= 0 || !F.fichas[id]) continue;
+          const e = R[id].estado, v = (actual && e !== R[actual].estado ? 4 : 0) + (e === 'en_duda' ? 3 : e === 'actuar' ? 2 : 0) + 1 - Math.abs(p.x - 1420) / 900;
+          if (v > nota) { nota = v; mejor = id; }
+        }
+        if (mejor) { yo.vistos.push(mejor); if (yo.vistos.length > 7) yo.vistos.shift(); }
+        return mejor;
+      };
+      if (!this._ini) { this._ini = true; const id = elegir(null); if (id) F.a = id; }
+      if (F.b == null && !this.pos[this.indice[F.a]].ve) F.t0 = -1e9;          // el que se miraba salió del cuadro: se pasa al siguiente
+      K.foco.cuadro(F, t, function (id) { return yo.pos[yo.indice[id]]; }, 3.6, 1.0, elegir);
+      this.foc.value.set(this.indice[F.a], F.b == null ? -1 : this.indice[F.b], F.e);
     },
   });
 
-  // ============================== 11 · Sismicidad: los túneles después de la explosión ==============================
-  K.registrar('sismicidad', {
-    tres: null, tQuieto: 16,
-    crear: function (L) {
-      const S = (this.S = K.datos.series.sismicidad), n = (this.n = S.unidades.length);
-      llenar(L, S, 'sismicidad');
-      this.reloj = L.querySelector('.reloj .num');
-      this.horas = S.horizonte || 6;
-      this.fuerte = S.umbral == null ? 1 : S.umbral;
-      // el zoom: una unidad fija, con la distribución a posteriori de lo que se decide en ella (js/zoom.js)
-      this.zid = K.zoom.elegir('sismicidad'); this.zo = this.zid && K.zoom.unidad('sismicidad', this.zid);
-      if (this.zo) { this.zoom = K.zoom.crear(L, 640, 270); L.classList.add('con-zoom'); K.zoom.enfocar(L, this.zid); this.zi = S.unidades.map(function (un) { return un.id; }).indexOf(this.zid); }
-      if (!K.gl.ok) return;
-      const B = (this.B = base(30)), azar = K.azar(53), LARGO = 5.6;
-      const arco = function (salida, cx, cy, cz, radio, alZ) {
-        for (let j = 0; j < 12; j++) {
-          const a = (j / 12) * Math.PI, b = ((j + 1) / 12) * Math.PI;
-          if (alZ) salida.push(cx, cy + Math.sin(a) * radio, cz + Math.cos(a) * radio, cx, cy + Math.sin(b) * radio, cz + Math.cos(b) * radio);
-          else salida.push(cx + Math.cos(a) * radio, cy + Math.sin(a) * radio, cz, cx + Math.cos(b) * radio, cy + Math.sin(b) * radio, cz);
-        }
-      };
-      // el túnel principal, a lo largo; de él salen los ocho sectores, cuatro a cada lado
-      const principal = [];
-      for (let k = 0; k <= 22; k++) arco(principal, -9 + k * 0.82, -0.5, 0, 0.82, true);
-      principal.push(-9, -0.5, -0.82, 9.04, -0.5, -0.82, -9, -0.5, 0.82, 9.04, -0.5, 0.82);
-      B.cordon(principal, 0.045, 0x8a7f70, 0.42, 0.034);
-      this.sector = [];
-      const pe = [], dir = [], ev = [];
-      this.eventos = [];
-      for (let k = 0; k < n; k++) {
-        const x = -6.6 + Math.floor(k / 2) * 4.4, lado = k % 2 ? 1 : -1, v = [];
-        for (let j = 0; j <= 7; j++) arco(v, x, -0.5, lado * (0.95 + j * (LARGO / 7)), 0.7, false);
-        v.push(x - 0.7, -0.5, lado * 0.95, x - 0.7, -0.5, lado * (0.95 + LARGO), x + 0.7, -0.5, lado * 0.95, x + 0.7, -0.5, lado * (0.95 + LARGO));
-        const tunel = B.cordon(v, 0.045, 0x8a7f70, 0.5, 0.04), tinte = tinteDe(S, S.unidades[k].id, null);
-        this.sector.push({ x: x, lado: lado, fin: lado * (0.95 + LARGO), linea: tunel, tinte: tinte, horas: [] });
-        S.unidades[k].puntos.forEach(function (p) {
-          const a = azar() * 6.2832, r = 0.95 + azar() * 1.35, c = [x + Math.cos(a) * r * 1.15, 0.1 + Math.sin(a) * r * 0.85, lado * (1.3 + azar() * (LARGO - 0.7))];
-          this.sector[k].horas.push(p[0]);
-          if (p[1] >= this.fuerte) this.eventos.push({ hora: p[0], mag: p[1], sector: k, c: c });
-          pe.push(c[0], c[1], c[2]); dir.push(0, 0, 0); ev.push(p[0], p[1], 0);                  // la brasa que queda
-          for (let i = 0; i < 44; i++) {                                                       // la onda que se abre
-            const u = 2 * azar() - 1, b = azar() * 6.2832, q = Math.sqrt(1 - u * u);
-            pe.push(c[0], c[1], c[2]); dir.push(q * Math.cos(b), u, q * Math.sin(b)); ev.push(p[0], p[1], 1);
-          }
-        }, this);
-      }
-      this.hora = { value: 0 }; this.extra = { value: 0 };
-      const tiempos = { uHora: this.hora, uExtra: this.extra, uSeg: { value: 13 / this.horas }, uFuerte: { value: this.fuerte } };
-      B.puntos({ position: [pe, 3], aDir: [dir, 3], aE: [ev, 3] }, `
-        attribute vec3 aDir;
-        attribute vec3 aE;             // la hora del temblor, su magnitud y si este punto es parte de la onda
-        uniform float uHora;
-        uniform float uExtra;
-        uniform float uSeg;
-        uniform float uFuerte;
-        void main() {
-          float edad = (uHora - aE.x) * uSeg + uExtra;                       // segundos de animación desde el temblor
-          float mag = clamp((aE.y + 1.0) / 2.3, 0.0, 1.0), fuerte = step(uFuerte, aE.y);
-          float nace = step(aE.x, uHora);
-          float radio = (0.3 + 1.5 * mag + 2.4 * fuerte) * (1.0 - exp(-edad * 2.4));
-          vec4 mv = modelViewMatrix * vec4(position + aDir * radio, 1.0);
-          float onda = aE.z;
-          vColor = mix(mix(COBRE, ORO, exp(-edad * 1.6)), ROJO, fuerte);
-          vA = nace * mix(0.62 + 0.5 * mag + 0.6 * fuerte + 1.2 * exp(-edad * 1.4), (0.45 + 0.7 * mag + fuerte) * exp(-edad * (1.9 - 1.1 * fuerte)), onda);
-          gl_PointSize = mix((0.15 + 0.3 * mag + 0.24 * fuerte) * (1.0 + 1.5 * exp(-edad * 3.0)), 0.07 + 0.07 * mag + 0.08 * fuerte, onda) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`, tiempos);
-      // la explosión que lo empieza todo, en el frente del túnel principal
-      const frente = (this.frente = [9.3, 0.0, 0]), px = [], dx = [];
-      for (let i = 0; i < 420; i++) { const u = 2 * azar() - 1, b = azar() * 6.2832, q = Math.sqrt(1 - u * u); px.push(frente[0], frente[1], frente[2]); dx.push(q * Math.cos(b), u, q * Math.sin(b), 0.4 + azar() * 0.6); }
-      B.puntos({ position: [px, 3], aD: [dx, 4] }, `
-        attribute vec4 aD;
-        uniform float uHora;
-        uniform float uExtra;
-        uniform float uSeg;
-        void main() {
-          float edad = uHora * uSeg + uExtra;
-          vec4 mv = modelViewMatrix * vec4(position + aD.xyz * aD.w * 4.2 * (1.0 - exp(-edad * 1.5)), 1.0);
-          vColor = mix(vec3(1.0, 0.95, 0.85), COBRE, 1.0 - exp(-edad * 1.2));
-          vA = step(0.0005, uHora) * 1.5 * exp(-edad * 0.95);
-          gl_PointSize = (0.07 + 0.1 * aD.w) * uEsc / -mv.z;
-          gl_Position = projectionMatrix * mv;
-        }`, tiempos);
-      // la etiqueta del temblor va al lado de su destello, chica y sin tallo: así no cruza la tarjeta del zoom
-      this.etqFuerte = etiquetas(L, Math.min(2, this.eventos.length), 'chica');
-      this.etqFrente = etiquetas(L, 1, 'nota')[0];
-      this.etqFrente.classList.add('izq');
-      this.gris = new THREE.Color(0x8a7f70); this.vivo = new THREE.Color(0xf0a060);
-      this.tres = B.tres;
-    },
-    alAjustar: function () { if (this.B) this.B.ajustar(); if (this.zoom) K.zoom.ajustar(this.zoom); },
-    cuadro: function (t) {
-      const S = this.S, DURA = 13, ESPERA = 4.5, k = recorrido(t - 0.7, DURA, ESPERA), h = k * this.horas;
-      const min = Math.floor(h * 60);
-      reloj(this.reloj, Math.floor(min / 60) + ' h ' + (min % 60 < 10 ? '0' : '') + (min % 60) + ' min');
-      if (this.zoom) K.zoom.pintar(this.zoom, this.zo, K.quieto ? 1 : K.suave((t - 1.4) / 0.8));
-      if (!this.tres) return;
-      const B = this.B, ciclo = DURA + ESPERA, x = (((t - 0.7) % ciclo) + ciclo) % ciclo;
-      B.u.uT.value = t;
-      this.hora.value = h;
-      this.extra.value = K.quieto ? 0.5 : (k >= 1 ? x - DURA : 0);          // en el final, las ondas siguen apagándose
-      B.mirar(0.42 + Math.sin(t * 0.16) * 0.07, 0.55, 40, [0.2, 0.0, 0], -410);
-      const segPorHora = DURA / this.horas;
-      for (let i = 0; i < this.n; i++) {
-        const s = this.sector[i];
-        let cuenta = 0, actividad = 0;
-        for (let j = 0; j < s.horas.length; j++) if (s.horas[j] <= h) { cuenta++; actividad += Math.exp(-((h - s.horas[j]) * segPorHora + this.extra.value) / 1.1); }
-        const a = K.acotar(actividad, 0, 1);
-        if (s.tinte) s.linea.color.setRGB(s.tinte[0], s.tinte[1], s.tinte[2]);
-        else s.linea.color.copy(this.gris).lerp(this.vivo, a);
-        s.linea.alfa.value = 0.4 + 0.5 * a;
-      }
-      for (let i = 0; i < this.etqFuerte.length; i++) {
-        const e = this.eventos[i];
-        poner(this.etqFuerte[i], B.camera, e.c[0], e.c[1], e.c[2], '<b>Temblor fuerte</b>', h >= e.hora);
-      }
-      if (this.zoom) { const z = this.sector[this.zi], q = K.proyectar(z.x, 0.25, z.fin * 0.6, B.camera); K.zoom.hilar(this.zoom, q.x, q.y, { x0: 1190, x1: 1790, y: 364 }, t > 1.6 || K.quieto); }
-      poner(this.etqFrente, B.camera, this.frente[0], this.frente[1] + 0.9, this.frente[2], '<b>Explosión</b>hora cero', h > 0 && h < this.horas * 0.14);
-    },
-  });
 })();

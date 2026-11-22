@@ -119,7 +119,7 @@ html, body {
 [data-hasta].ido { opacity: 0 !important; transform: translateY(-20px) !important; filter: blur(6px) !important; transition-delay: 0s !important; transition-duration: .2s !important; }
 [data-paso="1"], [data-paso="2"] { --d: .26s; transition-delay: var(--d); }
 
-.quieto [data-paso], .quieto .lamina, .quieto #gl, .quieto #avance, .quieto .etq, .quieto #l-mundos .velo, .quieto #l-mundos .velo2, .quieto #l-leyes .ranking .fila { transition: none !important; }
+.quieto [data-paso], .quieto .lamina, .quieto #gl, .quieto #avance, .quieto .etq, .quieto #l-leyes .ranking .fila { transition: none !important; }
 .quieto * { animation: none !important; }
 
 /* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
@@ -252,18 +252,19 @@ html, body {
    3 · Mundos simulados
    ===================================================================== */
 
-#l-mundos .velo { position: absolute; inset: 0; background: radial-gradient(1000px 440px at 50% 45%, #0b0a09f2 0%, #0b0a09d9 55%, #0b0a0940 85%, transparent 100%); transition: opacity .7s ease; }
-#l-mundos .velo2 { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f5 0%, #0b0a09bf 40%, transparent 66%); opacity: 0; transition: opacity .9s ease; }
-#l-mundos[data-paso-actual="1"] .velo2 { opacity: 1; }
-#l-mundos[data-paso-actual="1"] .velo { opacity: 0; }
-#l-mundos .centro { left: 0; right: 0; top: 170px; text-align: center; }
+#l-mundos .velo { position: absolute; inset: 0; background: radial-gradient(1080px 560px at 50% 48%, #0b0a09f5 0%, #0b0a09e0 55%, #0b0a0940 86%, transparent 100%); }
+#l-mundos .centro { left: 0; right: 0; top: 140px; text-align: center; }
 #l-mundos .centro .p { color: var(--tinta); font-size: 46px; }
-#l-mundos .numero { font-size: 400px; color: var(--cobre); margin-top: 6px; }
-#l-mundos .centro .t3 { font-size: 96px; margin-top: -4px; }
-#l-mundos .centro .p.sub { margin-top: 22px; color: var(--suave); font-size: 40px; }
-#l-mundos .despues { left: 110px; top: 230px; width: 980px; }
-#l-mundos .despues .p { margin-top: 34px; width: 860px; font-size: 44px; }
-#l-mundos .despues .nombre { margin-top: 64px; width: 820px; font-size: 30px; line-height: 1.35; color: var(--tenue); border-left: 4px solid var(--cobre-hondo); padding-left: 26px; }
+#l-mundos .numero { font-size: 340px; color: var(--cobre); margin-top: 10px; }
+#l-mundos .centro .t3 { font-size: 96px; margin-top: 2px; }
+/* de qué está hecha la suma: una cifra por modelo; aparece cuando el contador ya frenó */
+#l-mundos .desglose { display: flex; justify-content: center; gap: 62px; margin-top: 34px; opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .7s cubic-bezier(.16, 1, .3, 1); }
+#l-mundos .desglose.ver { opacity: 1; transform: none; }
+#l-mundos .desglose > div { display: grid; gap: 6px; justify-items: center; }
+#l-mundos .desglose .num { font-size: 66px; color: var(--tinta); }
+#l-mundos .desglose span { font-size: 27px; color: var(--suave); }
+#l-mundos .centro .p.sub { margin-top: 30px; color: var(--suave); font-size: 36px; }
+.quieto #l-mundos .desglose { transition: none; }
 
 /* =====================================================================
    5 · Leyes: el terreno
@@ -323,16 +324,11 @@ html, body {
    ===================================================================== */
 
 #l-vision .cabeza { left: 110px; top: 100px; width: 1700px; }
+#l-vision .cabeza .t2 { font-size: 98px; white-space: nowrap; }
 #l-vision .cabeza .p { margin-top: 14px; }
-#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(5, 1fr); }
-#l-vision .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
-#l-vision .cinco .t3 { font-size: 50px; line-height: 1.02; }
-#l-vision .cinco .quien { font-size: 25px; line-height: 1.2; color: var(--cobre); margin-top: 12px; }
-#l-vision .cinco .estado { font-size: 22px; }
-#l-vision .cinco .responde .estado { color: var(--no-actuar); }
-#l-vision .cinco .precalculado .estado { color: var(--oro); }
-#l-vision .cinco .ruta .estado { color: var(--tenue); }
-#l-vision .cinco .responde { border-top-color: var(--no-actuar); }
+#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(6, 1fr); }
+#l-vision .cinco > div { padding-right: 22px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
+#l-vision .cinco .t3 { font-size: 46px; line-height: 1.04; }
 #l-vision .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
 
 /* =====================================================================
@@ -359,6 +355,21 @@ html, body {
 #l-arquitectura .puente path.hilo { stroke: #f4efe680; stroke-dasharray: 8 8; }
 #l-arquitectura .a circle.gota { fill: var(--cobre); }
 #l-arquitectura .b circle.gota { fill: var(--oxido); }
+/* por pasos: primero lo que se hace una vez; después se enciende lo que pasa con cada dataset; al final, la ficha */
+#l-arquitectura svg { transition: opacity .45s ease; }
+#l-arquitectura .b, #l-arquitectura .zona-b { transition: opacity .6s ease; }
+#l-arquitectura[data-paso-actual="0"] .b, #l-arquitectura[data-paso-actual="0"] .zona-b { opacity: .16; }
+#l-arquitectura[data-paso-actual="0"] .b circle.gota { visibility: hidden; }
+#l-arquitectura[data-paso-actual="2"] svg { opacity: 0; }
+#l-arquitectura .ficha { left: 110px; right: 110px; top: 210px; display: grid; }
+#l-arquitectura .ficha .fila { display: grid; grid-template-columns: 300px 1fr 300px 300px 240px; align-items: baseline; column-gap: 30px; border-top: 1.5px solid var(--linea); padding: 18px 0 12px; }
+#l-arquitectura .ficha .fila.cabeza { border-top: 0; padding: 0 0 12px; font-size: 25px; color: var(--tenue); }
+#l-arquitectura .ficha .fila > :nth-child(n+3) { text-align: right; }
+#l-arquitectura .ficha .t3 { font-size: 52px; }
+#l-arquitectura .ficha .p { font-size: 31px; }
+#l-arquitectura .ficha .num { font-size: 54px; color: var(--tinta); }
+#l-arquitectura .ficha .num.cobre { color: var(--cobre); }
+.quieto #l-arquitectura svg, .quieto #l-arquitectura .b, .quieto #l-arquitectura .zona-b { transition: none; }
 #l-arquitectura .titulo { left: 110px; top: 64px; }
 #l-arquitectura .titulo .t3 { font-size: 64px; }
 #l-arquitectura .sello { position: absolute; left: 110px; right: 110px; bottom: 92px; display: flex; justify-content: space-between; }
@@ -387,23 +398,31 @@ html, body {
 
 #l-leyes .lateral { top: 452px; }
 #l-leyes .lateral .partes { font-size: 30px; color: var(--tinta); margin-bottom: 14px; }
-#l-leyes .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 13px; }
-#l-leyes .columna .t2 { font-size: 68px; }
-#l-leyes .uno { display: grid; gap: 13px; align-content: start; }
-#l-leyes .uno .p.entrega { font-size: 29px; }
-#l-leyes .perforo .t3 { font-size: 92px; }
+#l-leyes .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+#l-leyes .columna .t2 { font-size: 84px; }
+#l-leyes .perforo .t3 { font-size: 104px; }
 #l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
 #l-leyes .perforo .p b { color: var(--tinta); }
-#l-leyes .perforo .ranking { position: static; width: 600px; margin-top: 18px; }
-#l-leyes .perforo .ranking .fila { padding: 8px 0 2px; }
-#l-leyes .perforo .ranking .fila .letra, #l-leyes .perforo .ranking .fila .num { font-size: 58px; }
-#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 110px; }
+/* los tres lugares: la letra, una barra con lo que aporta una muestra ahí y el número, con A = 100 */
+#l-leyes .perforo .ranking { position: static; width: 760px; margin-top: 26px; }
+#l-leyes .perforo .ranking .fila { display: grid; grid-template-columns: 90px 1fr 130px; align-items: center; column-gap: 22px; padding: 12px 0 8px; }
+#l-leyes .perforo .ranking .fila .letra, #l-leyes .perforo .ranking .fila .num { font-size: 64px; }
+#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 100px; }
+#l-leyes .perforo .ranking .fila .num { text-align: right; }
+#l-leyes .perforo .ranking .riel { position: relative; height: 16px; background: var(--linea); }
+#l-leyes .perforo .ranking .riel i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--suave); transform: scaleX(0); transform-origin: 0 50%; transition: transform .9s cubic-bezier(.16, 1, .3, 1) .15s; }
+#l-leyes .perforo .ranking .fila.a .riel { height: 24px; }
+#l-leyes .perforo .ranking .fila.a .riel i { background: var(--oro); }
+#l-leyes .perforo .ranking .fila.ver .riel i { transform: none; }
+.quieto #l-leyes .perforo .ranking .riel i { transition: none; }
+#l-leyes .perforo .ranking .nota { font-size: 26px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 14px; margin-top: 0; }
 
 /* =====================================================================
    1 · El valor, a primera vista
    ===================================================================== */
 
-#l-valor .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09e6 38%, #0b0a0966 52%, transparent 64%); }
+/* el suelo sigue bajo el texto: el velo lo oscurece lo justo para que se lea */
+#l-valor .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09e6 0%, #0b0a09cc 34%, #0b0a0966 50%, transparent 64%); }
 #l-valor .portada { left: 110px; top: 0; bottom: 0; width: 1000px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 30px; }
 /* la «y» de Krylov baja mucho: su línea es alta y lo que sigue queda bien separado */
 #l-valor .portada .t1 { font-size: 310px; line-height: 1.16; letter-spacing: .02em; margin-top: -40px; }
@@ -415,23 +434,20 @@ html, body {
    ===================================================================== */
 
 /* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
-.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09 44%, #0b0a09a0 49%, transparent 55%); }
+.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09 0%, #0b0a09 46%, #0b0a09a0 51%, transparent 57%); }
 .sobre-serie .capa-etq { position: absolute; inset: 0; }
-/* los camiones llenan toda la derecha: bajo la tarjeta del zoom el fondo los tapa, para que la curva se lea */
-#l-flota.con-zoom .velo { background: linear-gradient(180deg, #0b0a09 0%, #0b0a09 31%, #0b0a09b3 36%, transparent 43%), linear-gradient(90deg, #0b0a09 0%, #0b0a09 44%, #0b0a09a0 49%, transparent 55%); }
-.sobre-serie canvas.curva { position: absolute; left: 110px; bottom: 100px; width: 800px; height: 250px; }
-/* cuando la red respondió, el gráfico de la pared va arriba a la derecha: un sector que conviene cerrar y cuánto le falta */
-#l-taludes.con-respuesta canvas.curva { left: auto; right: 110px; bottom: auto; top: 86px; width: 860px; height: 290px; }
-#l-taludes.con-respuesta .reloj { display: none; }
-.sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 13px; }
-.sobre-serie .columna .t2 { font-size: 68px; }
-.sobre-serie .columna > .p { font-size: 29px; width: 790px; }
-/* sin columna de valores, el gráfico no se estira hasta donde el fondo ya deja ver la escena */
-.sobre-serie .intervalos.sin-valores { --val: 70px; }
-/* el reloj del recorrido: chico, al pie de la columna (lo que se ve es el archivo pasando en el tiempo) */
-.sobre-serie .reloj { display: flex; align-items: baseline; gap: 14px; margin-top: 6px; }
-.sobre-serie .reloj .num { font-size: 36px; color: var(--tenue); }
-.sobre-serie .reloj .dato { font-size: 19px; }
+/* la columna: la pregunta y, debajo, la tarjeta con lo que Krylov responde en el punto que se está mirando (js/foco.js) */
+.sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+.sobre-serie .columna .t2 { font-size: 84px; }
+.lamina canvas.foco { display: block; width: 780px; height: 560px; pointer-events: none; }
+/* el hilo va de la tarjeta al punto de la escena; el punto late */
+.hilo-foco { position: absolute; left: 0; top: 0; height: 2px; margin-top: -1px; transform-origin: 0 50%; background: linear-gradient(90deg, #f4efe600, #f4efe6 22%); opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
+.hilo-foco.ver { opacity: .92; }
+.hilo-foco i { position: absolute; right: -8px; top: -7px; width: 16px; height: 16px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 3px #0b0a09; }
+.hilo-foco i::after { content: ""; position: absolute; inset: -12px; border-radius: 50%; border: 2px solid var(--tinta); animation: foco-late 1.9s cubic-bezier(.16, 1, .3, 1) infinite; }
+@keyframes foco-late { from { transform: scale(.45); opacity: .95; } to { transform: scale(1.75); opacity: 0; } }
+.quieto .hilo-foco { transition: none; }
+.pausado .hilo-foco i::after { animation-play-state: paused; }
 
 /* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */
 .etq.nota { width: 0; height: 0; }
@@ -451,6 +467,8 @@ html, body {
 .etq.chica > div { position: absolute; left: 12px; top: -15px; font-family: var(--mono); font-size: 21px; letter-spacing: .02em; color: var(--suave); text-shadow: 0 0 8px #000, 0 2px 12px #000, 0 0 3px #000; }
 .etq.chica b { color: var(--tinta); font-weight: 600; }
 .etq.chica.meta > div { left: auto; right: 14px; color: #fff; font-weight: 600; }
+/* la proyección de la pared: su rótulo va centrado sobre el tramo que cede */
+.etq.chica.proyeccion > div { left: 0; top: -44px; transform: translateX(-50%); font-family: var(--texto); font-size: 23px; font-weight: 600; letter-spacing: 0; color: var(--tinta); }
 
 /* =====================================================================
    10 · Cierre
@@ -459,6 +477,7 @@ html, body {
 #l-cierre canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
 #l-cierre .izq { left: 110px; top: 96px; bottom: 110px; width: 930px; display: flex; flex-direction: column; justify-content: space-between; gap: 30px; }
 #l-cierre .frase .t2 { font-size: 84px; }
+#l-cierre .frase .t2 .cobre { display: block; }
 #l-cierre .frase .p { margin-top: 28px; font-size: 34px; width: 880px; }
 #l-cierre .mientras { left: 1110px; top: 96px; width: 700px; }
 #l-cierre .mientras .p { font-size: 34px; color: var(--tinta); }
@@ -491,23 +510,28 @@ html, body {
    12 · ¿Y cómo sé que acierta?
    ===================================================================== */
 
-#l-confianza canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-/* una fila por modelo: su nombre, la barra de 0 a 1, el número y de cuántas decisiones sale */
-#l-confianza .hoja { left: 110px; right: 110px; top: 92px; bottom: 110px; display: flex; flex-direction: column; gap: 34px; }
+/* una fila por modelo: su nombre, dónde cae su acierto en la escala (el punto) contra lo prometido (la línea) y el número */
+#l-confianza .hoja { left: 110px; right: 110px; top: 92px; bottom: 110px; display: flex; flex-direction: column; gap: 26px; }
 #l-confianza .cabeza .t2 { font-size: 88px; }
-#l-confianza .cabeza .p { font-size: 38px; margin-top: 14px; }
+#l-confianza .cabeza .p { font-size: 36px; margin-top: 14px; width: 1560px; }
 #l-confianza .modelos { display: grid; }
-#l-confianza .modelos .fila { display: grid; grid-template-columns: 330px 1fr 190px 330px; align-items: center; column-gap: 34px; border-top: 1.5px solid var(--linea); padding: 14px 0 10px; }
-#l-confianza .modelos .t3 { font-size: 58px; }
-#l-confianza .modelos .riel { position: relative; height: 22px; background: var(--linea); }
-#l-confianza .modelos .riel i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--cobre); transform: scaleX(0); transform-origin: 0 50%; transition: transform .9s cubic-bezier(.2, .8, .2, 1) var(--d, 0s); }
-#l-confianza .visto .riel i { transform: none; }
-.quieto #l-confianza .riel i { transition: none; }
-#l-confianza .modelos .num { font-size: 96px; color: var(--cobre); text-align: right; }
-#l-confianza .modelos .p { font-size: 29px; }
-#l-confianza .modelos .sin-red .t3 { color: var(--tenue); }
-#l-confianza .modelos .sin-red .riel { background: none; border-top: 2px dashed var(--linea); height: 0; }
-#l-confianza .modelos .sin-red .p { color: var(--tenue); }
+#l-confianza .modelos .fila, #l-confianza .modelos .escala { display: grid; grid-template-columns: 330px 1fr 230px; align-items: center; column-gap: 40px; }
+#l-confianza .modelos .fila { border-top: 1.5px solid var(--linea); height: 80px; }
+#l-confianza .modelos .t3 { font-size: 54px; }
+#l-confianza .modelos .riel { position: relative; height: 100%; }
+#l-confianza .modelos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--linea); }
+#l-confianza .modelos .fila .riel::after { content: ""; position: absolute; left: var(--meta); top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--tinta); }
+#l-confianza .modelos .punto { position: absolute; left: var(--x); top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--cobre); box-shadow: 0 0 0 4px #0b0a09; z-index: 1; transform: translateX(-560px); opacity: 0; transition: transform 1s cubic-bezier(.16, 1, .3, 1) var(--d, 0s), opacity .3s ease var(--d, 0s); }
+#l-confianza .visto .punto { transform: none; opacity: 1; }
+.quieto #l-confianza .punto { transition: none; }
+#l-confianza .modelos .num { font-size: 76px; color: var(--cobre); text-align: right; }
+#l-confianza .modelos .escala { height: 48px; font-size: 24px; color: var(--tenue); }
+#l-confianza .modelos .escala i { position: absolute; bottom: 10px; font-style: normal; font-family: var(--mono); font-size: 20px; }
+#l-confianza .modelos .escala .izq { left: 0; }
+#l-confianza .modelos .escala .der { right: 0; }
+#l-confianza .modelos .escala b { position: absolute; bottom: 8px; transform: translateX(-50%); white-space: nowrap; font-size: 26px; font-weight: 650; color: var(--tinta); }
+#l-confianza .real { font-size: 33px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 20px; white-space: nowrap; }
+#l-confianza .real b { color: var(--tinta); font-weight: 650; }
 
 /* =====================================================================
    Las láminas de preguntas (fuera del recorrido): Q, A, L, M
@@ -519,26 +543,13 @@ html, body {
 .pregunta .cabeza .p { margin-top: 18px; font-size: 35px; width: 1500px; }
 .pregunta .pie .p { font-size: 34px; color: var(--suave); }
 
-/* Q: las cinco figuras de la lámina 6, con quién decide cada cosa */
+/* Q: las seis figuras de la lámina 6, con quién decide cada cosa */
 #l-quien .cabeza, #l-llm .cabeza { left: 110px; top: 84px; width: 1700px; }
-#l-quien .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
-#l-quien .cinco { position: absolute; left: 110px; right: 110px; bottom: 120px; display: grid; grid-template-columns: repeat(5, 1fr); }
-#l-quien .cinco > div { padding-right: 26px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
-#l-quien .cinco .t3 { font-size: 46px; }
-#l-quien .cinco .p { font-size: 27px; color: var(--cobre); margin-top: 10px; }
-
-/* A: el archivo que pide el modelo de cada decisión */
-#l-archivo .modelos { display: grid; }
-#l-archivo .modelos .fila { display: grid; grid-template-columns: 290px 350px 1fr; column-gap: 34px; align-items: center; border-top: 1.5px solid var(--linea); padding: 12px 0 10px; }
-#l-archivo .modelos .t3 { font-size: 50px; }
-#l-archivo .modelos .p { font-size: 27px; line-height: 1.22; }
-#l-archivo .modelos .p .grupos { display: block; color: var(--tinta); }
-#l-archivo .modelos .p b { color: var(--cobre); }
-#l-archivo .modelos .cols { grid-column: 3; font-family: var(--mono); font-size: 19px; color: var(--tenue); margin-top: 4px; white-space: pre-wrap; }
-#l-archivo svg.niveles { width: 350px; height: 68px; grid-row: span 2; }
-#l-archivo svg.niveles circle { fill: var(--cobre); }
-#l-archivo svg.niveles circle.fila { fill: #b9b0a1; }
-#l-archivo svg.niveles path { fill: none; stroke: #e2854a80; stroke-width: 1.5; }
+#l-quien .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 350px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
+#l-quien .cinco { position: absolute; left: 110px; right: 110px; bottom: 120px; display: grid; grid-template-columns: repeat(6, 1fr); }
+#l-quien .cinco > div { padding-right: 22px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
+#l-quien .cinco .t3 { font-size: 42px; line-height: 1.04; }
+#l-quien .cinco .p { font-size: 25px; line-height: 1.24; color: var(--cobre); margin-top: 12px; }
 
 /* L: dos nubes en 3D, cada una con su tiempo */
 #l-llm .lado { top: 650px; width: 640px; }
@@ -552,18 +563,6 @@ html, body {
 #l-llm .lado .dato { margin-top: 2px; }
 #l-llm .pie { left: 150px; right: 150px; bottom: 96px; }
 #l-llm .pie .p { font-size: 27px; color: var(--tenue); }
-
-/* M: los intervalos, y lo que de verdad pasó */
-#l-produccion .intervalos { --nom: 190px; --val: 190px; --alto: 56px; }
-#l-produccion .intervalos .nom { font-size: 33px; }
-#l-produccion .intervalos .val { font-size: 27px; }
-#l-produccion .intervalos .barra { height: 20px; margin-top: -10px; }
-#l-produccion .intervalos .punto { height: 32px; margin-top: -16px; }
-#l-produccion .pie .p { font-size: 29px; }
-#l-produccion .clave { display: inline-block; vertical-align: middle; margin: 0 12px 0 0; }
-#l-produccion .clave.barra { width: 54px; height: 16px; background: var(--no-actuar); }
-#l-produccion .clave.punto { width: 4px; height: 28px; background: #f4efe6; margin-left: 30px; }
-#l-produccion .clave.real { width: 18px; height: 18px; border-radius: 50%; border: 3.5px solid #fff; margin-left: 30px; }
 
 /* El zoom de una unidad (js/zoom.js): la tarjeta con su distribución a posteriori, y el hilo que la une a su punto de la escena */
 .lamina canvas.zoom { position: absolute; right: 110px; top: 86px; width: 640px; height: 270px; pointer-events: none; }

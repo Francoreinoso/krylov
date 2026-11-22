@@ -22,37 +22,6 @@
     cuadro: function (t) { this.v.cuadro(t); },
   });
 
-  // ============================== A · ¿Qué archivo recibe? ==============================
-  const DECISION = { leyes: 'La roca', taludes: 'La pared', flotacion: 'La planta', flota: 'Los camiones', sismicidad: 'Los túneles' };
-  const FILA = {
-    leyes: 'una muestra: dónde está y cuánto arsénico tiene', taludes: 'una lectura del radar: qué sector, a qué hora y cuántos milímetros',
-    flotacion: 'una medición: qué línea, a qué minuto y cuánto cobre lleva recuperado', flota: 'una muestra de aceite: qué camión, con cuántas horas, su desgaste y la exigencia de su ruta',
-    sismicidad: 'un temblor: en qué sector, a qué hora y de qué magnitud',
-  };
-  const QUE = { leyes: 'muestras', taludes: 'lecturas', flotacion: 'mediciones', flota: 'muestras de aceite', sismicidad: 'temblores' };
-  // el dibujo de cómo agrupa el modelo: el conjunto, sus unidades y las filas de cada una
-  function niveles(m) {
-    const n = m.unidades ? Math.min(m.unidades, 7) : 0;
-    let s = '<svg viewBox="0 0 330 64" class="niveles"><circle cx="16" cy="32" r="13"/>';
-    for (let i = 0; i < n; i++) {
-      const y = 8 + (i / Math.max(1, n - 1)) * 48;
-      s += '<path d="M29 32 C 70 32 70 ' + y + ' 112 ' + y + '"/><circle cx="118" cy="' + y + '" r="5.5"/>';
-      for (let k = 0; k < 9; k++) s += '<circle class="fila" cx="' + (150 + k * 19) + '" cy="' + y + '" r="2.4"/>';
-    }
-    if (!n) for (let i = 0; i < 48; i++) s += '<circle class="fila" cx="' + (60 + (i % 12) * 22 + ((i * 7) % 5) * 2) + '" cy="' + (10 + Math.floor(i / 12) * 15 + ((i * 3) % 4) * 2) + '" r="2.6"/>';
-    return s + '</svg>';
-  }
-  K.registrar('archivo', {
-    crear: function (L) {
-      L.querySelector('#modelos').innerHTML = K.datos.modelos.map(function (m) {
-        const grupos = m.unidades ? '<b>' + m.unidades + ' ' + m.unidad.plural + '</b>, ' + K.miles(m.filas) + ' ' + QUE[m.caso] : '<b>Un terreno</b>, ' + K.miles(m.filas) + ' ' + QUE[m.caso];
-        return '<div class="fila"><span class="t3">' + DECISION[m.caso] + '</span>' + niveles(m) +
-          '<span class="p"><span class="grupos">' + grupos + '</span>Cada fila, ' + FILA[m.caso] + '.</span>' +
-          '<span class="cols">' + m.columnas.map(function (c) { return c.nombre; }).join('  ·  ') + '</span></div>';
-      }).join('');
-    },
-  });
-
   // ============================== L · ¿Y un LLM? ==============================
   K.registrar('llm', {
     tres: null, tQuieto: 60.6,
@@ -120,15 +89,4 @@
     },
   });
 
-  // ============================== M · Cada predicción, con su intervalo ==============================
-  K.registrar('produccion', {
-    crear: function (L) {
-      const S = K.datos.series.flotacion, caja = L.querySelector('#int-produccion');
-      if (!S.respuesta) { caja.hidden = true; return; }
-      const o = K.filasDe.flotacion(true);
-      const dentro = o.filas.filter(function (f) { return f.verdad >= f.bajo && f.verdad <= f.alto; }).length;
-      K.intervalos(caja, o);
-      L.querySelector('#int-cuenta').textContent = dentro + ' de ' + o.filas.length;
-    },
-  });
 })();

@@ -5,15 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Krylov · Artificial Data Scientist de la minería</title>
 <link rel="stylesheet" href="deck.css">
+<link rel="stylesheet" href="laboratorios.css">
 </head>
 <body>
 <!--
   Krylov · láminas de venta (Platanus Hack 26, track Simulaciones). Versión minería.
   Abre con doble clic y corre sin internet. Teclas: flechas o espacio (avanzar), 1 a 9 (ir a una lámina), Fin (cierre),
-  0 (cómo funciona), D (demo en vivo, necesita internet), N (notas), P (pausa), F (pantalla completa).
-  Para las preguntas: Q (quién lo usa), A (qué archivo recibe), L (por qué no un LLM), M (qué pasa en producción),
-  Y (el yacimiento en 3D: el sexto modelo, fuera del recorrido).
+  D (demo en vivo, necesita internet), N (notas), P (pausa), F (pantalla completa).
+  Para las preguntas: Q (quién lo usa), L (por qué no un LLM), 0 (cómo funciona), W (quién investiga esto en el mundo).
   El enlace de la demo, el QR y los nombres del equipo se cambian en config.js. De dónde sale cada dato: README.md y las notas (N).
+  El deck anterior a esta iteración está en original/ (ver original/RESPALDO.md y CAMBIOS.md).
 -->
 <!-- Si esta página se abre sin sus archivos vecinos (una vista previa que solo carga el HTML), deck.css no llega y este aviso queda a la vista. -->
 <div id="sin-archivos" style="font: 600 20px/1.45 system-ui, sans-serif; padding: 22px 26px; background: #14120f; color: #f4efe6; border-bottom: 3px solid #e2854a;">
@@ -30,32 +31,34 @@
     <div class="bloque portada">
       <div class="t1" data-paso="0">Krylov</div>
       <div class="t3" data-paso="0" style="--d:.35s">El <span class="cobre">Artificial Data Scientist</span><br>de la minería</div>
-      <div class="p" data-paso="0" style="--d:.8s">En una mina, las decisiones no esperan. Krylov las responde al instante, con los modelos que hoy exigen horas de cálculo y un especialista.</div>
+      <div class="p" data-paso="0" style="--d:.8s">Responde en milisegundos lo que a un especialista le toma horas de cálculo, y dice cuánto se puede equivocar.</div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="valor"></span></h4>
-        <p class="dice">«En una mina, las decisiones no esperan. Krylov es el Artificial Data Scientist de la minería: las responde al instante, con los modelos que hoy exigen horas de cálculo y un especialista.»</p></div>
+        <p class="dice">«Krylov es el Artificial Data Scientist de la minería. Responde en milisegundos lo que a un especialista le toma horas de cálculo, y además dice cuánto se puede equivocar.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Portada sin cifras: el nombre, qué es y una frase. <b>El rajo es una ilustración</b>: una maqueta topográfica hecha con una fórmula (bancos, rampa y terreno de alrededor), no es ninguna mina ni representa datos. La onda que sale del fondo es solo luz.</p></div>
+        <p class="fuente">Portada sin cifras: el nombre, qué es y una frase. <b>El rajo es una ilustración</b>: una maqueta topográfica hecha con una fórmula (los pisos del rajo, su rampa y el terreno de alrededor, que ahora sigue hasta los bordes de la lámina). No es ninguna minera ni representa datos. La onda que sale del fondo es solo luz. «Horas» y «milisegundos» se sostienen con el sello del motor de la roca: 117 s por análisis con el método lento contra 10 ms (M-25, M-26), y 7 horas y media contra 0,69 s en un encargo de 228 análisis (M-09, M-10).</p></div>
     </div></aside>
   </section>
 
-  <!-- ============================== 2 · El cambio de paradigma: Generative AI para datasets ============================== -->
+
+  <!-- ============================== 2 · Generative AI para datasets ============================== -->
   <section class="lamina" id="l-paradigma" data-id="paradigma" data-pasos="1">
     <canvas></canvas>
     <div class="bloque columna">
-      <div class="t2" data-paso="0">No es una red<br>que predice.<br><span class="cobre">Es Generative AI<br>para datasets.</span></div>
-      <div class="p" data-paso="0" style="--d:.4s">Un LLM se pre-entrenó con texto: por eso responde cualquier pregunta, sin volver a entrenar. Krylov se pre-entrenó con millones de datasets simulados de minería: por eso responde cualquier dataset.</div>
-      <div class="p tecnica" data-paso="0" style="--d:.8s"><b>Simulation-based Inference.</b> Un modelo bayesiano simula los datasets posibles, y la red aprende qué hay detrás de cada uno.</div>
+      <div class="t2" data-paso="0">Krylov es<br><span class="cobre">Generative AI<br>para datasets.</span></div>
+      <div class="p" data-paso="0" style="--d:.4s">Un LLM leyó tanto texto que hoy responde lo que le preguntes. Krylov practicó con millones de datasets simulados y hoy responde el tuyo: qué conviene hacer y cuánta duda queda.</div>
+      <div class="p tecnica" data-paso="0" style="--d:.8s"><b>Simulation-based Inference.</b> Un modelo bayesiano inventa los datasets y la red aprende a leer lo que hay detrás de cada uno.</div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="paradigma"></span></h4>
-        <p class="dice">«Y no es una red que predice. Es Generative AI para datasets. A un LLM le preguntas cuál es la mejor hackathon del año y responde, sin que nadie lo entrene para eso. Krylov hace lo mismo con datos: subes tu dataset y responde.»</p></div>
+        <p class="dice">«Krylov es Generative AI para datasets. A un LLM le preguntas cuál es la mejor hackathon del año y responde, sin que nadie lo entrene para eso. Krylov hace lo mismo con datos: subes tu dataset y responde.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Es la lámina que saca al jurado de «una red neuronal que predice». La red no aprende un dataset: aprende, para toda la familia de datasets que el modelo generativo puede producir, el posterior de los parámetros dado el dataset (NPE, inferencia basada en simulación, amortizada). Por eso un archivo nuevo no exige entrenar nada. <b>La comparación con un LLM es una analogía</b> (se entrena antes, una vez; después solo se usa): Krylov no es un modelo de lenguaje, y en la app el modelo de lenguaje solo propone el calce de columnas y redacta. Los datasets y mapas de la fila de abajo son la respuesta real de la red para 32 bancos simulados. <b>La pregunta y la respuesta del LLM («¿Cuál es la mejor hackathon del año 2026?», «Platanus Hack 26. Por lejos.») son un guiño a la sala, escrito a mano:</b> no salen de ningún modelo. <b>Límite que hay que decir si preguntan:</b> responde datasets de la familia con que practicó; fuera de ella, avisa y no responde.</p></div>
+        <p class="fuente">Es la lámina que saca al jurado de «una red neuronal que predice». La red no aprende un dataset: aprende, para toda la familia de datasets que el modelo generativo puede producir, el posterior de los parámetros dado el dataset (NPE, inferencia basada en simulación, amortizada). Por eso un archivo nuevo no exige entrenar nada. <b>La comparación con un LLM es una analogía</b> (se entrena antes, una vez; después solo se usa): Krylov no es un modelo de lenguaje, y en la app el modelo de lenguaje solo propone el calce de columnas y redacta. Los datasets y mapas de la fila de abajo son la respuesta real de la red para 32 bancos simulados. <b>La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano:</b> no salen de ningún modelo. <b>Límite que hay que decir si preguntan:</b> responde datasets de la familia con que practicó; fuera de ella, avisa y no responde.</p></div>
     </div></aside>
   </section>
+
 
   <!-- ============================== 3 · En el pasado vs. hoy ============================== -->
   <section class="lamina" id="l-flujo" data-id="flujo" data-pasos="2">
@@ -71,24 +74,26 @@
     </div></aside>
   </section>
 
-  <!-- ============================== 4 · Millones de mundos simulados ============================== -->
+  <!-- ============================== 4 · Millones de simulaciones ============================== -->
   <section class="lamina" id="l-mundos" data-id="mundos" data-pasos="1" data-gl="1">
     <div class="velo"></div>
 
     <div class="bloque centro" data-paso="0">
-      <div class="p">Antes de ver un solo dataset real, Krylov se pre-entrenó con</div>
+      <div class="p">Antes de ver un solo dato real, Krylov practicó con</div>
       <div class="num numero" id="contador-mundos">0</div>
-      <div class="t3">terrenos simulados</div>
-      <div class="p sub">En cada uno, la respuesta correcta se conoce.</div>
+      <div class="t3">simulaciones</div>
+      <div class="desglose" id="desglose-mundos"></div>
+      <div class="p sub" id="sub-mundos"></div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="mundos"></span></h4>
-        <p class="dice">«Más de siete millones de terrenos simulados, antes de ver un solo dataset real.»</p></div>
+        <p class="dice">«Antes de ver un solo dato real, Krylov practicó con más de 71 millones de simulaciones, entre los cinco modelos. Las corrimos en dos notebooks, en menos de 15 horas.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">M-01 (7.750.592 terrenos simulados), sello del motor espacial. Los terrenos que pasan son 256 muestras reales del simulador, repetidas. Es el paso «simular millones de datasets» de la lámina 3, hecho imagen. El nombre viene del ingeniero naval Alekséi Krylov (N-01); ya no está en pantalla, se cuenta si preguntan.</p></div>
+        <p class="fuente"><b>El número grande es la suma de los cinco modelos que pasaron su sello</b>, y la fila de abajo lo desarma: 7.750.592 bancos de roca (M-01), 1.684.160 paredes, 43.160.576 plantas, 15.241.472 flotas y 3.723.712 túneles (M-48). Son 71.560.512 (M-66). Antes la lámina mostraba solo el primero y no quedaba claro. «Menos de 15 horas» es la suma de los minutos de pre-entrenamiento de los cinco: 280, 146, 153, 168 y 120, que dan 867 minutos, 14 horas y 27 minutos (M-02, M-48, M-66), en dos MacBook Air. El sexto modelo, el del yacimiento, practicó con 126.696 más (M-63) y no entra en la suma porque su sello no pasa. Los terrenos que pasan por la pantalla son 256 muestras reales del simulador de la roca, repetidas.</p></div>
     </div></aside>
   </section>
+
 
   <!-- ============================== 5 · Bayesian Amortized Inference: entra un archivo, sale la respuesta ============================== -->
   <section class="lamina" id="l-rafaga" data-id="rafaga" data-pasos="1">
@@ -96,7 +101,7 @@
 
     <div class="bloque columna">
       <div class="t2" data-paso="0">Entra un archivo.<br><span class="cobre">Sale la respuesta.</span></div>
-      <div class="p" data-paso="0">La red ya está pre-entrenada: responder es un solo paso.</div>
+      <div class="p" data-paso="0">Lo caro se calculó antes. Con tu archivo, Krylov solo responde.</div>
       <div class="marcador" data-paso="0" style="--d:.4s">
         <div class="lado krylov">
           <div class="num" id="rafaga-n">0</div>
@@ -120,59 +125,48 @@
     </div></aside>
   </section>
 
-  <!-- ============================== 6 · Cinco decisiones ============================== -->
+  <!-- ============================== 6 · Seis decisiones ============================== -->
   <section class="lamina" id="l-vision" data-id="vision" data-pasos="1" data-gl="1">
     <div class="velo-pie"></div>
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2">Una mina decide esto todos los días.</div>
-      <div class="p">Cinco decisiones, cinco modelos de especialista. Un solo <span class="cobre">Artificial Data Scientist</span>.</div>
+      <div class="t2">Una minera se pregunta esto todos los días.</div>
+      <div class="p">Seis preguntas, seis modelos de especialista y un solo <span class="cobre">Artificial Data Scientist</span>.</div>
     </div>
 
     <div class="cinco" data-paso="0" style="--d:.5s">
-      <div><div class="t3">¿Qué roca conviene procesar?</div></div>
-      <div><div class="t3">¿La pared de la mina va a ceder?</div></div>
-      <div><div class="t3">¿Se está perdiendo cobre en la planta?</div></div>
-      <div><div class="t3">¿Qué camión paro antes de que falle?</div></div>
-      <div><div class="t3">¿Puede la gente volver a entrar al túnel?</div></div>
+      <div><div class="t3">¿Proceso esta roca o la aparto?</div></div>
+      <div><div class="t3">¿La pared aguanta el turno?</div></div>
+      <div><div class="t3">¿Cuánto cobre se está perdiendo?</div></div>
+      <div><div class="t3">¿Qué camión paro hoy?</div></div>
+      <div><div class="t3">¿Ya puede volver a entrar la gente?</div></div>
+      <div><div class="t3">¿Dónde está el mineral?</div></div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="vision"></span></h4>
-        <p class="dice">«Una mina decide esto todos los días. Cinco decisiones, cinco modelos de especialista, un solo Artificial Data Scientist.»</p></div>
+        <p class="dice">«Una minera se pregunta esto todos los días. Seis preguntas, seis modelos de especialista y un solo Artificial Data Scientist.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente">Son las cinco decisiones de D-37. Las cinco figuras son ilustraciones. Quién toma cada decisión está en la lámina de preguntas (tecla Q). <b>Qué responde hoy de verdad cada una está en la tabla «Los cinco casos» de <code>estado/TABLERO.md</code>:</b> revisarla antes de subir al escenario, porque si preguntan «¿esto ya funciona?» la respuesta tiene que ser la del tablero. En taludes y sismicidad, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
+        <p class="fuente">Son las cinco decisiones de D-37 más la del yacimiento (D-40), dichas como las diría quien decide. Las seis figuras son ilustraciones. Quién toma cada decisión está en la lámina de preguntas (tecla Q). <b>Qué responde hoy de verdad cada una está en la tabla «Los cinco casos» de <code>estado/TABLERO.md</code>:</b> revisarla antes de subir al escenario. Las cinco primeras están en la app con su red validada; <b>la sexta (el yacimiento) no está en la app y su sello no pasa</b>: se cuenta solo su mapa. En la pared y en los túneles, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
     </div></aside>
   </section>
+
 
   <!-- ============================== 7 · Leyes ============================== -->
   <section class="lamina sobre-mapa" id="l-leyes" data-id="leyes" data-pasos="2" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq" id="etq-leyes"></div>
-    <canvas class="zoom" data-paso="0" data-hasta="0" style="--d:2.4s"></canvas>
 
     <div class="bloque columna">
       <div class="t2" data-paso="0">¿Qué roca conviene procesar, y cuál apartar?</div>
       <div class="zona">
-        <div class="uno" data-paso="0" data-hasta="0" style="--d:.4s">
-          <div class="p entrega"><b>Krylov entrega</b>, para cada parte del terreno, cuánto arsénico hay, con su intervalo de credibilidad:</div>
-          <div class="grafico" id="int-leyes"></div>
-          <div class="salida">
-            <div class="colores">
-              <span class="item"><i class="muestra actuar"></i><b class="num" data-dato="terreno.colores.actuar">147</b><span data-dato="terreno.rotulos.actuar">Conviene apartar</span></span>
-              <span class="item"><i class="muestra en-duda"></i><b class="num" data-dato="terreno.colores.en_duda">309</b><span data-dato="terreno.rotulos.en_duda">No sabemos: conviene muestrear</span></span>
-              <span class="item"><i class="muestra no-actuar"></i><b class="num" data-dato="terreno.colores.no_actuar">568</b><span data-dato="terreno.rotulos.no_actuar">Puede ir a la planta</span></span>
-            </div>
-            <div class="valor"><b class="num" id="valor-leyes">Más de US$ 1 millón</b><span>vale despejar esa duda</span></div>
-          </div>
-        </div>
+        <canvas class="foco" data-paso="0" data-hasta="0" style="--d:2.4s"></canvas>
         <div class="perforo" data-paso="1">
           <div class="t3 oro" data-dato="terreno.rotulos.donde_medir">¿Dónde perforo?</div>
-          <div class="p">Una muestra más cuesta <span class="nb">US$ <span data-dato="terreno.costos.medicion" data-formato="miles">1.500</span></span>. Krylov rehízo el análisis completo <b class="nb"><span id="cuenta-analisis">0</span> veces</b> y dice dónde vale más:</div>
+          <div class="p">Krylov probó <span class="nb"><span data-dato="donde.n_lugares">40</span> lugares</span> y rehízo el análisis completo <b class="nb"><span id="cuenta-analisis">0</span> veces</b>, en <span class="nb" id="perforo-s">1,3 segundos</span>. Estos son los tres donde una muestra más despeja más duda:</div>
           <div class="ranking" id="ranking"></div>
         </div>
       </div>
     </div>
-
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="leyes"></span></h4>
         <p class="dice">«¿Qué roca conviene procesar? Krylov entrega, para cada parte del terreno, cuánto arsénico hay, con su intervalo de credibilidad. De ahí sale la decisión, y lo que vale despejar la duda: más de un millón de dólares.» <b>[→]</b> «Y dice dónde perforar: una muestra más en A vale unos nueve mil dólares.»</p></div>
@@ -185,12 +179,9 @@
   <section class="lamina sobre-serie" id="l-taludes" data-id="taludes" data-pasos="1" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq"></div>
-    <canvas class="curva" data-paso="0" style="--d:1.1s"></canvas>
     <div class="bloque columna">
-      <div class="t2" data-paso="0">La pared se mueve. ¿Es ruido, o va a ceder?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada sector que se acelera, cuántas horas le faltan, con su intervalo de credibilidad:</div>
-      <div class="grafico" data-paso="0" style="--d:.5s"></div>
-      <div class="salida" data-paso="0" style="--d:.9s"></div>
+      <div class="t2" data-paso="0">La pared se mueve.<br>¿Es ruido, o va a ceder?</div>
+      <canvas class="foco" data-paso="0" style="--d:1.4s"></canvas>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="taludes"></span></h4>
@@ -204,12 +195,9 @@
   <section class="lamina sobre-serie" id="l-flotacion" data-id="flotacion" data-pasos="1" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq"></div>
-    <canvas class="zoom" data-paso="0" style="--d:1.1s"></canvas>
     <div class="bloque columna">
       <div class="t2" data-paso="0">¿Se está perdiendo cobre en la planta?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada línea, el cobre que va a recuperar al final, con su intervalo de credibilidad:</div>
-      <div class="grafico" data-paso="0" style="--d:.5s"></div>
-      <div class="salida" data-paso="0" style="--d:.9s"></div>
+      <canvas class="foco" data-paso="0" style="--d:1.4s"></canvas>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flotacion"></span></h4>
@@ -223,12 +211,9 @@
   <section class="lamina sobre-serie" id="l-flota" data-id="flota" data-pasos="1" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq"></div>
-    <canvas class="zoom" data-paso="0" style="--d:1.1s"></canvas>
     <div class="bloque columna">
       <div class="t2" data-paso="0">¿Qué camión paro antes de que falle?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, para cada camión, el riesgo de que falle antes de su mantención, con su intervalo de credibilidad:</div>
-      <div class="grafico" data-paso="0" style="--d:.5s"></div>
-      <div class="salida" data-paso="0" style="--d:.9s"></div>
+      <canvas class="foco" data-paso="0" style="--d:1.4s"></canvas>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flota"></span></h4>
@@ -242,12 +227,9 @@
   <section class="lamina sobre-serie" id="l-sismicidad" data-id="sismicidad" data-pasos="1" data-gl="1">
     <div class="velo"></div>
     <div class="capa-etq"></div>
-    <canvas class="zoom" data-paso="0" style="--d:1.1s"></canvas>
     <div class="bloque columna">
       <div class="t2" data-paso="0">Tras la explosión, ¿puede volver a entrar la gente?</div>
-      <div class="p entrega" data-paso="0" style="--d:.3s"><b>Krylov entrega</b>, por sector, el riesgo de un temblor fuerte en las próximas 6 horas, con su intervalo de credibilidad:</div>
-      <div class="grafico" data-paso="0" style="--d:.5s"></div>
-      <div class="salida" data-paso="0" style="--d:.9s"></div>
+      <canvas class="foco" data-paso="0" style="--d:1.4s"></canvas>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="sismicidad"></span></h4>
@@ -257,30 +239,45 @@
     </div></aside>
   </section>
 
-  <!-- ============================== 12 · ¿Y cómo sé que acierta? ============================== -->
+  <!-- ============================== 12 · El yacimiento en 3D (sexto modelo, D-40) ============================== -->
+  <!-- La página yacimiento.html, dentro de un marco: se carga al entrar y se suelta al salir (js/yacimiento.js). Está en el recorrido
+       a pedido del equipo aunque su sello dice «no pasa»: la lámina y sus notas dicen qué está comprobado (el mapa) y qué no. -->
+  <section class="lamina" id="l-yacimiento" data-id="yacimiento" data-pasos="4">
+    <iframe class="toca" id="yac-marco" title="El yacimiento en 3D: dónde está el mineral"></iframe>
+    <aside class="notas"><div class="cols">
+      <div><h4>Qué se dice · <span data-tiempo="yacimiento"></span></h4>
+        <p class="dice">«Y el problema más grande: con una campaña de perforaciones, ¿dónde está el mineral bajo el rajo? Con 604 muestras de roca, Krylov dibuja el mineral piso por piso en 19 milisegundos y marca dónde todavía no se sabe. El método de siempre tarda 15 minutos en este mismo archivo, y llega a la misma decisión en 92 de cada 100 bloques.»</p></div>
+      <div><h4>Para quien presenta</h4>
+        <p class="fuente"><b>Este modelo se entrenó después de cerrar el producto y no está en la app: decirlo.</b> El sello del motor <code>yacimiento</code> dice «no pasa» por la calibración de 2 de sus 15 parámetros. Lo que sí está comprobado es el mapa: en 2.000 yacimientos simulados nuevos, la ley verdadera cayó dentro del rango de 90% en 0,901 de los bloques (M-63). <b>Se cuenta el mapa, no los parámetros.</b> Pre-entrenó con 126.696 yacimientos simulados en 110 minutos. El yacimiento de la lámina es <b>simulado</b> (604 muestras, 16.384 bloques; ley de corte de 0,5% y costos supuestos, K-71 a K-73). Responde en 18 a 22 ms y acierta 0,94 donde se pronuncia (M-64). El método lento tardó 913 segundos en el mismo archivo y coincide en la decisión en 92% de los bloques (M-65). Los números en pantalla salen de <code>datos/yacimiento.js</code>. Cuatro pasos con →; arrastrar gira el rajo.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== 13 · ¿Y cómo sé que acierta? ============================== -->
   <section class="lamina" id="l-confianza" data-id="confianza" data-pasos="1">
     <div class="bloque hoja">
       <div class="cabeza" data-paso="0">
         <div class="t2">¿Y cómo sé que acierta?</div>
-        <div class="p">Acierto de cada modelo: de las decisiones que tomó, cuántas acertó.</div>
+        <div class="p">Cuando Krylov da un rango de 90%, la respuesta real cae adentro 9 de cada 10 veces. Lo medimos en <span class="nb">2.000 casos nuevos</span> por modelo, que la red nunca había visto.</div>
       </div>
       <div class="modelos" id="conf-modelos" data-paso="0" style="--d:.4s"></div>
+      <div class="p real" id="conf-real" data-paso="0" style="--d:1.6s"></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="confianza"></span></h4>
-        <p class="dice">«¿Y cómo sabemos que acierta? Lo comparamos con la respuesta escondida de cada archivo: de las decisiones que tomó, acertó casi todas.»</p></div>
+        <p class="dice">«¿Y cómo sabemos que acierta? Cuando Krylov da un rango de 90%, la respuesta real cae adentro 9 de cada 10 veces. Lo medimos en 2.000 casos nuevos por modelo. No promete más de lo que sabe.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>Una sola medida, la misma para todos: cuando Krylov decidió, ¿acertó?</b> Se compara con la verdad escondida del archivo de demo de cada caso (todos <b>simulados</b>; por eso hay verdad con que comparar). Las unidades que dejó «en duda» no cuentan: ahí dijo que no sabía. La roca: 700 de 715 (M-54). La pared: 34 de 34. La planta: 5 de 5. Los camiones: 36 de 39. Los túneles: 4 de 4. <b>Ojo con la pared, la planta y los túneles: son pocos casos, de un solo archivo.</b> La validación robusta de cada red está en su sello: en 2.000 casos nuevos, 9 de cada 10 valores reales cayeron dentro de su intervalo de 90% (0,90 la roca, la pared, la planta y los camiones; 0,89 los túneles).</p></div>
+        <p class="fuente"><b>La medida cambió.</b> Antes la lámina mostraba «decisiones acertadas» contra un solo archivo de demo, con tres modelos en 1,00 sobre 4, 5 y 34 casos: cierto, pero poco creíble. Ahora muestra la validación de cada sello, que ya estaba calculada: en 2.000 datasets simulados nuevos, qué fracción de las veces el valor verdadero cayó dentro del rango de 90% que dio la red. Lo correcto es 90%: más sería una red que exagera su duda; menos, una que se confía. La roca 0,900; la pared 0,905; la planta 0,905; los camiones 0,898; los túneles 0,895 (sellos de cada motor; M-48 y <code>motor/artefactos/&lt;motor&gt;/sello.json</code>). El yacimiento 0,901 en su mapa (M-63); <b>su sello no pasa por dos de sus 15 parámetros: se cuenta el mapa</b>. La línea de abajo es el examen con datos reales públicos del motor de la roca: en 5 particiones se escondieron 155 mediciones y 138 cayeron dentro de su rango (0,89; sello de <code>espacial</code>, M-67). Si preguntan por el acierto de las decisiones del demo, sigue siendo M-56: 700 de 715 en la roca, 36 de 39 en los camiones.</p></div>
     </div></aside>
   </section>
 
-  <!-- ============================== 13 · Cierre ============================== -->
+
+  <!-- ============================== 14 · Cierre ============================== -->
   <section class="lamina" id="l-cierre" data-id="cierre" data-pasos="1">
     <canvas></canvas>
     <div class="bloque izq">
     <div class="frase" data-paso="0">
-      <div class="t2">Modelos que exigían un especialista y horas de cómputo. <span class="cobre">Ahora, en un segundo y para quien decide.</span></div>
-      <div class="p" data-paso="0" style="--d:.5s">Krylov es el Artificial Data Scientist de la minería, y de cualquier industria que decida con datos. Su motor: Bayesian Amortized Inference.</div>
+      <div class="t2">Decidir con el mejor modelo ya no toma horas. <span class="cobre">Toma lo que demora subir un archivo.</span></div>
+      <div class="p" data-paso="0" style="--d:.5s">Krylov es el Artificial Data Scientist de la minería: seis decisiones respondidas hoy, con Bayesian Amortized Inference por dentro.</div>
     </div>
 
     <div class="qr" data-paso="0" style="--d:1.1s">
@@ -294,56 +291,43 @@
     </div>
 
     <div class="bloque mientras" data-paso="0" style="--d:.8s">
-      <div class="p">Mientras duró este pitch, Krylov habría respondido</div>
+      <div class="p">Mientras hablábamos, Krylov habría respondido</div>
       <div class="num" id="cierre-n">0</div>
-      <div class="p">análisis completos. El método de siempre: <b class="nb"><span id="cierre-lento">0</span></b>.</div>
+      <div class="p">análisis completos. El método de siempre, <b class="nb"><span id="cierre-lento">0</span></b>.</div>
     </div>
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="cierre"></span></h4>
-        <p class="dice">«Modelos que exigían un especialista y horas de cómputo, ahora en un segundo y para quien decide. Eso es Krylov. Pruébenlo.»</p></div>
+        <p class="dice">«Decidir con el mejor modelo ya no toma horas: toma lo que demora subir un archivo. Eso es Krylov. Pruébenlo.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>El contador es una cuenta, no una medición:</b> los segundos desde la primera pulsación del pitch, divididos por lo que tarda un análisis con la red (10 ms, <code>latencia_ms</code> del sello) y con el método lento (117 s, M-25). Los mapas son los de la lámina 5: la respuesta de la red para 32 bancos simulados, repetidos. <b>El QR se dibuja solo desde <code>config.js</code>:</b> al cambiar <code>demo.url</code>, cambian el QR, el texto y la tecla D. «Cualquier industria» es visión: hoy los casos son de minería. <b>Para las preguntas, cada una con su tecla:</b> Q, quién lo usa; A, qué archivo recibe; L, por qué no un LLM; M, qué pasa en producción; 0, cómo funciona.</p></div>
+        <p class="fuente"><b>El contador es una cuenta, no una medición:</b> los segundos desde la primera pulsación del pitch, divididos por lo que tarda un análisis con la red (10 ms, <code>latencia_ms</code> del sello) y con el método lento (117 s, M-25). Los mapas son los de la lámina 5: la respuesta de la red para 32 bancos simulados, repetidos. <b>El QR se dibuja solo desde <code>config.js</code>:</b> al cambiar <code>demo.url</code>, cambian el QR, el texto y la tecla D. «Seis decisiones respondidas hoy»: cinco están en la app; la sexta (el yacimiento) se muestra en el deck y no está en la app. Que sirva a otras industrias es visión y ya no está en pantalla: se dice solo si preguntan. <b>Para las preguntas, cada una con su tecla:</b> Q, quién lo usa; L, por qué no un LLM; 0, cómo funciona; W, quién investiga esto en el mundo.</p></div>
     </div></aside>
   </section>
+
 
   <!-- ============================== Q · ¿Quién lo usa? (fuera del recorrido) ============================== -->
   <section class="lamina pregunta" id="l-quien" data-id="quien" data-pasos="1" data-respaldo="1" data-tecla="q" data-gl="1">
     <div class="velo-pie"></div>
     <div class="bloque cabeza" data-paso="0">
-      <div class="t2">¿Quién lo usa? <span class="cobre">Quien decide en el turno.</span></div>
+      <div class="t2">¿Quién lo usa? <span class="cobre">Quien toma la decisión en terreno.</span></div>
     </div>
     <div class="cinco" data-paso="0" style="--d:.5s">
-      <div><div class="t3">El geólogo de la mina</div><div class="p">Qué roca se procesa y cuál se aparta</div></div>
-      <div><div class="t3">Quien vigila la pared</div><div class="p">Si un sector se cierra</div></div>
-      <div><div class="t3">El jefe de turno de la planta</div><div class="p">Qué línea ajustar</div></div>
-      <div><div class="t3">Quien planifica la mantención</div><div class="p">Qué camión se detiene</div></div>
-      <div><div class="t3">El jefe de turno bajo tierra</div><div class="p">Cuándo vuelve a entrar la gente</div></div>
+      <div><div class="t3">Geólogo de producción</div><div class="p">Qué roca va a la planta y cuál se aparta</div></div>
+      <div><div class="t3">Ingeniero geotécnico</div><div class="p">Si se cierra un sector de la pared</div></div>
+      <div><div class="t3">Jefe de planta</div><div class="p">Qué línea conviene ajustar</div></div>
+      <div><div class="t3">Planificador de mantención</div><div class="p">Qué camión se detiene primero</div></div>
+      <div><div class="t3">Jefe de turno subterráneo</div><div class="p">Cuándo se reingresa a un sector</div></div>
+      <div><div class="t3">Geólogo de exploración</div><div class="p">Dónde está el mineral y dónde perforar</div></div>
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Para las preguntas</h4>
-        <p class="dice">«Lo usa quien toma la decisión en el turno, no un data scientist. Hoy esa persona decide con un promedio o una regla fija, porque el modelo que mide el riesgo exige un especialista y horas. Krylov le entrega ese modelo desde un archivo.»</p></div>
+        <p class="dice">«Lo usa quien toma la decisión en terreno, sin pasar por un data scientist. Hoy esa persona decide con un promedio o una regla fija, porque el modelo que mide el riesgo exige un especialista y horas. Krylov le entrega ese modelo desde un archivo.»</p></div>
       <div><h4>Fuentes y límites</h4>
-        <p class="fuente">Son roles, no empresas: es <b>a quién se le vendería primero</b>, el área que toma cada decisión todos los días. <b>No hay clientes ni pilotos</b> y no se afirma cómo trabaja ninguna minera (regla 10). En la pared y bajo tierra, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
+        <p class="fuente">Son cargos, no empresas: es <b>a quién se le vendería primero</b>, el área que toma cada decisión todos los días. <b>No hay clientes ni pilotos</b> y no se afirma cómo trabaja ninguna minera (regla 10). En la pared y bajo tierra, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22). El sexto cargo corresponde al modelo del yacimiento, que todavía no está en la app.</p></div>
     </div></aside>
   </section>
 
-  <!-- ============================== A · ¿Qué archivo recibe? (fuera del recorrido) ============================== -->
-  <section class="lamina pregunta" id="l-archivo" data-id="archivo" data-pasos="1" data-respaldo="1" data-tecla="a">
-    <div class="bloque hoja">
-    <div class="cabeza" data-paso="0">
-      <div class="t2">¿Qué archivo recibe? <span class="cobre">El que pide su modelo.</span></div>
-      <div class="p">Cada decisión tiene su modelo bayesiano, y ese modelo define el archivo: qué se agrupa y qué trae cada fila.</div>
-    </div>
-    <div class="modelos" id="modelos" data-paso="0" style="--d:.5s"></div>
-    </div>
-    <aside class="notas"><div class="cols">
-      <div><h4>Para las preguntas</h4>
-        <p class="dice">«El archivo no es libre: lo define el modelo bayesiano de cada decisión. El de la pared agrupa lecturas por sector; el de los camiones, muestras de aceite por camión, con la exigencia de su ruta. Krylov propone qué columna es cuál y la persona lo confirma.»</p></div>
-      <div><h4>Fuentes y límites</h4>
-        <p class="fuente">Sale de <code>casos/&lt;caso&gt;.yaml</code>: las columnas que usa cada modelo (unidad, tiempo, valor, covariables y horizonte) y cuántas unidades y filas trae su archivo de demo (simulado). Los cuatro modelos de series son jerárquicos: lo que aprenden de una unidad les sirve para las demás; el de la roca es espacial (la roca vecina se parece). Cada motor responde dentro del rango de tamaños con que se pre-entrenó (por ejemplo, la roca: entre 30 y 400 muestras; la pared: de 6 a 80 sectores con 24 a 200 lecturas); fuera de él, no responde y dice por qué. El calce de columnas lo propone un modelo de lenguaje leyendo los nombres y un resumen, nunca las filas (D-34, D-35). El demo lee archivos: no hay conexión a sensores.</p></div>
-    </div></aside>
-  </section>
+
 
   <!-- ============================== L · ¿Y si le subo el archivo a un LLM? (fuera del recorrido) ============================== -->
   <section class="lamina pregunta" id="l-llm" data-id="llm" data-pasos="1" data-respaldo="1" data-tecla="l" data-gl="1">
@@ -371,49 +355,27 @@
     </div></aside>
   </section>
 
-  <!-- ============================== M · ¿Y si falla en producción? (fuera del recorrido) ============================== -->
-  <section class="lamina pregunta" id="l-produccion" data-id="produccion" data-pasos="1" data-respaldo="1" data-tecla="m">
-    <div class="bloque hoja">
-    <div class="cabeza" data-paso="0">
-      <div class="t2">Cada predicción viene con su <span class="cobre">intervalo de credibilidad.</span></div>
-      <div class="p">Krylov entrega la posteriori completa. Angosto, está seguro. Ancho, duda, y lo dice.</div>
-    </div>
-    <div class="grafico" id="int-produccion" data-paso="0" style="--d:.5s"></div>
-    <div class="pie" data-paso="0" style="--d:1.2s">
-      <div class="p"><i class="clave barra"></i>el intervalo de credibilidad de 90% <i class="clave punto"></i>la estimación <i class="clave real"></i>lo que pasó de verdad: <b class="nb" id="int-cuenta">7 de 8</b> dentro de su intervalo.</div>
-    </div>
-    </div>
-    <aside class="notas"><div class="cols">
-      <div><h4>Para las preguntas</h4>
-        <p class="dice">«Cada predicción viene con su intervalo de credibilidad. Así se monitorea: si el intervalo es angosto, Krylov está seguro; si es ancho, duda, y lo dice antes de que alguien decida.»</p></div>
-      <div><h4>Fuentes y límites</h4>
-        <p class="fuente">Las ocho líneas de la planta, con la red del motor <code>cinetica</code> (sello pasado): la recuperación final que estima para cada una, su intervalo de credibilidad y, en el anillo blanco, la recuperación real de la verdad escondida del archivo (simulado). <b>El intervalo es de 90%, no de 95%:</b> el motor entrega los cuantiles 5% y 95% de la posteriori, y es con 90% que se validó (0,90 de acierto en 2.000 casos). Pasar a 95% exige recalcular y volver a validar. Lo que no existe: un historial ni alertas que sigan esto en el tiempo; es por respuesta.</p></div>
-    </div></aside>
-  </section>
 
-  <!-- ============================== Y · El yacimiento en 3D (fuera del recorrido; sexto modelo, D-40) ============================== -->
-  <!-- La página yacimiento.html, dentro de un marco: se carga al entrar y se suelta al salir (js/yacimiento.js). Va fuera del recorrido
-       por la regla de las láminas de decisión: su sello todavía dice «no pasa». Si pasa, se mueve antes de «¿Y cómo sé que acierta?»
-       y se le quitan `pregunta`, `data-respaldo` y `data-tecla`. -->
-  <section class="lamina pregunta" id="l-yacimiento" data-id="yacimiento" data-pasos="4" data-respaldo="1" data-tecla="y">
-    <iframe class="toca" id="yac-marco" title="El yacimiento en 3D: dónde está el mineral"></iframe>
-    <aside class="notas"><div class="cols">
-      <div><h4>Para las preguntas · tecla Y</h4>
-        <p class="dice">«¿Y un problema más grande? Con una campaña de perforaciones, ¿dónde está el mineral bajo la mina? Es un sexto modelo, en tres dimensiones. Con 604 muestras de roca, Krylov dibuja el mineral piso por piso en 18 milisegundos y marca dónde todavía no se sabe. Donde se pronuncia, acierta 94 de cada 100 bloques. Lo entrenamos esta noche, después de cerrar el producto: todavía no está en la app.»</p></div>
-      <div><h4>Fuentes y límites</h4>
-        <p class="fuente"><b>Fuera del recorrido porque el sello del motor <code>yacimiento</code> dice «no pasa»</b> (sábado 21:44). Lo que sí está comprobado es el mapa: en 400 yacimientos simulados nuevos, la ley verdadera cayó dentro del rango de 90% en 0,909 de los bloques (M-63). Lo que falla: la calibración de 2 de los 15 parámetros, y la red no aprendió los alcances del campo. <b>Se cuenta el mapa, no los parámetros.</b> Pre-entrenó con 80.976 yacimientos simulados en 80 minutos. El yacimiento de la lámina es <b>simulado</b> (604 muestras, 16.384 bloques; ley de corte de 0,5% y costos supuestos, K-71 a K-73). Responde en 18 a 21 ms y acierta 4.802 de 5.099 bloques donde se pronuncia (M-64). <b>No se ha comparado con el método lento: no decir cuántas veces más rápido es.</b> Los números en pantalla salen de <code>datos/yacimiento.js</code>; si PC 3 vuelve a validar, cambian solos y estas notas no. Cuatro pasos con →; arrastrar gira la mina.</p></div>
-    </div></aside>
-  </section>
 
   <!-- ============================== 0 · Cómo funciona (fuera del recorrido) ============================== -->
-  <section class="lamina" id="l-arquitectura" data-id="arquitectura" data-pasos="1" data-respaldo="1">
+  <section class="lamina pregunta" id="l-arquitectura" data-id="arquitectura" data-pasos="3" data-respaldo="1" data-tecla="0">
     <div id="plano-arquitectura"></div>
     <div class="bloque titulo"><div class="t3">Bayesian Amortized Inference: se pre-entrena una vez, se responde siempre.</div></div>
+    <div class="bloque ficha" id="ficha-modelos" data-paso="2"></div>
     <aside class="notas"><div class="cols">
-      <div><h4>Para las preguntas</h4>
-        <p class="dice">A la izquierda, lo que se hace una sola vez: el modelo bayesiano del problema, el simulador que genera datasets con esas reglas, y la red que se pre-entrena con ellos. A la derecha, lo que pasa con cada dataset: entra, la misma red entrega la posteriori, y de ahí sale la decisión.</p></div>
+      <div><h4>Para las preguntas · tecla 0</h4>
+        <p class="dice">Primero, lo que se hace una sola vez: el modelo bayesiano del problema, el simulador que genera datasets con esas reglas, y la red que se pre-entrena con ellos. <b>[→]</b> Después, lo que pasa con cada dataset: entra, la misma red entrega la posteriori, y de ahí sale la decisión. <b>[→]</b> Y esta es la ficha de los seis modelos: qué es cada uno, con cuánto practicó y cuánto tarda en responder. <b>[→]</b> El mapa de quién investiga esto en el mundo (tecla W).</p></div>
       <div><h4>Fuentes</h4>
-        <p class="fuente">Solo el diagrama, sin fórmulas ni cifras, a pedido. Para quien pregunte con sus palabras: es inferencia basada en simulación, amortizada (NPE): un codificador más un flujo normalizador, validado con SBC y contra MCMC (NUTS). Los números del motor espacial: 7.750.592 terrenos simulados (M-01), 0,90 de acierto del intervalo de 90%, 0,263 de diferencia con el MCMC (límite 0,3; M-28), 117 s contra 10 ms por análisis (M-25).</p></div>
+        <p class="fuente">Para quien pregunte con sus palabras: es inferencia basada en simulación, amortizada (NPE): un codificador más un flujo normalizador, validado con SBC y, en el motor de la roca, contra MCMC (NUTS): 0,263 de diferencia (límite 0,3; M-28), 117 s contra 10 ms por análisis (M-25). <b>La ficha del tercer paso sale del sello de cada motor</b> (<code>motor/artefactos/&lt;motor&gt;/sello.json</code>, vía <code>datos.js</code>): simulaciones y minutos de pre-entrenamiento (M-01, M-02, M-48), y milisegundos por respuesta (M-26, M-68). La fila del yacimiento viene de <code>config.js</code> (M-63, M-64): <b>ese modelo no está en la app y su sello no pasa</b>. Los nombres de los modelos son los técnicos: aquí sí se usan, porque esta lámina es para quien pregunta por dentro.</p></div>
+    </div></aside>
+  </section>
+
+  <!-- ============================== W · Quién investiga esto: el mapa de los laboratorios (fuera del recorrido) ============================== -->
+  <!-- Todo lo que se ve lo arma js/laboratorios.js dentro de esta sección, con datos/laboratorios.js. Estilos: laboratorios.css. -->
+  <section class="lamina pregunta" id="l-laboratorios" data-id="laboratorios" data-pasos="1" data-respaldo="1" data-tecla="w" data-gl="1">
+    <aside class="notas"><div class="cols">
+      <div><h4>Para las preguntas · tecla W</h4><p class="dice" id="lab-dice"></p></div>
+      <div><h4>Fuentes y límites</h4><p class="fuente" id="lab-fuente"></p></div>
     </div></aside>
   </section>
 
@@ -451,13 +413,18 @@
 <script src="js/vision.js"></script>
 <script src="js/terreno.js"></script>
 <script src="js/decisiones.js"></script>
+<script src="js/flotacion.js"></script>
+<script src="js/sismicidad.js"></script>
 <script src="js/intervalos.js"></script>
 <script src="js/zoom.js"></script>
+<script src="js/foco.js"></script>
 <script src="js/confianza.js"></script>
 <script src="js/cierre.js"></script>
 <script src="js/preguntas.js"></script>
 <script src="js/arquitectura.js"></script>
 <script src="js/yacimiento.js"></script>
+<script src="datos/laboratorios.js"></script>
+<script src="js/laboratorios.js"></script>
 <script>K.enlazarDatos(); K.arrancar();</script>
 </body>
 </html>

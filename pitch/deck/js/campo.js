@@ -31,8 +31,8 @@
       vec3 flujo = vec3(xy, z);
       float giro = (aAzar.w - 0.5) * 0.7 + sin(uT * 0.35 + aAzar.x * 30.0) * 0.16;
       vec2 lado = vec2(position.x * cos(giro) - position.y * sin(giro), position.x * sin(giro) + position.y * cos(giro));
-      vec3 enFlujo = flujo + vec3(lado * 4.6, 0.0);
-      float niebla = smoothstep(-168.0, -105.0, z) * (1.0 - smoothstep(-26.0, -9.0, z));
+      vec3 enFlujo = flujo + vec3(lado * 4.0, 0.0);
+      float niebla = smoothstep(-168.0, -110.0, z) * (1.0 - smoothstep(-44.0, -22.0, z));       // se apagan antes de llegar encima de la cámara
 
       // Pila: los primeros uPila terrenos se acuestan uno sobre otro.
       float k = aId / uPila;
@@ -75,8 +75,8 @@
       float v = texture2D(uAtlas, (vec2(col, fil) + dentro) / 16.0).r;
       vec3 c = rampa(v);
       vec2 b = min(vUv, 1.0 - vUv);
-      float marco = 1.0 - smoothstep(0.0, 0.03, min(b.x, b.y));
-      c = mix(c, vec3(1.0, 0.90, 0.74), marco * 0.5);
+      float marco = 1.0 - smoothstep(0.0, 0.035, min(b.x, b.y));
+      c = mix(c, vec3(1.0, 0.90, 0.74), marco * 0.38);
       float luz = vLuz * uBrillo;
       if (luz < 0.012) discard;
       gl_FragColor = vec4(mix(vec3(0.043, 0.039, 0.035), c, luz), 1.0);
@@ -98,12 +98,12 @@
       }
     }
     const textura = new THREE.DataTexture(atlas, ancho, ancho, THREE.RGBAFormat);
-    textura.magFilter = THREE.NearestFilter;
+    textura.magFilter = THREE.LinearFilter;
     textura.minFilter = THREE.LinearMipmapLinearFilter;
     textura.generateMipmaps = true;
     textura.needsUpdate = true;
 
-    const M = 1500, plano = new THREE.PlaneGeometry(1, 1);
+    const M = 2400, plano = new THREE.PlaneGeometry(1, 1);
     const g = new THREE.InstancedBufferGeometry();
     g.index = plano.index;
     g.setAttribute('position', plano.attributes.position);

@@ -338,30 +338,43 @@
 
     E = {
       tres: { scene: scene, camera: camera }, s: s, T: T, D: D, haces: haces, orillas: orillas, sel: 'A', nivel: 'medio',
-      zoomI: null,                                              // el bloque fijado (índice dentro de T.dentro)
-      // Dónde está en la escena el bloque fijado, sobre el terreno.
-      puntoZoom: function () { const c = centroDe(E.zoomI); return { x: c.x, y: altura(E.zoomI) + 0.15, z: c.z }; },
+      punto: null,                                              // dónde está el foco sobre el terreno ({ x, y, z } en la escena)
+      clic: null,                                               // el bloque donde se hizo clic: el foco va hacia allá
+      centroDe: centroDe,
+      // El bloque que hay bajo un lugar de la escena (null fuera del terreno).
+      bloqueBajo: function (x, z) { const col = Math.floor(x + cx + nx / 2), fila = Math.floor(nx / 2 - (z + cz)); return col < 0 || fila < 0 || col >= nx || fila >= nx ? null : indiceDe[fila * nx + col]; },
       bloqueEn: bloqueEn,
-      // El bloque que se fija al entrar: de los que están en duda y se ven bajo la tarjeta, el más parejo entre sí y no.
-      // Se elige una vez, con el terreno entero y la cámara en su posición de entrada (sin su vaivén): es siempre el mismo.
-      elegirZoom: function () {
-        let mejor = null, nota = Infinity;
-        const crece = s.crece;
+      // Las paradas del recorrido del foco: bloques que se ven bien a la derecha de la tarjeta y que no tapa un cerro, en
+      // cada uno de los tres colores. Se eligen una vez, con el terreno entero y la cámara en su posición de entrada
+      // (sin su vaivén): el recorrido es siempre el mismo.
+      paradas: function () {
+        const crece = s.crece, visibles = [];
         s.crece = 1;
         camera.setViewOffset(1920, 1080, -400, BAJA, 1920, 1080);
         camera.position.set(Math.sin(-0.62) * Math.cos(0.62) * 92, -1.5 + Math.sin(0.62) * 92, Math.cos(-0.62) * Math.cos(0.62) * 92);
         camera.lookAt(0, -1.5, 0);
         camera.updateMatrixWorld();
         for (let i = 0; i < n; i++) {
-          if (T.estado[i] !== 1) continue;
           const c = centroDe(i), q = K.proyectar(c.x, actual.media[i] * F, c.z, camera);
-          if (q.x < 1260 || q.x > 1720 || q.y < 470 || q.y > 900) continue;
+          if (q.x < 1090 || q.x > 1760 || q.y < 300 || q.y > 900) continue;
           if (bloqueEn((q.x / 1920) * 2 - 1, 1 - (q.y / 1080) * 2) !== i) continue;          // que no lo tape un cerro
-          const d = Math.abs(T.p[i] - 0.5);
-          if (d < nota) { nota = d; mejor = i; }
+          visibles.push({ i: i, x: q.x, y: q.y });
         }
         s.crece = crece;
-        return mejor;
+        const lejos = function (v, lista) { return lista.every(function (o) { return Math.hypot(v.x - o.x, v.y - o.y) > 170; }); };
+        const mejor = function (estado, nota, lista) {
+          let m = null, top = -Infinity;
+          visibles.forEach(function (v) { if (T.estado[v.i] !== estado || !lejos(v, lista)) return; const k = nota(v); if (k > top) { top = k; m = v; } });
+          if (m) lista.push(m);
+        };
+        const P = [];
+        mejor(1, function (v) { return -Math.abs(T.p[v.i] - 0.5); }, P);          // en duda, lo más parejo entre sí y no
+        mejor(2, function (v) { return T.media[v.i]; }, P);                       // conviene apartar: donde más arsénico hay
+        mejor(0, function (v) { return -T.media[v.i]; }, P);                      // puede ir a la planta: donde menos
+        mejor(1, function (v) { return T.alto[v.i] - T.bajo[v.i]; }, P);          // en duda: donde el rango es más ancho
+        mejor(2, function (v) { return -Math.abs(T.p[v.i] - 0.85); }, P);
+        mejor(0, function (v) { return -Math.abs(T.p[v.i] - 0.08); }, P);
+        return P.map(function (v) { return v.i; });
       },
       candidata: function (letra) { return D.donde.candidatas.filter(function (c) { return c.etiqueta === letra; })[0]; },
       // Rehace el mapa hacia otra capa (la respuesta de la red con una medición más), propagándose desde el pin.
@@ -424,12 +437,11 @@
           mOnda.opacity = s.morf > 0 && s.morf < 1 ? (1 - frente) * 0.75 : 0;
         } else { taladro.visible = nueva.visible = false; mOnda.opacity = 0; }
 
-        if (E.zoomI != null) {
-          const c = centroDe(E.zoomI);
-          aroZoom.position.set(c.x, altura(E.zoomI) + 0.15, c.z);
+        if (E.punto) {
+          aroZoom.position.set(E.punto.x, E.punto.y, E.punto.z);
           aroZoom.scale.setScalar(1 + 0.12 * Math.sin(t * 2.2));
         }
-        mAroZoom.opacity = E.zoomI == null ? 0 : s.zoom;
+        mAroZoom.opacity = E.punto ? s.zoom : 0;
 
         const az = s.az + 0.16 * Math.sin(s.fase * 0.2) + s.arrastre, el = K.acotar(s.el + s.arrastreEl, 0.2, 1.4);
         camera.setViewOffset(1920, 1080, s.dx, s.dy, 1920, 1080);
@@ -458,7 +470,7 @@
       agarre = null;
       if (!quieto || K.laminas[donde.lamina].id !== 'l-leyes' || donde.paso !== 0) return;
       const r = lienzo.getBoundingClientRect(), i = bloqueEn(((ev.clientX - r.left) / r.width) * 2 - 1, 1 - ((ev.clientY - r.top) / r.height) * 2);
-      if (i != null) E.zoomI = i;                               // un clic sobre el terreno fija el zoom en ese punto
+      if (i != null) E.clic = i;                                // un clic sobre el terreno manda el foco a ese punto
     });
     lienzo.addEventListener('pointercancel', function () { agarre = null; });
     return E;
@@ -467,16 +479,35 @@
   function terreno() { return E || (K.gl.ok ? construir() : null); }
 
   // ============================== 5 · Leyes: el banco y «¿Dónde perforo?» ==============================
-  // En el paso 0 la escena baja (en píxeles de la lámina) para que el cerro no entre a la tarjeta del zoom; en el paso 1 vuelve a su lugar.
-  const BAJA = -150;
+  // En el paso 0 la escena baja un poco (en píxeles de la lámina): el cerro queda entero bajo el borde de arriba.
+  const BAJA = -60;
 
   K.registrar('leyes', {
     tres: null, interactivo: true, tQuieto: 0,
     crear: function (L) {
-      const m = (this.m = terreno()), yo = this;
+      const m = (this.m = terreno()), yo = this, D = K.datos;
+      // los tres mejores lugares para una muestra más: su valor, comparado con el del mejor (no en plata: sale de costos supuestos)
+      this.filas = {};
+      const ranking = L.querySelector('#ranking'), tope = D.donde.candidatas[0].valor_de_medir;
+      D.donde.candidatas.forEach(function (c) {
+        const fila = document.createElement('div'), pc = Math.round((c.valor_de_medir / tope) * 100);
+        fila.className = 'fila ' + c.etiqueta.toLowerCase();
+        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="riel"><i style="width:' + pc + '%"></i></span><span class="num">' + pc + '</span>';
+        ranking.appendChild(fila);
+        yo.filas[c.etiqueta] = fila;
+      });
+      ranking.insertAdjacentHTML('beforeend', '<div class="p nota">Lo que aporta una muestra en cada lugar, con A = 100.</div>');
+      this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
+      const seg = L.querySelector('#perforo-s'), medido = K.config.cifras && K.config.cifras.donde_perforo_s;
+      if (seg && medido) seg.textContent = K.coma(medido, 1) + ' segundos';
+      // la tarjeta del foco: el eje del arsénico, en logaritmo, y el máximo que acepta la planta
+      const F = (this.F = K.foco.crear(L, 'leyes')), G = K.filasDe.leyes(1);
+      F.eje = { min: Math.min(G.min, Math.min.apply(null, D.terreno.bajo) * 0.8), max: Math.max(G.max, Math.max.apply(null, D.terreno.alto) * 1.25), log: true, limite: G.limite };
+      this.colores = ['no_actuar', 'en_duda', 'actuar'].map(function (e) { return K.foco.rgb(K.coloresDecision[e]); });
+      this.rotulos = ['no_actuar', 'en_duda', 'actuar'].map(function (e) { return D.terreno.rotulos[e]; });
       if (!m) return;
       this.tres = m.tres;
-      const capa = L.querySelector('#etq-leyes'), D = m.D;
+      const capa = L.querySelector('#etq-leyes');
       m.haces.forEach(function (h) {
         if (!h.letra) return;
         h.etq = document.createElement('div');
@@ -484,21 +515,8 @@
         h.etq.textContent = h.letra;
         capa.appendChild(h.etq);
       });
-      // los tres mejores lugares para una muestra más
-      this.filas = {};
-      const ranking = L.querySelector('#ranking');
-      D.donde.candidatas.forEach(function (c) {
-        const fila = document.createElement('div');
-        fila.className = 'fila ' + c.etiqueta.toLowerCase();
-        fila.innerHTML = '<span class="letra">' + c.etiqueta + '</span><span class="num">US$&nbsp;' + Math.round(c.valor_de_medir / 1000) + '&nbsp;mil</span>';
-        ranking.appendChild(fila);
-        yo.filas[c.etiqueta] = fila;
-      });
-      this.cuentaAnalisis = L.querySelector('#cuenta-analisis');
-      this.zoom = K.zoom.crear(L, 640, 270);
-      L.classList.add('con-zoom');
     },
-    alAjustar: function () { if (this.zoom) K.zoom.ajustar(this.zoom); },
+    alAjustar: function () { if (this.F) K.foco.ajustar(this.F); },
     entrar: function () {
       const m = this.m;
       if (!m) return;
@@ -507,9 +525,10 @@
       if (m.capaActual() !== m.T) m.morfar(m.T, null, true);
       Object.assign(s, { zoom: 0, crece: 0, vidrio: 0, caida: 1, tallos: 1, puntos: 1, color: 1, morf: 1, haces: 0, escaneo: 0, destaca: 0, taladro: 0, medido: 0,
         az: -0.62, el: 0.62, R: 92, ty: -1.5, dx: -400, dy: BAJA, arrastre: 0, arrastreEl: 0 });
-      // la tarjeta abre siempre el mismo punto: el que se eligió la primera vez (un clic en el terreno la mueve hasta salir de la lámina)
-      if (this.zoomInicial == null) this.zoomInicial = m.elegirZoom();
-      m.zoomI = this.zoomInicial;
+      // el recorrido del foco parte siempre igual: las paradas se eligen la primera vez
+      if (!this.paradas) this.paradas = m.paradas();
+      m.clic = null;
+      this.v = null; this.de = 0; this.a = 1 % Math.max(1, this.paradas.length); this.t0 = null;
       // el banco se levanta apenas entra la lámina; después aparece la malla del rango
       K.anim(s, { crece: 1 }, 3.0, false, 'power1.inOut', 0.3);
       K.anim(s, { vidrio: 1 }, 1.6, false, 'power1.inOut', 3.0);
@@ -535,18 +554,40 @@
         K.anim(s, { destaca: 1 }, 1.6, inst, 'power1.inOut', 3.4);
       }
     },
+    // El foco sobre el terreno: se detiene en una parada, viaja en línea recta a la siguiente y, en el camino, la tarjeta
+    // muestra lo que la red respondió para el bloque que tiene debajo en ese instante. Un clic en el terreno lo manda ahí.
+    foco: function (t, dt) {
+      const m = this.m, T = m.T, P = this.paradas, PAUSA = 2.6, VIAJE = 2.4;
+      if (!P.length) return null;
+      if (this.t0 == null) this.t0 = t;
+      if (m.clic != null) { P.splice(this.a, 0, m.clic); if (P.length > 9) P.splice((this.a + 4) % P.length, 1); this.de = Math.min(this.de, P.length - 1); this.a = P.indexOf(m.clic); m.clic = null; this.t0 = t - PAUSA; }
+      let k = K.quieto ? 0 : (t - this.t0 - PAUSA) / VIAJE;
+      if (k >= 1) { this.de = this.a; this.a = (this.a + 1) % P.length; this.t0 = t; k = 0; }
+      const e = K.suave(K.suave(K.acotar(k, 0, 1))), A = m.centroDe(P[this.de]), B = m.centroDe(P[this.a]);
+      const x = K.mezcla(A.x, B.x, e), z = K.mezcla(A.z, B.z, e), i = m.bloqueBajo(x, z);
+      const j = i == null ? P[this.de] : i, obj = { bajo: T.bajo[j], medio: T.media[j], alto: T.alto[j], c: this.colores[T.estado[j]] };
+      // lo que se muestra sigue al bloque de abajo con suavidad: sin escalones al cruzar de un bloque a otro
+      const v = this.v || (this.v = { bajo: obj.bajo, medio: obj.medio, alto: obj.alto, c: obj.c.slice(), y: m.alturaDe(j) }), q = K.quieto ? 1 : Math.min(1, (dt || 0.016) * 9);
+      v.bajo += (obj.bajo - v.bajo) * q; v.medio += (obj.medio - v.medio) * q; v.alto += (obj.alto - v.alto) * q;
+      for (let n = 0; n < 3; n++) v.c[n] += (obj.c[n] - v.c[n]) * q;
+      v.y += (m.alturaDe(j) - v.y) * q;
+      v.estado = T.estado[j]; v.x = x; v.z = z;
+      return v;
+    },
     cuadro: function (t, dt) {
-      const m = this.m;
+      const m = this.m, F = this.F;
       if (!m) return;
+      const s = m.s, yo = this, n = m.D.donde.analisis_rehechos, v = this.foco(t, dt);
+      m.punto = v ? { x: v.x, y: v.y + 0.15, z: v.z } : null;
       m.cuadro(t, dt, 'leyes');
-      const s = m.s, yo = this, n = m.D.donde.analisis_rehechos;
-      // el zoom: el punto fijo del terreno y su tarjeta, con la distribución de lo que hay ahí
-      if (m.zoomI != null) {
-        if (this._zi !== m.zoomI) { this._zi = m.zoomI; this._zo = K.zoom.bloque(m.zoomI); }
-        const q = m.puntoZoom(), pp = K.proyectar(q.x, q.y, q.z, m.tres.camera);
-        K.zoom.pintar(this.zoom, this._zo, K.suave(s.zoom), s.zoom * 2.5);          // la tarjeta se funde al entrar, cuando el banco ya se levantó
-        K.zoom.hilar(this.zoom, pp.x, pp.y, { x0: 1190, x1: 1790, y: 364 }, s.zoom > 0.5);
-      } else K.zoom.hilar(this.zoom, 0, 0, { x0: 0, x1: 0, y: 0 }, false);
+      if (v) {
+        const eje = F.eje, ancho = Math.log(v.alto / v.bajo) / 3.29 / Math.log(eje.max / eje.min);
+        this._n = (this._n || 0) + 1;
+        K.foco.pintar(F, { id: 'p', sello: this._n, nombre: 'En este punto del terreno', decision: this.rotulos[v.estado], color: v.c, bajo: v.bajo, medio: v.medio, alto: v.alto,
+          d: K.foco.densidad(eje, null, { centro: v.medio, ancho: ancho }) }, null, 0, K.suave(s.zoom));
+        const pp = K.proyectar(v.x, v.y + 0.15, v.z, m.tres.camera);
+        K.foco.hilar(F, pp.x, pp.y, s.zoom > 0.5);
+      }
       this.cuentaAnalisis.textContent = K.miles(Math.min(n, Math.floor(K.acotar(s.escaneo * 1.02, 0, 1) * n)));
       ['C', 'B', 'A'].forEach(function (l, j) { yo.filas[l].classList.toggle('ver', s.destaca > 0.08 + j * 0.3); });   // C, B y al final A
       m.haces.forEach(function (h) {

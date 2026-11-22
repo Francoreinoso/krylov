@@ -1,10 +1,10 @@
-/* 1 · Portada: la mina como una maqueta topográfica. Un rajo abierto modelado como superficie continua (no puntos):
-   sus bancos, su rampa y el terreno de alrededor, con curvas de nivel y luz rasante. Cada tanto, una onda sale del fondo
-   y enciende las curvas al pasar: Krylov leyendo la mina. Es una ilustración: no es ninguna mina ni representa datos. */
+/* 1 · Portada: una minera a rajo abierto como maqueta topográfica. El rajo es una superficie continua (no puntos): sus pisos,
+   su rampa y el terreno de alrededor, que sigue hasta los bordes de la lámina, con curvas de nivel y luz rasante. Cada tanto,
+   una onda sale del fondo y enciende las curvas al pasar. Es una ilustración: no es ninguna minera ni representa datos. */
 (function () {
   'use strict';
   const K = window.K;
-  const N = 380, MEDIO = 13.5, RADIO = 8.6, HONDO = 6.4, BANCOS = 9;
+  const N = 380, MEDIO = 13.5, RADIO = 8.6, HONDO = 6.4, BANCOS = 9, LEJOS = 66;
 
   K.registrar('valor', {
     tres: null, tQuieto: 6.5,
@@ -41,16 +41,31 @@
       g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       g.setIndex(new THREE.BufferAttribute(idx, 1));
       g.computeVertexNormals();                              // normales suaves: las caras de los bancos no quedan dentadas
+      // El suelo sigue más allá del rajo hasta los bordes de la lámina: una segunda malla, más gruesa, con el mismo terreno.
+      // Donde está la malla fina no se dibuja; lejos del rajo se funde con el fondo, como un horizonte con bruma.
+      const N2 = 240, pos2 = new Float32Array(N2 * N2 * 3), idx2 = new Uint32Array((N2 - 1) * (N2 - 1) * 6);
+      for (let j = 0; j < N2; j++) for (let i = 0; i < N2; i++) {
+        const x = (i / (N2 - 1) - 0.5) * 2 * LEJOS, z = (j / (N2 - 1) - 0.5) * 2 * LEJOS, o = (j * N2 + i) * 3;
+        pos2[o] = x; pos2[o + 1] = altura(x, z) - 0.015; pos2[o + 2] = z;
+      }
+      k = 0;
+      for (let j = 0; j < N2 - 1; j++) for (let i = 0; i < N2 - 1; i++) { const a = j * N2 + i; idx2[k++] = a; idx2[k++] = a + N2; idx2[k++] = a + 1; idx2[k++] = a + 1; idx2[k++] = a + N2; idx2[k++] = a + N2 + 1; }
+      const g2 = new THREE.BufferGeometry();
+      g2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
+      g2.setIndex(new THREE.BufferAttribute(idx2, 1));
+      g2.computeVertexNormals();
       const u = (this.u = { uT: { value: 0 } });
-      const malla = new THREE.Mesh(g, new THREE.ShaderMaterial({
-        uniforms: u, extensions: { derivatives: true },
+      const material = function (afuera) { return new THREE.ShaderMaterial({
+        uniforms: { uT: u.uT, uAfuera: { value: afuera } }, extensions: { derivatives: true },
         vertexShader: 'varying vec3 vP;\nvarying vec3 vN;\nvoid main() { vP = position; vN = normal; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
         fragmentShader: `
           precision highp float;
           varying vec3 vP;
           varying vec3 vN;
           uniform float uT;
+          uniform float uAfuera;
           void main() {
+            if (uAfuera > 0.5 && max(abs(vP.x), abs(vP.z)) < ${(MEDIO - 0.12).toFixed(2)}) discard;      // ahí va la malla fina
             vec3 n = normalize(vN);
             if (n.y < 0.0) n = -n;
             float luz = clamp(dot(n, normalize(vec3(-0.62, 0.62, 0.48))), 0.0, 1.0);
@@ -68,15 +83,16 @@
             float r = length(vP.xz * vec2(0.82, 1.0)), frente = mod(uT * 2.4, 26.0);
             float onda = exp(-pow((r - frente) / 0.55, 2.0)) * smoothstep(13.0, 6.0, r);
             c += vec3(1.0, 0.74, 0.40) * onda * (0.18 + 0.82 * curva);
-            // hacia la orilla se funde con el fondo de la lámina
-            float borde = smoothstep(${(MEDIO - 0.6).toFixed(1)}, ${(MEDIO - 4.4).toFixed(1)}, length(vP.xz * vec2(0.9, 1.0)));
-            c *= mix(0.6, 1.0, smoothstep(${(RADIO + 3.5).toFixed(1)}, ${RADIO.toFixed(1)}, r));        // lo de afuera, más apagado: manda el rajo
-            gl_FragColor = vec4(mix(vec3(0.043, 0.039, 0.035), c, borde), 1.0);
+            c *= mix(0.5, 1.0, smoothstep(${(RADIO + 4.5).toFixed(1)}, ${RADIO.toFixed(1)}, r));        // lo de afuera, más apagado: manda el rajo
+            // lejos del rajo, el suelo se pierde en la bruma del fondo de la lámina
+            float bruma = smoothstep(${(LEJOS - 4).toFixed(1)}, 17.0, length(vP.xz));
+            gl_FragColor = vec4(mix(vec3(0.043, 0.039, 0.035), c, bruma), 1.0);
           }`,
-      }));
-      malla.frustumCulled = false;
+      }); };
+      const malla = new THREE.Mesh(g, material(0)), suelo = new THREE.Mesh(g2, material(1));
+      malla.frustumCulled = suelo.frustumCulled = false;
       const scene = new THREE.Scene(), camera = (this.camara = new THREE.PerspectiveCamera(28, 16 / 9, 1, 200));
-      scene.add(malla);
+      scene.add(suelo, malla);
       this.tres = { scene: scene, camera: camera };
     },
     cuadro: function (t) {

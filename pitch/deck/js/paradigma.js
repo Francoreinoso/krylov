@@ -1,6 +1,6 @@
-/* 2 · El cambio de paradigma: no es una red que predice, es Generative AI para datasets.
-   Dos filas con la misma forma, que se mueven a la vez: arriba un LLM (entra texto, sale texto); abajo Krylov
-   (entra un dataset, sale la decisión con su incertidumbre). Ninguno de los dos se vuelve a entrenar para responder.
+/* 2 · El cambio de paradigma: Krylov es Generative AI para datasets.
+   Dos filas con la misma forma, que se mueven a la vez: arriba un LLM (entra una pregunta, sale texto); abajo Krylov
+   (entra un dataset, sale la decisión con su duda). Ninguno de los dos se vuelve a entrenar para responder.
    Los datasets y los mapas de la fila de Krylov son los de la lámina de la ráfaga: la respuesta de la red para
    32 bancos distintos (datos.js → rafaga). La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano:
    no salen de ningún modelo. */
@@ -11,7 +11,7 @@
   const FILAS = [{ y: 318 }, { y: 742 }];
   const CICLO = 4.6;
   const PREGUNTA = '¿Cuál es la mejor hackathon del año 2026?', RESPUESTA = 'Platanus Hack 26. Por lejos.';
-  const MONO = '"JetBrains Mono", monospace', TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
+  const TEXTO = '"Instrument Sans", sans-serif', TITULO = '"Big Shoulders Display", sans-serif';
 
   K.registrar('paradigma', {
     tQuieto: 3.6,
@@ -93,17 +93,14 @@
           } else this.texto(ctx, x, y, lado, RESPUESTA, K.quieto ? 1 : K.acotar((u - 2.1) / 0.9, 0, 1), '700 33px ' + TEXTO, '#f4efe6');
           ctx.globalAlpha = 1;
         }
-        // quién es cada fila, y qué entra y qué sale
+        // quién es cada fila
         ctx.textAlign = 'left';
-        ctx.fillStyle = krylov ? '#e2854a' : '#b9b0a1'; ctx.font = '800 54px ' + TITULO;
-        ctx.fillText(krylov ? 'Krylov' : 'Un LLM', XE - 100, y - 132);
-        const ancho = ctx.measureText(krylov ? 'Krylov' : 'Un LLM').width;
-        ctx.fillStyle = '#7d7568'; ctx.font = '500 20px ' + MONO;
-        ctx.fillText(krylov ? 'DATASET  →  DECISIÓN, CON SU INCERTIDUMBRE' : 'TEXTO  →  TEXTO', XE - 100 + ancho + 26, y - 138);
-        ctx.textAlign = 'center'; ctx.font = '500 18px ' + MONO;
-        ctx.fillText(krylov ? 'RED YA ENTRENADA' : 'MODELO YA ENTRENADO', XN, y + 104);
+        ctx.fillStyle = krylov ? '#e2854a' : '#b9b0a1'; ctx.font = '800 60px ' + TITULO;
+        ctx.fillText(krylov ? 'Krylov' : 'LLM', XE - 100, y - 126);
+        ctx.textAlign = 'center'; ctx.fillStyle = '#847c6f'; ctx.font = '500 23px ' + TEXTO;
+        ctx.fillText(krylov ? 'ya entrenada' : 'ya entrenado', XN, y + 108);
         ctx.textAlign = 'left'; ctx.fillStyle = krylov ? '#f4efe6' : '#b9b0a1'; ctx.font = '500 29px ' + TEXTO;
-        ctx.fillText(krylov ? 'Ninguna mina entrena un modelo para su dataset.' : 'Nadie lo entrena para hacerle una pregunta.', XE - 100, y + 158);
+        ctx.fillText(krylov ? 'Le subes un dataset y responde. Nadie lo entrenó para tu dataset.' : 'Le preguntas y responde. Nadie lo entrenó para tu pregunta.', XE - 100, y + 162);
       }
     },
   });

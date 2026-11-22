@@ -1,10 +1,10 @@
-/* 7 · Cinco decisiones de una mina (D-37), cada una con una ilustración hecha de puntos, en el orden del plan:
-   leyes, taludes, flotación, flota y sismicidad. Las figuras son ilustraciones, no datos. El estado real de cada
+/* 6 · Seis decisiones de una minera (D-37 y D-40), cada una con una ilustración hecha de puntos, en el orden del recorrido:
+   la roca, la pared, la planta, los camiones, los túneles y el yacimiento. Las figuras son ilustraciones, no datos. El estado real de cada
    decisión («responde», «precalculado» u «hoja de ruta») se escribe en config.js y lo pinta nucleo.js. */
 (function () {
   'use strict';
   const K = window.K;
-  const X = [-20.24, -10.12, 0, 10.12, 20.24], Y = 0.9;      // una columna por problema, en unidades de escena
+  const X = [-21.08, -12.65, -4.22, 4.22, 12.65, 21.08], Y = 0.9;      // una columna por problema, en unidades de escena
   const COLORES = `
     const vec3 COBRE = vec3(0.91, 0.52, 0.27);
     const vec3 ORO = vec3(1.0, 0.82, 0.45);
@@ -47,10 +47,33 @@
         g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(v), 3));
         return new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: opacidad }));
       };
-      const grupo = function (i) { const g = new THREE.Group(); g.position.set(X[i], Y, 0); g.scale.setScalar([0.95, 0.92, 1.12, 0.95, 1.12][i]); scene.add(g); return g; };
+      const grupo = function (i) { const g = new THREE.Group(); g.position.set(X[i], Y, 0); g.scale.setScalar([0.84, 0.78, 0.95, 0.8, 0.95, 0.8][i]); scene.add(g); return g; };
 
-      // ----- 1 · Leyes: un cuerpo mineralizado bajo tierra y los sondajes que lo cruzan -----
-      const leyes = (this.leyes = grupo(0));
+      // ----- 1 · La roca: un piso del rajo con sus pozos; el color de cada parte es una decisión -----
+      const banco = (this.banco = grupo(0));
+      const pbn = [], vbn = [], pozos = [];
+      const ars = function (x, z) { return Math.min(1, Math.exp(-((x - 1.6) * (x - 1.6) / 3.2 + (z + 0.8) * (z + 0.8) / 4.5)) + 0.7 * Math.exp(-((x + 2.2) * (x + 2.2) / 2.2 + (z - 1.8) * (z - 1.8) / 1.6))); };
+      for (let i = 0; i < 44; i++) for (let j = 0; j < 44; j++) {
+        const x = -4 + (i / 43) * 8, z = -4 + (j / 43) * 8, v = ars(x, z);
+        pbn.push(x, -1.6 + v * 2.8, z); vbn.push(v, azar());
+      }
+      banco.add(puntos({ position: [pbn, 3], aV: [vbn, 2] }, `
+        attribute vec2 aV;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float duda = smoothstep(0.26, 0.34, aV.x) * (1.0 - smoothstep(0.5, 0.58, aV.x));
+          vec3 c = mix(mix(OXIDO * 0.8, ROJO, smoothstep(0.5, 0.6, aV.x)), ORO, duda);
+          vColor = c;
+          vA = (0.5 + 0.5 * aV.x) * (0.85 + 0.15 * sin(uT * 1.8 + aV.y * 6.28));
+          gl_PointSize = (0.12 + 0.05 * aV.x) * uEsc / -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`));
+      for (let k = 0; k < 16; k++) { const x = -3.4 + (k % 4) * 2.27, z = -3.4 + Math.floor(k / 4) * 2.27, y = -1.6 + ars(x, z) * 2.8; pozos.push(x, y, z, x, y + 1.0, z); }
+      banco.add(lineas(pozos, 0xffffff, 0.8));
+      banco.rotation.x = 0.52;
+
+      // ----- 6 · El yacimiento: un cuerpo de mineral bajo tierra y las perforaciones que lo cruzan -----
+      const leyes = (this.leyes = grupo(5));
       const pl = [], vl = [];
       const ley = function (x, y, z) {
         const a = Math.exp(-((x - 0.9) * (x - 0.9) / 4.5 + (y + 1.3) * (y + 1.3) / 1.5 + (z + 0.4) * (z + 0.4) / 4));
@@ -195,6 +218,7 @@
       if (!this.tres) return;
       this.u.uT.value = t;
       this.leyes.rotation.y = 0.5 + t * 0.16;
+      this.banco.rotation.y = 0.6 + Math.sin(t * 0.21) * 0.35;
       this.sismo.rotation.y = 0.7 + Math.sin(t * 0.25) * 0.45;
       this.talud.rotation.y = -0.5 + Math.sin(t * 0.2) * 0.12;
     },

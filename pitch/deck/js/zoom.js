@@ -98,7 +98,7 @@
   };
 
   K.zoom = {
-    dibujar: dibujar,
+    dibujar: dibujar, densidad: densidad,
     // La tarjeta de un bloque del terreno (índice dentro de terreno.dentro).
     bloque: function (i) { return DE.leyes(i); },
     // La tarjeta de una unidad de un caso de lista; null si su motor no entregó su posteriori.
