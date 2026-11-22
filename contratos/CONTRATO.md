@@ -156,7 +156,6 @@ nombre: ejemplo_formato
 tarjeta:
   titulo: "¿Qué camión paro antes de que falle?"
   empresa_o_industria: "Flota de camiones · mantención"   # el subtítulo de la tarjeta; nunca el nombre de una minera
-  sponsor: null                      # siempre null desde D-37
   oculto: false                      # true: no aparece en el inicio (el archivo que no alcanza)
 pregunta: "¿A qué camiones conviene adelantarles la mantención?"
 motor: desgaste                      # espacial | deformacion | cinetica | desgaste | sismico

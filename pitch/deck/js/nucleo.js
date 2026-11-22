@@ -263,7 +263,10 @@
     if (!demo || !url) return;
     const si = abrir == null ? !demo.classList.contains('abierta') : !!abrir;
     demo.classList.toggle('abierta', si);
-    marco.src = si ? url : 'about:blank';
+    // En la lámina de una decisión, la app abre esa misma decisión, con su archivo de ejemplo a un clic.
+    const id = actual >= 0 ? laminas[actual].dataset.id : '';
+    const decision = ['leyes', 'taludes', 'flotacion', 'flota', 'sismicidad', 'yacimiento'].indexOf(id) >= 0 ? '?decision=' + id : '';
+    marco.src = si ? url + decision : 'about:blank';
     document.getElementById('demo-aviso').textContent = 'Abriendo ' + (K.config.demo.texto || url) + '. Necesita internet.';
     if (!si) window.focus();
   };

@@ -18,9 +18,15 @@ def _con_texto(monkeypatch, texto):
 
 
 def test_numeros_del_json_pasan(monkeypatch):
-    r = _con_texto(monkeypatch, "Hay 49 personas en duda y no saber cuesta US$ 7.420, cerca de 7 mil. Cuando dijimos 30%, pasó el 28%.")
+    r = _con_texto(monkeypatch, "Hay 49 unidades en duda. Cuando dijimos 30%, pasó el 28%.")
     assert r["origen"] == "modelo" and r["proveedor"] == "claude"
     assert r["propuesto_por"] == {"tipo": "modelo", "proveedor": "Anthropic", "modelo": "claude-opus-5-5"}
+
+
+def test_la_plata_no_va_en_el_texto(monkeypatch):
+    """Los costos son supuestos del demo: el modelo no los lee, y un texto que los nombre sale como plantilla (D-42)."""
+    r = _con_texto(monkeypatch, "Hay 49 unidades en duda y no saber cuesta US$ 7.420.")
+    assert r == interpretar.plantilla(RESPUESTA)
 
 
 def test_un_numero_inventado_lleva_a_la_plantilla(monkeypatch):

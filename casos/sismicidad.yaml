@@ -16,7 +16,6 @@ tarjeta:
   quien: "Jefe de turno subterráneo"
   archivo: "Los temblores registrados desde la explosión: en qué sector, a qué hora y de qué magnitud."
   empresa_o_industria: "Los túneles · minería subterránea"
-  sponsor: null
   oculto: false
 pregunta: "Con los temblores registrados desde la explosión: ¿qué sectores conviene mantener cerrados, en cuáles se puede reingresar y en cuáles no se sabe?"
 motor: sismico
@@ -27,7 +26,7 @@ rotulos:
   en_duda: "No sabemos: esperar y seguir midiendo"
   costo_de_no_saber: "Lo que te cuesta no saber"
 columnas:
-  unidad: unidad               # el sector de la mina
+  unidad: unidad               # el sector de los túneles
   tiempo: tiempo               # horas desde la tronadura
   valor: valor                 # magnitud del temblor
   umbral: 1.0                  # desde esta magnitud el temblor se considera fuerte (supuesto del demo, K-61)

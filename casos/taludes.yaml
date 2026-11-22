@@ -17,7 +17,6 @@ tarjeta:
   quien: "Ingeniero geotécnico"
   archivo: "Lo que midió el radar: cuánto se movió cada sector de la pared, lectura por lectura."
   empresa_o_industria: "La pared · el radar"
-  sponsor: null
   oculto: false
 pregunta: "Con lo que el radar midió en las últimas 48 horas: ¿qué sectores de la pared conviene cerrar, cuáles pueden seguir abiertos y en cuáles no se sabe? ¿Cuánto falta?"
 motor: deformacion

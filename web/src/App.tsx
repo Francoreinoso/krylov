@@ -1,7 +1,7 @@
 // Krylov, la app (D-42): la misma cosa que el deck. Una idea por pantalla:
 //   inicio → (una decisión) → el archivo cae y se ordena → ¿qué columna es qué? → entra a la red → la respuesta,
 //   en la escena de la lámina de esa decisión, con los datos del archivo.
-// Las teclas del escenario: 1 a 5, cada decisión con los datos del demo; M, un archivo con el que Krylov no responde;
+// Las teclas del escenario: 1 a 5, cada decisión con los datos del demo; 6, el recorrido del yacimiento; M, un archivo con el que Krylov no responde;
 // D, «¿Dónde perforo?»; L, el cierre; F, pantalla completa; Esc, volver.
 
 import { useEffect, useRef, useState } from 'react'
@@ -16,8 +16,9 @@ import { ordenDeRespuesta, ordenDelArchivo } from './orden'
 import type { Reloj } from './reloj'
 import Resultado, { type Resuelta } from './Resultado'
 import { ElegirDecision, PantallaDecision } from './Subir'
-import type { Analisis, Calce, Caso, DondeMedir, Papel } from './tipos'
+import type { Analisis, Calce, Caso, DondeMedir, Papel, TextosYacimiento } from './tipos'
 import Viaje from './Viaje'
+import Yacimiento from './Yacimiento'
 
 // Un archivo de la app: lo que el navegador leyó y, si es uno de los de prueba, de qué caso es.
 export type Archivo = InfoCsv & { prueba: string | null }
@@ -25,6 +26,7 @@ export type Archivo = InfoCsv & { prueba: string | null }
 type Etapa =
   | { e: 'inicio' }
   | { e: 'decision'; caso: Caso }
+  | { e: 'yacimiento' }
   | { e: 'elegir'; archivo: Archivo }
   | { e: 'viaje'; caso: Caso; archivo: Archivo | null; calce: Calce | null; papeles: Papel[]; fase: Fase; n: number; orden: Orden; motivo: string | null }
   | { e: 'respuesta'; caso: Caso; r: Resuelta; id: number }
@@ -38,6 +40,7 @@ const espera = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 export default function App() {
   const [casos, setCasos] = useState<Caso[]>([])
+  const [yacimiento, setYacimiento] = useState<Partial<TextosYacimiento> | null>(null) // la sexta decisión, sin motor en el servicio
   const [etapa, setEtapa] = useState<Etapa>({ e: 'inicio' })
   const [cierre, setCierre] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -55,7 +58,9 @@ export default function App() {
       const pedido = new URLSearchParams(window.location.search).get('decision')
       const caso = r.datos.casos.find((c) => c.nombre === pedido)
       if (caso) setEtapa({ e: 'decision', caso })
+      else if (pedido === 'yacimiento') setEtapa({ e: 'yacimiento' })
     }, () => setAviso('No pude cargar las decisiones. Recarga la página.'))
+    api.textos().then((t) => setYacimiento(t.datos.yacimiento?.titulo ? t.datos.yacimiento : null), () => {})
     despertarApi()
   }, [])
 
@@ -190,6 +195,11 @@ export default function App() {
       } else if (/^[1-9]$/.test(k)) {
         const caso = casos[Number(k) - 1]
         if (caso) demo(caso)
+        else if (yacimiento && Number(k) === casos.length + 1) {
+          ++turno.current
+          setCierre(false)
+          setEtapa({ e: 'yacimiento' })
+        }
       }
     }
     window.addEventListener('keydown', tecla)
@@ -199,7 +209,9 @@ export default function App() {
   const pantalla = (() => {
     switch (etapa.e) {
       case 'inicio':
-        return <Inicio casos={casos} alElegirArchivo={() => elegirArchivo(null)} alProbar={() => casos[0] && probar(casos[0])} alElegir={(caso) => setEtapa({ e: 'decision', caso })} />
+        return <Inicio casos={casos} alElegirArchivo={() => elegirArchivo(null)} alProbar={() => casos[0] && probar(casos[0])} alElegir={(caso) => setEtapa({ e: 'decision', caso })} yacimiento={yacimiento} alYacimiento={() => setEtapa({ e: 'yacimiento' })} />
+      case 'yacimiento':
+        return <Yacimiento textos={yacimiento ?? {}} />
       case 'decision':
         return <PantallaDecision caso={etapa.caso} alElegirArchivo={() => elegirArchivo(etapa.caso)} alProbar={() => probar(etapa.caso)} alVerDemo={() => demo(etapa.caso)} />
       case 'elegir':
@@ -235,7 +247,7 @@ export default function App() {
         soltar(e.dataTransfer.files[0], casoActual)
       }}
     >
-      <Encabezado caso={etapa.e === 'inicio' ? null : casoActual} alInicio={() => (++turno.current, setEtapa({ e: 'inicio' }))} />
+      <Encabezado titulo={etapa.e === 'yacimiento' ? (yacimiento?.titulo ?? null) : etapa.e === 'inicio' ? null : (casoActual?.titulo ?? null)} alInicio={() => (++turno.current, setEtapa({ e: 'inicio' }))} />
       {aviso && (
         <p role="alert" className="mx-auto mt-4 w-full max-w-3xl border-l-4 border-actuar bg-superficie px-5 py-3">
           {aviso}

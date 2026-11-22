@@ -102,7 +102,7 @@ distribución, pero con los datos del archivo.
 - **Sin rótulos en mayúsculas monoespaciadas** (la clase `.dato`) ni texto con degradado (`.brillo`). La información se queda (quién respondió y qué es simulado, reglas 5 y 9); la forma cambia.
 - **«La minera», no «la mina»**, y lo físico por su nombre: el rajo, la pared, la planta, los túneles; «explosión» en vez de «tronadura».
 - **Sin chat:** la app es una sola historia (inicio → archivo → columnas → respuesta), una idea por pantalla. Ya no hay caja de pregunta libre que prometía más de lo que hacía ni barra lateral de conversaciones.
-- **Teclas:** `1` a `5` (cada decisión con los datos del demo), `M`, `L`, `F`, `D` (en la roca), `Esc` (volver al inicio).
+- **Teclas:** `1` a `5` (cada decisión con los datos del demo), `6` (el yacimiento), `M`, `L`, `F`, `D` (en la roca), `Esc` (volver al inicio).
 - **Código muerto borrado:** `VistaClasica.tsx`, la ruta `/clasico` de `vercel.json`, `Chat.tsx`, `Lateral.tsx`, `SelectorModelo.tsx`, `Pie.tsx`, `Nube.tsx` y lo que solo usaban ellos.
 - **Devolver todo:** `git checkout web-original -- web/ casos/` (y `servicio/ nucleo/ contratos/` para el backend).
 
@@ -117,8 +117,49 @@ distribución, pero con los datos del archivo.
 | Código muerto: `/api/cartera`, `tiene_cartera`, `sponsor`; los comentarios que decían que Groq era solo de prueba | Revisión del código | `servicio/`, `nucleo/api.py` |
 | Memoria: un análisis a la vez y sin la arena de onnxruntime. Pico con seis a la vez: 514 MB antes, 318 MB ahora (270 MB con `MALLOC_ARENA_MAX=2`) | Render gratis tiene 512 MB y se cayó dos veces | `servicio/app.py` |
 
+## Segundo bloque (domingo, 01:30 a 01:45)
+
+### 11 · El yacimiento, la sexta decisión
+- **Cambio:** entra como sexta columna del inicio y con la tecla `6`. Es el recorrido de `pitch/deck/yacimiento.html`, sin tocarlo, dentro de un marco, con sus cuatro pasos (botones Anterior y Siguiente, o las flechas). La barra de abajo dice lo que es. En un teléfono se muestra la ficha sin el recorrido.
+- **Por qué:** el deck dice seis decisiones y la app tenía cinco. Su red no corre en el servicio y su sello no pasa, así que no recibe archivos y no dice «respondió la red» (regla 5).
+- **Texto ahora** (de `casos/textos.yaml`, sección `yacimiento`): «¿Dónde está el mineral? / Geólogo de exploración / Las muestras de las perforaciones: dónde se perforó, a qué profundidad y cuánto cobre trae la roca. / Ver el recorrido» · «Yacimiento simulado y respuesta calculada antes. Esta decisión todavía no recibe archivos.» · «De este modelo se cuenta solo su mapa: en yacimientos simulados nuevos, el cobre de verdad cayó dentro del rango que dio Krylov en 9 de cada 10 bloques. El resto de su comprobación todavía no pasa.» (M-63) · «El recorrido en tres dimensiones se ve en una pantalla más ancha.»
+- **Archivos:** `src/Yacimiento.tsx`, `src/App.tsx`, `src/Inicio.tsx`, `src/Encabezado.tsx`, `vite.config.ts`, `casos/textos.yaml`, `servicio/respuestas.py`.
+- **Devolver:** borrar `src/Yacimiento.tsx`, la sección `yacimiento` de `casos/textos.yaml` y sus usos en `App.tsx` e `Inicio.tsx`.
+
+### 12 · El puente con el deck (tecla D del deck)
+- **Cambio:** en la lámina de una decisión (7 a 12), la tecla `D` del deck abre la app en esa misma decisión (`?decision=<caso>`), con el archivo de ejemplo a un clic. En las demás láminas abre el inicio, como antes. El deck sigue abriendo con doble clic y sin internet: es una línea en `K.demo`.
+- **Archivos:** `pitch/deck/js/nucleo.js` (lo único del deck que se tocó), `src/App.tsx`.
+- **Devolver:** `git checkout web-original -- pitch/deck/js/nucleo.js`.
+
+### 13 · El teléfono (390 × 844)
+- **Revisado en Chrome:** inicio, columnas, espera, las respuestas de la roca y la pared, «Krylov no respondió», el cierre y el yacimiento. Nada se sale de la pantalla ni queda tapado.
+- **Cambio:** el mapa de la roca ahora trae la leyenda de sus tres colores, con los rótulos del caso (antes eran tres colores sin explicar).
+- **Archivos:** `src/Mapa.tsx`, `src/Respaldo.tsx`.
+
+### Arreglos del segundo bloque
+| Qué | Por qué | Archivos |
+|---|---|---|
+| En «¿Dónde perforo?», la barra de abajo muestra solo lo necesario para perforar | A 1440 × 900 la barra se partía en tres líneas y los botones A, B y C quedaban bajo el pliegue | `src/Resultado.tsx` |
+| El título de la portada baja y se achica un poco | La «K» y la «l» de «Krylov» quedaban cortadas contra el encabezado | `escena.html` |
+| Las fichas de cada pregunta suben hacia las preguntas, y el enlace dice «Subir su archivo» | Había un vacío entre la pregunta y quién la decide, y «Responder con un archivo» se partía en dos líneas | `src/Inicio.tsx` |
+| La interpretación ya no habla de plata: el modelo de lenguaje no lee los costos, y un texto que los nombre sale como plantilla | Los costos son supuestos del demo; con Groq el texto volvía a decir «US$ 78.574» | `servicio/interpretar.py`, `servicio/prueba_interpretar.py` |
+| Vercel también despliega cuando cambia solo `pitch/deck` | La app usa los módulos del deck: un cambio ahí cambia la app | `vercel.json` |
+| Fuera `sponsor: null` de los casos y del contrato | Código muerto | `casos/*.yaml`, `contratos/CONTRATO.md` |
+
+### Textos del segundo bloque (antes → ahora)
+| Dónde | Antes | Ahora |
+|---|---|---|
+| Fichas del inicio | «Responder con un archivo» | «Subir su archivo» |
+| Plantilla, hay que actuar | «En 5 sectores, conviene cerrar, y saber más no cambiaría la decisión.» | «En 5 sectores conviene cerrar, y saber más no cambiaría la decisión.» |
+| Plantilla, qué pesa | «Lo que más pesa es error de cada lectura del radar…» | «Lo que más pesa: error de cada lectura del radar…» |
+| Plantilla de la roca | «Aquí manda lo que pasa en los bloques vecinos.» | «Aquí manda: lo que pasa en los bloques vecinos.» |
+| Mapa del teléfono | (sin leyenda) | «Conviene apartar · No sabemos: conviene muestrear · Puede ir a la planta» |
+
+Para regenerar las respuestas guardadas con texto de plantilla (sin llamar a ningún modelo de lenguaje):
+`ANTHROPIC_API_KEY= GROQ_API_KEY= KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_CINETICA=red KRYLOV_MOTOR_DEFORMACION=red KRYLOV_MOTOR_SISMICO=red KRYLOV_MOTOR_DESGASTE=red uv run python -m servicio.exportar_estatico`
+
 ## Lo que queda pendiente
 
-- **Render:** hay que redesplegarlo a mano para que los archivos propios respondan con su escena (hoy responden con el respaldo), y poner `MALLOC_ARENA_MAX=2` en sus variables.
-- **El yacimiento** (vista 11) y **el puente con el deck** (vista 12): ver abajo cuando entren.
 - **Sin probar:** Safari, el proyector y un teléfono de verdad.
+- **Sin medir:** los cuadros por segundo de las escenas en un notebook y en un teléfono.
+- **Sin hacer:** design-critique, accessibility-review y ux-copy vista por vista; el repaso con Impeccable y Humanizer quedó fuera por decisión del equipo.

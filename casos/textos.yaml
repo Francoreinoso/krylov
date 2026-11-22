@@ -34,20 +34,20 @@ titular:
 
 en_palabras:
   # Hasta tres frases, en este orden, solo las que apliquen.
-  hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y saber más no cambiaría la decisión."
-  hay_actuar_una: "En 1 {unidad_singular}, {actuar_min}, y saber más no cambiaría la decisión."      # cuando n_actuar == 1
+  hay_actuar: "En {n_actuar} {unidad_plural} {actuar_min}, y saber más no cambiaría la decisión."
+  hay_actuar_una: "En 1 {unidad_singular} {actuar_min}, y saber más no cambiaría la decisión."      # cuando n_actuar == 1
   hay_en_duda: "En {n_en_duda} {unidad_plural} los datos no alcanzan para decidir."
   hay_en_duda_una: "En 1 {unidad_singular} los datos no alcanzan para decidir."      # cuando n_en_duda == 1
-  factor_seguro: "Lo que más pesa es {factor_min}."
+  factor_seguro: "Lo que más pesa: {factor_min}."
   factor_no_se_sabe: "{factor}: con estos datos no se puede saber si sube o baja el riesgo."
   # Motor espacial (`leyes`, y `terreno`): reemplazan a las anteriores. Son genéricas: lo propio de cada caso sale
   # de sus rótulos. Caben tres: el color «no hace falta» no lleva frase (el mapa ya lo muestra), para que salga «qué manda».
   espacial:
-    hay_actuar: "En {n_actuar} {unidad_plural}, {actuar_min}, y una muestra más no cambiaría la decisión."
-    hay_actuar_una: "En 1 {unidad_singular}, {actuar_min}, y una muestra más no cambiaría la decisión."   # cuando n_actuar == 1
+    hay_actuar: "En {n_actuar} {unidad_plural} {actuar_min}, y una muestra más no cambiaría la decisión."
+    hay_actuar_una: "En 1 {unidad_singular} {actuar_min}, y una muestra más no cambiaría la decisión."   # cuando n_actuar == 1
     hay_en_duda: "En {n_en_duda} {unidad_plural} no se sabe: ahí conviene medir antes de decidir."
     hay_en_duda_una: "En 1 {unidad_singular} no se sabe: ahí conviene medir antes de decidir."            # cuando n_en_duda == 1
-    manda: "Aquí manda {factor_min}."
+    manda: "Aquí manda: {factor_min}."
 
 semaforo:
   amarillo:
@@ -105,3 +105,14 @@ curva:
   falta: "Faltan entre {bajo} y {alto} {unidad_tiempo}."            # taludes: `curva.marca`
   sin_curva: "Esta unidad no tiene curva."
   fuera: "El rango sigue subiendo más allá del gráfico."        # cuando el abanico sale por arriba y la web corta el eje
+
+yacimiento:
+  # La sexta decisión (D-40, D-42): un recorrido calculado antes, con lo que dibuja pitch/deck/yacimiento.html.
+  # Su red no corre en el servicio y su sello no pasa: se cuenta solo el mapa (M-63).
+  titulo: "¿Dónde está el mineral?"
+  quien: "Geólogo de exploración"
+  archivo: "Las muestras de las perforaciones: dónde se perforó, a qué profundidad y cuánto cobre trae la roca."
+  ver: "Ver el recorrido"
+  que_es: "Yacimiento simulado y respuesta calculada antes. Esta decisión todavía no recibe archivos."
+  sello: "De este modelo se cuenta solo su mapa: en yacimientos simulados nuevos, el cobre de verdad cayó dentro del rango que dio Krylov en 9 de cada 10 bloques. El resto de su comprobación todavía no pasa."
+  angosto: "El recorrido en tres dimensiones se ve en una pantalla más ancha."

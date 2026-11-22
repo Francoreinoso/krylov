@@ -13,7 +13,6 @@ tarjeta:
   quien: "Planificador de mantención"
   archivo: "Las muestras de aceite de cada camión: cuánto hierro trae, cuántas horas lleva y cuántas le faltan para su mantención."
   empresa_o_industria: "Los camiones · mantención"
-  sponsor: null
   oculto: false
 pregunta: "Con las muestras de aceite de toda la flota: ¿a qué camiones conviene adelantarles la mantención, cuáles llegan bien y en cuáles no se sabe?"
 motor: desgaste

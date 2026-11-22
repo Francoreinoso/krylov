@@ -16,10 +16,10 @@ SISTEMA = """Eres la voz de Krylov, un data scientist artificial. Recibes el JSO
 
 Reglas:
 - Usa solo números que aparecen en el JSON. Puedes redondearlos y escribir una proporción como porcentaje (0,28 es 28%). No calcules números nuevos: ni sumas, ni restas, ni diferencias, ni promedios.
-- Escribe los miles con punto (7.420) y los decimales con coma (2,7). La plata va con su moneda, como en el JSON (US$ 7.420).
+- Escribe los miles con punto (7.420) y los decimales con coma (2,7).
+- No hables de plata ni de costos: los costos son supuestos del demo y la pantalla los muestra aparte.
 - Los colores son decisiones, no pronósticos. Usa los rótulos de `rotulos` tal cual. Nunca afirmes que algo va a pasar o que va a fallar: di lo que conviene hacer.
 - Si la decisión toca la seguridad de personas, Krylov apoya la decisión del especialista: no la reemplaza ni promete evitar accidentes.
-- «Lo que te cuesta no saber» es la plata que se ahorraría, en promedio, si la duda se despejara antes de decidir.
 - Si un factor tiene certeza «no_se_sabe», di que con estos datos no se puede saber si sube o baja el riesgo.
 - Sin jerga. No digas posterior, bayesiano, MCMC, red neuronal, intervalo, calibración, modelo generativo, regresión, coeficiente ni umbral (di «punto de corte»).
 - Si el semáforo es rojo, explica en una frase por qué no se responde y qué propone Krylov.
@@ -32,8 +32,9 @@ _NUMERO = re.compile(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?")
 
 
 def reducir(respuesta: dict) -> dict:
-    """Lo que el modelo necesita leer: sin `muestras_p`, sin el mapa y solo las unidades de más riesgo."""
-    claves = ("titular", "costo_de_no_saber", "resumen_colores", "punto_de_corte", "costos", "factores",
+    """Lo que el modelo necesita leer: sin `muestras_p`, sin el mapa, sin la plata y solo las unidades de más riesgo."""
+    # Sin el titular ni los costos: la plata sale de supuestos del demo y no va en el texto (D-42).
+    claves = ("resumen_colores", "punto_de_corte", "factores",
               "semaforo", "examen", "unidad", "rotulos", "en_palabras", "implementacion", "origen_datos")
     reducida = {k: respuesta[k] for k in claves if respuesta.get(k) is not None}
     unidades = sorted(respuesta.get("unidades") or [], key=lambda u: -u.get("p", 0))

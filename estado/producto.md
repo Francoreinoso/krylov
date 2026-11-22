@@ -35,9 +35,12 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - dom 00:58 · P-31 terminada (D-42, bloque 1): la app y el deck son la misma cosa. Cada respuesta se dibuja en la escena de la lámina de su decisión (7 a 11) con los módulos de `pitch/deck/js` sin tocarlos, dentro de un marco (`web/escena.html`, `web/src/escena/`), con los datos de la respuesta. Inicio con la portada y la lámina de las seis preguntas en vivo, y la subida del archivo como acción principal (archivo de ejemplo a un clic). Soltar un archivo: sus filas caen como puntos, se ordenan con las columnas y entran al núcleo mientras dure la espera real; cronómetro que separa red, columnas y viaje. Calce que dice quién propuso y escribe «minutos ÷ 60». Tecla `M`: los puntos se quedan en la puerta. Cierre con el texto del deck. Archivo, sin `.dato` ni plata arriba. Backend: campos nuevos opcionales (`mapa.bajo/alto`, `posteriori`, `serie`, `escena`, `lugares`, `propuesto_por`, `quien`, `archivo`), una sola posteriori para la API y el deck, subidas de extraños sin 500, un análisis a la vez, código muerto fuera, estático con los archivos de prueba guardados. Detalle y cómo devolver cada vista: `web/CAMBIOS.md`. Verificación: `cd web && npm run build && npm run prueba && npm run lint` (45 pruebas, 0 avisos) y `uv run pytest servicio nucleo -q` (53); recorrido en Chrome (Playwright) en desarrollo contra la API nueva y en `vite preview` sin servidor: teclas 1 a 5, M, L, D, «Perforar en A», los cinco archivos de prueba, sin errores de consola.
 
+- dom 01:45 · P-32 terminada (D-42, bloque 2): el yacimiento entra como sexta decisión (tecla `6`; recorrido calculado antes de `pitch/deck/yacimiento.html`, rotulado: simulado, no recibe archivos, de su sello solo el mapa, M-63); la tecla `D` del deck abre la app en la decisión de la lámina (`?decision=<caso>`); teléfono revisado a 390×844 (leyenda nueva en el mapa de la roca); la barra de «¿Dónde perforo?» ya cabe a 1440×900; la interpretación no habla de plata. Verificación: `cd web && npm run build && npm run prueba && npm run lint` (45, sin avisos), `uv run pytest servicio nucleo -q` (54) y, en Chrome con Playwright, teclas `1` a `6`, `D`, `M`, `L`, los cinco archivos de `web/public/pruebas/` contra la API local y el deck con `D` en tres láminas, sin errores de consola. Detalle: `web/CAMBIOS.md`.
+- dom 01:31 · Render redesplegado con `c76c33e` y `MALLOC_ARENA_MAX=2` (lo pidió la persona de PC 1; antes era un pedido a una persona).
+
 ## En curso
 
-- dom 00:58 · P-32: textos de toda la app alineados con el deck, teléfono (390×844), puente con el deck (tecla D) y yacimiento. Último push de fondo: 07:00.
+- dom 01:45 · P-33: revisión de diseño y accesibilidad vista por vista y lista completa de textos. Último push de fondo: 07:00.
 
 ## Bloqueos
 
@@ -45,7 +48,6 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
-- dom 00:58 · P-31, a una persona: redesplegar Render a mano (servicio `krylov-api`) para que los archivos propios respondan con su escena (hoy, con la API anterior, responden con el respaldo) y poner `MALLOC_ARENA_MAX=2` en sus variables (pico de memoria con seis análisis a la vez: 318 MB, 270 MB con la variable).
 - dom 00:58 · P-31, a PC 2: los `limitaciones` de los sellos (`motor/artefactos/*/sello.json`) todavía dicen «celdas», «muros simulados» y «tronadura».
 
 - sáb 20:18 · A PC 2: con `subida_flota.csv` y `hierro_ppm` sin dividir por 120, `desgaste` desborda (`np.exp` en `nucleo/desgaste.py:91`, 105 y 145), deja NaN en `curva` y el semáforo sale **verde**. Debería dar `rojo_modelo`. En `servicio/` ya no se cae (400), pero el veredicto es del motor.

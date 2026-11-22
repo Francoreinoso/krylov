@@ -80,7 +80,10 @@ export interface Textos {
   curva: Record<'titulo' | 'medido' | 'ahora' | 'abanico' | 'limite' | 'falta' | 'sin_curva', string> & { fuera?: string } // fuera: el abanico sale del gráfico
   // El botón del archivo de prueba y la frase de una decisión que todavía no responde archivos propios.
   chat?: Partial<Record<'probar_archivo' | 'no_disponible', string>>
+  // La sexta decisión: un recorrido calculado antes, sin motor en el servicio (D-40).
+  yacimiento?: Partial<TextosYacimiento>
 }
+export type TextosYacimiento = Record<'titulo' | 'quien' | 'archivo' | 'ver' | 'que_es' | 'sello' | 'angosto', string>
 
 export interface Factor {
   nombre: string

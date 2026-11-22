@@ -12,7 +12,15 @@ const DECK = resolve(AQUI, '../pitch/deck')
 // (`laminas.html` es el `index.html` del deck: de ahí salen las secciones de cada decisión), su hoja de estilos, sus
 // módulos de escena y sus bibliotecas y tipografías. En desarrollo se sirven desde pitch/deck; al compilar se copian a
 // dist/deck. Los datos del deck (datos/datos.js) no se copian: cada lámina de la app recibe los de su respuesta.
-const COMPARTIDO: Record<string, string> = { 'deck.css': 'deck.css', 'index.html': 'laminas.html', js: 'js', vendor: 'vendor' }
+// El yacimiento (la sexta decisión) es una página aparte del deck, con sus datos calculados antes.
+const COMPARTIDO: Record<string, string> = {
+  'deck.css': 'deck.css',
+  'index.html': 'laminas.html',
+  js: 'js',
+  vendor: 'vendor',
+  'yacimiento.html': 'yacimiento.html',
+  'datos/yacimiento.js': 'datos/yacimiento.js',
+}
 const TIPOS: Record<string, string> = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -22,10 +30,10 @@ const TIPOS: Record<string, string> = {
 
 function deckCompartido(): Plugin {
   const enDeck = (publicada: string): string | null => {
-    const [primera, ...resto] = publicada.split('/').filter(Boolean)
-    const origen = Object.entries(COMPARTIDO).find(([, destino]) => destino === primera)?.[0]
-    if (!origen) return null
-    const ruta = resolve(DECK, origen, ...resto)
+    const pedida = publicada.split('/').filter(Boolean).join('/')
+    const par = Object.entries(COMPARTIDO).find(([, destino]) => pedida === destino || pedida.startsWith(destino + '/'))
+    if (!par) return null
+    const ruta = resolve(DECK, par[0], '.' + pedida.slice(par[1].length))
     return ruta.startsWith(DECK + sep) && existsSync(ruta) && statSync(ruta).isFile() ? ruta : null
   }
   return {

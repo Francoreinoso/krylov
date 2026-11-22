@@ -5,7 +5,6 @@ nombre: leyes_pocos
 tarjeta:
   titulo: "¿Proceso esta roca o la aparto?"
   empresa_o_industria: "La roca · un banco con muy pocas muestras"
-  sponsor: null
   oculto: true
 pregunta: "El mismo banco, con solo 12 pozos muestreados: ¿alcanza para decidir?"
 motor: espacial

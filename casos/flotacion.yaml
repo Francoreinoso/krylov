@@ -13,7 +13,6 @@ tarjeta:
   quien: "Jefe de planta"
   archivo: "Lo que se midió en los primeros estanques de cada línea: cuánto cobre se recuperó, minuto a minuto."
   empresa_o_industria: "La planta · flotación"
-  sponsor: null
   oculto: false
 pregunta: "Con lo medido en los primeros estanques: ¿qué líneas van a terminar bajo la meta de recuperación, cuáles van bien y en cuáles no se sabe todavía?"
 motor: cinetica

@@ -109,16 +109,16 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
             <span className="text-tinta-suave">{origen === 'guardada' ? 'Respuesta guardada' : 'Krylov respondió en'}</span>
             <span className="titular text-5xl leading-none">{origen === 'guardada' ? `${segundos(red, 2)} s` : `${segundos(total)} s`}</span>
           </p>
-          <p className="max-w-sm text-sm text-tinta-suave">
+          <p className={`max-w-sm text-sm text-tinta-suave ${paso === 1 ? 'hidden' : ''}`}>
             {origen === 'guardada'
               ? `Es lo que tardó la red cuando se calculó esta respuesta${archivo ? '' : ' del demo'}.`
               : `La red, ${segundos(red, 2)} s.${leer ? ` Leer tus columnas, ${segundos(leer)} s.` : ''} El viaje hasta el servidor y de vuelta, ${segundos(viaje)} s.`}
           </p>
-          <div className="min-w-0 max-w-md flex-1 text-sm">
+          <div className={`min-w-0 flex-1 text-sm ${paso === 1 ? 'max-w-xs' : 'max-w-md'}`}>
             <p className="text-oxido">{quienRespondio(analisis)}</p>
-            <p className="text-tinta-suave">{archivo ? `Tu archivo: ${archivo.nombre}` : analisis.origen_datos}</p>
+            {paso === 0 && <p className="text-tinta-suave">{archivo ? `Tu archivo: ${archivo.nombre}` : analisis.origen_datos}</p>}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="ml-auto flex flex-wrap gap-2">
             {perforo && (
               <button onClick={() => verPerforo(paso === 0)} className="border border-oro px-4 py-2.5 text-oro hover:bg-oro/10">
                 {paso === 0 ? analisis.rotulos.donde_medir : 'Volver al terreno'}

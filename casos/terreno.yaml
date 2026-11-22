@@ -13,7 +13,6 @@ nombre: terreno
 tarjeta:
   titulo: "¿Dónde limpio y dónde mido?"
   empresa_o_industria: "Terreno"
-  sponsor: null
   oculto: false
 pregunta: "¿Qué partes del terreno hay que limpiar, dónde no se sabe, y dónde conviene medir primero?"
 motor: espacial

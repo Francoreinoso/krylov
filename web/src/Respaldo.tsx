@@ -15,7 +15,7 @@ export default function Respaldo({ analisis, d, textos, propio }: { analisis: An
   if (analisis.mapa && d.bloques) {
     return (
       <div className="mx-auto aspect-square w-full max-w-[min(100%,70dvh)]">
-        <Mapa mapa={analisis.mapa} bloques={d.bloques} />
+        <Mapa mapa={analisis.mapa} bloques={d.bloques} rotulos={analisis.rotulos} />
       </div>
     )
   }
