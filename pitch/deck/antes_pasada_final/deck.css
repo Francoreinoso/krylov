@@ -1,0 +1,463 @@
+/* Krylov · deck de venta, versión minería. Escenario fijo de 1920×1080 que se escala a la ventana.
+   Dirección de arte: carta topográfica sobre basalto. Cobre, óxido de cobre (turquesa) y oro; sin degradados en el texto,
+   sin píldoras ni tarjetas. Titulares en Big Shoulders Display, texto en Archivo, datos en JetBrains Mono. */
+
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal; font-display: block; font-weight: 100 900;
+  src: url(../vendor/big-shoulders-display-latin-ext-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal; font-display: block; font-weight: 100 900;
+  src: url(../vendor/big-shoulders-display-latin-wght-normal.woff2) format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal; font-display: block; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url(../vendor/archivo-latin-ext-standard-normal.woff2) format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Archivo";
+  font-style: normal; font-display: block; font-weight: 100 900; font-stretch: 62% 125%;
+  src: url(../vendor/archivo-latin-standard-normal.woff2) format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal; font-display: block; font-weight: 100 800;
+  src: url(../vendor/jetbrains-mono-latin-wght-normal.woff2) format("woff2-variations");
+}
+
+:root {
+  --fondo: #0b0a09;
+  --fondo-2: #14120f;
+  --linea: #2d2924;
+  --tinta: #f4efe6;
+  --suave: #b9b0a1;
+  --tenue: #847c6f;
+  --cobre: #e2854a;
+  --cobre-hondo: #b05a2a;
+  --oxido: #36c2ae;
+  --oro: #eec25a;
+  /* Decisiones, en tonos de mineral */
+  --actuar: #e4603c;
+  --en-duda: #eec25a;
+  --no-actuar: #1fa87a;
+  --titulo: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --texto: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  /* La entrada por pasos: un fundido corto; solo los títulos se desplazan. Para volver a la entrada anterior (subir 26 px,
+     desenfocada, 0,7 s) basta cambiar estos tokens: .7s · cubic-bezier(.16, .8, .2, 1) · 26px · 26px · 6px · 1 · 9s */
+  --dur-entrada: .4s;
+  --curva-entrada: cubic-bezier(.16, .8, .2, 1);
+  --sube-titulo: 12px;          /* lo que sube un título al entrar */
+  --sube-cuerpo: 0px;           /* lo que sube todo lo demás */
+  --desenfoque-entrada: 0px;
+  --escala-retardo: .57;        /* los retardos entre pasos (--d) se acortan en la misma proporción que la duración */
+  --tope-retardo: 1.2s;         /* y ninguno pasa de aquí */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+/* el aviso de «no cargaron los archivos»: si esta hoja llegó, no hace falta */
+#sin-archivos { display: none; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+  color: var(--tinta);
+  font-family: var(--texto);
+  -webkit-font-smoothing: antialiased;
+  cursor: default;
+}
+
+#escenario {
+  position: absolute; left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%) scale(1);
+  overflow: hidden;
+  background: var(--fondo);
+}
+#curvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+
+#gl {
+  position: absolute; inset: 0;
+  width: 1920px; height: 1080px;
+  opacity: 0; transition: opacity .32s ease;
+  pointer-events: none;
+}
+#gl.visible { opacity: 1; }
+#gl.interactivo { pointer-events: auto; }
+
+/* ---------- Láminas ---------- */
+
+/* la que sale se va rápido y la que entra espera a que se haya ido: nunca hay dos láminas encima una de la otra */
+.lamina {
+  position: absolute; inset: 0;
+  opacity: 0; visibility: hidden;
+  transition: opacity .14s ease, visibility 0s linear .14s;
+  pointer-events: none;
+}
+.lamina.activa { opacity: 1; visibility: visible; transition: opacity .42s ease .13s, visibility 0s; }
+.lamina.activa .toca { pointer-events: auto; }
+.lamina > aside.notas { display: none; }
+
+/* Lo que aparece por pasos: un fundido (tokens de :root). Solo los títulos suben un poco. */
+[data-paso] {
+  opacity: 0; transform: translateY(var(--sube-cuerpo)); filter: blur(var(--desenfoque-entrada));
+  transition: opacity var(--dur-entrada) var(--curva-entrada), transform var(--dur-entrada) var(--curva-entrada), filter var(--dur-entrada) ease;
+  transition-delay: min(calc(var(--d, 0s) * var(--escala-retardo)), var(--tope-retardo));
+}
+.t1[data-paso], .t2[data-paso], .cabeza[data-paso], .frase[data-paso] { transform: translateY(var(--sube-titulo)); }
+[data-paso].visto { opacity: 1; transform: none; filter: none; }
+/* lo que sale se va rápido y lo que entra espera a que se haya ido: nunca hay dos textos encima uno del otro */
+[data-hasta].ido { opacity: 0 !important; transform: translateY(-20px) !important; filter: blur(6px) !important; transition-delay: 0s !important; transition-duration: .2s !important; }
+[data-paso="1"], [data-paso="2"] { --d: .26s; transition-delay: var(--d); }
+
+.quieto [data-paso], .quieto .lamina, .quieto #gl, .quieto #avance, .quieto .etq, .quieto #l-leyes .ranking .fila { transition: none !important; }
+.quieto * { animation: none !important; }
+
+/* Sin WebGL: las láminas con 3D muestran su imagen de respaldo. */
+.sin-gl .lamina[data-gl] { background: center / cover no-repeat; }
+.sin-gl .lamina[data-gl] > :not(aside) { visibility: hidden; }
+
+/* ---------- Tipografía ---------- */
+
+.t1, .t2, .t3, .num { font-family: var(--titulo); font-weight: 800; letter-spacing: .005em; text-wrap: balance; }
+/* el interlineado deja aire entre las letras que bajan (p, q, g, y) y las que suben en la línea siguiente */
+.t1 { font-size: 196px; line-height: .96; }
+.t2 { font-size: 108px; line-height: 1.05; }
+.t3 { font-size: 72px; line-height: 1.08; font-weight: 700; }
+.p { font-size: 40px; line-height: 1.28; font-weight: 450; color: var(--suave); text-wrap: pretty; }
+.p b, .p strong { color: var(--tinta); font-weight: 650; }
+.dato { font-family: var(--mono); font-size: 21px; line-height: 1.45; letter-spacing: .05em; text-transform: uppercase; color: var(--tenue); font-weight: 450; }
+.cobre { color: var(--cobre); }
+.oro { color: var(--oro); }
+.num { font-weight: 800; line-height: .9; white-space: nowrap; }
+/* Ninguna cifra se parte en dos líneas */
+.nb { white-space: nowrap; }
+/* Cifras que cuentan sin temblar: cada carácter en su caja */
+.num .d { display: inline-block; width: .5em; text-align: center; }
+.num .s { display: inline-block; width: .22em; text-align: center; }
+
+.bloque { position: absolute; }
+/* Dos bloques que se turnan en el mismo lugar (uno por paso): comparten una celda, que mide lo que mida el más alto.
+   Así lo que viene después nunca queda debajo, corte como corte las líneas cada navegador. */
+.zona { display: grid; }
+.zona > * { grid-area: 1 / 1; }
+
+/* ---------- Cromo ---------- */
+
+#cromo { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+/* la marca y la cuenta llevan un halo oscuro: se leen también cuando una escena pasa por debajo */
+#marca { position: absolute; left: 110px; bottom: 40px; font-family: var(--titulo); font-size: 30px; font-weight: 800; letter-spacing: .14em; color: var(--tenue); text-shadow: 0 0 6px #0b0a09, 0 0 14px #0b0a09, 0 0 22px #0b0a09; }
+#cuenta { position: absolute; right: 110px; bottom: 42px; font-family: var(--mono); font-size: 21px; letter-spacing: .08em; color: var(--tenue); text-shadow: 0 0 6px #0b0a09, 0 0 14px #0b0a09, 0 0 22px #0b0a09; }
+#avance { position: absolute; left: 0; bottom: 0; height: 4px; width: 100%; background: var(--cobre); transform: scaleX(0); transform-origin: 0 50%; transition: transform .6s cubic-bezier(.16, 1, .3, 1); }
+#pausa { position: absolute; left: 50%; top: 36px; transform: translateX(-50%); font-family: var(--mono); font-size: 22px; letter-spacing: .2em; color: var(--tinta); display: none; }
+.pausado #pausa { display: block; }
+.pausado .animado, .pausado .animado * { animation-play-state: paused !important; }
+
+/* ---------- Notas de quien presenta (tecla N) ---------- */
+
+#panel-notas {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 40;
+  max-height: 46%;
+  padding: 30px 110px 34px;
+  background: #12100ef7;
+  border-top: 2px solid var(--cobre);
+  display: none; overflow: auto;
+  font-size: 27px; line-height: 1.36; color: #e2dbce;
+}
+.con-notas #panel-notas { display: block; }
+#panel-notas h4 { font-family: var(--mono); font-size: 19px; letter-spacing: .14em; text-transform: uppercase; color: var(--cobre); margin: 0 0 8px; font-weight: 600; }
+#panel-notas p { margin: 0 0 12px; }
+#panel-notas p.dice { color: #fff; }
+#panel-notas p.fuente { color: var(--suave); font-size: 23px; }
+#panel-notas .cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; }
+#panel-notas code { font-family: var(--mono); font-size: .84em; color: var(--oro); }
+
+/* ---------- Demo en vivo (tecla D) ---------- */
+
+#demo-vivo { position: absolute; inset: 0; z-index: 60; background: var(--fondo); display: none; }
+#demo-vivo.abierta { display: block; }
+#demo-vivo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }
+#demo-vivo .espera { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; text-align: center; }
+#demo-vivo .cerrar { position: absolute; right: 26px; top: 20px; z-index: 2; font-family: var(--mono); font-size: 20px; letter-spacing: .1em; color: var(--tinta); background: #0b0a09d9; border: 1px solid var(--linea); padding: 10px 16px; cursor: pointer; }
+
+/* Etiquetas que siguen a un punto del 3D */
+.etq { position: absolute; left: 0; top: 0; white-space: nowrap; opacity: 0; transition: opacity .5s ease; will-change: transform; pointer-events: none; }
+.etq.ver { opacity: 1; }
+/* la sombra hace de halo oscuro pegado a la letra: se lee también sobre el terreno claro */
+.etq.letra { font-family: var(--titulo); font-weight: 800; font-size: 64px; line-height: 1; color: var(--tinta); text-shadow: 0 0 5px #0b0a09, 0 0 10px #0b0a09, 0 0 18px #000, 0 2px 20px #000; }
+.lamina.activa .etq.letra { pointer-events: auto; cursor: pointer; }
+.etq.letra.sel { color: var(--oro); }
+.etq.letra.menor { font-size: 46px; color: var(--tinta); }
+
+/* =====================================================================
+   3 · Mundos simulados
+   ===================================================================== */
+
+#l-mundos .velo { position: absolute; inset: 0; background: linear-gradient(0deg, #0b0a09 0, #0b0a09e6 70px, transparent 160px), radial-gradient(1080px 560px at 50% 48%, #0b0a09f5 0%, #0b0a09e0 55%, #0b0a0940 86%, transparent 100%); }
+#l-mundos .centro { left: 0; right: 0; top: 140px; text-align: center; }
+#l-mundos .centro .p { color: var(--tinta); font-size: 46px; }
+#l-mundos .numero { font-size: 340px; color: var(--cobre); margin-top: 10px; }
+#l-mundos .centro .t3 { font-size: 96px; margin-top: 2px; }
+/* de qué está hecha la suma: una cifra por modelo; aparece cuando el contador ya frenó */
+#l-mundos .desglose { display: flex; justify-content: center; gap: 62px; margin-top: 34px; opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .7s cubic-bezier(.16, 1, .3, 1); }
+#l-mundos .desglose.ver { opacity: 1; transform: none; }
+#l-mundos .desglose > div { display: grid; gap: 6px; justify-items: center; }
+#l-mundos .desglose .num { font-size: 66px; color: var(--tinta); }
+#l-mundos .desglose span { font-size: 27px; color: var(--suave); }
+#l-mundos .centro .p.sub { margin-top: 30px; color: var(--suave); font-size: 36px; }
+.quieto #l-mundos .desglose { transition: none; }
+
+/* =====================================================================
+   5 · Leyes: el terreno
+   ===================================================================== */
+
+.sobre-mapa .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09f0 0%, #0b0a09a6 30%, transparent 50%); pointer-events: none; }
+
+#l-leyes .ranking .fila { display: grid; grid-template-columns: 110px 1fr; align-items: baseline; border-top: 1.5px solid var(--linea); padding: 12px 0 6px; opacity: 0; transition: opacity .6s ease; }
+#l-leyes .ranking .fila.ver { opacity: 1; }
+#l-leyes .ranking .fila .letra { font-family: var(--titulo); font-weight: 800; font-size: 72px; line-height: 1; color: var(--suave); }
+#l-leyes .ranking .fila .num { font-size: 72px; color: var(--suave); }
+#l-leyes .ranking .fila.a .letra, #l-leyes .ranking .fila.a .num { color: var(--oro); font-size: 138px; }
+
+/* =====================================================================
+   4 · Cinco decisiones
+   ===================================================================== */
+
+#l-vision .cabeza { left: 110px; top: 100px; width: 1700px; }
+#l-vision .cabeza .t2 { font-size: 98px; white-space: nowrap; }
+#l-vision .cabeza .p { margin-top: 14px; }
+#l-vision .cinco { position: absolute; left: 110px; right: 110px; bottom: 140px; display: grid; grid-template-columns: repeat(6, 1fr); }
+#l-vision .cinco > div { padding-right: 22px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
+#l-vision .cinco .t3 { font-size: 46px; line-height: 1.04; }
+#l-vision .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
+
+/* =====================================================================
+   0 · Cómo funciona (respaldo, fuera de los 3 minutos)
+   ===================================================================== */
+
+#l-arquitectura svg { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-arquitectura .zona-a { fill: #e2854a12; stroke: #e2854a50; stroke-width: 1.5; }
+#l-arquitectura .zona-b { fill: #36c2ae10; stroke: #36c2ae50; stroke-width: 1.5; }
+#l-arquitectura .caja { fill: #14120f; stroke-width: 2; }
+#l-arquitectura .a .caja { stroke: var(--cobre); }
+#l-arquitectura .b .caja { stroke: var(--oxido); }
+#l-arquitectura .red .caja { stroke: var(--tinta); stroke-width: 2.5; fill: #1b1815; }
+#l-arquitectura text { font-family: var(--texto); fill: var(--tinta); font-size: 30px; font-weight: 600; text-anchor: middle; }
+#l-arquitectura text { font-size: 34px; }
+#l-arquitectura text.sub { font-family: var(--texto); font-size: 23px; font-weight: 450; fill: var(--suave); }
+#l-arquitectura text.zona { font-family: var(--titulo); font-weight: 800; font-size: 58px; text-anchor: start; }
+#l-arquitectura text.zona-sub { font-family: var(--texto); font-size: 29px; font-weight: 450; text-anchor: start; fill: var(--suave); }
+#l-arquitectura .a text.zona { fill: var(--cobre); }
+#l-arquitectura .b text.zona { fill: var(--oxido); }
+#l-arquitectura path.hilo { fill: none; stroke-width: 2.5; }
+#l-arquitectura .a path.hilo { stroke: #e2854a99; }
+#l-arquitectura .b path.hilo { stroke: #36c2ae99; }
+#l-arquitectura .a circle.gota { fill: var(--cobre); }
+#l-arquitectura .b circle.gota { fill: var(--oxido); }
+/* por pasos: primero lo que se hace una vez; después se enciende lo que pasa con cada dataset; al final, la ficha */
+#l-arquitectura svg { transition: opacity .45s ease; }
+#l-arquitectura .b, #l-arquitectura .zona-b { transition: opacity .6s ease; }
+#l-arquitectura[data-paso-actual="0"] .b, #l-arquitectura[data-paso-actual="0"] .zona-b { opacity: .16; }
+#l-arquitectura[data-paso-actual="0"] .b circle.gota { visibility: hidden; }
+#l-arquitectura[data-paso-actual="2"] svg { opacity: 0; }
+#l-arquitectura .ficha { left: 110px; right: 110px; top: 210px; display: grid; }
+#l-arquitectura .ficha .fila { display: grid; grid-template-columns: 300px 1fr 300px 300px 240px; align-items: baseline; column-gap: 30px; border-top: 1.5px solid var(--linea); padding: 18px 0 12px; }
+#l-arquitectura .ficha .fila.cabeza { border-top: 0; padding: 0 0 12px; font-size: 25px; color: var(--tenue); }
+#l-arquitectura .ficha .fila > :nth-child(n+3) { text-align: right; }
+#l-arquitectura .ficha .t3 { font-size: 52px; }
+#l-arquitectura .ficha .p { font-size: 31px; }
+#l-arquitectura .ficha .num { font-size: 54px; color: var(--tinta); }
+#l-arquitectura .ficha .num.cobre { color: var(--cobre); }
+.quieto #l-arquitectura svg, .quieto #l-arquitectura .b, .quieto #l-arquitectura .zona-b { transition: none; }
+#l-arquitectura .titulo { left: 110px; top: 64px; }
+#l-arquitectura .titulo .t3 { font-size: 64px; }
+
+/* =====================================================================
+   2 · Bayesian Amortized Inference: entra un archivo, sale la respuesta
+   ===================================================================== */
+
+#l-rafaga canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-rafaga .columna { left: 110px; top: 96px; width: 800px; display: flex; flex-direction: column; gap: 24px; }
+#l-rafaga .columna .t2 { font-size: 100px; white-space: nowrap; }
+#l-rafaga .columna > .p { font-size: 34px; }
+#l-rafaga .marcador { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 12px; }
+#l-rafaga .lado .num { font-size: 170px; color: var(--tenue); }
+#l-rafaga .lado.krylov .num { color: var(--cobre); }
+#l-rafaga .lado .p { font-size: 29px; color: var(--tinta); margin-top: 4px; white-space: nowrap; }
+#l-rafaga .lado .dato { margin-top: 6px; font-size: 20px; white-space: nowrap; }
+#l-rafaga .lado .riel { position: relative; height: 5px; background: var(--linea); margin-top: 16px; width: 280px; }
+#l-rafaga .lado .riel i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--suave); }
+
+/* =====================================================================
+   5 · Leyes: «¿Dónde perforo?»
+   ===================================================================== */
+
+#l-leyes .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+#l-leyes .columna .t2 { font-size: 84px; }
+#l-leyes .perforo .t3 { font-size: 104px; }
+#l-leyes .perforo .p { font-size: 34px; margin-top: 12px; }
+#l-leyes .perforo .p b { color: var(--tinta); }
+/* los tres lugares: la letra, una barra con lo que aporta una muestra ahí y el número, con A = 100 */
+#l-leyes .perforo .ranking { position: static; width: 760px; margin-top: 26px; }
+#l-leyes .perforo .ranking .fila { display: grid; grid-template-columns: 90px 1fr 130px; align-items: center; column-gap: 22px; padding: 12px 0 8px; }
+#l-leyes .perforo .ranking .fila .letra, #l-leyes .perforo .ranking .fila .num { font-size: 64px; }
+#l-leyes .perforo .ranking .fila.a .letra, #l-leyes .perforo .ranking .fila.a .num { font-size: 100px; }
+#l-leyes .perforo .ranking .fila .num { text-align: right; }
+#l-leyes .perforo .ranking .riel { position: relative; height: 16px; background: var(--linea); }
+#l-leyes .perforo .ranking .riel i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--suave); transform: scaleX(0); transform-origin: 0 50%; transition: transform .9s cubic-bezier(.16, 1, .3, 1) .15s; }
+#l-leyes .perforo .ranking .fila.a .riel { height: 24px; }
+#l-leyes .perforo .ranking .fila.a .riel i { background: var(--oro); }
+#l-leyes .perforo .ranking .fila.ver .riel i { transform: none; }
+.quieto #l-leyes .perforo .ranking .riel i { transition: none; }
+#l-leyes .perforo .ranking .nota { font-size: 26px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 14px; margin-top: 0; opacity: 0; transition: opacity .5s ease; }
+#l-leyes .perforo .ranking .nota.ver { opacity: 1; }
+.quieto #l-leyes .perforo .ranking .nota { transition: none; }
+
+/* =====================================================================
+   1 · El valor, a primera vista
+   ===================================================================== */
+
+/* el suelo sigue bajo el texto: el velo lo oscurece lo justo para que se lea */
+#l-valor .velo { position: absolute; inset: 0; background: linear-gradient(90deg, #0b0a09e6 0%, #0b0a09cc 34%, #0b0a0966 50%, transparent 64%); }
+#l-valor .portada { left: 110px; top: 0; bottom: 0; width: 1000px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 30px; }
+/* la «y» de Krylov baja mucho: su línea es alta y lo que sigue queda bien separado */
+#l-valor .portada .t1 { font-size: 310px; line-height: 1.16; letter-spacing: .02em; margin-top: -40px; }
+#l-valor .portada .t3 { font-size: 88px; line-height: 1.1; margin-top: 12px; }
+#l-valor .portada .p { font-size: 40px; color: var(--tinta); width: 860px; margin-top: 44px; }
+
+/* =====================================================================
+   8 a 11 · Las otras cuatro decisiones, cada una con su escena
+   ===================================================================== */
+
+/* la escena nunca compite con el texto: a la izquierda, el fondo la tapa */
+/* y abajo se funde antes de llegar a la marca y a la cuenta */
+.sobre-serie .velo { position: absolute; inset: 0; background: linear-gradient(0deg, #0b0a09 0, #0b0a09e6 70px, transparent 170px), linear-gradient(90deg, #0b0a09 0%, #0b0a09 46%, #0b0a09a0 51%, transparent 57%); }
+.sobre-serie .capa-etq { position: absolute; inset: 0; }
+/* la columna: la pregunta y, debajo, la tarjeta con lo que Krylov responde en el punto que se está mirando (js/foco.js) */
+.sobre-serie .columna { left: 110px; top: 84px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+.sobre-serie .columna .t2 { font-size: 84px; }
+.lamina canvas.foco { display: block; width: 780px; height: 560px; pointer-events: none; }
+/* el hilo va de la tarjeta al punto de la escena; el punto late */
+.hilo-foco { position: absolute; left: 0; top: 0; height: 2.5px; margin-top: -1px; transform-origin: 0 50%; background: linear-gradient(90deg, #f4efe600, #f4efe6 22%); filter: drop-shadow(0 0 2px #0b0a09) drop-shadow(0 0 1px #0b0a09); opacity: 0; transition: opacity .5s ease; pointer-events: none; will-change: transform, width; }
+.hilo-foco.ver { opacity: .92; }
+.hilo-foco i { position: absolute; right: -11px; top: -10px; width: 22px; height: 22px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 4px #0b0a09; }
+.hilo-foco i::after { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 2.5px solid var(--tinta); animation: foco-late 1.9s cubic-bezier(.16, 1, .3, 1) infinite; }
+@keyframes foco-late { from { transform: scale(.45); opacity: .95; } to { transform: scale(1.75); opacity: 0; } }
+.quieto .hilo-foco { transition: none; }
+/* sin movimiento, el anillo queda quieto alrededor del punto (la regla general no alcanza a los pseudoelementos) */
+.quieto .hilo-foco i::after { animation: none; transform: scale(1.15); opacity: .55; }
+.pausado .hilo-foco i::after { animation-play-state: paused; }
+
+/* etiquetas que siguen a una unidad: con línea (nota) o sueltas (chica) */
+.etq.nota { width: 0; height: 0; }
+.etq.nota::before { content: ""; position: absolute; left: -1px; bottom: 4px; width: 2px; height: 58px; background: #f4efe6c8; }
+.etq.nota > div { position: absolute; left: -1px; bottom: 62px; padding: 4px 12px 6px; background: #0b0a09d9; font-family: var(--texto); font-size: 25px; font-weight: 500; color: var(--tinta); }
+.etq.nota b { display: block; font-family: var(--titulo); font-weight: 800; font-size: 46px; line-height: 1; letter-spacing: .01em; }
+.etq.nota.izq > div { left: auto; right: -1px; text-align: right; }
+/* las etiquetas llevan una placa oscura: se leen aunque pasen partículas por detrás */
+.etq.chica > div { position: absolute; left: 14px; top: -18px; padding: 3px 9px 4px; background: #0b0a09d9; font-family: var(--texto); font-size: 23px; font-weight: 500; color: var(--suave); }
+.etq.chica b { color: var(--tinta); font-weight: 600; }
+/* la proyección de la pared: su rótulo sale del tramo que cede */
+.etq.nota.proyeccion b { font-size: 40px; color: var(--actuar); }
+
+/* =====================================================================
+   10 · Cierre
+   ===================================================================== */
+
+#l-cierre canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-cierre .izq { left: 110px; top: 96px; bottom: 110px; width: 930px; display: flex; flex-direction: column; justify-content: space-between; gap: 30px; }
+#l-cierre .frase .t2 { font-size: 84px; }
+#l-cierre .frase .t2 .cobre { display: block; }
+#l-cierre .frase .p { margin-top: 28px; font-size: 34px; width: 880px; }
+#l-cierre .mientras { left: 1110px; top: 96px; width: 700px; }
+#l-cierre .mientras .p { font-size: 34px; color: var(--tinta); }
+#l-cierre .mientras .num { font-size: 230px; color: var(--cobre); margin: 6px 0 2px; }
+#l-cierre .mientras .num .d { width: .46em; }
+#l-cierre .mientras .p b { color: var(--tinta); font-family: var(--titulo); font-weight: 800; font-size: 60px; line-height: .8; }
+#l-cierre .qr { display: flex; gap: 40px; align-items: flex-end; }
+#l-cierre .qr .codigo { width: 210px; height: 210px; background: #f4efe6; padding: 20px; flex: none; }
+#l-cierre .qr .codigo svg { width: 100%; height: 100%; display: block; }
+#l-cierre .qr .t3 { font-size: 76px; }
+#l-cierre .qr .dato { color: var(--cobre); font-size: 26px; margin-top: 4px; text-transform: none; letter-spacing: .02em; }
+#l-cierre .qr .equipo { font-size: 26px; line-height: 1.35; color: var(--tenue); margin-top: 18px; }
+#l-cierre .qr .equipo b { color: var(--suave); }
+
+/* =====================================================================
+   2 · Generative AI para datasets   ·   3 · En el pasado vs. hoy
+   ===================================================================== */
+
+#l-paradigma canvas, #l-flujo canvas { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#l-paradigma .columna { left: 110px; top: 96px; width: 800px; display: flex; flex-direction: column; gap: 30px; }
+#l-paradigma .columna .t2 { font-size: 92px; white-space: nowrap; }
+#l-paradigma .columna .p { font-size: 35px; width: 780px; }
+#l-paradigma .columna .tecnica { font-size: 29px; color: var(--tenue); border-top: 1.5px solid var(--linea); padding-top: 26px; }
+#l-paradigma .columna .tecnica b { color: var(--cobre); font-weight: 650; }
+#l-flujo .cabeza { left: 110px; top: 84px; width: 1260px; }
+#l-flujo .cabeza .t2 { font-size: 70px; white-space: nowrap; }
+
+/* =====================================================================
+   12 · ¿Y cómo sé que acierta?
+   ===================================================================== */
+
+/* una fila por modelo: su nombre, dónde cae su acierto en la escala (el punto) contra lo prometido (la línea) y el número */
+#l-confianza .hoja { left: 110px; right: 110px; top: 92px; bottom: 110px; display: flex; flex-direction: column; gap: 26px; }
+#l-confianza .cabeza .t2 { font-size: 88px; }
+#l-confianza .cabeza .p { font-size: 36px; margin-top: 14px; width: 1560px; }
+#l-confianza .modelos { display: grid; }
+#l-confianza .modelos .fila, #l-confianza .modelos .escala { display: grid; grid-template-columns: 330px 1fr 230px; align-items: center; column-gap: 40px; }
+#l-confianza .modelos .fila { border-top: 1.5px solid var(--linea); height: 80px; }
+#l-confianza .modelos .t3 { font-size: 54px; }
+#l-confianza .modelos .riel { position: relative; height: 100%; }
+#l-confianza .modelos .fila .riel::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--linea); }
+#l-confianza .modelos .fila .riel::after { content: ""; position: absolute; left: var(--meta); top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--tinta); }
+#l-confianza .modelos .punto { position: absolute; left: var(--x); top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: var(--cobre); box-shadow: 0 0 0 4px #0b0a09; z-index: 1; transform: translateX(-560px); opacity: 0; transition: transform 1s cubic-bezier(.16, 1, .3, 1) var(--d, 0s), opacity .3s ease var(--d, 0s); }
+#l-confianza .visto .punto { transform: none; opacity: 1; }
+.quieto #l-confianza .punto { transition: none; }
+#l-confianza .modelos .num { font-size: 76px; color: var(--cobre); text-align: right; }
+#l-confianza .modelos .escala { height: 48px; font-size: 24px; color: var(--tenue); }
+#l-confianza .modelos .escala i { position: absolute; bottom: 10px; font-style: normal; font-family: var(--mono); font-size: 20px; }
+#l-confianza .modelos .escala .izq { left: 0; }
+#l-confianza .modelos .escala .der { right: 0; }
+#l-confianza .modelos .escala b { position: absolute; bottom: 8px; transform: translateX(-50%); white-space: nowrap; font-size: 26px; font-weight: 650; color: var(--tinta); }
+#l-confianza .real { font-size: 33px; color: var(--suave); border-top: 1.5px solid var(--linea); padding-top: 20px; white-space: nowrap; }
+#l-confianza .real b { color: var(--tinta); font-weight: 650; }
+
+/* =====================================================================
+   Las láminas de preguntas (fuera del recorrido): Q, A, L, M
+   ===================================================================== */
+
+.pregunta .cabeza .t2 { font-size: 78px; }
+
+/* Q: las seis figuras de la lámina 6, con quién decide cada cosa */
+#l-quien .cabeza, #l-llm .cabeza { left: 110px; top: 84px; width: 1700px; }
+#l-quien .velo-pie { position: absolute; left: 0; right: 0; bottom: 0; height: 350px; background: linear-gradient(transparent, #0b0a09e0 30%, #0b0a09); }
+#l-quien .cinco { position: absolute; left: 110px; right: 110px; bottom: 120px; display: grid; grid-template-columns: repeat(6, 1fr); }
+#l-quien .cinco > div { padding-right: 22px; border-top: 1.5px solid var(--linea); padding-top: 22px; }
+#l-quien .cinco .t3 { font-size: 42px; line-height: 1.04; }
+#l-quien .cinco .p { font-size: 25px; line-height: 1.24; color: var(--cobre); margin-top: 12px; }
+
+/* L: dos nubes en 3D, cada una con su tiempo */
+#l-llm .lado { top: 650px; width: 640px; }
+#l-llm .lado.izq { left: 150px; }
+#l-llm .lado.der { left: 1130px; }
+#l-llm .lado .t3 { font-size: 56px; color: var(--suave); }
+#l-llm .lado .t3.cobre { color: var(--cobre); }
+#l-llm .lado .p { font-size: 29px; margin-top: 6px; }
+#l-llm .lado .num { font-size: 104px; color: var(--suave); margin-top: 14px; }
+#l-llm .lado .num.cobre { color: var(--cobre); }
+#l-llm .lado .dato { margin-top: 2px; }
+#l-llm .pie { left: 150px; right: 150px; bottom: 96px; }
+#l-llm .pie .p { font-size: 27px; color: var(--tenue); }
+
+/* ---------- Lámina Y · el yacimiento en 3D: la página yacimiento.html dentro de un marco ---------- */
+#l-yacimiento iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; }

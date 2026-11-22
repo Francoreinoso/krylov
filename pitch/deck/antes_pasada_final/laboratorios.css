@@ -1,0 +1,51 @@
+/* =====================================================================
+   W · Quién investiga esto: el mapa de los laboratorios (fuera del recorrido)
+   Todo lo arma js/laboratorios.js dentro de #l-laboratorios.
+   ===================================================================== */
+
+/* el texto nunca compite con el mapa: arriba, el fondo lo tapa siempre; a la izquierda, solo mientras hay una lista */
+#l-laboratorios .lab-velo { position: absolute; inset: 0; pointer-events: none; }
+#l-laboratorios .lab-velo.arriba { background: linear-gradient(180deg, #0b0a09 0%, #0b0a09f2 30%, #0b0a0999 38%, transparent 47%); }
+#l-laboratorios .lab-velo.lado { background: linear-gradient(90deg, #0b0a09 0%, #0b0a09f5 42%, #0b0a0999 48%, transparent 56%); opacity: 0; }
+
+#l-laboratorios .lab-cabeza { left: 110px; top: 84px; width: 1560px; }
+#l-laboratorios .lab-cabeza .t2 { font-size: 78px; }
+#l-laboratorios .lab-cabeza .p { font-size: 33px; margin-top: 18px; }
+#l-laboratorios .lab-cabeza .dato { font-size: 19px; margin-top: 12px; }
+
+/* el mundo entero: cuántos grupos por continente */
+#l-laboratorios .lab-conteo { position: absolute; left: 110px; top: 404px; display: flex; gap: 52px; }
+#l-laboratorios .lab-item { display: flex; align-items: baseline; gap: 12px; opacity: 0; transition: opacity .35s ease; }
+#l-laboratorios .lab-item.ver { opacity: 1; }
+#l-laboratorios .lab-item .num { font-size: 62px; color: var(--cobre); }
+#l-laboratorios .lab-item span { font-size: 28px; font-weight: 500; color: var(--suave); }
+
+/* una región: sus grupos, de arriba abajo como se ven en el mapa */
+#l-laboratorios .lab-lista { position: absolute; left: 110px; top: 400px; width: 820px; }
+#l-laboratorios .lab-parada { font-family: var(--mono); font-size: 20px; line-height: 1; letter-spacing: .08em; text-transform: uppercase; color: var(--cobre); font-weight: 500; height: 40px; opacity: 0; transition: opacity .3s ease; }
+#l-laboratorios .lab-parada.ver { opacity: 1; }
+#l-laboratorios .lab-fila { position: relative; height: var(--alto, 76px); opacity: 0; transform: translateY(8px); transition: opacity .3s ease, transform .4s cubic-bezier(.16, .8, .2, 1); }
+#l-laboratorios .lab-fila.ver { opacity: 1; transform: none; }
+/* display: table deja cada línea del ancho de su texto: de ahí sale el punto donde nace el hilo */
+#l-laboratorios .lab-fila b { display: table; font-family: var(--titulo); font-weight: 700; font-size: 35px; line-height: 1.06; letter-spacing: .01em; color: var(--tinta); white-space: nowrap; }
+#l-laboratorios .lab-fila span { display: table; font-family: var(--mono); font-size: 17px; line-height: 1.4; letter-spacing: .04em; text-transform: uppercase; color: var(--tenue); white-space: nowrap; margin-top: 2px; }
+#l-laboratorios .lab-fila.foco b { color: var(--oro); }
+/* el tramo recto del hilo: del final del nombre al borde de la lista */
+#l-laboratorios .lab-fila i { position: absolute; top: 18px; height: 1.5px; background: #f4efe666; }
+
+/* el hilo: del borde de la lista a la luz de ese grupo */
+#l-laboratorios .lab-hilos { position: absolute; inset: 0; pointer-events: none; }
+#l-laboratorios .lab-hilo { position: absolute; left: 0; top: 0; height: 1.5px; margin-top: -.75px; transform-origin: 0 50%; background: #f4efe666; opacity: 0; transition: opacity .3s ease; will-change: transform, width; }
+#l-laboratorios .lab-hilo.ver { opacity: 1; }
+#l-laboratorios .lab-hilo.foco { background: var(--oro); }
+#l-laboratorios .lab-hilo i { position: absolute; right: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--tinta); box-shadow: 0 0 0 2.5px #0b0a09; }
+
+/* la nota del grupo que está bajo el mouse */
+#l-laboratorios .lab-nota { position: absolute; left: 0; top: 0; width: 430px; padding: 16px 20px 18px; background: #14120ff2; border: 1.5px solid var(--linea); opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+#l-laboratorios .lab-nota.ver { opacity: 1; }
+#l-laboratorios .lab-nota.izq { margin-left: -430px; }
+#l-laboratorios .lab-nota b { display: block; font-family: var(--titulo); font-weight: 700; font-size: 34px; line-height: 1.06; color: var(--oro); }
+#l-laboratorios .lab-nota span { display: block; font-family: var(--mono); font-size: 16px; letter-spacing: .04em; text-transform: uppercase; color: var(--tenue); margin-top: 4px; }
+#l-laboratorios .lab-nota p { font-size: 24px; line-height: 1.26; color: var(--tinta); margin: 10px 0 8px; text-wrap: pretty; }
+
+.quieto #l-laboratorios .lab-item, .quieto #l-laboratorios .lab-parada, .quieto #l-laboratorios .lab-fila, .quieto #l-laboratorios .lab-hilo, .quieto #l-laboratorios .lab-nota { transition: none; }
