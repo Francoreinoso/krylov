@@ -216,3 +216,8 @@ Revisión WCAG 2.1 AA con la skill `accessibility-review`, medida en Chrome a 39
 - **Archivos:** `src/escena/mouse.ts`, `src/escena/marco.ts`. El deck no se tocó: allá el recorrido sigue solo.
 - **No entra:** el yacimiento (tecla `6`), que es una página del deck con su giro por dentro.
 - **Devolver:** borrar `src/escena/mouse.ts` y la llamada a `conMouse` en `marco.ts`.
+
+### 15 · Los supuestos de costo, a la vista
+- **Cambio:** los dos deslizadores ya no están plegados. Van justo bajo la escena, antes de la interpretación, y se ven al bajar, sin clic.
+- **Por qué:** mover un costo cambia la escena, y había que saber que existían para encontrarlos.
+- **Archivos:** `src/Resultado.tsx`.

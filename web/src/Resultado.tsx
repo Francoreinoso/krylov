@@ -154,6 +154,21 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-x-10 gap-y-8 px-4 py-12 sm:px-8 lg:grid-cols-2">
+        {/* Siempre a la vista, sin clic: mover un costo cambia la escena de arriba. Va bajo la escena, no encima: son supuestos. */}
+        <div className="border-b border-linea pb-8 lg:col-span-2">
+          <h2 className="titular text-3xl">Supuestos de costo</h2>
+          <p className="mt-3 max-w-3xl text-tinta-suave">
+            Para decidir, Krylov compara dos costos. Son supuestos del demo, no precios de una minera: muévelos y la decisión de cada {analisis.unidad.singular} cambia con ellos.
+          </p>
+          <div className="mt-4 max-w-3xl">
+            <Deslizadores falsoSi={analisis.costos.falso_si} falsoNo={analisis.costos.falso_no} costos={d.costos} moneda={analisis.costo_de_no_saber?.moneda ?? 'USD'} alCambiar={d.setCostos} />
+          </div>
+          {d.total !== null && (
+            <p className="mt-4 text-tinta-suave">
+              Con estos supuestos, despejar la duda valdría unos US$ {Math.round(d.total).toLocaleString('es-CL')}. Es una cuenta sobre costos inventados: por eso no está arriba.
+            </p>
+          )}
+        </div>
         <div className="lg:col-span-2">
           <Interpretacion analisis={analisis} clave={r.clave} d={d} />
         </div>
@@ -167,20 +182,6 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
             <Examen examen={analisis.examen} />
           </div>
         )}
-        <details className="border-t border-linea pt-4 lg:col-span-2">
-          <summary className="flex min-h-11 cursor-pointer items-center text-lg">Supuestos de costo</summary>
-          <p className="mt-3 max-w-3xl text-tinta-suave">
-            Para decidir, Krylov compara dos costos. Son supuestos del demo, no precios de una minera: muévelos y la decisión de cada {analisis.unidad.singular} cambia con ellos.
-          </p>
-          <div className="mt-4 max-w-3xl">
-            <Deslizadores falsoSi={analisis.costos.falso_si} falsoNo={analisis.costos.falso_no} costos={d.costos} moneda={analisis.costo_de_no_saber?.moneda ?? 'USD'} alCambiar={d.setCostos} />
-          </div>
-          {d.total !== null && (
-            <p className="mt-4 text-tinta-suave">
-              Con estos supuestos, despejar la duda valdría unos US$ {Math.round(d.total).toLocaleString('es-CL')}. Es una cuenta sobre costos inventados: por eso no está arriba.
-            </p>
-          )}
-        </details>
       </section>
     </main>
   )
