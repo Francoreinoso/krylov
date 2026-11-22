@@ -70,7 +70,7 @@ export default function Inicio({ casos, alElegirArchivo, alProbar, alElegir, yac
               {!escena && <p className="titular text-3xl">{c.titulo}</p>}
               {c.quien && <p className="font-semibold">{c.quien}</p>}
               {c.archivo && <p className="mt-1 text-tinta-suave">{c.archivo}</p>}
-              <button onClick={() => alElegir(c)} className="mt-4 self-start text-cobre underline decoration-cobre/40 underline-offset-4 hover:decoration-cobre">
+              <button onClick={() => alElegir(c)} className="mt-2 flex min-h-11 items-center self-start text-cobre underline decoration-cobre/40 underline-offset-4 hover:decoration-cobre">
                 Subir su archivo
               </button>
             </li>
@@ -80,7 +80,7 @@ export default function Inicio({ casos, alElegirArchivo, alProbar, alElegir, yac
               {!escena && <p className="titular text-3xl">{yacimiento.titulo}</p>}
               <p className="font-semibold">{yacimiento.quien}</p>
               <p className="mt-1 text-tinta-suave">{yacimiento.archivo}</p>
-              <button onClick={alYacimiento} className="mt-4 self-start text-cobre underline decoration-cobre/40 underline-offset-4 hover:decoration-cobre">
+              <button onClick={alYacimiento} className="mt-2 flex min-h-11 items-center self-start text-cobre underline decoration-cobre/40 underline-offset-4 hover:decoration-cobre">
                 {yacimiento.ver}
               </button>
             </li>

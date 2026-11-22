@@ -59,7 +59,7 @@ export default function App() {
       const caso = r.datos.casos.find((c) => c.nombre === pedido)
       if (caso) setEtapa({ e: 'decision', caso })
       else if (pedido === 'yacimiento') setEtapa({ e: 'yacimiento' })
-    }, () => setAviso('No pude cargar las decisiones. Recarga la página.'))
+    }, () => setAviso('Krylov no pudo cargar las decisiones. Recarga la página.'))
     api.textos().then((t) => setYacimiento(t.datos.yacimiento?.titulo ? t.datos.yacimiento : null), () => {})
     despertarApi()
   }, [])
@@ -143,7 +143,7 @@ export default function App() {
       await espera(DEMO_MINIMO_MS)
       if (turno.current === mio) resolver(caso, r.datos, null, r.origen === 'api' ? 'api' : 'guardada', mio)
     } catch (e) {
-      setAviso(`No pude abrir los datos del demo: ${(e as Error).message}`)
+      setAviso(`Krylov no pudo abrir los datos del demo: ${(e as Error).message}. Recarga la página.`)
     }
   }
 
@@ -163,7 +163,7 @@ export default function App() {
     try {
       soltar(await api.archivoDePrueba(caso.nombre), caso, caso.nombre)
     } catch (e) {
-      setAviso(`No encontré el archivo de ejemplo: ${(e as Error).message}`)
+      setAviso(`Krylov no encontró el archivo de ejemplo: ${(e as Error).message}. Recarga la página.`)
     }
   }
 

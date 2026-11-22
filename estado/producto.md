@@ -38,9 +38,11 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 - dom 01:45 · P-32 terminada (D-42, bloque 2): el yacimiento entra como sexta decisión (tecla `6`; recorrido calculado antes de `pitch/deck/yacimiento.html`, rotulado: simulado, no recibe archivos, de su sello solo el mapa, M-63); la tecla `D` del deck abre la app en la decisión de la lámina (`?decision=<caso>`); teléfono revisado a 390×844 (leyenda nueva en el mapa de la roca); la barra de «¿Dónde perforo?» ya cabe a 1440×900; la interpretación no habla de plata. Verificación: `cd web && npm run build && npm run prueba && npm run lint` (45, sin avisos), `uv run pytest servicio nucleo -q` (54) y, en Chrome con Playwright, teclas `1` a `6`, `D`, `M`, `L`, los cinco archivos de `web/public/pruebas/` contra la API local y el deck con `D` en tres láminas, sin errores de consola. Detalle: `web/CAMBIOS.md`.
 - dom 01:31 · Render redesplegado con `c76c33e` y `MALLOC_ARENA_MAX=2` (lo pidió la persona de PC 1; antes era un pedido a una persona).
 
+- dom 01:52 · P-33 terminada (D-42, bloque 3): accesibilidad medida en Chrome en siete vistas a 390×844 y 1440×900 (contraste, nombres y foco pasan; se agregaron los títulos principales que faltaban y alto para el dedo en los enlaces del teléfono) y avisos y errores en una sola voz («Krylov no pudo…»). Render redesplegado con `ca9f4b0`: en la URL pública un archivo propio ya responde con su escena, y el calce lo propone Groq (1,8 a 2,9 s medidos). Verificación: `cd web && npm run build && npm run prueba && npm run lint`, `uv run pytest servicio nucleo -q` (54) y el recorrido con teclas en Chrome sin errores de consola. Detalle: `web/CAMBIOS.md`.
+
 ## En curso
 
-- dom 01:45 · P-33: revisión de diseño y accesibilidad vista por vista y lista completa de textos. Último push de fondo: 07:00.
+- dom 01:52 · Sin tarea en curso. Queda para una persona: probar en Safari, en el proyector y en un teléfono de verdad.
 
 ## Bloqueos
 
@@ -48,6 +50,7 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 ## Pedidos a otros
 
+- dom 01:52 · P-33, a PC 2: los motivos en rojo de los motores hablan en primera persona («… y practiqué con bancos de hasta 600») y el resto de la app dice «Krylov practicó»; y la frase del examen de la pared elige el tramo de 0% («Cuando dijimos cerca de 0% de riesgo, cedió el 0%»).
 - dom 00:58 · P-31, a PC 2: los `limitaciones` de los sellos (`motor/artefactos/*/sello.json`) todavía dicen «celdas», «muros simulados» y «tronadura».
 
 - sáb 20:18 · A PC 2: con `subida_flota.csv` y `hierro_ppm` sin dividir por 120, `desgaste` desborda (`np.exp` en `nucleo/desgaste.py:91`, 105 y 145), deja NaN en `curva` y el semáforo sale **verde**. Debería dar `rojo_modelo`. En `servicio/` ya no se cae (400), pero el veredicto es del motor.

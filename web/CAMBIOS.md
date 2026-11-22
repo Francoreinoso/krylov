@@ -158,8 +158,44 @@ distribución, pero con los datos del archivo.
 Para regenerar las respuestas guardadas con texto de plantilla (sin llamar a ningún modelo de lenguaje):
 `ANTHROPIC_API_KEY= GROQ_API_KEY= KRYLOV_MOTOR_ESPACIAL=red KRYLOV_MOTOR_CINETICA=red KRYLOV_MOTOR_DEFORMACION=red KRYLOV_MOTOR_SISMICO=red KRYLOV_MOTOR_DESGASTE=red uv run python -m servicio.exportar_estatico`
 
+## Tercer bloque (domingo, 01:45 a 01:55): accesibilidad y voz de los textos
+
+Revisión WCAG 2.1 AA con la skill `accessibility-review`, medida en Chrome a 390 × 844 y a 1440 × 900 en siete vistas
+(inicio, columnas, roca, pared, «no respondió», cierre y yacimiento).
+
+| Qué se midió | Resultado |
+|---|---|
+| Contraste de todo el texto (4,5:1; 3:1 en texto grande) | Pasa en las siete vistas |
+| Nombre accesible de botones, enlaces, selectores y deslizadores | Todos tienen |
+| Foco visible con teclado | Sí: contorno de 2 px en oro o tinta |
+| Idioma de la página | `es` |
+| Título principal (`h1`) | Faltaba en columnas, «no respondió», las respuestas con escena y el yacimiento: agregado |
+| Alto para el dedo en el teléfono (44 px) | Los enlaces de las fichas medían 26 px y ahora 47; la marca y «Supuestos de costo», 44. Las filas de la lista de unidades siguen en 30 px (pasan el mínimo de 24 de WCAG 2.2, no el de 44) |
+
+| Qué cambió | Por qué | Archivos |
+|---|---|---|
+| Un motivo largo de «Krylov no respondió» se escribe en tamaño de texto, no de titular | El aviso de la escala equivocada son tres frases y llenaba la pantalla | `src/Viaje.tsx` |
+| Los avisos y errores hablan todos en tercera persona («Krylov no pudo…») | Había «No pude», «No encontré», «No respondo» y «Krylov no pudo» mezclados | `src/App.tsx`, `src/api.ts`, `casos/textos.yaml` |
+| Fuera la línea «Supuestos del demo · muévelos y la respuesta cambia» | Repetía el párrafo de arriba y usaba la clase de los rótulos antiguos | `src/Deslizadores.tsx`, `src/ListaUnidades.tsx` |
+
+### Textos del tercer bloque (antes → ahora)
+| Dónde | Antes | Ahora |
+|---|---|---|
+| Aviso al cargar | «No pude cargar las decisiones. Recarga la página.» | «Krylov no pudo cargar las decisiones. Recarga la página.» |
+| Aviso del demo | «No pude abrir los datos del demo: API 500» | «Krylov no pudo abrir los datos del demo: el servidor respondió 500. Recarga la página.» |
+| Aviso del ejemplo | «No encontré el archivo de ejemplo: no encontré subida_leyes.csv» | «Krylov no encontró el archivo de ejemplo: falta subida_leyes.csv. Recarga la página.» |
+| Plantilla en rojo | «No respondo todavía: con estos datos no alcanza.» | «Krylov no responde todavía: con estos datos no alcanza.» |
+| Plantilla en rojo | «No respondo todavía: este archivo no se parece a nada que haya visto.» | «Krylov no responde todavía: este archivo no se parece a nada que haya visto.» |
+| Plantilla en amarillo | «Respondo, con un aviso: el archivo se parece a lo que practiqué, pero está cerca del borde.» | «Krylov responde, con un aviso: el archivo se parece a lo que practicó, pero está cerca del borde.» |
+| Motivo en rojo | «Este archivo no se parece a nada de lo que practiqué. Prefiero no responder antes que responder mal. …» | «Este archivo no se parece a nada de lo que Krylov practicó, y prefiere no responder antes que responder mal. …» |
+| Propuesta | «Propongo sacar la columna «X» y responder con las demás.» | «Krylov propone sacar la columna «X» y responder con las demás.» |
+| Supuestos de costo | «Supuestos del demo · muévelos y la respuesta cambia» | (se quitó: lo dice el párrafo de arriba) |
+
+**Queda en primera persona:** los motivos que escriben los motores en `nucleo/` («… y practiqué con bancos de hasta 600»). Son de PC 2 y están fuera de este encargo.
+
 ## Lo que queda pendiente
 
 - **Sin probar:** Safari, el proyector y un teléfono de verdad.
 - **Sin medir:** los cuadros por segundo de las escenas en un notebook y en un teléfono.
-- **Sin hacer:** design-critique, accessibility-review y ux-copy vista por vista; el repaso con Impeccable y Humanizer quedó fuera por decisión del equipo.
+- **Sin hacer:** `design-critique` y `ux-copy` con sus skills (la crítica de diseño y el repaso de textos se hicieron a mano, mirando cada vista en Chrome); el repaso con Impeccable y Humanizer quedó fuera por decisión del equipo.
+- **Texto flojo que sale del motor:** el examen de la pared dice «Cuando dijimos cerca de 0% de riesgo, cedió el 0%»: elige el primer tramo. Es de `nucleo/`.

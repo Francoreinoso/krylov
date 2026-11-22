@@ -34,7 +34,7 @@ export default function Calce({ columnas, calce, papeles, alConfirmar }: Props) 
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h2 className="titular text-4xl">¿Qué columna es qué?</h2>
+        <h1 className="titular text-4xl">¿Qué columna es qué?</h1>
         <p className="mt-2 text-tinta-suave">{calce ? quienPropuso(calce) : 'Krylov está leyendo las columnas de tu archivo.'}</p>
       </div>
 

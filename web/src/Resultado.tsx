@@ -96,7 +96,10 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
     <main className="flex-1">
       <section className="mx-auto px-4 sm:px-0" style={escena ? { width: `min(100%, calc((100dvh - 3.5rem - ${ALTO_BARRA}px) * 16 / 9))` } : { maxWidth: '72rem' }}>
         {escena ? (
-          <LaminaDeck key={JSON.stringify(costosEscena)} ref={mando} lamina={LAMINA_DE[analisis.caso]} datos={datos} config={configDeEscena(donde)} titulo={caso.titulo} />
+          <>
+            <h1 className="sr-only">{caso.titulo}</h1>
+            <LaminaDeck key={JSON.stringify(costosEscena)} ref={mando} lamina={LAMINA_DE[analisis.caso]} datos={datos} config={configDeEscena(donde)} titulo={caso.titulo} />
+          </>
         ) : (
           <div className="py-6">
             <h1 className="titular mb-6 text-5xl">{caso.titulo}</h1>
@@ -163,7 +166,7 @@ export default function Resultado({ caso, r, alOtroArchivo }: Props) {
           </div>
         )}
         <details className="border-t border-linea pt-4 lg:col-span-2">
-          <summary className="cursor-pointer text-lg">Supuestos de costo</summary>
+          <summary className="flex min-h-11 cursor-pointer items-center text-lg">Supuestos de costo</summary>
           <p className="mt-3 max-w-3xl text-tinta-suave">
             Para decidir, Krylov compara dos costos. Son supuestos del demo, no precios de una minera: muévelos y la decisión de cada {analisis.unidad.singular} cambia con ellos.
           </p>

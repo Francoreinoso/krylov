@@ -62,6 +62,7 @@ export default function Yacimiento({ textos }: { textos: Partial<TextosYacimient
 
   return (
     <main className="flex-1">
+      <h1 className="sr-only">{textos.titulo}</h1>
       <iframe
         ref={marco}
         src="/deck/yacimiento.html"

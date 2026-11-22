@@ -56,7 +56,8 @@ export default function Viaje({ caso, archivo, calce, papeles, fase, n, orden, m
       return (
         <div className="entra">
           <p className="text-lg text-actuar">Krylov no respondió</p>
-          <p className="titular mt-2 text-5xl">{motivo}</p>
+          {/* un motivo largo (una escala equivocada, con su arreglo) se lee como texto, no como titular */}
+          <h1 className={`titular mt-2 ${(motivo ?? '').length > 90 ? 'text-3xl leading-snug' : 'text-5xl'}`}>{motivo}</h1>
           <div className="mt-8 flex flex-wrap gap-3">
             <button onClick={alOtroArchivo} className="bg-cobre px-6 py-3 text-lg font-semibold text-fondo hover:opacity-90">
               Subir otro archivo

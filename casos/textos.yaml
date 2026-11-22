@@ -27,10 +27,10 @@ titular:
     con_duda: "{n_en_duda} {unidad_plural} están en duda. No saber te cuesta {costo_de_no_saber}."
     una_en_duda: "1 {unidad_singular} está en duda. No saber te cuesta {costo_de_no_saber}."
     sin_duda: "Ninguna duda que valga plata: con estos costos, la decisión está clara en todas las {unidad_plural}."
-  rojo_datos: "No respondo todavía: con estos datos no alcanza."
+  rojo_datos: "Krylov no responde todavía: con estos datos no alcanza."
   rojo_modelo:
-    columna_delata: "No respondo todavía: una columna delata la respuesta."
-    no_se_parece: "No respondo todavía: este archivo no se parece a nada que haya visto."
+    columna_delata: "Krylov no responde todavía: una columna delata la respuesta."
+    no_se_parece: "Krylov no responde todavía: este archivo no se parece a nada que haya visto."
 
 en_palabras:
   # Hasta tres frases, en este orden, solo las que apliquen.
@@ -51,8 +51,8 @@ en_palabras:
 
 semaforo:
   amarillo:
-    pocos_por_grupo: "Respondo, con un aviso: hay grupos con muy pocas {unidad_plural} y ahí el rango es ancho."
-    cerca_del_borde: "Respondo, con un aviso: el archivo se parece a lo que practiqué, pero está cerca del borde."
+    pocos_por_grupo: "Krylov responde, con un aviso: hay grupos con muy pocas {unidad_plural} y ahí el rango es ancho."
+    cerca_del_borde: "Krylov responde, con un aviso: el archivo se parece a lo que practicó, pero está cerca del borde."
   rojo_datos:
     pocas_filas: "Hay {n} {unidad_plural} con datos suficientes. Con tan pocas no alcanza para responder."   # la llena nucleo/tabla.py con {n}
     casi_ningun_si: "Solo {k} de {n} {unidad_plural} tienen un «sí». Con tan pocos casos no se puede separar el riesgo."   # motores antiguos; se borra en A-32
@@ -60,11 +60,11 @@ semaforo:
     serie_corta: "Hay {n} {unidad_plural} con menos de {k} mediciones: con tan poca historia no se puede decir hacia dónde van."   # motores de series
   rojo_modelo:
     columna_delata: "La columna «{columna}» adivina sola la respuesta: solo tiene dato cuando la respuesta ya se sabe. Con ella cualquier análisis parece perfecto y no sirve para decidir."
-    no_se_parece: "Este archivo no se parece a nada de lo que practiqué. Prefiero no responder antes que responder mal. Revisa que cada columna esté en su papel y en sus unidades."
+    no_se_parece: "Este archivo no se parece a nada de lo que Krylov practicó, y prefiere no responder antes que responder mal. Revisa que cada columna esté en su papel y en sus unidades."
   propuesta:
-    quitar_columna: "Propongo sacar la columna «{columna}» y responder con las demás."
+    quitar_columna: "Krylov propone sacar la columna «{columna}» y responder con las demás."
     boton: "Sacarla y responder"
-  despues_de_corregir: "Sin esa columna, el archivo cae dentro de lo que practiqué. Ahora sí respondo."
+  despues_de_corregir: "Sin esa columna, el archivo cae dentro de lo que Krylov practicó. Ahora sí responde."
 
 examen:
   # La frase la arma el servicio con `tramos` (CONTRATO.md 3): nunca a mano.

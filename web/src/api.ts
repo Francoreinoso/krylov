@@ -59,7 +59,7 @@ async function desdeApi<T>(ruta: string, cuerpo?: object, topeMs = TOPE_MS, sena
       body: cuerpo ? JSON.stringify(cuerpo) : undefined,
       signal: control.signal,
     })
-    if (!r.ok) throw new Error(`API ${r.status}`)
+    if (!r.ok) throw new Error(`el servidor respondió ${r.status}`)
     return (await r.json()) as T
   } finally {
     clearTimeout(tope)
@@ -69,7 +69,7 @@ async function desdeApi<T>(ruta: string, cuerpo?: object, topeMs = TOPE_MS, sena
 async function desdeEstatico<T>(archivo: string): Promise<T> {
   const r = await fetch(`${import.meta.env.BASE_URL}estatico/${archivo}.json`)
   // Sin el archivo, el servidor de desarrollo devuelve la página: tampoco está precalculado.
-  if (!r.ok || !r.headers.get('content-type')?.includes('json')) throw new Error(`no está precalculado (${archivo})`)
+  if (!r.ok || !r.headers.get('content-type')?.includes('json')) throw new Error(`falta la respuesta guardada (${archivo})`)
   return (await r.json()) as T
 }
 
@@ -169,7 +169,7 @@ export const api = {
   archivoDePrueba: async (caso: string): Promise<File> => {
     const nombre = `subida_${caso}.csv`
     const r = await fetch(`${import.meta.env.BASE_URL}pruebas/${nombre}`)
-    if (!r.ok || r.headers.get('content-type')?.includes('html')) throw new Error(`no encontré ${nombre}`)
+    if (!r.ok || r.headers.get('content-type')?.includes('html')) throw new Error(`falta ${nombre}`)
     return new File([await r.blob()], nombre, { type: 'text/csv' })
   },
   analizar: (caso: string, transformaciones: string[] = [], mediciones: MedicionNueva[] = []) =>

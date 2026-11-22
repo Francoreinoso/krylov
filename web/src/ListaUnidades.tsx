@@ -102,7 +102,7 @@ export default function ListaUnidades({ unidades, decisiones, corte, elegida = n
           ))}
         </ul>
       </div>
-      <p className="dato mt-2">Cada punto es una versión creíble del riesgo; la raya, el promedio.</p>
+      <p className="mt-2 text-sm text-tinta-suave">Cada punto es una versión creíble del riesgo; la raya, el promedio.</p>
     </div>
   )
 }

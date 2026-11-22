@@ -41,7 +41,6 @@ function Deslizador({ costo, valor, moneda, alCambiar }: { costo: Costo; valor: 
 export default function Deslizadores({ falsoSi, falsoNo, costos, moneda, alCambiar }: Props) {
   return (
     <div className="space-y-3">
-      <p className="dato">Supuestos del demo · muévelos y la respuesta cambia</p>
       <Deslizador costo={falsoSi} valor={costos.falsoSi} moneda={moneda} alCambiar={(v) => alCambiar({ ...costos, falsoSi: v })} />
       <Deslizador costo={falsoNo} valor={costos.falsoNo} moneda={moneda} alCambiar={(v) => alCambiar({ ...costos, falsoNo: v })} />
     </div>
