@@ -11,6 +11,17 @@ Hay un respaldo para cada una:
 
 Para pedirlo: «vuelve las láminas 7 y 12 al estado de `pitch/deck/antes_pasada_final`, y mantén las demás como están». También se puede conservar una parte: «vuelve la lámina 12 a como estaba, pero mantén la transición nueva».
 
+## Guion de las 02:45 (domingo 22 de noviembre, PC 2 por encargo de Rodrigo)
+
+**Ninguna lámina cambió en pantalla.** Solo cambió lo que se dice, y por eso cambiaron las notas (tecla `N`) de las láminas 1 a 8 y 12 a 14, y los tiempos de `config.js`. El guion completo, con la demo ensayada contra la URL pública, está en [`../PITCH_FINAL.md`](../PITCH_FINAL.md).
+
+- **Lámina 7:** el segundo paso ahora dice la cuenta de «¿Dónde perforo?» (480 mapas en poco más de un segundo; el método de siempre tardaría quince horas), porque la demo ya no lo muestra.
+- **Lámina 12:** el 94 se dice con lo que la pantalla ya muestra al lado: Krylov se pronunció en un tercio de los bloques.
+- **Lámina 13:** se dice que los dos mil casos son simulados y que el examen con datos reales es de un terreno.
+- **Lámina 14:** la frase de cierre pasó al final de la demo; aquí queda solo el puente.
+
+Probado a las 02:50 en Chrome sin ventana (`?estatico`, láminas 1, 7, 12, 13 y 14 con las notas abiertas): las frases y los tiempos nuevos aparecen, sin errores de consola.
+
 ## Después de la pasada final (domingo 22 de noviembre, 01:45 a 02:10, PC 3 por encargo de Clemente)
 
 Dos cambios, y nada más:

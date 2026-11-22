@@ -15,8 +15,8 @@ window.KRYLOV_CONFIG = {
   // Nombres para la lámina de cierre. Se escriben cuando cada persona confirme que se puede mostrar el suyo.
   equipo: [],
   // Tiempos del guion final (pitch/PITCH_FINAL.md) para las notas de cada lámina: contados a 150 palabras por minuto
-  // más 1,2 segundos por pulsación. Es una cuenta: el cronómetro de verdad es el ensayo.
+  // más 0,8 segundos por pulsación. Es una cuenta: el cronómetro de verdad es el ensayo.
   tiempos: {
-    valor: '0:00 a 0:13', paradigma: '0:13 a 0:23', flujo: '0:23 a 0:34', mundos: '0:34 a 0:38', rafaga: '0:38 a 0:43', vision: '0:43 a 0:48', leyes: '0:48 a 1:03', taludes: '1:03 a 1:10', flotacion: '1:10 a 1:14', flota: '1:14 a 1:17', sismicidad: '1:17 a 1:23', yacimiento: '1:23 a 1:44', confianza: '1:44 a 1:52', cierre: '1:52 a 2:00',
+    valor: '0:00 a 0:13', paradigma: '0:13 a 0:21', flujo: '0:21 a 0:29', mundos: '0:29 a 0:34', rafaga: '0:34 a 0:38', vision: '0:38 a 0:42', leyes: '0:42 a 1:02', taludes: '1:02 a 1:09', flotacion: '1:09 a 1:13', flota: '1:13 a 1:16', sismicidad: '1:16 a 1:22', yacimiento: '1:22 a 1:46', confianza: '1:46 a 1:59', cierre: '1:59 a 2:03',
   },
 };

@@ -67,7 +67,7 @@ La red no entrega un número: para cada bloque, sector, línea o camión entrega
 
 Lo que la red sí aprende es el ancho de cada rango, y eso es lo que examina la lámina 13. El rango sale ancho con pocos datos cerca, con mediciones ruidosas o cuando el valor está pegado al límite.
 
-En la app hay un segundo «no sé» que el deck no muestra: el semáforo rojo, cuando el archivo no se parece a nada de lo que la red practicó.
+En la app hay un segundo «no sé» que el deck no muestra: el semáforo rojo, cuando el archivo trae muy pocos datos, más de los que la red practicó, o viene en otra escala. Es lo que muestra la demo con el archivo de 12 muestras (`../PITCH_FINAL.md`).
 
 ## Lo que hay detrás, y que la pantalla no dice
 
