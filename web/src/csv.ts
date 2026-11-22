@@ -11,7 +11,7 @@ export interface InfoCsv {
 }
 
 const MUESTRA = 2400
-export const TOPE_MB = 8 // más que esto no es un archivo de una decisión: es otra cosa
+export const TOPE_MB = 5 // el mismo tope del servidor (MAX_BYTES en servicio/app.py): más que esto no es un archivo de una decisión
 
 // Un texto que no es UTF-8 trae caracteres de reemplazo; entonces se lee como latin-1 (Excel en Windows).
 async function texto(archivo: File): Promise<string> {

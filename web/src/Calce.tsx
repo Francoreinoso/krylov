@@ -14,7 +14,7 @@ function quienPropuso(c: DatosCalce): string {
   if (c.origen === 'regla') return 'Krylov las eligió por el nombre y el tipo de cada columna.'
   if (c.propuesto_por?.tipo === 'equipo') return 'Las columnas de este archivo ya las eligió el equipo.'
   const quien = c.propuesto_por?.proveedor ?? (c.proveedor === 'claude' ? 'Claude' : c.proveedor === 'groq' ? 'Groq' : null)
-  return `Las propuso un modelo de lenguaje${quien ? ` (${quien})` : ''}, que leyó el nombre y un resumen de cada columna, nunca las filas.`
+  return `Las propuso un modelo de lenguaje${quien ? ` (${quien})` : ''}, que leyó el nombre, un resumen y tres valores de ejemplo de cada columna; nunca filas completas.`
 }
 
 interface Props {

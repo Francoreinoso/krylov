@@ -42,6 +42,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - dom 02:15 · P-34 terminada: la respuesta de un archivo propio de sismicidad quedaba en negro (la escena de los túneles del deck se cae con menos de 8 sectores); ahora, si la escena falla o no carga en 12 s, se muestra el respaldo (lista y curva). Verificación: en Chrome, los cinco archivos de `web/public/pruebas/` contra la API local, mirando cada captura: cuatro con escena y sismicidad con respaldo.
 
+- dom 02:56 · P-35 terminada: dos desajustes entre lo que la pantalla dice y lo que hace el código. El calce propuesto por un modelo de lenguaje ahora dice lo que se le manda («el nombre, un resumen y tres valores de ejemplo de cada columna; nunca filas completas», como `servicio/calce.py`), y el navegador rechaza un archivo sobre 5 MB, igual que el servidor (antes dejaba pasar hasta 8 MB y el rechazo llegaba después de la animación). Verificación: `cd web && npm run build && npm run prueba && npm run lint`, y en Chrome un CSV de 6 MB: «pesa 6 MB, y una decisión cabe en menos de 5 MB». La frase nueva del calce no se vio en pantalla: en local el calce lo propone la regla.
+
 ## En curso
 
 - dom 01:52 · Sin tarea en curso. Queda para una persona: probar en Safari, en el proyector y en un teléfono de verdad.
