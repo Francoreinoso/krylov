@@ -2,7 +2,7 @@
 
 Lo escribe solo `seguimiento` (PC 3), en cada ronda y en cada hito. Se carga en cada sesión de los tres computadores: mantenerlo bajo 50 líneas. El tablero en vivo (https://silent-math.github.io/krylov-panel/) lee este archivo.
 
-**Actualizado:** sáb 21-nov 22:21 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
+**Actualizado:** sáb 21-nov 22:42 · **Producto terminado (H6): tag `congelado` (18:32)** · Tope de redes: 20:30, cerrado: las cinco pasaron
 
 **URL pública:** https://krylov-krylov.vercel.app/ (desde las 18:55; la anterior, krylov-tan, quedó con la app antigua). Falta que PC 1 exporte `flota` con su red y redespliegue.
 
@@ -28,13 +28,13 @@ Verificado en PC 3 a las 20:06, corriendo `api.analizar` con cada red: `leyes` (
 |---|---|---|
 | producto (PC 1) | 🟡 | URL nueva funcionando con cuatro tarjetas (P-28, P-30). Falta `flota` con `KRYLOV_MOTOR_DESGASTE=red`, exportar y redesplegar |
 | amortizacion (PC 2) | 🟢 | `desgaste` PASA (19:35): cinco de cinco. Quedan A-35 (README técnico) y revisar el método lento que PC 3 escribió |
-| seguimiento (PC 3) | 🟢 | Sexto motor `yacimiento` (D-40, fuera del producto): su sello pasa (22:19; mapa 0,901, con 2.000 de validación). Su método lento corre desde las 22:20. Falta el de `desgaste` |
+| seguimiento (PC 3) | 🟡 | Sexto motor `yacimiento` (D-40, fuera del producto): **su sello no pasa** (parámetros); el mapa sí está calibrado (0,901) y coincide con el método lento (913 s contra 20 ms; misma decisión en 92% de los bloques). Falta el método lento de `desgaste` |
 
 ## Siguiente tarea de cada uno, y la que viene después (D-29)
 
 - **PC 1 · producto:** ahora exportar el estático con las cinco redes (`flota` incluida) y redesplegar; después cerrar **P-29** y preparar el demo (`preparar-demo`).
 - **PC 2 · amortizacion:** ahora **A-35** (README técnico). Además: enlazar en el deck la página nueva `pitch/deck/yacimiento.html` (PC 3 no tocó `index.html`), y revisar el método lento propuesto en `estado/a36_metodo_lento/`.
-- **PC 3 · seguimiento:** ahora el método lento de `yacimiento` (corriendo) y después el de `desgaste`. Después: ensayo y entrega (S-30).
+- **PC 3 · seguimiento:** ahora el método lento de `desgaste` (lo único que queda de A-36). Después: ensayo y entrega (S-30). De `yacimiento` se cuenta solo el mapa (M-63 a M-65).
 
 ## Qué cambió respecto del plan
 

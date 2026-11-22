@@ -43,6 +43,8 @@ Archivo nuevo desde el pivote a minería (D-37, sáb 12:10). Lo anterior está e
 
 - sáb 22:21 · D-40, `yacimiento`: retomado 30 min con tasa 1,5e-4 por encargo de la persona de PC 3 (total 126.696 yacimientos simulados, 110 min). Con 400 de validación fallaba un parámetro por 0,0003 del límite; medido con los 2.000 del criterio (D-32), **el sello pasa sus cinco criterios** (22:19): mapa 0,901 (sin muestra 0,900; peor tramo 0,900), parámetros 0,899, χ² máximo 21,45 (`log_sigma`, en el borde), 18 a 19 ms. Limitación en el sello: no aprendió los alcances del campo. Respaldo local de la red de las 21:44 en `yacimiento/checkpoints/`. Método lento del demo lanzado a las 22:20, sin nada entrenando.
 
+- sáb 22:42 · D-40, `yacimiento`, **corrección de lo anotado a las 22:21: el sello NO pasa.** El «pasa» de las 22:19 no era firme: el muestreo del flujo en `validar.py` no tenía semilla y el SBC cambiaba entre corridas (χ² máximo 21,45, después 30,65). Con semilla fija sale igual dos veces: SBC falla en `log_sigma` (27,61). Además, método lento del demo corrido (22:20 a 22:35, sin nada más): 913 s, r̂ 1,001; el mapa de la red coincide (0,24 desviaciones, misma decisión en 92,1% de los bloques) y los parámetros no (0,89 desviaciones; límite 0,3). Se cuenta el mapa, no los parámetros. Cifras: M-63 a M-65. Página del deck exportada con el tiempo del método lento.
+
 ## En curso
 
 - sáb 20:15 · A-36: corriendo el método lento de `desgaste` (archivo de `flota` y 4 flotas simuladas, 10 minutos de presupuesto cada una). Es lento: en la prueba corta tardó 601 s con 200 + 200.

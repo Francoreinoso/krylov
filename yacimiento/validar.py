@@ -40,6 +40,7 @@ def cargar(dispositivo: str = "cpu") -> tuple[RedYacimiento, dict]:
 @torch.no_grad()
 def en_simulaciones(red: RedYacimiento, datasets: int, dispositivo: str, lote: int = 20, muestras: int = 99, semilla: int = 12345) -> dict:
     gen = torch.Generator().manual_seed(semilla)
+    torch.manual_seed(semilla)                # también el ruido con que se muestrea el flujo: sin esto el SBC cambia de una corrida a otra
     dentro, dentro_sin, n_sond, err_red, err_lin, rangos, verdad_t, media_t, z_todos = [], [], [], [], [], [], [], [], []
     for _ in range(math.ceil(datasets / lote)):
         sim = {k: v.to(dispositivo) for k, v in M.simular(lote, gen).items()}
@@ -158,7 +159,8 @@ def main() -> None:
              "fecha": time.strftime("%Y-%m-%d"), "hora": time.strftime("%H:%M"),
              "limitaciones": ["Motor fuera del producto congelado a las 18:00: no tiene tarjeta en la app.",
                               "Datos simulados con el mismo modelo; no se probó con sondajes reales.",
-                              "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa. `log_sigma` pasa el χ² en el borde (21,45 con límite 21,67).",
+                              "La cabeza de parámetros no pasa: el SBC falla en `log_sigma` (χ² 27,61 con límite 21,67) y, contra el MCMC de referencia en el yacimiento del demo, sus medias quedan a 0,89 desviaciones (límite 0,3) con un posterior 1,7 veces más ancho. Lo que sí coincide con la referencia es el mapa: 0,24 desviaciones y la misma decisión en 92% de los bloques.",
+                              "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa.",
                               "La cabeza de mapa entrega el predictivo marginal de cada bloque como una normal; no entrega correlación entre bloques."]}
     ARTEFACTOS.mkdir(parents=True, exist_ok=True)
     (ARTEFACTOS / "sello.json").write_text(json.dumps(sello, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")

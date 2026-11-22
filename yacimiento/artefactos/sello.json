@@ -1,12 +1,13 @@
 {
  "motor_id": "yacimiento",
- "pasa": true,
+ "pasa": false,
  "criterios": {
   "cobertura_mapa_entre_85_y_95": true,
   "peor_tramo_sobre_80": true,
   "cobertura_parametros_entre_85_y_95": true,
-  "sbc_sin_sesgo": true,
-  "analisis_bajo_1_s": true
+  "sbc_sin_sesgo": false,
+  "analisis_bajo_1_s": true,
+  "mcmc_bajo_0_3": false
  },
  "simulaciones_entrenamiento": 126696,
  "entrenamiento_min": 110,
@@ -35,98 +36,98 @@
   ],
   "error_cuadratico_red": 0.2359,
   "error_cuadratico_tendencia_lineal": 0.3003,
-  "cobertura_90_parametros": 0.8993,
-  "sbc_chi2_max": 21.45,
-  "sbc_pasa": true,
+  "cobertura_90_parametros": 0.8995,
+  "sbc_chi2_max": 27.61,
+  "sbc_pasa": false,
   "parametros": {
    "log_a": {
-    "chi2_uniformidad": 10.89,
-    "rango_medio": 0.4932,
-    "cobertura_90": 0.907,
-    "recuperacion": 0.028
+    "chi2_uniformidad": 7.11,
+    "rango_medio": 0.494,
+    "cobertura_90": 0.9035,
+    "recuperacion": 0.03
    },
    "e1": {
-    "chi2_uniformidad": 8.06,
-    "rango_medio": 0.5159,
-    "cobertura_90": 0.9035,
-    "recuperacion": -0.017
+    "chi2_uniformidad": 8.18,
+    "rango_medio": 0.5154,
+    "cobertura_90": 0.9045,
+    "recuperacion": 0.019
    },
    "e2": {
-    "chi2_uniformidad": 12.64,
-    "rango_medio": 0.4881,
-    "cobertura_90": 0.9035,
-    "recuperacion": -0.017
+    "chi2_uniformidad": 16.3,
+    "rango_medio": 0.4865,
+    "cobertura_90": 0.909,
+    "recuperacion": 0.006
    },
    "log_az": {
-    "chi2_uniformidad": 9.56,
-    "rango_medio": 0.4952,
+    "chi2_uniformidad": 6.9,
+    "rango_medio": 0.4936,
     "cobertura_90": 0.9065,
-    "recuperacion": 0.037
+    "recuperacion": 0.069
    },
    "log_sigma": {
-    "chi2_uniformidad": 21.45,
-    "rango_medio": 0.5256,
-    "cobertura_90": 0.896,
-    "recuperacion": 0.932
+    "chi2_uniformidad": 27.61,
+    "rango_medio": 0.5264,
+    "cobertura_90": 0.8915,
+    "recuperacion": 0.931
    },
    "log_tau": {
-    "chi2_uniformidad": 4.38,
-    "rango_medio": 0.5051,
-    "cobertura_90": 0.9025,
-    "recuperacion": 0.223
+    "chi2_uniformidad": 7.78,
+    "rango_medio": 0.505,
+    "cobertura_90": 0.893,
+    "recuperacion": 0.21
    },
    "beta0": {
-    "chi2_uniformidad": 17.31,
-    "rango_medio": 0.4849,
-    "cobertura_90": 0.91,
-    "recuperacion": 0.953
+    "chi2_uniformidad": 21.64,
+    "rango_medio": 0.4843,
+    "cobertura_90": 0.9155,
+    "recuperacion": 0.954
    },
    "beta_profundidad": {
-    "chi2_uniformidad": 17.91,
-    "rango_medio": 0.4793,
-    "cobertura_90": 0.885,
-    "recuperacion": 0.762
+    "chi2_uniformidad": 17.58,
+    "rango_medio": 0.4791,
+    "cobertura_90": 0.881,
+    "recuperacion": 0.76
    },
    "beta_cercania_falla": {
-    "chi2_uniformidad": 16.95,
-    "rango_medio": 0.512,
-    "cobertura_90": 0.8845,
+    "chi2_uniformidad": 20.87,
+    "rango_medio": 0.5133,
+    "cobertura_90": 0.886,
     "recuperacion": 0.918
    },
    "beta_litologia_B": {
-    "chi2_uniformidad": 8.68,
-    "rango_medio": 0.4967,
-    "cobertura_90": 0.9015,
-    "recuperacion": 0.869
+    "chi2_uniformidad": 5.43,
+    "rango_medio": 0.4949,
+    "cobertura_90": 0.9085,
+    "recuperacion": 0.87
    },
    "beta_litologia_C": {
-    "chi2_uniformidad": 6.62,
-    "rango_medio": 0.5064,
-    "cobertura_90": 0.9035,
+    "chi2_uniformidad": 9.7,
+    "rango_medio": 0.5054,
+    "cobertura_90": 0.9065,
     "recuperacion": 0.865
    },
    "beta_alteracion": {
-    "chi2_uniformidad": 18.34,
-    "rango_medio": 0.4764,
-    "cobertura_90": 0.897,
+    "chi2_uniformidad": 16.47,
+    "rango_medio": 0.4795,
+    "cobertura_90": 0.8955,
     "recuperacion": 0.956
    },
    "beta_geofisica_1": {
-    "chi2_uniformidad": 4.65,
-    "rango_medio": 0.4993,
-    "cobertura_90": 0.89,
-    "recuperacion": 0.938
+    "chi2_uniformidad": 10.99,
+    "rango_medio": 0.4997,
+    "cobertura_90": 0.8995,
+    "recuperacion": 0.939
    },
    "beta_geofisica_2": {
-    "chi2_uniformidad": 10.8,
-    "rango_medio": 0.4869,
-    "cobertura_90": 0.898,
+    "chi2_uniformidad": 11.45,
+    "rango_medio": 0.4873,
+    "cobertura_90": 0.892,
     "recuperacion": 0.941
    },
    "beta_vetillas": {
-    "chi2_uniformidad": 8.66,
-    "rango_medio": 0.5112,
-    "cobertura_90": 0.901,
+    "chi2_uniformidad": 9.69,
+    "rango_medio": 0.51,
+    "cobertura_90": 0.9,
     "recuperacion": 0.972
    }
   }
@@ -184,13 +185,36 @@
    "falso_no": 90000.0
   }
  },
- "mcmc": null,
+ "mcmc": {
+  "datasets": [
+   {
+    "clave": "demo",
+    "segundos_nuts": 883.9,
+    "segundos_mapa": 28.8,
+    "r_hat_max": 1.001,
+    "divergencias": 0,
+    "dif_theta_media": 0.899,
+    "dif_theta_max": 2.937,
+    "parametro_de_la_max": "beta_alteracion",
+    "razon_desv_theta_mediana": 1.7,
+    "mapa_dif_media_en_desv": 0.239,
+    "mapa_razon_desv_mediana": 1.014,
+    "mapa_dif_p_media": 0.0577,
+    "bloques_con_la_misma_decision": 0.9205
+   }
+  ],
+  "mcmc_datasets_comparados": 1,
+  "mcmc_s_por_dataset": 912.7,
+  "mcmc_diferencia_media": 0.899,
+  "mcmc_r_hat_max": 1.001
+ },
  "fecha": "2026-11-21",
- "hora": "22:19",
+ "hora": "22:40",
  "limitaciones": [
   "Motor fuera del producto congelado a las 18:00: no tiene tarjeta en la app.",
   "Datos simulados con el mismo modelo; no se probó con sondajes reales.",
-  "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa. `log_sigma` pasa el χ² en el borde (21,45 con límite 21,67).",
+  "La cabeza de parámetros no pasa: el SBC falla en `log_sigma` (χ² 27,61 con límite 21,67) y, contra el MCMC de referencia en el yacimiento del demo, sus medias quedan a 0,89 desviaciones (límite 0,3) con un posterior 1,7 veces más ancho. Lo que sí coincide con la referencia es el mapa: 0,24 desviaciones y la misma decisión en 92% de los bloques.",
+  "La red no aprendió los cuatro parámetros de alcance y dirección del campo (recuperación cerca de 0): su posterior es casi el prior. Está calibrado, pero no informa.",
   "La cabeza de mapa entrega el predictivo marginal de cada bloque como una normal; no entrega correlación entre bloques."
  ]
 }
