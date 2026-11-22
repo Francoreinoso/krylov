@@ -11,6 +11,15 @@ Hay un respaldo para cada una:
 
 Para pedirlo: «vuelve las láminas 7 y 12 al estado de `pitch/deck/antes_pasada_final`, y mantén las demás como están». También se puede conservar una parte: «vuelve la lámina 12 a como estaba, pero mantén la transición nueva».
 
+## Después de la pasada final (domingo 22 de noviembre, 01:45 a 02:10, PC 3 por encargo de Clemente)
+
+Dos cambios, y nada más:
+
+- **Lámina 12, tercer paso: la perforación cambió de lugar.** Antes era la columna con más duda, y la tarjeta decía «No se sabe» de arriba abajo; se veía mal en el pitch. Ahora es la columna donde Krylov se pronuncia en más profundidades y pasa de mineral a estéril: «Mineral» hasta unos 135 metros, después «Estéril», y «No se sabe» al fondo (9, 4 y 3 pisos de 16). En los 13 pisos donde se pronuncia coincide con la respuesta correcta. Como ya no es el lugar de más duda, **dejó de llamarse «Próxima perforación»: ahora dice «Perforación»**, y el texto pasó de «La próxima perforación va donde hay más duda. Esto encontraría al bajar:» a «Y a cada profundidad Krylov dice qué hay. Bajando por esta perforación:». Archivo: `yacimiento.html` (la elección de la columna y tres textos).
+- **Las notas (tecla `N`) de las 14 láminas del recorrido** traen las frases del guion nuevo: dos minutos de relato y un minuto de demo en vivo (`../PITCH_FINAL.md`). En pantalla no cambió nada. Archivo: los párrafos `dice` de `index.html`.
+
+Para volver atrás: `git checkout df62ac3 -- pitch/deck/yacimiento.html pitch/deck/index.html pitch/PITCH_FINAL.md`.
+
 ## Pasada final (domingo 22 de noviembre, 00:30 a 02:45)
 
 Cambiaron cinco láminas (2, 7, 12, L y W). Las otras trece quedaron iguales en pantalla; a las notas de las 14 del recorrido se les cambió la frase de «qué se dice», que ahora es la de [`../PITCH_FINAL.md`](../PITCH_FINAL.md).

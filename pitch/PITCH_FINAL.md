@@ -1,62 +1,69 @@
 # Krylov · el pitch final
 
-Para quien presenta. Son tres minutos con el deck (`pitch/deck/index.html`) de principio a fin: 14 láminas y 18 pulsaciones de `→`. Las mismas frases están en las notas de cada lámina (tecla `N`), así que se puede ensayar sin este archivo.
+Para quien presenta. Son **tres minutos: dos de relato con el deck y uno de demo en vivo.** El deck (`pitch/deck/index.html`) tiene 14 láminas y 18 pulsaciones de `→`; la demo se abre con la tecla `D`. Las mismas frases están en las notas de cada lámina (tecla `N`), así que se puede ensayar sin este archivo.
 
-Este guion reemplaza a `PITCH_v2.md` y a `GUION.md`, que describen decks anteriores.
+Este guion reemplaza a la versión de tres minutos de relato (domingo 01:20), a `PITCH_v2.md` y a `GUION.md`.
 
 ## La idea, en una frase
 
 **Krylov responde en milisegundos lo que a un especialista le toma horas, y dice cuándo no sabe.**
 
-Todo el pitch empuja esa frase en cuatro movimientos. El orden es el de un deck de ronda semilla de Y Combinator (qué hacemos, el problema, por qué ahora, la prueba, el pedido), sin negocio, porque aquí no puntúa.
+## El hilo
 
-1. **Qué es y qué problema resuelve** (lámina 1). En una minera las decisiones no esperan y el modelo bueno tarda horas.
-2. **Por qué ahora se puede** (láminas 2 a 5). Se entrena una vez con simulaciones y después solo se responde, como un LLM.
-3. **La prueba, a la vista** (láminas 6 a 12). Seis preguntas de una minera, cada una respondida con su rango. Aquí vive el mensaje que nos distingue: donde el rango no alcanza, Krylov dice «no sé» y muestra dónde medir.
-4. **Por qué creerle y qué hacer ahora** (láminas 13 y 14). El rango está medido, y hay un QR.
+Es una sola historia, y cada lámina le entrega la palabra a la siguiente. Si una frase no empuja a la que viene, sobra.
+
+1. **Una mañana en una mina** (lámina 1). Hay que decidir ya, y el modelo bueno tarda horas. Queda planteada la pregunta: ¿cómo lo hace Krylov en milisegundos?
+2. **«¿Cómo?»** (láminas 2 a 5). La respuesta parte con esa palabra: como un LLM. Antes se entrenaba con cada dataset; hoy una vez, con simulaciones. «Por eso» entra un archivo y sale la respuesta.
+3. **«¿Qué respuestas?»** (láminas 6 a 11). Las de todos los días. Se parte por la roca, donde aparece el «no sé», y de ahí «la misma idea» recorre la pared, la planta, la flota y los túneles: una frase corta por lámina, porque la idea ya se entendió.
+4. **«Queda la pregunta más grande»** (lámina 12). El mineral bajo el rajo. Es el clímax: la cámara baja y Krylov responde metro a metro.
+5. **«¿Y se le puede creer?»** (lámina 13). La duda que el público ya tiene, dicha en voz alta y respondida con una medición.
+6. **«No me crean a mí»** (lámina 14). El cierre no pide confianza: entrega la demo.
 
 ## La cuenta
 
-- **362 palabras.** A 150 palabras por minuto son 2:24 de habla.
-- **18 pulsaciones** de `→`, a 1,2 segundos cada una: 22 segundos.
-- **Total: 2:46.** Quedan 14 segundos para las tres pausas del show (más abajo). Es una cuenta, no un cronómetro: el primer ensayo manda.
+- **265 palabras.** A 150 palabras por minuto son 1:46 de habla.
+- **18 pulsaciones** de `→`, a 0,8 segundos cada una: 14 segundos.
+- **Total del relato: 2:00.** Las pausas del show (más abajo) suman unos 6 segundos: por eso las láminas 9 y 10 se dicen casi sin detenerse.
+- **Demo: un minuto**, cronometrado aparte.
+- Es una cuenta, no un cronómetro: **nadie lo ha ensayado con reloj todavía.** El primer ensayo manda.
 
 | # | Lámina | Desde | Hasta | Palabras |
 |---|---|---|---|---|
-| 1 | Portada | 0:00 | 0:11 | 29 |
-| 2 | Generative AI para datasets | 0:11 | 0:26 | 34 |
-| 3 | Antes y hoy | 0:26 | 0:42 | 33 |
-| 4 | Simulaciones | 0:42 | 0:49 | 16 |
-| 5 | Entra un archivo, sale la respuesta | 0:49 | 0:54 | 10 |
-| 6 | Seis decisiones | 0:54 | 1:00 | 10 |
-| 7 | La roca | 1:00 | 1:28 | 64 |
-| 8 | La pared | 1:28 | 1:38 | 24 |
-| 9 | La planta | 1:38 | 1:44 | 10 |
-| 10 | Los camiones | 1:44 | 1:52 | 17 |
-| 11 | Los túneles | 1:52 | 2:01 | 21 |
-| 12 | ¿Dónde está el mineral? | 2:01 | 2:26 | 51 |
-| 13 | ¿Y cómo sé que acierta? | 2:26 | 2:37 | 23 |
-| 14 | Cierre | 2:37 | 2:46 | 20 |
+| 1 | Portada | 0:00 | 0:13 | 33 |
+| 2 | Generative AI para datasets | 0:13 | 0:23 | 23 |
+| 3 | Antes y hoy | 0:23 | 0:34 | 24 |
+| 4 | Simulaciones | 0:34 | 0:38 | 9 |
+| 5 | Entra un archivo, sale la respuesta | 0:38 | 0:43 | 10 |
+| 6 | Seis decisiones | 0:43 | 0:48 | 10 |
+| 7 | La roca | 0:48 | 1:03 | 33 |
+| 8 | La pared | 1:03 | 1:10 | 16 |
+| 9 | La planta | 1:10 | 1:14 | 8 |
+| 10 | Los camiones | 1:14 | 1:17 | 7 |
+| 11 | Los túneles | 1:17 | 1:23 | 12 |
+| 12 | ¿Dónde está el mineral? | 1:23 | 1:44 | 44 |
+| 13 | ¿Y cómo sé que acierta? | 1:44 | 1:52 | 18 |
+| 14 | Cierre | 1:52 | 2:00 | 18 |
+| | **Demo en vivo** (tecla `D`) | 2:00 | 3:00 | cerca de 90 |
 
 ## El guion
 
 `[→]` es una pulsación. Lo que va entre comillas se dice tal cual. Debajo de cada frase está lo que tiene que verse en pantalla antes de pulsar de nuevo.
 
-### 1 · Portada (0:00 a 0:11)
+### 1 · Portada (0:00 a 0:13)
 
-> «En una minera, las decisiones grandes no esperan, y el modelo que mide bien el riesgo toma horas. Krylov lo responde en milisegundos, y dice cuánto se puede equivocar.»
+> «Son las seis de la mañana en una mina. Hay que decidir ya, y el modelo que mide bien el riesgo tarda horas. Krylov responde en milisegundos, y dice cuánto se puede equivocar.»
 
 Antes de seguir: nada. El nombre y el rajo ya están en pantalla; se parte hablando.
 
-### 2 · Generative AI para datasets (0:11 a 0:26)
+### 2 · Generative AI para datasets (0:13 a 0:23)
 
 `[→]`
 
-> «Piensen en un LLM. Le preguntan cuál es la mejor hackathon del año y responde, sin que nadie lo entrenara para esa pregunta. Krylov hace lo mismo con datos: subes tu dataset y responde.»
+> «¿Cómo? Como un LLM: nadie lo entrenó para tu pregunta, y responde igual. Krylov hace eso con datos: subes tu dataset y responde.»
 
-Antes de seguir: que el LLM termine de escribir «Platanus Hack 26. Por lejos.» (unos 3 segundos). Es el guiño a la sala: se deja respirar.
+Antes de seguir: que el LLM termine de escribir «Platanus Hack 26. Por lejos.» Es el guiño a la sala: se deja respirar.
 
-### 3 · Antes y hoy (0:26 a 0:42)
+### 3 · Antes y hoy (0:23 a 0:34)
 
 `[→]`
 
@@ -66,19 +73,19 @@ Antes de seguir: un dataset cruzando las tres cajas.
 
 `[→]`
 
-> «Hoy entrenar sale del ciclo: se hace una vez, con datos simulados, y cada dataset cruza la red y sale respondido.»
+> «Hoy el entrenamiento se hace una sola vez, antes, con datos simulados.»
 
 Antes de seguir: las cajas bajando y la grilla de respuestas llenándose.
 
-### 4 · Simulaciones (0:42 a 0:49)
+### 4 · Simulaciones (0:34 a 0:38)
 
 `[→]`
 
-> «Antes de ver un dato real, Krylov practicó con 71 millones de simulaciones, en dos notebooks.»
+> «Setenta y un millones de simulaciones, en dos notebooks.»
 
 Antes de seguir: el contador llegando a 71.560.512.
 
-### 5 · Entra un archivo, sale la respuesta (0:49 a 0:54)
+### 5 · Entra un archivo, sale la respuesta (0:38 a 0:43)
 
 `[→]`
 
@@ -86,108 +93,127 @@ Antes de seguir: el contador llegando a 71.560.512.
 
 Antes de seguir: dos o tres mapas saliendo.
 
-### 6 · Seis decisiones (0:54 a 1:00)
+### 6 · Seis decisiones (0:43 a 0:48)
 
 `[→]`
 
-> «Una minera se hace estas seis preguntas todos los días.»
+> «¿Qué respuestas? Las que una minera necesita todos los días.»
 
 Antes de seguir: las seis preguntas.
 
-### 7 · La roca (1:00 a 1:28)
+### 7 · La roca (0:48 a 1:03)
 
 `[→]`
 
-> «La primera: ¿proceso esta roca o la aparto? En cada punto, Krylov da el arsénico con su rango. Si el rango queda bajo el máximo, verde: a la planta. Si queda sobre, rojo. Y si lo cruza, amarillo: ahí Krylov dice «no sé».»
+> «Empecemos por la roca: ¿la proceso o la aparto? Verde, a la planta. Rojo, se aparta. Y amarillo: ahí Krylov dice «no sé».»
 
 Antes de seguir: el punto viajando y la curva moviéndose contra la línea del máximo. Conviene esperar a que pase por un amarillo.
 
 `[→]`
 
-> «Y te dice dónde perforar para salir de la duda: rehízo el mapa 480 veces en poco más de un segundo.»
+> «Y como no sabe, te dice dónde perforar para averiguarlo.»
 
 Antes de seguir: el barrido de luces y las tres barras: A, B y C.
 
-### 8 · La pared (1:28 a 1:38)
+### 8 · La pared (1:03 a 1:10)
 
 `[→]`
 
-> «La pared del rajo se mueve. Al Sector 10 le quedan unas cinco horas: conviene cerrarlo. El que más se movió puede seguir abierto.»
+> «La misma idea en la pared del rajo: a este sector le quedan unas cinco horas.»
 
 Antes de seguir: la tarjeta del Sector 10 y el tramo que cede.
 
-### 9 · La planta (1:38 a 1:44)
+### 9 · La planta (1:10 a 1:14)
 
 `[→]`
 
-> «En la planta, cuánto cobre se pierde en cada línea.»
+> «En la planta: cuánto cobre se está perdiendo.»
 
 Antes de seguir: la cifra que cae al relave.
 
-### 10 · Los camiones (1:44 a 1:52)
+### 10 · Los camiones (1:14 a 1:17)
 
 `[→]`
 
-> «Qué camión paro hoy: Krylov da el riesgo de que cada uno falle antes de su mantención.»
+> «En la flota: qué camión parar hoy.»
 
 Antes de seguir: un camión encendido con su tarjeta.
 
-### 11 · Los túneles (1:52 a 2:01)
+### 11 · Los túneles (1:17 a 1:23)
 
 `[→]`
 
-> «Bajo tierra, después de una explosión: dónde ya puede volver la gente y dónde todavía no se sabe. Decide el especialista.»
+> «Y bajo tierra: dónde puede volver la gente. Ahí decide el especialista.»
 
 Antes de seguir: la onda de la explosión y un sector con su tarjeta.
 
-### 12 · ¿Dónde está el mineral? (2:01 a 2:26)
+### 12 · ¿Dónde está el mineral? (1:23 a 1:44)
 
 `[→]`
 
-> «Y la más grande: ¿dónde está el mineral? Aquí se perforó: 604 muestras de roca.»
+> «Queda la pregunta más grande: ¿dónde está el mineral? Aquí se perforó.»
 
 Antes de seguir: el rajo desde arriba con la zona marcada.
 
 `[→]`
 
-> «Con eso, Krylov estima el cobre de 16 mil bloques.»
+> «Con 604 muestras, Krylov dibuja lo que hay debajo: 16 mil bloques.»
 
 Antes de seguir: la cámara bajando y los pisos encendiéndose. Es el momento más vistoso del deck: no se habla encima de los dos primeros segundos.
 
 `[→]`
 
-> «Donde duda, lo muestra, metro a metro.»
+> «Y baja con nosotros: mineral, estéril o «no sé», metro a metro.»
 
-Antes de seguir: el punto bajando y la curva moviéndose a los dos lados del mínimo. La tarjeta dice «No se sabe» todo el camino, y por eso se perfora ahí.
+Antes de seguir: el punto bajando por la perforación: la tarjeta pasa por «Mineral» (hasta unos 135 metros), después «Estéril», y al fondo «No se sabe». Basta con ver el primer cambio de color.
 
 `[→]`
 
-> «Donde se pronunció, acertó en 94 de cada 100. En el resto dijo «no sé», y ahí conviene perforar.»
+> «Donde se pronunció, acertó 94 de cada 100.»
 
 Antes de seguir: el 94.
 
-### 13 · ¿Y cómo sé que acierta? (2:26 a 2:37)
+### 13 · ¿Y cómo sé que acierta? (1:44 a 1:52)
 
 `[→]`
 
-> «¿Se le puede creer? Lo medimos: cuando Krylov da un rango de 90%, la respuesta real cae adentro 9 de cada 10 veces.»
+> «¿Y se le puede creer? Lo medimos: cuando da un rango de 90%, acierta 9 de cada 10.»
 
 Antes de seguir: los seis puntos sobre la línea de 90%.
 
-### 14 · Cierre (2:37 a 2:46)
+### 14 · Cierre (1:52 a 2:00)
 
 `[→]`
 
-> «Decidir con el mejor modelo ya no toma horas. Toma lo que demora subir un archivo. Eso es Krylov. Pruébenlo.»
+> «Decidir con el mejor modelo ya no toma horas. Pero no me crean a mí: véanlo en vivo.»
 
-Antes de seguir: el contador corriendo y el QR. Se termina mirando a la sala, no a la pantalla.
+Antes de seguir: el QR. Se pulsa `D` y parte la demo.
+
+## La demo en vivo (2:00 a 3:00)
+
+Se abre con `D` desde el cierre, o en otra pestaña ya cargada con https://krylov-krylov.vercel.app/. La app es el mismo deck, pero con el archivo de quien la usa (D-42).
+
+| Segundo | Qué se hace | Qué se dice |
+|---|---|---|
+| 2:00 | Se abre la app | «Esta es la app. Es lo mismo que vieron, pero con tu archivo.» |
+| 2:08 | Un clic en el archivo de ejemplo de la roca | «Subo las muestras de un banco, como salen de la planilla.» |
+| 2:15 | Las filas entran a la red y aparece el mapa | (un segundo callado) «Ahí está: lo que va a la planta, lo que se aparta, y en amarillo lo que no sabe.» |
+| 2:30 | Clic en «¿Dónde perforo?» | «Le pregunto dónde perforar. Rehízo el mapa 480 veces en poco más de un segundo, y marca los tres lugares donde perforar deja menos duda.» |
+| 2:45 | Se vuelve al cierre (`D` o `Esc`): el QR | «Sin especialista y sin esperar horas. Eso es Krylov. El QR está en pantalla: pruébenlo.» |
+
+**Antes de subir al escenario:**
+
+- **Despertar la API.** El servidor se duerme a los 15 minutos; se abre la app y se sube el archivo de ejemplo una vez, unos minutos antes. Con los archivos del demo la app responde igual sin servidor.
+- **Dejar la app abierta en otra pestaña**, por si `D` falla. La tecla `D` no se ha probado en el deck (`pitch/deck/README.md`).
+- **Ensayar la demo con reloj.** Los segundos de la tabla son una estimación: no se ha corrido este minuto de punta a punta.
+- **Si la app no carga:** se dice «la tienen en el QR» y se usa el minuto para volver a la lámina 7 y mostrar «¿Dónde perforo?» ahí (segundo paso).
 
 ## Los tres momentos del show
 
-El resto del pitch se puede decir rápido. Estos tres no: cada uno necesita un par de segundos de silencio.
+El resto se dice rápido. Estos tres necesitan un par de segundos de silencio.
 
-1. **Lámina 2, el LLM responde «Platanus Hack 26. Por lejos.»** Es la única broma del pitch y pone a la sala de nuestro lado. Se espera a que termine de escribirse.
-2. **Lámina 7, el primer amarillo.** Es donde se dice «ahí Krylov dice "no sé"». Si el punto todavía no pasó por un bloque amarillo, se espera: la frase tiene que caer encima de la imagen.
+1. **Lámina 2, el LLM responde «Platanus Hack 26. Por lejos.»** Es la única broma y pone a la sala de nuestro lado. Se espera a que termine de escribirse.
+2. **Lámina 7, el primer amarillo.** La frase «ahí Krylov dice "no sé"» tiene que caer encima de un bloque amarillo.
 3. **Lámina 12, la cámara baja bajo el rajo.** Dos segundos callado mientras los pisos se encienden. Es la imagen que la gente va a recordar.
 
 ## Cómo decide Krylov que no sabe
@@ -223,9 +249,9 @@ Con el método de siempre, a 117 segundos por mapa, esos 480 serían unas 15 hor
 |---|---|
 | **¿Qué datos reales públicos usaron?** (lámina 13) | El conjunto `meuse`: 155 muestras de suelo con metales pesados (usamos el zinc), tomadas junto al río Mosa, cerca de Stein, en los Países Bajos. Es el ejemplo clásico de la geoestadística y viene con el paquete `sp` de R (licencia GPL). Lo levantaron Rikken y Van Rijn en 1993 y lo popularizó el libro de Burrough y McDonnell de 1998. **No es de una mina:** es un terreno contaminado, y sirve porque es el mismo tipo de problema que la roca (un valor medido en puntos de un mapa). Le escondimos las mediciones de a un quinto, cinco veces, y 138 de las 155 cayeron dentro del rango de 90% (0,89) |
 | **¿Los datos del demo son de una mina?** | No. Son archivos simulados con la misma física, y la app lo dice. El único examen con datos reales es el de arriba |
-| **¿El modelo del mineral está en la app?** | No. Se entrenó después de cerrar el producto y vive en el deck. Su mapa está comprobado (en 2.000 yacimientos nuevos, la ley verdadera cae dentro del rango de 90% en 0,90 de los bloques). Dos de sus 15 parámetros no pasan la validación, y por eso no entró a la app |
+| **¿El modelo del mineral está en la app?** | No. Se entrenó después de cerrar el producto y vive en el deck. Su mapa está comprobado (en 2.000 yacimientos nuevos, la ley verdadera cae dentro del rango de 90% en 0,90 de los bloques). Sus parámetros no pasan la validación (uno falla la calibración, cuatro no se aprendieron y no coinciden con el método lento), y por eso no entró a la app |
 | **¿Por qué en el yacimiento dice «no sé» en dos tercios?** | Porque hay 604 muestras para 16.384 bloques. Pintar todo de un color sería inventar. Donde sí se pronuncia acierta 94 de cada 100, y lo amarillo dice dónde perforar |
-| **¿Cuánto tarda el del mineral?** | Unos 20 milisegundos. El método de siempre tardó 913 segundos con el mismo archivo y llegó a la misma decisión en 92 de cada 100 bloques. Salió de la pantalla porque el tiempo ya se dice en las láminas 1, 3 y 5 |
+| **¿Cuánto tarda el del mineral?** | Unos 20 milisegundos. El método de siempre tardó 913 segundos con el mismo archivo y llegó a la misma decisión en 92 de cada 100 bloques. Salió de la pantalla porque el tiempo ya se dice en la lámina 1 |
 | **¿Entonces es un LLM?** | No. Se parece en una cosa: se entrena antes, una vez, y después solo se usa. Lo que aprendió es el modelo estadístico de cada decisión. En la app sí hay un modelo de lenguaje, que propone qué columna es cuál y redacta el texto; ningún número sale de él |
 | **¿Y si le subo el archivo a un LLM?** (tecla `L`) | Tendría que escribir el modelo y correrlo con cada archivo: minutos contra milisegundos. No decimos que responde mal |
 | **¿Responde cualquier archivo?** | Cualquiera de la familia con que practicó. Si no se parece a nada que haya visto, lo dice y no responde |
@@ -237,13 +263,13 @@ Con el método de siempre, a 117 segundos por mapa, esos 480 serían unas 15 hor
 
 ## Si falta tiempo
 
-Se corta en este orden, y ninguna de las tres rompe el hilo:
+Los dos minutos ya van justos, así que se corta poco, y en este orden:
 
 1. La frase de la lámina 5 (se pulsa y se sigue de largo).
-2. La lámina 10, los camiones (se pulsa dos veces seguidas).
-3. El segundo paso de la lámina 7. Se pierde «¿Dónde perforo?», que duele: es lo último que se corta.
+2. Las láminas 9 y 10, la planta y los camiones (se pulsan seguidas, sin frase).
+3. El segundo paso de la lámina 7. Duele menos que antes, porque «¿Dónde perforo?» se muestra en la demo.
 
-Las láminas 7, 12 y 13 no se tocan.
+Las láminas 1, 7, 12 y 13 no se tocan. **Si se pasa de 2:10 en el ensayo, la que se acorta es la demo, no el relato.**
 
 ## Lo que no se dice
 
@@ -257,11 +283,12 @@ Las láminas 7, 12 y 13 no se tocan.
 
 | Se dice | Cifra en `pitch/CIFRAS.md` |
 |---|---|
-| «horas» y «milisegundos» | M-25 (117 s por análisis con el método lento) y M-26 (10 ms con la red) |
+| «horas» y «milisegundos» | M-25 (117 s por análisis con el método lento) y M-26 (10 ms con la red). «Las seis de la mañana» es el relato: no es una cifra |
 | «71 millones de simulaciones», «dos notebooks» | M-66 |
-| «480 veces en poco más de un segundo» | M-43 y M-44 |
+| «480 veces en poco más de un segundo» (en la demo) | M-43 y M-44 |
 | «unas cinco horas» (Sector 10) | M-59: 4,9 horas, entre 2,4 y 7,4 |
 | «604 muestras», «16 mil bloques», «94 de cada 100» | M-64 |
+| «mineral, estéril o no sé, metro a metro» | La perforación de la lámina 12: 9 pisos «mineral», 4 «estéril» y 3 «no se sabe» de 16; en los 13 donde se pronuncia, coincide con la verdad escondida |
 | «9 de cada 10 veces» | M-68 y M-63: en 2.000 casos nuevos por modelo, que la red nunca había visto |
 
 ## Si algo falla

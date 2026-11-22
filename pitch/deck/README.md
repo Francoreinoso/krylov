@@ -2,7 +2,7 @@
 
 **Krylov, el Artificial Data Scientist de la minería.** El mensaje del deck: decidir con el mejor modelo ya no toma horas ni un especialista; toma lo que demora subir un archivo, gracias a Bayesian Amortized Inference.
 
-Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: las bibliotecas están en `vendor/` y los datos en `datos/datos.js`. Lo único que usa red es la demo en vivo (tecla `D`), que es opcional. El guion de tres minutos está en [`../PITCH_FINAL.md`](../PITCH_FINAL.md).
+Es una página HTML con animaciones que **abre con doble clic y corre sin internet**: las bibliotecas están en `vendor/` y los datos en `datos/datos.js`. Lo único que usa red es la demo en vivo (tecla `D`), que es opcional. El guion (dos minutos de relato y uno de demo) está en [`../PITCH_FINAL.md`](../PITCH_FINAL.md).
 
 ## Cómo abrirlo
 
@@ -42,7 +42,7 @@ Catorce en el recorrido (18 pulsaciones hasta el cierre), más cuatro fuera de �
 | 9 | El cobre en la planta | Las ocho líneas vistas desde donde termina la pulpa: lo recuperado sube por una columna hasta su estimación, contra la meta; **lo que no flotó cae al relave**, más denso donde se pierde más | La red del motor `cinetica` (`js/flotacion.js`) |
 | 10 | Los camiones | Los camiones en la rampa, en el color de su decisión. El foco salta entre los que están a la vista y su tarjeta muestra el riesgo de cada uno | La red del motor `desgaste` |
 | 11 | Los túneles | Un bloque de roca abierto a la altura de los túneles: la explosión manda una onda por la roca y después cada temblor del archivo sacude su sector a su hora | La red del motor `sismico` (`js/sismicidad.js`). Dónde cae cada temblor dentro del sector es ilustración |
-| 12 | ¿Dónde está el mineral? | El sexto modelo, en cuatro pasos: el rajo con la zona perforada; el mineral debajo, piso por piso; la próxima perforación, con la tarjeta de las otras decisiones (cobre estimado, rango de 90% y decisión, que cambian al bajar); y el examen (94 de cada 100 donde se pronunció, «no se sabe» en dos de cada tres bloques). Es `yacimiento.html` dentro de un marco | La red del motor `yacimiento` sobre un yacimiento simulado (M-63, M-64). **No está en la app y su sello no pasa: se cuenta el mapa. La pantalla ya no lo rotula: está en las notas** |
+| 12 | ¿Dónde está el mineral? | El sexto modelo, en cuatro pasos: el rajo con la zona perforada; el mineral debajo, piso por piso; una perforación que se recorre hacia abajo, con la tarjeta de las otras decisiones (cobre estimado, rango de 90% y decisión, que pasa de «Mineral» a «Estéril» y a «No se sabe»); y el examen (94 de cada 100 donde se pronunció, «no se sabe» en dos de cada tres bloques). Es `yacimiento.html` dentro de un marco | La red del motor `yacimiento` sobre un yacimiento simulado (M-63, M-64). **No está en la app y su sello no pasa: se cuenta el mapa. La pantalla ya no lo rotula: está en las notas** |
 | 13 | ¿Y cómo sé que acierta? | Por modelo, en 2.000 casos nuevos: qué fracción de las veces la respuesta real cayó dentro del rango de 90%. Los seis puntos caen sobre la línea de 90%. Abajo, el examen con datos reales públicos | `cobertura_90` de cada sello; M-63 para el yacimiento; M-67 |
 | 14 | Cierre | El mensaje de venta; un contador de los análisis que Krylov habría respondido mientras duró el pitch; el QR | El contador es una cuenta: segundos desde la primera pulsación ÷ 10 ms |
 

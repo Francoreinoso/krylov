@@ -36,7 +36,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="valor"></span></h4>
-        <p class="dice">«En una minera, las decisiones grandes no esperan, y el modelo que mide bien el riesgo toma horas. Krylov lo responde en milisegundos, y dice cuánto se puede equivocar.»</p></div>
+        <p class="dice">«Son las seis de la mañana en una mina. Hay que decidir ya, y el modelo que mide bien el riesgo tarda horas. Krylov responde en milisegundos, y dice cuánto se puede equivocar.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente">Portada sin cifras: el nombre, qué es y una frase. <b>El rajo es una ilustración</b>: una maqueta topográfica hecha con una fórmula (los pisos del rajo, su rampa y el terreno de alrededor, que ahora sigue hasta los bordes de la lámina). No es ninguna minera ni representa datos. La onda que sale del fondo es solo luz. «Horas» y «milisegundos» se sostienen con el sello del motor de la roca: 117 s por análisis con el método lento contra 10 ms (M-25, M-26), y 7 horas y media contra 0,69 s en un encargo de 228 análisis (M-09, M-10).</p></div>
     </div></aside>
@@ -53,7 +53,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="paradigma"></span></h4>
-        <p class="dice">«Piensen en un LLM. Le preguntan cuál es la mejor hackathon del año y responde, sin que nadie lo entrenara para esa pregunta. Krylov hace lo mismo con datos: subes tu dataset y responde.»</p></div>
+        <p class="dice">«¿Cómo? Como un LLM: nadie lo entrenó para tu pregunta, y responde igual. Krylov hace eso con datos: subes tu dataset y responde.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente">Es la lámina que saca al jurado de «una red neuronal que predice». La red no aprende un dataset: aprende, para toda la familia de datasets que el modelo generativo puede producir, el posterior de los parámetros dado el dataset (NPE, inferencia basada en simulación, amortizada). Por eso un archivo nuevo no exige entrenar nada. <b>La comparación con un LLM es una analogía</b> (se entrena antes, una vez; después solo se usa): Krylov no es un modelo de lenguaje, y en la app el modelo de lenguaje solo propone el calce de columnas y redacta. Los datasets y mapas de la fila de abajo son la respuesta real de la red para 32 bancos simulados. <b>La pregunta y la respuesta del LLM son un guiño a la sala, escrito a mano:</b> no salen de ningún modelo. <b>Límite que hay que decir si preguntan:</b> responde datasets de la familia con que practicó; fuera de ella, avisa y no responde.</p></div>
     </div></aside>
@@ -68,7 +68,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flujo"></span></h4>
-        <p class="dice">«Antes, cada dataset era partir de cero: elegir el modelo, entrenarlo, inferir.» <b>[→]</b> «Hoy entrenar sale del ciclo: se hace una vez, con datos simulados, y cada dataset cruza la red y sale respondido.»</p></div>
+        <p class="dice">«Antes, cada dataset era partir de cero: elegir el modelo, entrenarlo, inferir.» <b>[→]</b> «Hoy el entrenamiento se hace una sola vez, antes, con datos simulados.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Dos pasos y sin tiempos en pantalla.</b> Primero «Antes»: cada dataset de la fila pasa por las tres cajas y recién entonces sale su mapa. Al avanzar, las cajas bajan: «Elegir modelo» y «Entrenar» quedan bajo «una sola vez», con «Simular datasets» entre ambas, e «Inferir» se encoge hasta ser la red. <b>Los contadores son de la animación</b> (una vuelta, un dataset; un pulso, un dataset): dan la forma del trabajo, no son una medición. Los tiempos medidos, si los piden: 117 segundos por dataset con el método lento (MCMC) contra 10 milisegundos con la red, en el modelo de la roca (M-25); y «una sola vez» fueron 280 minutos de pre-entrenamiento en ese modelo (M-02). Los datasets y los mapas son los 32 bancos simulados de la lámina 5.</p></div>
     </div></aside>
@@ -88,7 +88,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="mundos"></span></h4>
-        <p class="dice">«Antes de ver un dato real, Krylov practicó con 71 millones de simulaciones, en dos notebooks.»</p></div>
+        <p class="dice">«Setenta y un millones de simulaciones, en dos notebooks.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>El número grande es la suma de los cinco modelos que pasaron su sello</b>, y la fila de abajo lo desarma: 7.750.592 bancos de roca (M-01), 1.684.160 paredes, 43.160.576 plantas, 15.241.472 flotas y 3.723.712 túneles (M-48). Son 71.560.512 (M-66). Antes la lámina mostraba solo el primero y no quedaba claro. «Menos de 15 horas» es la suma de los minutos de pre-entrenamiento de los cinco: 280, 146, 153, 168 y 120, que dan 867 minutos, 14 horas y 27 minutos (M-02, M-48, M-66), en dos MacBook Air. El sexto modelo, el del yacimiento, practicó con 126.696 más (M-63) y no entra en la suma porque su sello no pasa. Los terrenos que pasan por la pantalla son 256 muestras reales del simulador de la roca, repetidas.</p></div>
     </div></aside>
@@ -144,7 +144,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="vision"></span></h4>
-        <p class="dice">«Una minera se hace estas seis preguntas todos los días.»</p></div>
+        <p class="dice">«¿Qué respuestas? Las que una minera necesita todos los días.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente">Son las cinco decisiones de D-37 más la del yacimiento (D-40), dichas como las diría quien decide. Las seis figuras son ilustraciones. Quién toma cada decisión está en la lámina de preguntas (tecla Q). <b>Qué responde hoy de verdad cada una está en la tabla «Los cinco casos» de <code>estado/TABLERO.md</code>:</b> revisarla antes de subir al escenario. Las cinco primeras están en la app con su red validada; <b>la sexta (el yacimiento) no está en la app y su sello no pasa</b>: se cuenta solo su mapa. En la pared y en los túneles, Krylov apoya la decisión de un especialista; no la reemplaza (regla 22).</p></div>
     </div></aside>
@@ -169,7 +169,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="leyes"></span></h4>
-        <p class="dice">«La primera: ¿proceso esta roca o la aparto? En cada punto, Krylov da el arsénico con su rango. Si el rango queda bajo el máximo, verde: a la planta. Si queda sobre, rojo. Y si lo cruza, amarillo: ahí Krylov dice «no sé».» <b>[→]</b> «Y te dice dónde perforar para salir de la duda: rehízo el mapa 480 veces en poco más de un segundo.»</p></div>
+        <p class="dice">«Empecemos por la roca: ¿la proceso o la aparto? Verde, a la planta. Rojo, se aparta. Y amarillo: ahí Krylov dice «no sé».» <b>[→]</b> «Y como no sabe, te dice dónde perforar para averiguarlo.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Responde la red validada del motor de la roca</b> (<code>espacial</code>). <b>El punto blanco recorre seis lugares del terreno</b>, dos de cada color, y la tarjeta de la izquierda muestra en cada cuadro lo que la red respondió para el bloque que el punto tiene debajo: la decisión, el arsénico estimado, su <b>intervalo de credibilidad de 90%</b> y la distribución entera contra el máximo con que la roca puede ir a la planta. <b>Ese máximo es un supuesto del caso de demo: 500 ppm (K-21, «supuesto, no una norma»)</b>; por eso va sin número. Un clic en el terreno manda el punto ahí; arrastrar gira el banco. <b>El banco es simulado</b> (340 pozos; no son datos de una faena real): la lámina no lo dice, así que si preguntan, se dice. Con datos reales públicos, el mismo motor dejó 138 de 155 mediciones escondidas dentro de su rango (M-67). Si preguntan cuántas partes hay de cada color: 147 conviene apartar, 309 no sabemos y 568 puede ir a la planta (M-40). <b>Cómo decide «no sabemos»:</b> la red entrega para cada bloque el rango entero de lo que puede ser cierto, y de ahí sale la probabilidad de pasarse del máximo. Si la probabilidad de equivocarse con la decisión supera 10%, el bloque queda en amarillo. Ese 10% es una regla fija del producto (<code>nucleo/decision.py</code>), no algo que la red aprenda: la red aporta el rango, y la lámina 13 muestra que ese rango está bien medido. <b>Segundo paso, cómo elige dónde perforar:</b> para cada uno de 40 lugares candidatos imagina 12 resultados posibles de una muestra ahí, rehace el mapa completo con cada uno y mide cuánto baja la duda total del terreno, en promedio. Son 480 análisis (M-43) en 1,3 segundos (M-44, medido sin nada entrenando). <b>Esto solo se puede hacer con la red:</b> con el método lento, a 117 segundos por análisis (M-25), los mismos 480 serían unas 15 horas y media. Es una multiplicación; nadie las corrió. <b>La plata ya no está en pantalla</b>, porque sale de costos supuestos: las barras comparan los tres mejores lugares entre sí (100, 94 y 89). Lo que miden es cuánto baja «lo que cuesta no saber» al perforar ahí. Si piden la plata: una muestra en A vale unos US$ 9 mil con los costos K-22 a K-24 (M-46).</p></div>
     </div></aside>
@@ -185,7 +185,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="taludes"></span></h4>
-        <p class="dice">«La pared del rajo se mueve. Al Sector 10 le quedan unas cinco horas: conviene cerrarlo. El que más se movió puede seguir abierto.»</p></div>
+        <p class="dice">«La misma idea en la pared del rajo: a este sector le quedan unas cinco horas.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>deformacion</code></b> para el archivo de demo (36 sectores, 48 horas de radar; <b>simulado</b>). El foco viaja por cinco sectores: el 10 (conviene cerrar: le quedan 4,9 horas, entre 2,4 y 7,4; M-59), el 25 (el que más se movió, 24 mm, y puede seguir abierto), el 30 (no sabemos), el 28 (conviene cerrar) y el más quieto. En los que se aceleran, la tarjeta muestra la distribución de las horas que faltan contra las próximas 12; en los que no, lo que midió el radar. <b>Cuando el foco se detiene en uno que conviene cerrar, ese tramo de la pared cede: es una proyección, y la lámina lo rotula.</b> La forma del derrumbe es una ilustración, no sale del modelo. Si preguntan cuántos hay de cada color: 5 conviene cerrar, 2 no sabemos, 29 puede seguir abierto. Esa red pasó su sello el sábado a las 17:36 (1.684.160 muros simulados, 146 minutos). Contra la verdad escondida de este archivo: de 34 decisiones, 34 correctas. El movimiento de la pared está <b>muy exagerado</b>. Regla 22: Krylov apoya la decisión de un especialista; no promete seguridad.</p></div>
     </div></aside>
@@ -201,7 +201,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flotacion"></span></h4>
-        <p class="dice">«En la planta, cuánto cobre se pierde en cada línea.»</p></div>
+        <p class="dice">«En la planta: cuánto cobre se está perdiendo.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>cinetica</code></b> (sello a las 17:09; 43 millones de datasets simulados, 153 minutos), para el archivo de demo de <code>flotacion</code> (8 líneas; <b>simulado</b>). La planta se mira desde donde termina la pulpa. En cada línea, el cobre que flota sube por una columna hasta la recuperación final que estima la red; la raya blanca es la meta de 84% (K-41, supuesto del demo). Lo que no flotó cae al relave: los destellos de esa caída son el cobre que se pierde, más densos donde se pierde más, y la cifra que sigue al foco es 1 menos la recuperación estimada (20,5% en la Línea 3, 11,7% en la Línea 4). <b>La columna y la caída usan un eje recortado (75% a 93%)</b>: las diferencias se ven más grandes que en un eje de 0 a 100; el porcentaje escrito es el real. El vaivén de la punta ilustra el intervalo; no es una serie de tiempo. Si preguntan cuántas hay de cada color: 2 conviene ajustar, 3 no sabemos, 3 va bien. Contra la verdad escondida: de 5 decisiones, 5 correctas; y 7 de las 8 recuperaciones reales cayeron dentro de su intervalo (M-57).</p></div>
     </div></aside>
@@ -217,7 +217,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="flota"></span></h4>
-        <p class="dice">«Qué camión paro hoy: Krylov da el riesgo de que cada uno falle antes de su mantención.»</p></div>
+        <p class="dice">«En la flota: qué camión parar hoy.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>desgaste</code></b> (sello el sábado a las 19:35; 15.241.472 flotas simuladas, 168 minutos), para el archivo de demo de <code>flota</code> (40 camiones; <b>simulado</b>). El foco salta entre los camiones que están a la vista, cambiando de color de decisión cuando puede; el que se mira se enciende. La tarjeta: el riesgo de fallar antes de su mantención, con su <b>intervalo de credibilidad de 90%</b> y la distribución entera. La línea punteada es el punto de corte, 11,8% de riesgo, que sale de los dos costos supuestos del caso. <b>El eje del riesgo va en raíz</b>, para que un camión de 3% y uno de 67% se lean en el mismo gráfico: las distancias no son parejas. Qué camión aparece primero depende de cuáles están a la vista, pero el recorrido es el mismo en cada pasada. Si preguntan cuántos hay de cada color: 8 conviene adelantar la mantención, 1 no sabemos (el Camión 22: 13,1%, entre 8,7 y 16,0%; M-61) y 31 llegan a su mantención. Contra la verdad escondida: de 39 decisiones, 36 correctas. Todavía no está comparada con el método lento.</p></div>
     </div></aside>
@@ -233,7 +233,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="sismicidad"></span></h4>
-        <p class="dice">«Bajo tierra, después de una explosión: dónde ya puede volver la gente y dónde todavía no se sabe. Decide el especialista.»</p></div>
+        <p class="dice">«Y bajo tierra: dónde puede volver la gente. Ahí decide el especialista.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>Lo que se ve es la respuesta de la red del motor <code>sismico</code></b> (sello el sábado a las 18:15; 3,7 millones de datasets simulados, 120 minutos), para el archivo de demo de <code>sismicidad</code> (8 sectores, 6 horas desde la explosión; <b>simulado</b>). La escena es un bloque de roca abierto a la altura de los túneles. A la hora cero, la explosión manda una onda por la roca; después, cada temblor del archivo sacude su sector a su hora, y el único fuerte (Sector 5) bota roca del techo. El color de cada túnel es la decisión de Krylov. La tarjeta: el riesgo de un temblor fuerte (magnitud 1,0 o más: K-61, supuesto) en las próximas 6 horas, con su <b>intervalo de credibilidad de 90%</b>; la línea punteada es el punto de corte, 9,1% de riesgo, que sale de los dos costos supuestos del caso. Ningún sector queda en «mantener cerrado»: 4 «no sabemos» y 4 «se puede reingresar». El Sector 3 es el más cercano al corte: 7,5%, entre 3,4 y 12,3% (M-62). <b>Dónde cae cada temblor dentro de su sector y el tamaño de las ondas son ilustración.</b> Contra la verdad escondida: los 4 que dejó reingresar no tuvieron temblor fuerte; de los 4 en duda, 2 sí. Regla 22: Krylov apoya la decisión del especialista sobre el reingreso; no la reemplaza ni promete seguridad.</p></div>
     </div></aside>
@@ -246,9 +246,9 @@
     <iframe class="toca" id="yac-marco" title="El yacimiento en 3D: dónde está el mineral"></iframe>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="yacimiento"></span></h4>
-        <p class="dice">«Y la más grande: ¿dónde está el mineral? Aquí se perforó: 604 muestras de roca.» <b>[→]</b> «Con eso, Krylov estima el cobre de 16 mil bloques.» <b>[→]</b> «Donde duda, lo muestra, metro a metro.» <b>[→]</b> «Donde se pronunció, acertó en 94 de cada 100. En el resto dijo «no sé», y ahí conviene perforar.»</p></div>
+        <p class="dice">«Queda la pregunta más grande: ¿dónde está el mineral? Aquí se perforó.» <b>[→]</b> «Con 604 muestras, Krylov dibuja lo que hay debajo: 16 mil bloques.» <b>[→]</b> «Y baja con nosotros: mineral, estéril o «no sé», metro a metro.» <b>[→]</b> «Donde se pronunció, acertó 94 de cada 100.»</p></div>
       <div><h4>Para quien presenta</h4>
-        <p class="fuente"><b>La pantalla ya no lo rotula, así que hay que saberlo: el yacimiento es simulado y este modelo no está en la app.</b> Si preguntan, se dice. «La respuesta correcta de este yacimiento» existe porque es simulado: es la verdad escondida que la red nunca vio. <b>Qué hace de verdad:</b> la red recibe las 604 muestras y entrega, para cada uno de los 16.384 bloques, cuánto cobre espera y con qué rango. Las curvas son nuestro dibujo de esa respuesta: las de cobre encierran los bloques donde la probabilidad de superar la ley de corte llega a 90% (la regla «mineral» del producto), y las doradas, donde pasa de 50%. <b>La tarjeta del tercer paso</b> es la respuesta de la red en la columna con más duda, de arriba hacia abajo: la estimación, su rango de 90% y la decisión con la regla de siempre («mineral» sobre 90% de probabilidad, «estéril» bajo 10%, y entre medio «no se sabe»). El eje va en logaritmo. Ley de corte de 0,5% y costos: supuestos (K-71 a K-73). <b>Cuarto paso:</b> 4.239 bloques «mineral», 1.063 «estéril» y 11.082 «no se sabe»; de los 5.302 en que se pronunció, 4.980 correctos (0,94; M-64). <b>Los tiempos salieron de la pantalla; si los piden:</b> responde en 18 a 22 ms (M-64) y el método lento tardó 913 segundos con el mismo archivo, con la misma decisión en 92% de los bloques (M-65, un solo yacimiento). <b>El sello de este motor dice «no pasa»</b> por 2 de sus 15 parámetros: se cuenta el mapa, que sí está comprobado (en 2.000 yacimientos nuevos, la ley verdadera cayó dentro del rango de 90% en 0,901 de los bloques; M-63). Pre-entrenó con 126.696 yacimientos simulados en 110 minutos. Cuatro pasos con →; arrastrar gira el rajo.</p></div>
+        <p class="fuente"><b>La pantalla ya no lo rotula, así que hay que saberlo: el yacimiento es simulado y este modelo no está en la app.</b> Si preguntan, se dice. «La respuesta correcta de este yacimiento» existe porque es simulado: es la verdad escondida que la red nunca vio. <b>Qué hace de verdad:</b> la red recibe las 604 muestras y entrega, para cada uno de los 16.384 bloques, cuánto cobre espera y con qué rango. Las curvas son nuestro dibujo de esa respuesta: las de cobre encierran los bloques donde la probabilidad de superar la ley de corte llega a 90% (la regla «mineral» del producto), y las doradas, donde pasa de 50%. <b>La tarjeta del tercer paso</b> es la respuesta de la red en una columna del yacimiento, de arriba hacia abajo: la que tiene más pisos con respuesta y pasa de mineral a estéril (9 pisos «mineral», 4 «estéril» y 3 «no se sabe»; ya no es la de más duda, y por eso dice «Perforación» y no «Próxima perforación»): la estimación, su rango de 90% y la decisión con la regla de siempre («mineral» sobre 90% de probabilidad, «estéril» bajo 10%, y entre medio «no se sabe»). El eje va en logaritmo. Ley de corte de 0,5% y costos: supuestos (K-71 a K-73). <b>Cuarto paso:</b> 4.239 bloques «mineral», 1.063 «estéril» y 11.082 «no se sabe»; de los 5.302 en que se pronunció, 4.980 correctos (0,94; M-64). <b>Los tiempos salieron de la pantalla; si los piden:</b> responde en 18 a 22 ms (M-64) y el método lento tardó 913 segundos con el mismo archivo, con la misma decisión en 92% de los bloques (M-65, un solo yacimiento). <b>El sello de este motor dice «no pasa»</b> por 2 de sus 15 parámetros: se cuenta el mapa, que sí está comprobado (en 2.000 yacimientos nuevos, la ley verdadera cayó dentro del rango de 90% en 0,901 de los bloques; M-63). Pre-entrenó con 126.696 yacimientos simulados en 110 minutos. Cuatro pasos con →; arrastrar gira el rajo.</p></div>
     </div></aside>
   </section>
 
@@ -264,7 +264,7 @@
     </div>
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="confianza"></span></h4>
-        <p class="dice">«¿Se le puede creer? Lo medimos: cuando Krylov da un rango de 90%, la respuesta real cae adentro 9 de cada 10 veces.»</p></div>
+        <p class="dice">«¿Y se le puede creer? Lo medimos: cuando da un rango de 90%, acierta 9 de cada 10.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>La medida cambió.</b> Antes la lámina mostraba «decisiones acertadas» contra un solo archivo de demo, con tres modelos en 1,00 sobre 4, 5 y 34 casos: cierto, pero poco creíble. Ahora muestra la validación de cada sello, que ya estaba calculada: en 2.000 datasets simulados nuevos, qué fracción de las veces el valor verdadero cayó dentro del rango de 90% que dio la red. Lo correcto es 90%: más sería una red que exagera su duda; menos, una que se confía. La roca 0,900; la pared 0,905; la planta 0,905; los camiones 0,898; los túneles 0,895 (sellos de cada motor: M-68, <code>motor/artefactos/&lt;motor&gt;/sello.json</code>). El yacimiento 0,901 en su mapa (M-63); <b>su sello no pasa por dos de sus 15 parámetros: se cuenta el mapa</b>. La línea de abajo es el examen con datos reales públicos del motor de la roca: en 5 particiones se escondieron 155 mediciones y 138 cayeron dentro de su rango (0,89; sello de <code>espacial</code>, M-67). Si preguntan por el acierto de las decisiones del demo, sigue siendo M-56: 700 de 715 en la roca, 36 de 39 en los camiones.</p></div>
     </div></aside>
@@ -298,7 +298,7 @@
 
     <aside class="notas"><div class="cols">
       <div><h4>Qué se dice · <span data-tiempo="cierre"></span></h4>
-        <p class="dice">«Decidir con el mejor modelo ya no toma horas. Toma lo que demora subir un archivo. Eso es Krylov. Pruébenlo.»</p></div>
+        <p class="dice">«Decidir con el mejor modelo ya no toma horas. Pero no me crean a mí: véanlo en vivo.»</p></div>
       <div><h4>Para quien presenta</h4>
         <p class="fuente"><b>El contador es una cuenta, no una medición:</b> los segundos desde la primera pulsación del pitch, divididos por lo que tarda un análisis con la red (10 ms, <code>latencia_ms</code> del sello) y con el método lento (117 s, M-25). Los mapas son los de la lámina 5: la respuesta de la red para 32 bancos simulados, repetidos. <b>El QR se dibuja solo desde <code>config.js</code>:</b> al cambiar <code>demo.url</code>, cambian el QR, el texto y la tecla D. «Seis decisiones respondidas hoy»: cinco están en la app; la sexta (el yacimiento) se muestra en el deck y no está en la app. Que sirva a otras industrias es visión y ya no está en pantalla: se dice solo si preguntan. <b>Para las preguntas, cada una con su tecla:</b> Q, quién lo usa; L, por qué no un LLM; 0, cómo funciona; W, quién investiga esto en el mundo.</p></div>
     </div></aside>

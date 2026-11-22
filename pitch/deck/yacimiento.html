@@ -28,7 +28,7 @@
   .paso .cobre { color: var(--cobre); } .paso .oro { color: var(--oro); }
   .grande { font-family: var(--titulo); font-weight: 800; font-size: clamp(60px, 6.6vw, 128px); line-height: .95; color: var(--tinta); white-space: nowrap; display: block; margin-bottom: 1vh; }
   .grande small { font-size: .38em; font-weight: 700; color: var(--suave); letter-spacing: .04em; }
-  /* la tarjeta de la próxima perforación: la misma de las otras decisiones (js/foco.js), dibujada aquí porque esta página no carga el deck */
+  /* la tarjeta de la perforación: la misma de las otras decisiones (js/foco.js), dibujada aquí porque esta página no carga el deck */
   #ficha { width: 100%; aspect-ratio: 780 / 500; display: block; margin-top: 2.2vh; }
   #rotulo { position: absolute; left: 0; top: 0; transform: translate(14px, -50%); font-family: var(--titulo); font-weight: 700; font-size: clamp(18px, 1.5vw, 28px); letter-spacing: .02em; color: #fff3d6; white-space: nowrap; pointer-events: none; opacity: 0; }
   #pie { position: absolute; left: 5.73vw; bottom: 9.6vh; display: flex; align-items: center; gap: 1.4vw; pointer-events: none; }
@@ -55,8 +55,8 @@
     </div>
     <div class="paso" data-n="2">
       <h2>La incertidumbre</h2>
-      <p><b class="oro">Dentro de las curvas doradas</b> el mineral es probable, no seguro. La próxima perforación va donde hay más duda. Esto encontraría al bajar:</p>
-      <canvas id="ficha" role="img" aria-label="Cobre que Krylov espera en la próxima perforación a cada profundidad, con su rango de 90%, contra el mínimo para procesar"></canvas>
+      <p><b class="oro">Dentro de las curvas doradas</b> el mineral es probable, no seguro. Y a cada profundidad Krylov dice qué hay. Bajando por esta perforación:</p>
+      <canvas id="ficha" role="img" aria-label="Cobre que Krylov espera a cada profundidad de la perforación, con su rango de 90%, contra el mínimo para procesar"></canvas>
     </div>
     <div class="paso" data-n="3">
       <h2>El examen</h2>
@@ -66,7 +66,7 @@
     </div>
   </div>
 </section>
-<div id="rotulo">Próxima perforación</div>
+<div id="rotulo">Perforación</div>
 <div id="pie"><div id="marcas"><i></i><i></i><i></i><i></i></div></div>
 
 <script src="vendor/three.min.js"></script>
@@ -213,10 +213,17 @@
     const g = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, largo, 6), new THREE.MeshBasicMaterial({ color: 0xeec25a, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
     g.position.set(sx * ZONA.medio, arriba - largo / 2, sz * ZONA.medio); g.userData = { arriba: arriba, largo: largo }; g.renderOrder = 2; grupo.add(g); guias.push(g);
   }
-  // Dónde perforar ahora: la columna con más duda, una línea de luz desde la superficie
+  // La perforación que se recorre: la columna donde Krylov se pronuncia en más profundidades y pasa de mineral a estéril
+  // (al menos tres pisos de cada uno; si empatan, la que cambia menos veces). Así, al bajar, se ven las tres respuestas.
+  // Es la misma regla de la tarjeta: mineral si la probabilidad de superar la ley de corte llega a 90%, estéril si no llega a 10%.
   let columna = [NX >> 1, NY >> 1];
-  { let mejor = -1;
-    for (let i = 4; i < NX - 4; i++) for (let j = 4; j < NY - 4; j++) { let d = 0; for (let k = 0; k < NZ; k++) { const q = red.p[i3(i, j, k)] / 255; d += Math.min(q, 1 - q); } if (d > mejor) { mejor = d; columna = [i, j]; } } }
+  { let mejor = -1; const lnCorte = Math.log(Y.caso.ley_de_corte_pct);
+    for (let i = 4; i < NX - 4; i++) for (let j = 4; j < NY - 4; j++) {
+      let mineral = 0, esteril = 0, cambios = 0, antes = 9;
+      for (let k = 0; k < NZ; k++) { const n = i3(i, j, k), z = (ley(red.media[n]) - lnCorte) / Math.max(0.02, red.desv[n] / 255 * Y.desv_max), e = z >= 1.2816 ? 1 : z <= -1.2816 ? -1 : 0;
+        if (e === 1) mineral++; else if (e === -1) esteril++; if (k && e !== antes) cambios++; antes = e; }
+      const nota = mineral >= 3 && esteril >= 3 ? (mineral + esteril) * 100 - cambios : -1;
+      if (nota > mejor) { mejor = nota; columna = [i, j]; } } }
   const mx = ((columna[0] + 0.5) / NX - 0.5) * LADO, mz = ((columna[1] + 0.5) / NY - 0.5) * LADO, mTop = altura(ZONA.x + mx, ZONA.z + mz) + 1.6;
   const marca = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, mTop - FONDO, 10), new THREE.MeshBasicMaterial({ color: 0xfff3d6, transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
   marca.position.set(mx, (mTop + FONDO) / 2, mz); marca.renderOrder = 4; grupo.add(marca);
@@ -224,7 +231,7 @@
   punto.renderOrder = 5; grupo.add(punto);
   const rotulo = document.getElementById("rotulo"), cima = new THREE.Vector3();
 
-  // ---------- la tarjeta de la próxima perforación: a cada profundidad, el cobre que la red espera, su rango de 90% y la decisión ----------
+  // ---------- la tarjeta de la perforación: a cada profundidad, el cobre que la red espera, su rango de 90% y la decisión ----------
   // Es la tarjeta de las otras decisiones (js/foco.js): quién, la decisión en su color, la estimación con su rango y la
   // distribución entera contra el límite. La red entrega, por bloque, la media y la desviación del logaritmo de la ley:
   // la curva es esa normal, dibujada sobre un eje en logaritmo. La decisión es la regla del producto (nucleo/decision.py):
@@ -256,8 +263,8 @@
     const llave = metros + "|" + m.toFixed(3) + "|" + sd.toFixed(3) + "|" + color + "|" + aEstado.toFixed(2);
     if (llave === ultimaFicha) return; ultimaFicha = llave;
     fx.setTransform(fEsc, 0, 0, fEsc, 0, 0); fx.clearRect(0, 0, FW, FH); fx.textAlign = "left"; fx.textBaseline = "alphabetic";
-    fx.fillStyle = SUAVE; fx.font = '700 44px "Big Shoulders Display", sans-serif'; fx.fillText("Próxima perforación, a ", 2, 40);
-    cifra(metros + " m", 2 + fx.measureText("Próxima perforación, a ").width, 40);
+    fx.fillStyle = SUAVE; fx.font = '700 44px "Big Shoulders Display", sans-serif'; fx.fillText("Perforación, a ", 2, 40);
+    cifra(metros + " m", 2 + fx.measureText("Perforación, a ").width, 40);
     fx.globalAlpha = aEstado; fx.fillStyle = color; fx.font = '800 76px "Big Shoulders Display", sans-serif'; fx.fillText(nombreEstado, 2, 112); fx.globalAlpha = 1;
     fx.fillStyle = TINTA; fx.font = '800 108px "Big Shoulders Display", sans-serif';
     const an = cifra(coma(Math.exp(m), 2) + "%", 0, 214);
